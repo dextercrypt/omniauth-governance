@@ -83,6 +83,44 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     /**
+     * Wrap the inherited {@link AuthenticationManager} so that a native user with the
+     * force-password-change flag set cannot authenticate on <em>any</em> channel — web
+     * form, HTTP BASIC, API token or CLI — until they have chosen a new password.
+     *
+     * <p>The delegate verifies the password exactly as Jenkins' own realm does; only
+     * <em>after</em> a successful credential check do we reject the login with a
+     * {@link PasswordChangeRequiredException}. Spring Security treats that as a failure,
+     * so no session or {@code SecurityContext} is created. This is fail-closed by
+     * construction: there is no privileged session to contain.
+     *
+     * <p>The interactive browser flow deliberately bypasses this manager — it posts to
+     * {@code /omniauth/nativeLogin}, which validates the temporary password directly and
+     * sends the user to the branded set-password page without logging them in.
+     */
+    @Override
+    public SecurityComponents createSecurityComponents() {
+        SecurityComponents base = super.createSecurityComponents();
+        final org.springframework.security.authentication.AuthenticationManager delegate = base.manager2;
+        org.springframework.security.authentication.AuthenticationManager wrapped = authentication -> {
+            Authentication result = delegate.authenticate(authentication);
+            if (result != null && result.isAuthenticated() && isForcePasswordChange(result.getName())) {
+                throw new PasswordChangeRequiredException(result.getName());
+            }
+            return result;
+        };
+        return new SecurityComponents(wrapped, base.userDetails2, base.rememberMe2);
+    }
+
+    /** True when the named native user still owes a password change. Cheap, null-safe. */
+    static boolean isForcePasswordChange(String username) {
+        if (username == null || username.isEmpty()) return false;
+        User u = User.getById(username, false);
+        if (u == null) return false;
+        OmniAuthForcePasswordProperty p = u.getProperty(OmniAuthForcePasswordProperty.class);
+        return p != null && p.isForcePasswordChange();
+    }
+
+    /**
      * The configured external SSO provider preset, or {@code null} when no SSO is set up.
      * Drives the sign-in button's label and logo on the login page. Today Entra maps to
      * {@link SsoProvider#MICROSOFT}; add more mappings here as new providers are supported.

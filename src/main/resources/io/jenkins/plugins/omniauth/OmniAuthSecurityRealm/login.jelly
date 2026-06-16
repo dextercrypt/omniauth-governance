@@ -189,8 +189,14 @@
                 <!-- ============================================================
                      NATIVE JENKINS LOGIN — identical to Jenkins 2.541.2
                      ============================================================ -->
-                <form name="login" action="${rootURL}/${it.authenticationGatewayUrl}"
+                <form name="login" action="${rootURL}/omniauth/nativeLogin"
                     method="post">
+                  <j:if test="${request2.getParameter('passwordSet') == '1'}">
+                    <div style="margin-bottom:14px;padding:10px 14px;border-radius:6px;font-size:0.85em;
+                         background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.45);color:#86efac;">
+                      Password set. Please sign in with your new password.
+                    </div>
+                  </j:if>
                   <j:if test="${error}">
                     <div class="app-sign-in-register__error">
                       <j:choose>
