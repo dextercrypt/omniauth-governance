@@ -1,0 +1,134 @@
+<!--
+  Public, unauthenticated self-service access request portal at /request-access/.
+  'it' is the ProvisioningPortalAction. Standalone page (no Jenkins chrome) reached
+  pre-login by anonymous users. The Entra "request via Microsoft" button starts the
+  OAuth flow with provision=1; its request-creating callback is wired in a later increment.
+-->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+  <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
+    <st:setHeader name="Expires" value="0" />
+    <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
+    ${h.initPageVariables(context)}
+    <x:doctype name="html" />
+    <j:set var="err" value="${request2.getParameter('error')}"/>
+    <j:set var="submitted" value="${request2.getParameter('submitted')}"/>
+    <html lang="${request2.getLocale().toLanguageTag()}">
+      <head data-rooturl="${rootURL}" data-resurl="${resURL}">
+        <title>Request access</title>
+        <meta name="ROBOTS" content="NOFOLLOW" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style>
+          :root { --bg:#0f172a; --card:#1e293b; --edge:#334155; --ink:#e2e8f0; --muted:#94a3b8;
+                  --accent:#6366f1; --accent2:#4f46e5; --ok:#16a34a; --warn:#b45309; --err:#b91c1c; }
+          * { box-sizing:border-box; }
+          body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+                 background:var(--bg); color:var(--ink); min-height:100vh;
+                 display:flex; align-items:center; justify-content:center; padding:24px; }
+          .card { width:100%; max-width:460px; background:var(--card); border:1px solid var(--edge);
+                  border-radius:14px; padding:28px; box-shadow:0 10px 40px rgba(0,0,0,.35); }
+          h1 { font-size:1.35rem; margin:0 0 4px; }
+          .sub { color:var(--muted); font-size:.9rem; margin:0 0 20px; }
+          label { display:block; font-size:.82rem; color:var(--muted); margin:14px 0 5px; }
+          input, textarea, select { width:100%; padding:10px 12px; border-radius:8px;
+                  border:1px solid var(--edge); background:#0b1220; color:var(--ink); font-size:.95rem; }
+          textarea { min-height:74px; resize:vertical; }
+          .hint { font-size:.75rem; color:var(--muted); margin-top:4px; }
+          button.primary { width:100%; margin-top:20px; padding:11px; border:none; border-radius:8px;
+                  background:var(--accent); color:#fff; font-weight:600; font-size:.95rem; cursor:pointer; }
+          button.primary:hover { background:var(--accent2); }
+          a.ms { display:flex; align-items:center; justify-content:center; gap:9px; text-decoration:none;
+                 padding:11px; border-radius:8px; background:#fff; color:#1f2937; font-weight:600; font-size:.95rem; }
+          a.ms:hover { background:#f1f5f9; }
+          .divider { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:.78rem; margin:20px 0; }
+          .divider::before, .divider::after { content:""; flex:1; height:1px; background:var(--edge); }
+          .banner { padding:11px 13px; border-radius:8px; font-size:.85rem; margin-bottom:16px; }
+          .banner.ok   { background:rgba(22,163,74,.15);  border:1px solid rgba(22,163,74,.4);  color:#bbf7d0; }
+          .banner.warn { background:rgba(180,83,9,.15);   border:1px solid rgba(180,83,9,.45);  color:#fed7aa; }
+          .banner.err  { background:rgba(185,28,28,.15);  border:1px solid rgba(185,28,28,.45); color:#fecaca; }
+          .foot { margin-top:18px; text-align:center; font-size:.78rem; }
+          .foot a { color:var(--accent); text-decoration:none; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>Request access</h1>
+          <p class="sub">Ask an administrator for access to this Jenkins.</p>
+
+          <!-- Confirmation (enumeration-safe: identical regardless of duplicates) -->
+          <j:if test="${submitted != null}">
+            <div class="banner ok">
+              Your request has been submitted. An administrator will review it, and you'll be notified of the decision.
+            </div>
+            <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+          </j:if>
+
+          <j:if test="${submitted == null}">
+            <!-- Error banners -->
+            <j:choose>
+              <j:when test="${err == 'unavailable'}">
+                <div class="banner warn">The request portal is busy right now. Please try again in a few minutes.</div>
+              </j:when>
+              <j:when test="${err == 'missing'}">
+                <div class="banner err">Please fill in your username, email, and a reason.</div>
+              </j:when>
+              <j:when test="${err == 'domain'}">
+                <div class="banner err">That email domain isn't accepted for access requests.</div>
+              </j:when>
+            </j:choose>
+
+            <!-- Portal disabled entirely -->
+            <j:if test="${!it.portalEnabled}">
+              <div class="banner warn">Self-service access requests are not enabled on this server.</div>
+              <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+            </j:if>
+
+            <j:if test="${it.portalEnabled}">
+              <!-- Entra / Microsoft request -->
+              <j:if test="${it.entraAllowed}">
+                <a class="ms" href="${rootURL}/omniauth/commenceLogin?provision=1">
+                  Request access with Microsoft
+                </a>
+                <j:if test="${it.nativeAllowed}">
+                  <div class="divider">or</div>
+                </j:if>
+              </j:if>
+
+              <!-- Native / service-account request -->
+              <j:if test="${it.nativeAllowed}">
+                <j:choose>
+                  <j:when test="${it.nativeAvailable}">
+                    <form method="post" action="submitNative">
+                      <label for="pa-user">Username</label>
+                      <input id="pa-user" name="username" type="text" autocomplete="off" required="required"/>
+                      <label for="pa-name">Full name</label>
+                      <input id="pa-name" name="fullName" type="text" autocomplete="off"/>
+                      <label for="pa-email">Email</label>
+                      <input id="pa-email" name="email" type="email" autocomplete="off" required="required"/>
+                      <j:if test="${it.allowedDomains != ''}">
+                        <div class="hint">Accepted domains: ${it.allowedDomains}</div>
+                      </j:if>
+                      <label for="pa-reason">Reason for access</label>
+                      <textarea id="pa-reason" name="reason" required="required"></textarea>
+                      <label for="pa-days">Access duration (days, 0 = permanent)</label>
+                      <input id="pa-days" name="durationDays" type="number" min="0" value="${it.defaultDurationDays}"/>
+                      <button type="submit" class="primary">Submit request</button>
+                    </form>
+                  </j:when>
+                  <j:otherwise>
+                    <div class="banner warn">
+                      The request portal is temporarily unavailable. Please try again
+                      in about ${it.nativeCooldownMinutes} minute(s).
+                    </div>
+                  </j:otherwise>
+                </j:choose>
+              </j:if>
+
+              <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+            </j:if>
+          </j:if>
+        </div>
+      </body>
+    </html>
+  </l:view>
+</j:jelly>
