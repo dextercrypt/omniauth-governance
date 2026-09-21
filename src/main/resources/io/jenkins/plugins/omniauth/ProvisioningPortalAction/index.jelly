@@ -1,8 +1,14 @@
 <!--
   Public, unauthenticated self-service access request portal at /request-access/.
-  'it' is the ProvisioningPortalAction. Standalone page (no Jenkins chrome) reached
-  pre-login by anonymous users. The Entra "request via Microsoft" button starts the
-  OAuth flow with provision=1; its request-creating callback is wired in a later increment.
+
+  Twin of the OmniAuth login page: same app-sign-in-register shell, same animated
+  butler branding panel on the left (pulled from the security realm, same butler /
+  background / logo as login, driven by the same settings), same dark right-panel
+  theming. Only the right-panel content differs — an access-request form instead of
+  the login form.
+
+  'it' here is the ProvisioningPortalAction (portal state getters); branding + SSO
+  provider getters live on the realm (app.securityRealm), exactly as on login.jelly.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
@@ -11,123 +17,244 @@
     <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
     ${h.initPageVariables(context)}
     <x:doctype name="html" />
+
+    <j:set var="realm" value="${app.securityRealm}"/>
+    <j:set var="logoPos" value="${realm.loginLogoPosition}"/>
+    <j:set var="logoSize" value="${realm.loginLogoSize}"/>
+    <j:set var="simpleDecorator" value="${h.simplePageDecorator}"/>
     <j:set var="err" value="${request2.getParameter('error')}"/>
     <j:set var="submitted" value="${request2.getParameter('submitted')}"/>
+
     <html lang="${request2.getLocale().toLanguageTag()}">
-      <head data-rooturl="${rootURL}" data-resurl="${resURL}">
+      <head data-rooturl="${rootURL}" data-resurl="${resURL}" data-imagesurl="${imagesURL}" resURL="${resURL}">
         <title>Request access</title>
         <meta name="ROBOTS" content="NOFOLLOW" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <st:include it="${simpleDecorator}" page="simple-head.jelly" />
         <style>
-          :root { --bg:#0f172a; --card:#1e293b; --edge:#334155; --ink:#e2e8f0; --muted:#94a3b8;
-                  --accent:#6366f1; --accent2:#4f46e5; --ok:#16a34a; --warn:#b45309; --err:#b91c1c; }
-          * { box-sizing:border-box; }
-          body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-                 background:var(--bg); color:var(--ink); min-height:100vh;
-                 display:flex; align-items:center; justify-content:center; padding:24px; }
-          .card { width:100%; max-width:460px; background:var(--card); border:1px solid var(--edge);
-                  border-radius:14px; padding:28px; box-shadow:0 10px 40px rgba(0,0,0,.35); }
-          h1 { font-size:1.35rem; margin:0 0 4px; }
-          .sub { color:var(--muted); font-size:.9rem; margin:0 0 20px; }
-          label { display:block; font-size:.82rem; color:var(--muted); margin:14px 0 5px; }
-          input, textarea, select { width:100%; padding:10px 12px; border-radius:8px;
-                  border:1px solid var(--edge); background:#0b1220; color:var(--ink); font-size:.95rem; }
-          textarea { min-height:74px; resize:vertical; }
-          .hint { font-size:.75rem; color:var(--muted); margin-top:4px; }
-          button.primary { width:100%; margin-top:20px; padding:11px; border:none; border-radius:8px;
-                  background:var(--accent); color:#fff; font-weight:600; font-size:.95rem; cursor:pointer; }
-          button.primary:hover { background:var(--accent2); }
-          a.ms { display:flex; align-items:center; justify-content:center; gap:9px; text-decoration:none;
-                 padding:11px; border-radius:8px; background:#fff; color:#1f2937; font-weight:600; font-size:.95rem; }
-          a.ms:hover { background:#f1f5f9; }
-          .divider { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:.78rem; margin:20px 0; }
-          .divider::before, .divider::after { content:""; flex:1; height:1px; background:var(--edge); }
-          .banner { padding:11px 13px; border-radius:8px; font-size:.85rem; margin-bottom:16px; }
-          .banner.ok   { background:rgba(22,163,74,.15);  border:1px solid rgba(22,163,74,.4);  color:#bbf7d0; }
-          .banner.warn { background:rgba(180,83,9,.15);   border:1px solid rgba(180,83,9,.45);  color:#fed7aa; }
-          .banner.err  { background:rgba(185,28,28,.15);  border:1px solid rgba(185,28,28,.45); color:#fecaca; }
-          .foot { margin-top:18px; text-align:center; font-size:.78rem; }
-          .foot a { color:var(--accent); text-decoration:none; }
+          /* ===== Dark right panel + soft glow (verbatim from login.jelly) ===== */
+          .app-sign-in-register__content {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
+          }
+          .app-sign-in-register__content::before {
+            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background:
+              radial-gradient(140% 90% at -6% 50%, rgba(40,120,230,0.18) 0%, rgba(30,90,200,0.06) 28%, transparent 56%),
+              radial-gradient(60% 50% at 6% 42%, rgba(34,211,238,0.07) 0%, transparent 60%);
+          }
+          .app-sign-in-register__content::after {
+            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: radial-gradient(120% 120% at 70% 50%, transparent 55%, rgba(2,6,16,0.55) 100%);
+          }
+          .app-sign-in-register__content-inner { position: relative; z-index: 2; }
+
+          /* company-logo placement (Settings → Logo Position: a|e|f) */
+          .brand-logo img { height: ${logoSize}px; width: auto; max-width: none; object-fit: contain; display: block; }
+          .pos-a .brand-logo { align-self: flex-start; margin: 0 0 18px 0; }
+          .pos-e .brand-logo { position: absolute; top: 28px; right: 9%; z-index: 3; }
+          .pos-f .brand-logo { align-self: center; margin: 0 auto 18px auto; }
+
+          /* text */
+          .app-sign-in-register__content-inner h1 { color: #f2f6ff; }
+          .app-sign-in-register__content-inner label { color: #aebbd0; }
+
+          /* inputs (extend login's rule to the field types this form uses) */
+          .app-sign-in-register__content-inner input[type=text],
+          .app-sign-in-register__content-inner input[type=email],
+          .app-sign-in-register__content-inner input[type=number],
+          .app-sign-in-register__content-inner input[type=password],
+          .app-sign-in-register__content-inner textarea {
+            background: #101a2e;
+            border: 1px solid #26344c;
+            color: #eaf1ff;
+            transition: box-shadow .2s, border-color .2s;
+          }
+          .app-sign-in-register__content-inner input::placeholder,
+          .app-sign-in-register__content-inner textarea::placeholder { color: #6b7a92; }
+          .app-sign-in-register__content-inner input:focus,
+          .app-sign-in-register__content-inner textarea:focus {
+            border-color: #3f7ce8;
+            box-shadow: 0 0 0 2px rgba(47,116,232,0.18), 0 0 10px rgba(47,116,232,0.10);
+            outline: none;
+          }
+          .app-sign-in-register__content-inner textarea { min-height: 76px; resize: vertical; font-family: inherit; }
+
+          /* submit button — matches login */
+          .app-sign-in-register__content-inner button[type=submit] {
+            background: #1f57e0;
+            color: #fff;
+            box-shadow: 0 0 0 1px rgba(80,150,255,.22), 0 6px 18px rgba(31,87,224,0.32);
+          }
+          .app-sign-in-register__content-inner button[type=submit]:hover { background: #2a63ee; }
+          .pa-btn {
+            width: 100%; margin-top: 22px; padding: 11px; font-size: 15px; font-weight: 600;
+            border: none; border-radius: var(--form-input-border-radius,4px); cursor: pointer;
+          }
+
+          /* Microsoft / SSO request button — verbatim styling from login.jelly */
+          .app-sign-in-register__content-inner a[href*='commenceLogin']:hover { background: #16223a !important; }
+
+          /* request-form specifics (mirrors set-password page tokens) */
+          .pa-sub { color: #9fb2d0; font-size: 14px; line-height: 1.5; margin: -6px 0 22px; }
+          .pa-hint { font-size: 12px; color: #8ea3c4; margin-top: 5px; }
+          .pa-foot { margin-top: 20px; text-align: center; font-size: 12px; color: #6f81a0; }
+          .pa-banner { margin-bottom: 16px; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
+          .pa-ok   { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.45);  color: #86efac; }
+          .pa-warn { background: rgba(180,83,9,0.14);   border: 1px solid rgba(180,83,9,0.5);    color: #fed7aa; }
+          .pa-err  { background: rgba(229,62,62,0.12);  border: 1px solid rgba(229,62,62,0.45);  color: #fca5a5; }
         </style>
       </head>
-      <body>
-        <div class="card">
-          <h1>Request access</h1>
-          <p class="sub">Ask an administrator for access to this Jenkins.</p>
+      <body class="app-sign-in-register">
+        <!-- Left branding panel: identical to the login page, driven by the realm. -->
+        <j:choose>
+          <j:when test="${realm.loginBackground == 'starburst'}">
+            <st:include it="${simpleDecorator}" page="simple-branding.jelly" />
+          </j:when>
+          <j:otherwise>
+            <st:include it="${realm}" page="animated-branding.jelly"/>
+          </j:otherwise>
+        </j:choose>
 
-          <!-- Confirmation (enumeration-safe: identical regardless of duplicates) -->
-          <j:if test="${submitted != null}">
-            <div class="banner ok">
-              Your request has been submitted. An administrator will review it, and you'll be notified of the decision.
-            </div>
-            <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+        <main id="main-panel" class="app-sign-in-register__content pos-${logoPos}">
+          <j:if test="${logoPos == 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+            <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt=""/></div>
           </j:if>
-
-          <j:if test="${submitted == null}">
-            <!-- Error banners -->
-            <j:choose>
-              <j:when test="${err == 'unavailable'}">
-                <div class="banner warn">The request portal is busy right now. Please try again in a few minutes.</div>
-              </j:when>
-              <j:when test="${err == 'missing'}">
-                <div class="banner err">Please fill in your username, email, and a reason.</div>
-              </j:when>
-              <j:when test="${err == 'domain'}">
-                <div class="banner err">That email domain isn't accepted for access requests.</div>
-              </j:when>
-            </j:choose>
-
-            <!-- Portal disabled entirely -->
-            <j:if test="${!it.portalEnabled}">
-              <div class="banner warn">Self-service access requests are not enabled on this server.</div>
-              <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+          <div class="app-sign-in-register__content-inner">
+            <j:if test="${logoPos != 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+              <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt=""/></div>
             </j:if>
 
-            <j:if test="${it.portalEnabled}">
-              <!-- Entra / Microsoft request -->
-              <j:if test="${it.entraAllowed}">
-                <a class="ms" href="${rootURL}/omniauth/commenceLogin?provision=1">
-                  Request access with Microsoft
-                </a>
-                <j:if test="${it.nativeAllowed}">
-                  <div class="divider">or</div>
-                </j:if>
+            <h1>Request access</h1>
+            <div class="pa-sub">Ask an administrator for access to this Jenkins.</div>
+
+            <!-- Confirmation (enumeration-safe: identical regardless of duplicates) -->
+            <j:if test="${submitted != null}">
+              <div class="pa-banner pa-ok">
+                Your request has been submitted. An administrator will review it, and you'll be
+                notified of the decision.
+              </div>
+              <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
+            </j:if>
+
+            <j:if test="${submitted == null}">
+              <!-- Error banners -->
+              <j:choose>
+                <j:when test="${err == 'unavailable'}">
+                  <div class="pa-banner pa-warn">The request portal is busy right now. Please try again in a few minutes.</div>
+                </j:when>
+                <j:when test="${err == 'missing'}">
+                  <div class="pa-banner pa-err">Please fill in your username, email, and a reason.</div>
+                </j:when>
+                <j:when test="${err == 'domain'}">
+                  <div class="pa-banner pa-err">That email domain isn't accepted for access requests.</div>
+                </j:when>
+              </j:choose>
+
+              <!-- Portal disabled entirely -->
+              <j:if test="${!it.portalEnabled}">
+                <div class="pa-banner pa-warn">Self-service access requests are not enabled on this server.</div>
+                <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
               </j:if>
 
-              <!-- Native / service-account request -->
-              <j:if test="${it.nativeAllowed}">
-                <j:choose>
-                  <j:when test="${it.nativeAvailable}">
-                    <form method="post" action="submitNative">
-                      <label for="pa-user">Username</label>
-                      <input id="pa-user" name="username" type="text" autocomplete="off" required="required"/>
-                      <label for="pa-name">Full name</label>
-                      <input id="pa-name" name="fullName" type="text" autocomplete="off"/>
-                      <label for="pa-email">Email</label>
-                      <input id="pa-email" name="email" type="email" autocomplete="off" required="required"/>
-                      <j:if test="${it.allowedDomains != ''}">
-                        <div class="hint">Accepted domains: ${it.allowedDomains}</div>
-                      </j:if>
-                      <label for="pa-reason">Reason for access</label>
-                      <textarea id="pa-reason" name="reason" required="required"></textarea>
-                      <label for="pa-days">Access duration (days, 0 = permanent)</label>
-                      <input id="pa-days" name="durationDays" type="number" min="0" value="${it.defaultDurationDays}"/>
-                      <button type="submit" class="primary">Submit request</button>
-                    </form>
-                  </j:when>
-                  <j:otherwise>
-                    <div class="banner warn">
-                      The request portal is temporarily unavailable. Please try again
-                      in about ${it.nativeCooldownMinutes} minute(s).
+              <j:if test="${it.portalEnabled}">
+                <!-- Entra / Microsoft request — same button as login's SSO button -->
+                <j:if test="${it.entraAllowed and realm.ssoProvider != null}">
+                  <a href="${rootURL}/omniauth/commenceLogin?provision=1" class="sso-btn" style="
+                       display:flex;align-items:center;justify-content:center;gap:10px;
+                       width:100%;padding:9px 12px;box-sizing:border-box;
+                       background:#101c30;color:#dde6f4;border:1px solid #2a3a54;
+                       border-radius:var(--form-input-border-radius,4px);
+                       font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;
+                       transition:box-shadow .15s ease;">
+                    <span class="sso-logo" style="display:flex;align-items:center;">
+                      <j:choose>
+                        <j:when test="${realm.ssoProvider.id == 'microsoft'}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
+                            <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
+                            <rect x="1"  y="11" width="9" height="9" fill="#7fba00"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                          </svg>
+                        </j:when>
+                        <j:otherwise>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                               stroke="#dde6f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                          </svg>
+                        </j:otherwise>
+                      </j:choose>
+                    </span>
+                    <span>Request access with Microsoft</span>
+                  </a>
+
+                  <j:if test="${it.nativeAllowed}">
+                    <div style="display:flex;align-items:center;margin:16px 0;gap:8px;">
+                      <hr style="flex:1;border:none;border-top:1px dashed #26344c;"/>
+                      <span style="font-size:12px;color:#7d8aa2;white-space:nowrap;">or</span>
+                      <hr style="flex:1;border:none;border-top:1px dashed #26344c;"/>
                     </div>
-                  </j:otherwise>
-                </j:choose>
-              </j:if>
+                  </j:if>
+                </j:if>
 
-              <div class="foot"><a href="${rootURL}/">Back to sign in</a></div>
+                <!-- Native / service-account request -->
+                <j:if test="${it.nativeAllowed}">
+                  <j:choose>
+                    <j:when test="${it.nativeAvailable}">
+                      <form method="post" action="${rootURL}/request-access/submitNative">
+                        <div>
+                          <label class="app-sign-in-register__form-label" for="pa-user">Username</label>
+                          <input id="pa-user" class="jenkins-input" type="text" name="username"
+                                 required="required" autocomplete="off" placeholder="e.g. jsmith"/>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-name">Full name</label>
+                          <input id="pa-name" class="jenkins-input" type="text" name="fullName"
+                                 autocomplete="off" placeholder="Jane Smith"/>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-email">Email</label>
+                          <input id="pa-email" class="jenkins-input" type="email" name="email"
+                                 required="required" autocomplete="off" placeholder="you@company.com"/>
+                          <j:if test="${it.allowedDomains != ''}">
+                            <div class="pa-hint">Accepted domains: ${it.allowedDomains}</div>
+                          </j:if>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
+                          <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
+                                    placeholder="Why do you need access?"></textarea>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-days">Access duration (days, 0 = permanent)</label>
+                          <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
+                                 min="0" value="${it.defaultDurationDays}"/>
+                        </div>
+                        <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
+                        <button type="submit" class="pa-btn">Submit request</button>
+                      </form>
+                    </j:when>
+                    <j:otherwise>
+                      <div class="pa-banner pa-warn">
+                        The request portal is temporarily unavailable. Please try again in about
+                        ${it.nativeCooldownMinutes} minute(s).
+                      </div>
+                    </j:otherwise>
+                  </j:choose>
+                </j:if>
+
+                <j:if test="${realm.loginFooterText != null and realm.loginFooterText != ''}">
+                  <div style="margin-top:20px;text-align:center;font-size:12px;color:#7d8aa2;line-height:1.5;">
+                    ${realm.loginFooterText}
+                  </div>
+                </j:if>
+
+                <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
+              </j:if>
             </j:if>
-          </j:if>
-        </div>
+          </div>
+        </main>
       </body>
     </html>
   </l:view>
