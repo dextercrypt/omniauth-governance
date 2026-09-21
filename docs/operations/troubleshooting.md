@@ -1,0 +1,67 @@
+# Troubleshooting
+
+> Common problems and how to resolve them, including emergency recovery from a lockout.
+
+## Emergency: locked out of Jenkins
+
+If no one can sign in (bad authorization change, SSO outage, lost admin password):
+
+1. **Use [Break Glass](../administration/break-glass.md)** if enrolled — activate with your
+   TOTP code and restore access.
+2. **Fall back to native admin** if you have one.
+3. **Last resort — edit `config.xml`:** stop Jenkins, edit `$JENKINS_HOME/config.xml` to a
+   permissive realm/strategy (e.g. temporarily disable security), restart, fix the
+   configuration, then re-enable Omni Auth. Treat this as a break-glass action and audit it.
+
+> Prevention: always keep a working native admin **and** enroll Break Glass before relying on
+> SSO. Test login in a private window after any security change.
+
+## SSO issues
+
+| Symptom | Cause / fix |
+|---|---|
+| `AADSTS50011` (redirect mismatch) | The Entra redirect URI must be exactly `https://<host>/<prefix>/securityRealm/finishLogin`. Check scheme, host, port, and prefix. |
+| `AADSTS7000215` (invalid client secret) | Secret expired or mistyped — create a new one in Entra and update the plugin. |
+| Login redirects back to the login page (loop) | Session/seed not persisted — verify the Jenkins **external URL**, reverse-proxy headers, and cookie settings. |
+| SSO succeeds but user has no permissions | No [access assignment](../administration/access-management.md) for that email — pre-provision or grant access. |
+| Groups missing | `GroupMember.Read.All` not admin-consented, or **Group Sync** disabled. |
+
+## Login page not customized / default page shows
+
+- The **custom** login page is at `/<prefix>/securityRealm/login`, not `/<prefix>/login`.
+- After changing branding, do a hard refresh; some assets are cached.
+
+## Notifications not sending
+
+| Channel | Checks |
+|---|---|
+| Email | Correct host/port/TLS; credentials; from-address allowed by relay; use **Send test email**. Check the **notification log**. |
+| Slack / Teams | Webhook URL valid and not revoked; use the channel's **test** action. |
+
+Delivery retries on failure; persistent failures appear in the notification log.
+
+## Stale cleanup removed unexpected accounts
+
+- Run with **Cleanup dry run** enabled first and review candidates.
+- Add critical accounts to [Protected users](../administration/user-lifecycle.md#protected-users).
+- Lower **Max deletions per run** as a safety cap.
+
+## Build / deployment issues
+
+| Symptom | Fix |
+|---|---|
+| Maven build fails in the license/spotless plugins | These are intentionally skipped in `pom.xml` (`license.skip`, `spotless.check.skip`); ensure you build the project's own POM. |
+| New build doesn't take effect | A stale `omni-auth.hpi` next to `omni-auth.jpi`, or a leftover exploded `plugins/omni-auth/` dir, can shadow the new build. Remove them and restart. See [Installation](../getting-started/installation.md). |
+| Plugin won't load | Check the Jenkins version (2.541.2+) and Java 21; review the controller log for missing dependency plugins. |
+
+## Where to look
+
+- **Jenkins system log:** Manage Jenkins → System Log.
+- **Audit log:** Manage Jenkins → Omni Auth → Audit log (what changed).
+- **Notification log:** Manage Jenkins → Omni Auth → Notifications (delivery attempts).
+
+If you file an issue, include the Jenkins version, plugin version, and relevant controller
+log excerpts. See [Contributing](../developer/contributing.md).
+
+---
+_Related: [Security model](../security/security-model.md) · [Backup & restore](backup-and-restore.md)_
