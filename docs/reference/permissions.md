@@ -1,8 +1,8 @@
 # Permissions reference
 
-> How Omni Auth presents and evaluates permissions.
+> How OmniAuth presents and evaluates permissions.
 
-Omni Auth's authorization strategy (`OmniAuthAuthorizationStrategy`) is a superset of
+OmniAuth's authorization strategy (`OmniAuthAuthorizationStrategy`) is a superset of
 Jenkins' Project-based Matrix Authorization. It uses the **same underlying Jenkins
 permissions** (Overall, Job, Run, View, Agent/Computer, Credentials, SCM, etc.), but
 presents them in a **grouped, labeled** form and evaluates them through `OmniAuthItemACL`

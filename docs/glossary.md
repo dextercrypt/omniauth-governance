@@ -1,6 +1,6 @@
 # Glossary
 
-> Terminology used across Omni Auth documentation.
+> Terminology used across OmniAuth documentation.
 
 | Term | Definition |
 |---|---|

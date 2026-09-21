@@ -11,7 +11,7 @@ If no one can sign in (bad authorization change, SSO outage, lost admin password
 2. **Fall back to native admin** if you have one.
 3. **Last resort — edit `config.xml`:** stop Jenkins, edit `$JENKINS_HOME/config.xml` to a
    permissive realm/strategy (e.g. temporarily disable security), restart, fix the
-   configuration, then re-enable Omni Auth. Treat this as a break-glass action and audit it.
+   configuration, then re-enable OmniAuth. Treat this as a break-glass action and audit it.
 
 > Prevention: always keep a working native admin **and** enroll Break Glass before relying on
 > SSO. Test login in a private window after any security change.
@@ -57,8 +57,8 @@ Delivery retries on failure; persistent failures appear in the notification log.
 ## Where to look
 
 - **Jenkins system log:** Manage Jenkins → System Log.
-- **Audit log:** Manage Jenkins → Omni Auth → Audit log (what changed).
-- **Notification log:** Manage Jenkins → Omni Auth → Notifications (delivery attempts).
+- **Audit log:** Manage Jenkins → OmniAuth → Audit log (what changed).
+- **Notification log:** Manage Jenkins → OmniAuth → Notifications (delivery attempts).
 
 If you file an issue, include the Jenkins version, plugin version, and relevant controller
 log excerpts. See [Contributing](../developer/contributing.md).

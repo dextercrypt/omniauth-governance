@@ -1,6 +1,6 @@
 # Quick start
 
-> Get Omni Auth running with native login and Microsoft Entra SSO in about 15 minutes.
+> Get OmniAuth running with native login and OAuth/OIDC SSO (Microsoft Entra) in about 15 minutes.
 
 This guide assumes a non-production Jenkins you can safely reconfigure. For production,
 read [Installation](installation.md) and [Security model](../security/security-model.md) first.
@@ -13,16 +13,17 @@ restart. See [Installation](installation.md) for alternatives.
 ## 2. Enable the security realm
 
 1. **Manage Jenkins → Security**.
-2. **Security Realm → Omni Auth**.
-3. **Authorization → Omni Auth Authorization Strategy**.
+2. **Security Realm → OmniAuth**.
+3. **Authorization → OmniAuth Authorization Strategy**.
 4. **Save**.
 
 > Keep your current admin session open in this tab. Verify login in a **separate private
 > window** before closing it.
 
-## 3. (Optional) Wire up Microsoft Entra SSO
+## 3. (Optional) Wire up OAuth/OIDC SSO
 
-You'll need a **Tenant ID**, **Client ID**, and **Client Secret** from an Entra OAuth2/OIDC
+SSO uses a pluggable provider framework; **Microsoft Entra is the provider integrated
+today**. You'll need a **Tenant ID**, **Client ID**, and **Client Secret** from an Entra OAuth2/OIDC
 app registration whose redirect URI is:
 
 ```
@@ -46,7 +47,7 @@ Open `https://<jenkins-host>/<prefix>/securityRealm/login` in a private window:
 
 ## 5. Grant some access
 
-1. **Manage Jenkins → Omni Auth**.
+1. **Manage Jenkins → OmniAuth**.
 2. Open a user (or add one), then grant a role/permission — global or scoped to a
    job/folder, optionally with an expiry date.
 
@@ -61,7 +62,7 @@ Before you rely on SSO, configure at least one of:
 
 ## 7. (Recommended) Turn on notifications
 
-**Manage Jenkins → Omni Auth → Notifications** — enable email, Slack, or Teams and send a
+**Manage Jenkins → OmniAuth → Notifications** — enable email, Slack, or Teams and send a
 test message. See [Notifications](../administration/notifications.md).
 
 ---

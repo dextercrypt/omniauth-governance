@@ -1,10 +1,13 @@
-# Omni Auth Plugin
+# OmniAuth Plugin
 
-A Jenkins security plugin that lets **native username/password login** and
-**Microsoft Entra (Azure AD) single sign-on** work side by side on one login page —
-and layers a full identity-and-access governance suite on top of it: access
-management, just-in-time elevation, access reviews, session control, emergency
-break-glass access, notifications, and a branded login experience.
+A Jenkins **security and access-governance platform**. OmniAuth combines flexible
+authentication — **native username/password and OAuth2 / OIDC single sign-on** — with a
+full suite of features for keeping Jenkins access **secure and easy to manage**: access
+management, just-in-time elevation, access reviews, session control, emergency break-glass
+access, audit logging, and notifications.
+
+Single sign-on is built on a **pluggable provider framework**. **Microsoft Entra (Azure AD)
+is the provider integrated today; more OAuth2/OIDC providers are planned.**
 
 - **Artifact:** `io.jenkins.plugins:omni-auth` (packaging `hpi`)
 - **Jenkins:** 2.541.2+ · **Java:** 21 · **Parent POM:** `org.jenkins-ci.plugins:plugin:4.80`
@@ -12,126 +15,82 @@ break-glass access, notifications, and a branded login experience.
 
 ---
 
-## Introduction
+## Why OmniAuth
 
-Omni Auth replaces the standard Jenkins security realm with a single
-`OmniAuthSecurityRealm` that extends Jenkins' built-in
-`HudsonPrivateSecurityRealm`. Native accounts keep working exactly as before
-(bcrypt password hashes, API tokens, CLI), while an additional
-**"Sign in with Microsoft"** path authenticates users against Microsoft Entra via
-the OAuth2 / OIDC authorization-code flow (MSAL4J), hardened with **PKCE** and
-**ID-token nonce** validation.
+OmniAuth is not just a way to sign in through an identity provider — it's the security and
+management layer around Jenkins access:
 
-Around authentication, the plugin ships a matching authorization strategy
-(`OmniAuthAuthorizationStrategy`, built on Matrix Authorization) and a dedicated
-management console under **Manage Jenkins → Omni Auth**.
+- **Flexible authentication.** Native accounts and OAuth2/OIDC SSO on one login page, so
+  human users, service accounts, and break-glass admins all have an appropriate path.
+- **Least-privilege by design.** Scoped, time-limited, reviewable grants — with just-in-time
+  elevation instead of standing privilege.
+- **Operable and safe.** Session revocation, fail-closed password resets, MFA-protected
+  break-glass recovery, and stale-account cleanup.
+- **Accountable.** A full audit trail plus real-time notifications to email, Slack, and Teams.
+- **Easy to manage.** A single console (**Manage Jenkins → OmniAuth**) for everything above.
 
-### Feature overview
+## Feature overview
 
-**Authentication**
-- Dual login: native username/password **and** Microsoft Entra SSO on the same page.
-- OAuth2 authorization-code flow via MSAL4J, with PKCE and ID-token nonce validation.
-- Users provisioned by UPN (email) as the Jenkins user id, anchored to the stable
-  Azure Object ID (OID) so identity survives email changes.
-- Optional Azure AD **group sync** via MS Graph (`/me/memberOf`), surfaced as
-  Spring Security granted authorities.
-- Pluggable **SSO provider preset** (`SsoProvider`; Microsoft today) driving the
-  login button label/branding — extensible to further providers.
-
-**Access management**
-- `OmniAuthAuthorizationStrategy` extends `ProjectMatrixAuthorizationStrategy` with a
-  custom `OmniAuthItemACL` and a friendlier, grouped permission model.
-- Per-user and **per-group** role/permission assignments, global or scoped to a
-  job/folder via a tree picker (parent folders auto-granted Read).
+### Access management & governance
+- Matrix-based authorization (`OmniAuthAuthorizationStrategy`) with grouped, labeled
+  permissions and a friendlier admin experience.
+- Per-user and **per-group** assignments, global or scoped to a job/folder via a tree picker
+  (parent folders auto-granted Read).
 - **Time-limited grants** with expiry dates, auto-revoked by a background worker.
-- **Access review / certification**: a review queue with keep/revoke, bulk actions,
-  a configurable staleness threshold, and a weekly email digest.
-- **Conflict detection** warning when a global admin is also given scoped restrictions.
-- Full **audit log** of access changes with purge controls.
+- **Just-in-Time (JIT) access**: request time-bound elevation, approve/deny/revoke,
+  auto-expire — no standing privilege.
+- **Access review / certification**: a keep/revoke queue on a schedule, with a weekly digest.
+- **Conflict detection** when scoped restrictions collide with global admin.
+- Full **audit log** of every access change, with purge controls.
 
-**Just-in-Time (JIT) access / PIM**
-- Users request time-bound elevated access; admins approve/deny; access auto-expires
-  and can be revoked mid-flight. Backed by a request store and expiry worker.
+### Security & account safety
+- **Session control**: active-session view and force logout / revocation.
+- **Force password change** (fail-closed): no session on any path — form, BASIC, API token,
+  CLI — until a new password is set.
+- **Break Glass** emergency access protected by a TOTP second factor (QR enrollment).
+- **Brute-force tracking** with a configurable threshold and alerting.
+- **Stale-user** warning and cleanup workers (dry-run supported), with protected-user exemptions.
 
-**Sessions & account safety**
-- Active-session view and **force logout / session revocation**.
-- **Force password change** (fail-closed): a flagged native user gets no session until
-  a new password is set — closes form, BASIC, API-token and CLI paths.
-- **Break Glass** emergency access with TOTP second factor (QR enrollment) for
-  recovering admin access.
-- **Brute-force tracking** with a configurable threshold and alerting (tracks/alerts;
-  hard lockout enforcement is intentionally not enabled).
-- **Stale user cleanup** and pre-cleanup **warning** workers (dry-run supported).
+### Authentication
+- Native username/password (bcrypt), inherited from Jenkins core — full API-token and CLI
+  compatibility.
+- OAuth2 / OIDC **single sign-on** via a pluggable provider framework, hardened with **PKCE**
+  and **ID-token nonce** validation.
+- **Microsoft Entra** is the currently integrated provider; identity is anchored to the
+  stable directory object id and users are keyed by email for pre-provisioning.
+- Optional **group synchronization** from the identity provider, surfaced as authorities for
+  [group-based access](docs/administration/access-management.md).
 
-**Notifications**
-- SMTP email, Slack, and Microsoft Teams channels, each with a per-event subscription
-  list, retry-on-failure, test buttons, and an email-template preview.
+### Notifications & experience
+- Email (SMTP), Slack, and Microsoft Teams channels with per-event routing, retry, test
+  actions, and email preview.
+- Configurable, themeable **login page** branding.
 
-**Login page branding**
-- Configurable heading, browser tab title, announcement banner, footer text, uploaded
-  logo (position/size), animated background, and a selectable "Butler Style" with
-  daily/random rotation (and a festive December lock).
+> Full documentation lives in [`docs/`](docs/README.md).
 
 ---
 
 ## Requirements
 
-- Jenkins **2.541.2** or newer (the plugin uses the Jakarta servlet API introduced in
-  this line).
+- Jenkins **2.541.2** or newer (Jakarta servlet API line).
 - **Java 21** (Amazon Corretto 21 is the tested runtime).
-- For SSO: a Microsoft Entra **OAuth2 / OIDC App Registration** (not a SAML Enterprise
-  Application).
+- For SSO: an OAuth2 / OIDC identity provider. **Microsoft Entra** is supported today — see
+  [Microsoft Entra setup](docs/administration/entra-setup.md).
 
 Bundled/relied-upon plugins include Matrix Authorization Strategy, CloudBees Folder
 (folder-scoped grants), and Jakarta Mail API (notifications).
 
----
-
 ## Getting started
 
-### 1. Install
+1. **Install** — deploy `target/omni-auth.hpi` via **Manage Jenkins → Plugins → Advanced →
+   Deploy Plugin**, then restart.
+2. **Enable** — **Manage Jenkins → Security → Security Realm → OmniAuth**, and select the
+   **OmniAuth Authorization Strategy** to unlock access management.
+3. **Connect SSO (optional)** — configure your OAuth2/OIDC provider. For Microsoft Entra,
+   follow [Entra setup](docs/administration/entra-setup.md).
+4. **Manage** — everything else lives under **Manage Jenkins → OmniAuth**.
 
-Build the plugin and drop the resulting `target/omni-auth.hpi` into your Jenkins via
-**Manage Jenkins → Plugins → Advanced → Deploy Plugin**, then restart.
-
-### 2. Enable the security realm
-
-**Manage Jenkins → Security → Security Realm → "Omni Auth"**.
-
-For authorization, select **"Omni Auth Authorization Strategy"** to use the plugin's
-access-management features (it is a superset of Project-based Matrix Authorization).
-
-### 3. Configure Microsoft Entra (optional, for SSO)
-
-Register an **OAuth2 / OIDC** app in Entra with:
-
-| Setting | Value |
-|---|---|
-| Redirect URI | `https://<jenkins-host>/<prefix>/securityRealm/finishLogin` |
-| Account types | Single tenant (recommended) |
-| Tokens | ID token + access token |
-| API permissions | `openid`, `profile`, `email`, `User.Read` (add `GroupMember.Read.All` for group sync) |
-
-Then fill in the plugin's Entra config:
-
-- **Tenant ID** — Entra → Overview
-- **Client ID** — App Registration → Overview
-- **Client Secret** — App Registration → Certificates & Secrets (stored encrypted)
-- **Enable Group Sync** — toggle to pull group memberships from MS Graph
-
-### 4. Manage users and access
-
-Everything else lives under **Manage Jenkins → Omni Auth**: access management, JIT
-requests, access review, sessions, protected users, notifications, audit log, stale
-users, break-glass, and login-page settings.
-
-### Login endpoints (reference)
-
-- Custom login page: `/<prefix>/securityRealm/login`
-- Native form post: `/<prefix>/omniauth/nativeLogin`
-- SSO start / callback: `/<prefix>/securityRealm/commenceLogin` → `/finishLogin`
-
----
+See the [Quick start](docs/getting-started/quick-start.md) for a 15-minute walkthrough.
 
 ## Configuration as Code (JCasC)
 
@@ -140,13 +99,13 @@ Core descriptors expose `@Symbol` names for JCasC:
 | Symbol | Component |
 |---|---|
 | `omniAuth` | Security realm |
-| `entraConfig` | Microsoft Entra OAuth config |
+| `entraConfig` | OAuth provider config (Microsoft Entra) |
 | `omniAuthAuthorization` | Authorization strategy |
 | `omniAuthAssignments` | Access assignments store |
 | `omniAuthRoles` | Role definitions |
 | `omniAuthJitRequests` | JIT request store |
 
----
+See [Configuration as Code](docs/operations/configuration-as-code.md).
 
 ## Building from source
 
@@ -155,9 +114,9 @@ export JAVA_HOME=/path/to/jdk-21
 mvn package -DskipTests   # produces target/omni-auth.hpi
 ```
 
-**Build notes** (already configured in `pom.xml`): the Jenkins license-maven-plugin
-and Spotless checks are skipped because their Groovy/ASM stack cannot parse some
-newer class files on Maven 3.9.13's classpath.
+**Build notes** (already configured in `pom.xml`): the Jenkins license-maven-plugin and
+Spotless checks are skipped because their Groovy/ASM stack cannot parse some newer class
+files on Maven 3.9.13's classpath.
 
 ### Running for development
 
@@ -169,6 +128,8 @@ JENKINS_HOME=./work \
   java -jar jenkins-war-2.541.2.war --httpPort=9090 --prefix=/jenkins
 # → http://localhost:9090/jenkins/
 ```
+
+See [Building & contributing](docs/developer/contributing.md) for the full developer guide.
 
 ---
 

@@ -1,12 +1,18 @@
-# Omni Auth — Documentation
+# OmniAuth — Documentation
 
-> Enterprise authentication, authorization, and identity governance for Jenkins.
+> A security and access-governance platform for Jenkins, with flexible native + OAuth login.
 
-Omni Auth unifies **native Jenkins login** and **Microsoft Entra (Azure AD) single
-sign-on** on one login page, then layers access management, just-in-time elevation,
-access reviews, session control, emergency break-glass access, and multi-channel
-notifications on top. This documentation set is organized for administrators,
-security teams, operators, and developers.
+OmniAuth combines flexible authentication — **native username/password and OAuth2 / OIDC
+single sign-on** — with a full suite of security and management features: access management,
+just-in-time elevation, access reviews, session control, emergency break-glass access,
+audit logging, and multi-channel notifications. The value isn't only how users sign in; it's
+everything around it that keeps Jenkins access **secure and easy to manage**.
+
+Single sign-on is built on a **pluggable provider framework**. **Microsoft Entra (Azure AD)
+is the provider integrated today; more OAuth2/OIDC providers are planned.**
+
+This documentation set is organized for administrators, security teams, operators, and
+developers.
 
 ---
 
@@ -31,7 +37,7 @@ security teams, operators, and developers.
 
 ### Administration
 - [Administration overview](administration/index.md)
-- [Authentication](administration/authentication.md) — native + Entra SSO + group sync
+- [Authentication](administration/authentication.md) — native + OAuth/OIDC SSO + group sync
 - [Microsoft Entra setup](administration/entra-setup.md) — app registration, redirect URIs, permissions
 - [Access management](administration/access-management.md) — roles, permissions, scoped & time-limited grants
 - [Access review & certification](administration/access-review.md)
@@ -69,7 +75,7 @@ security teams, operators, and developers.
 
 - `<prefix>` — the Jenkins context path (e.g. `/jenkins`). Omit if Jenkins is served at root.
 - `<jenkins-host>` — the externally reachable host and port of your Jenkins.
-- **Manage Jenkins → Omni Auth** — the plugin's management console, referenced throughout.
+- **Manage Jenkins → OmniAuth** — the plugin's management console, referenced throughout.
 - Code identifiers (`OmniAuthSecurityRealm`, `omniAuth`, …) refer to classes or JCasC
   symbols; see the [Configuration reference](reference/configuration-reference.md).
 

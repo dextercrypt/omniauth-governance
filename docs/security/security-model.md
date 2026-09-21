@@ -1,6 +1,6 @@
 # Security model
 
-> How Omni Auth authenticates, authorizes, and protects sessions — and the guarantees and
+> How OmniAuth authenticates, authorizes, and protects sessions — and the guarantees and
 > limits you should design around.
 
 ## Authentication assurances
@@ -8,7 +8,7 @@
 | Mechanism | Protection |
 |---|---|
 | **Native login** | Jenkins-managed bcrypt password hashing (inherited from core). |
-| **Entra OAuth2 code flow** | No credentials touch Jenkins for SSO users; authentication happens at Microsoft. |
+| **OAuth2/OIDC code flow** | No credentials touch Jenkins for SSO users; authentication happens at the identity provider (Microsoft Entra today). |
 | **PKCE** | Binds the authorization code to the initiating client, defeating code interception. |
 | **State parameter** | CSRF protection across the OAuth redirect. |
 | **ID token nonce** | Single-use value validated on return; prevents token replay. |
@@ -56,11 +56,12 @@ email/Slack/Teams in real time.
 
 - **Brute-force protection tracks and alerts; it does not hard-lock accounts.** For native
   admins, rely on strong passwords, network controls, and monitoring. SSO users are
-  protected by Microsoft's own protections.
-- **No Microsoft logout on Jenkins logout** — a signed-out user may be silently
-  re-authenticated by Entra on the next SSO attempt (subject to Entra session/MFA policy).
-- **Single SSO provider (Microsoft)** today; the provider framework is extensible but
-  multi-provider selection is not yet available.
+  protected by the identity provider's own protections.
+- **No provider-side logout on Jenkins logout** — a signed-out user may be silently
+  re-authenticated by the identity provider on the next SSO attempt (subject to the
+  provider's session/MFA policy).
+- **One OAuth/OIDC provider integrated today (Microsoft Entra).** The provider framework is
+  extensible, but additional providers and multi-provider selection are not yet available.
 
 ## Hardening checklist
 

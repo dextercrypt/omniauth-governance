@@ -2,7 +2,7 @@
 
 > Make the sign-in experience match your organization's identity.
 
-The Omni Auth login page is fully themeable from **Manage Jenkins → Omni Auth → Settings**.
+The OmniAuth login page is fully themeable from **Manage Jenkins → OmniAuth → Settings**.
 Branding is presentation-only — it does not change authentication behavior.
 
 The custom login page is served at `/<prefix>/securityRealm/login`.

@@ -1,6 +1,6 @@
 # Building & contributing
 
-> How to build, run, and contribute to Omni Auth.
+> How to build, run, and contribute to OmniAuth.
 
 ## Prerequisites
 

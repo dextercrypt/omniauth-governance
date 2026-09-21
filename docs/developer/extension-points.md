@@ -1,8 +1,8 @@
 # Extension points
 
-> The Jenkins extension points Omni Auth implements, and where to extend it.
+> The Jenkins extension points OmniAuth implements, and where to extend it.
 
-Omni Auth is built entirely on standard Jenkins extension points, which makes its behavior
+OmniAuth is built entirely on standard Jenkins extension points, which makes its behavior
 predictable and its surfaces familiar to plugin developers.
 
 ## Implemented extension points

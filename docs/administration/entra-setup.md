@@ -1,7 +1,11 @@
 # Microsoft Entra setup
 
 > Register and configure the Microsoft Entra (Azure AD) OAuth2 / OIDC application that
-> backs SSO, then connect it to Omni Auth.
+> backs SSO, then connect it to OmniAuth.
+
+> **Microsoft Entra is the SSO provider integrated today.** OmniAuth's SSO is built on a
+> pluggable OAuth2/OIDC provider framework, so more providers are planned; this page covers
+> the Entra integration specifically.
 
 > Use an **OAuth2 / OIDC App Registration** — **not** a SAML Enterprise Application.
 
@@ -12,7 +16,7 @@ registrations → New registration**:
 
 | Field | Recommended value |
 |---|---|
-| **Name** | `Jenkins — Omni Auth` (any descriptive name) |
+| **Name** | `Jenkins — OmniAuth` (any descriptive name) |
 | **Supported account types** | *Accounts in this organizational directory only* (single tenant) |
 | **Redirect URI** | Platform **Web**, value below |
 
@@ -66,9 +70,9 @@ Ensure the app issues **ID tokens** (and access tokens for Graph). Under
 **Authentication**, enable **ID tokens** for the implicit/hybrid flow checkbox set if your
 tenant requires it; the plugin uses the authorization-code flow with PKCE.
 
-## 6. Connect Omni Auth
+## 6. Connect OmniAuth
 
-In Jenkins: **Manage Jenkins → Security → Security Realm → Omni Auth**, then fill the Entra
+In Jenkins: **Manage Jenkins → Security → Security Realm → OmniAuth**, then fill the Entra
 configuration:
 
 | Field | Value |

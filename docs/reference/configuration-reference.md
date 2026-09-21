@@ -1,6 +1,6 @@
 # Configuration reference
 
-> A consolidated reference of Omni Auth's configurable settings.
+> A consolidated reference of OmniAuth's configurable settings.
 
 Settings live in two places: the **security realm** (authentication) and the **plugin global
 config** (`OmniAuthGlobalConfig`, most operational settings). This page lists the settings

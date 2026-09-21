@@ -1,13 +1,13 @@
 # Administration overview
 
-> The Omni Auth management console and how the administration topics fit together.
+> The OmniAuth management console and how the administration topics fit together.
 
 Once the [security realm is enabled](../getting-started/installation.md), all
 administration happens in two places:
 
 1. **Manage Jenkins → Security** — the security realm and authorization strategy
    selection, and the Microsoft Entra connection.
-2. **Manage Jenkins → Omni Auth** — the management console for everything else.
+2. **Manage Jenkins → OmniAuth** — the management console for everything else.
 
 ## The management console
 
@@ -49,7 +49,7 @@ groups the governance and operations features into sections:
                                        ▲
                                        │ managed via
                         ┌─────────────────────────────┐
-                        │ Manage Jenkins → Omni Auth   │  administration
+                        │ Manage Jenkins → OmniAuth   │  administration
                         └─────────────────────────────┘
 ```
 

@@ -1,6 +1,6 @@
 # Installation & upgrade
 
-> How to install, activate, upgrade, and roll back Omni Auth.
+> How to install, activate, upgrade, and roll back OmniAuth.
 
 ## Before you begin
 
@@ -41,10 +41,10 @@
 ## Activate
 
 1. **Manage Jenkins → Security**.
-2. Under **Security Realm**, choose **Omni Auth**.
-3. (Optional) Under **Authorization**, choose **Omni Auth Authorization Strategy** to
+2. Under **Security Realm**, choose **OmniAuth**.
+3. (Optional) Under **Authorization**, choose **OmniAuth Authorization Strategy** to
    enable the access-management features. (You can also keep another strategy; the realm
-   works independently, but governance features assume the Omni Auth strategy.)
+   works independently, but governance features assume the OmniAuth strategy.)
 4. Configure Microsoft Entra if using SSO — see [Entra setup](../administration/entra-setup.md).
 5. **Save**, then verify you can still sign in (open a private browser window to test).
 

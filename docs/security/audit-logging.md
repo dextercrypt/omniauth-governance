@@ -2,8 +2,8 @@
 
 > A durable record of access and security-relevant changes for compliance and investigation.
 
-Omni Auth records security-relevant actions to an audit log, viewable at
-**Manage Jenkins → Omni Auth → Audit log**. It answers *who did what, to whom, and when* —
+OmniAuth records security-relevant actions to an audit log, viewable at
+**Manage Jenkins → OmniAuth → Audit log**. It answers *who did what, to whom, and when* —
 the questions auditors and incident responders ask first.
 
 ## What is recorded
@@ -49,7 +49,7 @@ the log.
 
 ## Compliance mapping (guidance)
 
-| Control area | Where Omni Auth helps |
+| Control area | Where OmniAuth helps |
 |---|---|
 | Access certification | [Access review](../administration/access-review.md) + audit entries |
 | Least privilege / JIT | [JIT access](../administration/jit-access.md) + expiry |

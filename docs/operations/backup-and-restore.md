@@ -1,9 +1,9 @@
 # Backup & restore
 
-> What to back up, how to restore, and how to migrate Omni Auth configuration between
+> What to back up, how to restore, and how to migrate OmniAuth configuration between
 > instances.
 
-Omni Auth stores its configuration and governance data inside `JENKINS_HOME`. A standard
+OmniAuth stores its configuration and governance data inside `JENKINS_HOME`. A standard
 `JENKINS_HOME` backup captures everything; this page identifies the specific files so you
 can back them up granularly or migrate them.
 

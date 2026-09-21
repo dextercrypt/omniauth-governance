@@ -1,6 +1,6 @@
 # Requirements
 
-> Supported platforms, dependencies, and prerequisites before installing Omni Auth.
+> Supported platforms, dependencies, and prerequisites before installing OmniAuth.
 
 ## Platform
 
@@ -10,7 +10,7 @@
 | **Java** | 21 (tested on Amazon Corretto 21) |
 | **Servlet API** | Jakarta Servlet 6.x (provided by Jenkins core) |
 
-> Omni Auth targets the Jenkins release line that migrated from `javax.*` to `jakarta.*`.
+> OmniAuth targets the Jenkins release line that migrated from `javax.*` to `jakarta.*`.
 > It will not load on Jenkins versions predating that migration.
 
 ## Required Jenkins plugins
@@ -37,7 +37,10 @@ The plugin bundles these libraries in the `.hpi`; no separate installation is re
 | **AeroGear OTP** | TOTP generation/validation for Break Glass |
 | **ZXing (core + javase)** | QR code generation for Break Glass enrollment |
 
-## For Microsoft Entra SSO
+## For single sign-on
+
+SSO uses an OAuth2 / OIDC provider through a pluggable framework. **Microsoft Entra (Azure AD)
+is the provider integrated today**; the requirements below are for the Entra integration.
 
 - A Microsoft Entra tenant with permission to create an **OAuth2 / OIDC App Registration**
   (not a SAML Enterprise Application).

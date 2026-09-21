@@ -34,7 +34,7 @@ Use this for:
 
 Some accounts must never be touched by automated cleanup — for example, break-glass admins
 or service accounts. Add them to the **Protected users** list
-(**Manage Jenkins → Omni Auth → Protected users**). Protected users are exempt from stale
+(**Manage Jenkins → OmniAuth → Protected users**). Protected users are exempt from stale
 warnings and cleanup.
 
 > _🖼 screenshot: protected users_

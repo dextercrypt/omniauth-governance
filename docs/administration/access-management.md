@@ -2,12 +2,12 @@
 
 > Grant, scope, time-limit, and revoke what users and groups can do in Jenkins.
 
-Omni Auth's authorization strategy (`OmniAuthAuthorizationStrategy`) builds on Jenkins'
+OmniAuth's authorization strategy (`OmniAuthAuthorizationStrategy`) builds on Jenkins'
 Project-based Matrix Authorization and adds a friendlier permission model, group grants,
 job/folder scoping, expiry, and conflict detection — all managed from
-**Manage Jenkins → Omni Auth → Access management**.
+**Manage Jenkins → OmniAuth → Access management**.
 
-> Requires the **Omni Auth Authorization Strategy** to be selected under
+> Requires the **OmniAuth Authorization Strategy** to be selected under
 > **Manage Jenkins → Security → Authorization**.
 
 ## Concepts
@@ -25,7 +25,7 @@ Assignments are stored by `OmniAuthAssignmentConfig`; role definitions by
 
 ## Granting access
 
-1. **Manage Jenkins → Omni Auth → Access management**.
+1. **Manage Jenkins → OmniAuth → Access management**.
 2. Select an existing user/group, or add a subject.
 3. Choose a **scope** — global, or pick a job/folder from the tree picker.
 4. Choose a **role** and/or individual permissions.
@@ -73,7 +73,7 @@ Typical roles:
 - **Reader** — read-only visibility.
 
 See the [Permissions reference](../reference/permissions.md) for the grouped permission
-catalog Omni Auth presents.
+catalog OmniAuth presents.
 
 ## Conflict detection
 

@@ -9,7 +9,7 @@ misconfigured authorization strategy, an Entra outage, or a lost admin password.
 Access is protected by a **TOTP** second factor (enrolled via QR code), so possession of the
 break-glass path alone is not enough.
 
-Managed at **Manage Jenkins → Omni Auth → Break Glass**.
+Managed at **Manage Jenkins → OmniAuth → Break Glass**.
 
 ## When to use it
 
@@ -24,7 +24,7 @@ logged, and reviewed.
 
 Before an emergency, enroll the TOTP factor:
 
-1. **Manage Jenkins → Omni Auth → Break Glass → enroll**.
+1. **Manage Jenkins → OmniAuth → Break Glass → enroll**.
 2. Scan the displayed **QR code** with an authenticator app (Microsoft Authenticator,
    Google Authenticator, etc.).
 3. Verify a generated code to confirm enrollment.

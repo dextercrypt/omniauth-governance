@@ -5,7 +5,7 @@
 Access review turns your permission matrix into a recurring certification exercise:
 administrators are prompted to **keep** or **revoke** each standing grant, with a schedule
 and email digest so nothing is forgotten. It is driven by the `AccessReviewWork` background
-job and surfaced at **Manage Jenkins → Omni Auth → Access review**.
+job and surfaced at **Manage Jenkins → OmniAuth → Access review**.
 
 ## Why it matters
 

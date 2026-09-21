@@ -1,9 +1,9 @@
 # Configuration as Code (JCasC)
 
-> Codify Omni Auth's configuration declaratively so environments are reproducible and
+> Codify OmniAuth's configuration declaratively so environments are reproducible and
 > reviewable.
 
-Omni Auth's descriptors expose `@Symbol` names for the
+OmniAuth's descriptors expose `@Symbol` names for the
 [Jenkins Configuration as Code](https://plugins.jenkins.io/configuration-as-code/) plugin,
 so the security realm, Entra connection, authorization strategy, and stores can be defined
 in YAML.
@@ -59,10 +59,10 @@ Secrets are stored encrypted in Jenkins once applied.
 
 ## Recommended workflow
 
-1. Configure Omni Auth once through the UI on a scratch instance.
+1. Configure OmniAuth once through the UI on a scratch instance.
 2. **Export** the live configuration:
    **Manage Jenkins → Configuration as Code → View Configuration** (or `Download`).
-3. Extract the Omni Auth sections, replace secrets with `${VARS}`, and commit to source
+3. Extract the OmniAuth sections, replace secrets with `${VARS}`, and commit to source
    control.
 4. Point production at the YAML (via `CASC_JENKINS_CONFIG`) and apply.
 5. Re-export after any UI change to keep the file authoritative.

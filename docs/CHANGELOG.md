@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Omni Auth are documented here. This project aims to follow
+All notable changes to OmniAuth are documented here. This project aims to follow
 [Keep a Changelog](https://keepachangelog.com/) conventions and
 [Semantic Versioning](https://semver.org/).
 
@@ -22,9 +22,9 @@ All notable changes to Omni Auth are documented here. This project aims to follo
 
 First feature-complete release. Highlights (see the documentation for details):
 
-- **Authentication:** dual native + Microsoft Entra SSO on one login page; OAuth2
-  authorization-code flow via MSAL4J with PKCE and ID-token nonce validation;
-  OID-anchored identity; optional MS Graph group sync; provider-preset framework.
+- **Authentication:** native + OAuth2/OIDC SSO on one login page via a pluggable provider
+  framework (Microsoft Entra integrated today); authorization-code flow with PKCE and
+  ID-token nonce validation; directory-id-anchored identity; optional group sync.
 - **Authorization:** `OmniAuthAuthorizationStrategy` (matrix-based) with grouped
   permissions, per-user and per-group grants, global or job/folder scope, and expiry.
 - **Governance:** access review/certification with weekly digest; Just-in-Time (JIT)

@@ -8,7 +8,7 @@ Instead of permanently holding an elevated role, a user **requests** it for a bo
 window; an admin **approves**; the access **auto-expires**; and everything is **audited**.
 
 It is exposed to users via the JIT action and managed by admins at
-**Manage Jenkins → Omni Auth → JIT requests**. Requests are stored by
+**Manage Jenkins → OmniAuth → JIT requests**. Requests are stored by
 `OmniAuthJitRequestStore`, and elapsed grants are cleaned up by the
 `OmniAuthJitExpiryWorker` background job.
 
@@ -22,7 +22,7 @@ It is exposed to users via the JIT action and managed by admins at
 
 ## Admin flow
 
-At **Manage Jenkins → Omni Auth → JIT requests**:
+At **Manage Jenkins → OmniAuth → JIT requests**:
 
 | Action | Result |
 |---|---|

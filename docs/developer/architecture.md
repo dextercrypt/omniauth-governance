@@ -1,6 +1,6 @@
 # Architecture
 
-> How Omni Auth is put together: the security realm, authorization strategy, stores,
+> How OmniAuth is put together: the security realm, authorization strategy, stores,
 > background workers, and login flow.
 
 - **Group id / artifact:** `io.jenkins.plugins:omni-auth`
@@ -39,7 +39,7 @@
 
 | Class | Role |
 |---|---|
-| `OmniAuthManagementLink` | The **Manage Jenkins → Omni Auth** console (most `do*` admin endpoints live here). |
+| `OmniAuthManagementLink` | The **Manage Jenkins → OmniAuth** console (most `do*` admin endpoints live here). |
 | `OmniAuthJitAction` / `OmniAuthJitRequest` / `OmniAuthJitRequestStore` | JIT request UI, model, and store. |
 | `OmniAuthUserProperty` | Per-user data (OID/UPN, break-glass, etc.). |
 | `OmniAuthForcePasswordProperty` | Marks a native user as requiring a password change. |
