@@ -375,26 +375,8 @@
                   pw.addEventListener('keyup', update);
                   pw.addEventListener('blur', function () { caps.classList.remove('show'); });
                 }
-                // Remember last username: prefill on load, save on submit.
-                var user = document.getElementById('j_username');
-                var form = document.forms['login'];
-                var KEY = 'omniauth.lastUser';
-                if (user) {
-                  try {
-                    if (!user.value) {
-                      var last = window.localStorage.getItem(KEY);
-                      if (last) {
-                        user.value = last;
-                        if (pw) { pw.focus(); }
-                      }
-                    }
-                  } catch (e) {}
-                  if (form) {
-                    form.addEventListener('submit', function () {
-                      try { window.localStorage.setItem(KEY, user.value || ''); } catch (e) {}
-                    });
-                  }
-                }
+                // Username uses the browser's native autocomplete="username" suggestions.
+                // We intentionally do NOT force-prefill the field ourselves.
 
                 // SSO button loading state: on click, show a spinner + "Redirecting…"
                 // label so the redirect gap doesn't look dead. The navigation still
