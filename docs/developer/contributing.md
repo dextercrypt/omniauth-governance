@@ -84,14 +84,6 @@ See [Architecture](architecture.md) for the class-level map.
 - Follow the Jenkins
   [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).
 
-## Capturing screenshots for docs
-
-Pages marked _🖼 screenshot_ need images captured against a live instance:
-
-1. Run locally (above) and configure the feature.
-2. Capture the referenced screen at a consistent width.
-3. Save under `docs/images/<area>/<name>.png` and link it from the page.
-
 ## Reporting issues
 
 File issues in the [Jenkins issue tracker](https://issues.jenkins.io/) with Jenkins version,

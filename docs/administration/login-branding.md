@@ -24,8 +24,6 @@ The custom login page is served at `/<prefix>/securityRealm/login`.
 The SSO button label/branding follows the configured
 [SSO provider preset](authentication.md#sso-provider-presets).
 
-> _🖼 screenshot: branded login page_
-
 ## Butler styles
 
 The login panel can display a themed "butler" illustration. Options range from the classic

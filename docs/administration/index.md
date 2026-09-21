@@ -28,8 +28,6 @@ groups the governance and operations features into sections:
 | **Audit log** | Access and security change history | [Audit logging](../security/audit-logging.md) |
 | **Settings** | Login branding and plugin-wide options | [Login branding](login-branding.md) |
 
-> _🖼 screenshot: management console overview_
-
 ## How the pieces relate
 
 ```

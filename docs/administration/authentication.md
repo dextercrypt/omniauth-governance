@@ -21,8 +21,6 @@ The button's label and branding follow the configured
 [provider preset](#provider-framework). See [Login branding](login-branding.md) to customize
 the page.
 
-> _🖼 screenshot: dual login page_
-
 ## Native login
 
 Native authentication is standard Jenkins local-account login:

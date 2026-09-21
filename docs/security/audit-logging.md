@@ -20,8 +20,6 @@ Representative events (non-exhaustive):
 
 Each entry captures the actor, the affected subject/target, the action, and a timestamp.
 
-> _🖼 screenshot: audit log_
-
 ## Viewing and filtering
 
 Browse the audit log from the console. Use it to:

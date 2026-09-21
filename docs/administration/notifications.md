@@ -20,8 +20,6 @@ Each channel has a master enable toggle in addition to the global **notification
 switch. See the [Configuration reference](../reference/configuration-reference.md) for the
 full field list.
 
-> _🖼 screenshot: notifications settings_
-
 ## Per-event routing
 
 Each channel subscribes to its own list of **event types** (e.g. email might receive
@@ -52,8 +50,6 @@ Notification emails use branded templates. You can:
 
 - **Preview** an email template for a given event type with sample data before enabling it.
 - Customize header logo and footer note via the notification branding settings.
-
-> _🖼 screenshot: email preview modal_
 
 ## Recommended setup
 

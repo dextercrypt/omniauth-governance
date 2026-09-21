@@ -85,8 +85,6 @@ configuration:
 **Save**, then test SSO in a private browser window (see
 [Quick start → test both login paths](../getting-started/quick-start.md)).
 
-> _🖼 screenshot: Entra config fields_
-
 ## Troubleshooting
 
 | Symptom | Likely cause |

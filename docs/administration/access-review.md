@@ -24,8 +24,6 @@ recently confirm they still need it?"*
 3. Bulk actions (e.g. **Keep all**) speed up large reviews.
 4. A summary/digest can be emailed to administrators.
 
-> _🖼 screenshot: access review queue_
-
 ## Configuration
 
 Set these under the plugin settings / notifications (see the

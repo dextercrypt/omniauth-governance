@@ -29,8 +29,6 @@ Before an emergency, enroll the TOTP factor:
    Google Authenticator, etc.).
 3. Verify a generated code to confirm enrollment.
 
-> _🖼 screenshot: break-glass QR enrollment_
-
 You can remove and re-enroll the factor if a device is lost.
 
 ## Activation

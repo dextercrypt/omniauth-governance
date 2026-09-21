@@ -78,6 +78,3 @@ developers.
 - **Manage Jenkins → OmniAuth** — the plugin's management console, referenced throughout.
 - Code identifiers (`OmniAuthSecurityRealm`, `omniAuth`, …) refer to classes or JCasC
   symbols; see the [Configuration reference](reference/configuration-reference.md).
-
-> **Screenshots:** Pages marked _🖼 screenshot_ are placeholders to be captured against a
-> live instance. See [contributing](developer/contributing.md) for the capture workflow.

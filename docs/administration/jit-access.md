@@ -18,8 +18,6 @@ It is exposed to users via the JIT action and managed by admins at
 2. They select the access they need (role/scope) and a **duration**, and provide a reason.
 3. The request enters the **pending** queue and admins are notified.
 
-> _🖼 screenshot: JIT request form_
-
 ## Admin flow
 
 At **Manage Jenkins → OmniAuth → JIT requests**:
@@ -31,8 +29,6 @@ At **Manage Jenkins → OmniAuth → JIT requests**:
 | **Revoke** | An active JIT grant is ended early. |
 
 Suggested approvers can be surfaced to streamline routing.
-
-> _🖼 screenshot: JIT approvals queue_
 
 ## Expiry and cleanup
 

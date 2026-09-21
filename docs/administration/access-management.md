@@ -32,8 +32,6 @@ Assignments are stored by `OmniAuthAssignmentConfig`; role definitions by
 5. (Optional) Set an **expiry date**.
 6. Save the grant.
 
-> _🖼 screenshot: grant access drawer_
-
 ### Scoped access
 
 When you scope a grant to a job or folder:

@@ -28,16 +28,12 @@ Use this for:
 - Newly created accounts with a temporary password.
 - Forced rotation after a suspected compromise.
 
-> _🖼 screenshot: set-password page_
-
 ## Protected users
 
 Some accounts must never be touched by automated cleanup — for example, break-glass admins
 or service accounts. Add them to the **Protected users** list
 (**Manage Jenkins → OmniAuth → Protected users**). Protected users are exempt from stale
 warnings and cleanup.
-
-> _🖼 screenshot: protected users_
 
 ## Stale-account warning and cleanup
 

@@ -14,8 +14,6 @@ The sessions page lists current authenticated sessions with identifying details 
 tell who is active. Use it to spot unexpected sessions and to confirm the impact of a
 revocation.
 
-> _🖼 screenshot: active sessions_
-
 ## Revoking a session
 
 - **Revoke a single session** to force that session to re-authenticate on its next request.
