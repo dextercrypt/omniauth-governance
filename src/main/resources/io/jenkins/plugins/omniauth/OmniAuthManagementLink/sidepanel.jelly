@@ -22,6 +22,9 @@
     <l:task icon="symbol-flash-outline plugin-ionicons-api"
             href="${rootURL}/manage/omniauth-management/jitRequests"
             title="JIT Requests"/>
+    <l:task icon="symbol-person-add-outline plugin-ionicons-api"
+            href="${rootURL}/manage/omniauth-management/provisioning"
+            title="Access Requests"/>
     <l:task icon="symbol-person"
             href="${rootURL}/manage/omniauth-management/sessions"
             title="Active Sessions"/>

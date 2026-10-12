@@ -1,0 +1,168 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <l:layout title="OmniAuth — Access Requests" norefresh="true">
+    <l:main-panel>
+
+      <div class="jenkins-app-bar">
+        <div class="jenkins-app-bar__content">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <a href="${rootURL}/manage/omniauth-management/"
+               style="color:var(--text-color-secondary,#6c757d);font-size:0.82em;text-decoration:none;">
+              &#8592; OmniAuth Management
+            </a>
+            <span style="color:var(--text-color-secondary,#ccc);">/</span>
+            <h1 class="jenkins-app-bar__heading">Access Requests</h1>
+          </div>
+        </div>
+      </div>
+
+      <style>
+        .pr-th { text-align:left; padding:10px 16px; font-size:0.72em; font-weight:700;
+                 text-transform:uppercase; letter-spacing:0.04em; color:var(--text-color-secondary,#888); }
+        .pr-td { padding:12px 16px; font-size:0.88em; vertical-align:top; }
+        .pr-badge { display:inline-block; font-size:0.72em; font-weight:700; padding:2px 8px; border-radius:10px; }
+        .pr-entra  { background:rgba(0,120,212,0.15); color:#2563eb; }
+        .pr-native { background:rgba(100,116,139,0.18); color:#475569; }
+      </style>
+
+      <div style="padding:0 16px 60px;">
+
+        <!-- Flash messages -->
+        <j:if test="${request2.getParameter('approved') != null}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">
+            Approved — account <b>${request2.getParameter('approved')}</b> has been created.
+            <j:set var="tmp" value="${it.provisioningTempPassword}"/>
+            <j:if test="${tmp != null}">
+              <div style="margin-top:8px;">
+                Temporary password (shown once — share it securely; the user must change it on first sign-in):
+                <code style="font-size:1em;background:#0b1220;color:#eaf1ff;padding:3px 8px;border-radius:4px;">${tmp}</code>
+              </div>
+            </j:if>
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('rejected') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Request rejected.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('breakerReset') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Native request intake re-opened.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'exists'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">An account with that id already exists — the request was rejected instead.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notFound'}">
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">That request no longer exists or was already decided.</div>
+        </j:if>
+
+        <!-- Circuit breaker notice -->
+        <j:if test="${it.provisioningBreakerTripped}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span>Native request intake is paused by the circuit breaker (too many requests).</span>
+            <form method="post" action="resetProvisioningBreaker" style="margin:0;">
+              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+              <button type="submit" class="jenkins-button jenkins-button--small">Re-open now</button>
+            </form>
+          </div>
+        </j:if>
+
+        <!-- Pending -->
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0 10px;font-weight:700;font-size:0.95em;">
+          Pending
+          <j:if test="${!it.pendingProvisioningRequests.isEmpty()}">
+            <span style="background:#d97706;color:#fff;border-radius:10px;font-size:0.72em;font-weight:700;padding:2px 8px;">${it.pendingProvisioningRequests.size()}</span>
+          </j:if>
+        </div>
+
+        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;margin-bottom:28px;">
+          <j:choose>
+            <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
+              <div style="padding:40px;text-align:center;color:var(--text-color-secondary,#888);font-size:0.9em;">
+                No pending access requests.
+              </div>
+            </j:when>
+            <j:otherwise>
+              <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--background-color,#fafafa);border-bottom:2px solid var(--panel-border-color,#e0e0e0);">
+                    <th class="pr-th">Type</th>
+                    <th class="pr-th">User</th>
+                    <th class="pr-th">Reason</th>
+                    <th class="pr-th">Duration</th>
+                    <th class="pr-th">Requested</th>
+                    <th class="pr-th" style="width:300px;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="r" items="${it.pendingProvisioningRequests}" varStatus="rs">
+                    <tr style="border-bottom:${rs.last ? '0' : '1px'} solid var(--panel-border-color,#f0f0f0);">
+                      <td class="pr-td">
+                        <span class="pr-badge ${r.entra ? 'pr-entra' : 'pr-native'}">${r.typeLabel()}</span>
+                      </td>
+                      <td class="pr-td">
+                        <div style="font-weight:600;">${r.userId}</div>
+                        <j:if test="${r.email != ''}">
+                          <div style="font-size:0.85em;color:var(--text-color-secondary,#888);">${r.email}</div>
+                        </j:if>
+                        <j:if test="${r.fullName != ''}">
+                          <div style="font-size:0.85em;color:var(--text-color-secondary,#888);">${r.fullName}</div>
+                        </j:if>
+                      </td>
+                      <td class="pr-td" style="max-width:240px;">
+                        <div style="white-space:normal;word-break:break-word;">${r.reason}</div>
+                      </td>
+                      <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
+                      <td class="pr-td" style="white-space:nowrap;color:var(--text-color-secondary,#888);">${r.timeAgo()}</td>
+                      <td class="pr-td" style="text-align:right;white-space:nowrap;">
+                        <form method="post" action="approveProvisioning" style="display:inline;">
+                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                          <input type="hidden" name="requestId" value="${r.requestId}"/>
+                          <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
+                        </form>
+                        <form method="post" action="rejectProvisioning" style="display:inline-flex;gap:6px;margin-left:6px;align-items:center;">
+                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                          <input type="hidden" name="requestId" value="${r.requestId}"/>
+                          <input type="text" name="comment" placeholder="reason (optional)"
+                                 style="font-size:0.82em;padding:4px 6px;width:120px;"/>
+                          <button type="submit" class="jenkins-button jenkins-button--small">Reject</button>
+                        </form>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </j:otherwise>
+          </j:choose>
+        </div>
+
+        <!-- Recent (decided) -->
+        <div style="margin:8px 0 10px;font-weight:700;font-size:0.95em;">Recent</div>
+        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;">
+          <j:set var="decided" value="${it.recentProvisioningRequests}"/>
+          <table style="width:100%;border-collapse:collapse;">
+            <tbody>
+              <j:forEach var="r" items="${decided}">
+                <j:if test="${!r.pending}">
+                  <tr style="border-bottom:1px solid var(--panel-border-color,#f3f3f3);">
+                    <td class="pr-td" style="width:1%;"><span class="pr-badge ${r.entra ? 'pr-entra' : 'pr-native'}">${r.typeLabel()}</span></td>
+                    <td class="pr-td" style="font-weight:600;">${r.userId}</td>
+                    <td class="pr-td">
+                      <j:choose>
+                        <j:when test="${r.approved}"><span style="color:#16a34a;font-weight:600;">Approved</span></j:when>
+                        <j:when test="${r.rejected}"><span style="color:#dc2626;font-weight:600;">Rejected</span></j:when>
+                        <j:otherwise>${r.statusLabel()}</j:otherwise>
+                      </j:choose>
+                      <j:if test="${r.decisionComment != ''}">
+                        <span style="color:var(--text-color-secondary,#888);font-size:0.85em;"> — ${r.decisionComment}</span>
+                      </j:if>
+                    </td>
+                    <td class="pr-td" style="color:var(--text-color-secondary,#888);white-space:nowrap;">${r.decidedBy}</td>
+                  </tr>
+                </j:if>
+              </j:forEach>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

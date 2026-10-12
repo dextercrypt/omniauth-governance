@@ -1230,6 +1230,145 @@ public class OmniAuthManagementLink extends ManagementLink {
         return store == null ? Collections.emptyList() : store.getRecentRequests(50);
     }
 
+    // ── Provisioning portal: admin queue ──────────────────────────────────────
+
+    public List<ProvisioningRequest> getPendingProvisioningRequests() {
+        ProvisioningRequestConfig s = ProvisioningRequestConfig.get();
+        return s == null ? Collections.emptyList() : s.getPendingRequests();
+    }
+
+    public List<ProvisioningRequest> getRecentProvisioningRequests() {
+        ProvisioningRequestConfig s = ProvisioningRequestConfig.get();
+        return s == null ? Collections.emptyList() : s.getRecentRequests(50);
+    }
+
+    public int getPendingProvisioningCount() {
+        ProvisioningRequestConfig s = ProvisioningRequestConfig.get();
+        return s == null ? 0 : s.getPendingCount();
+    }
+
+    /** True when the native-intake circuit breaker is currently tripped. */
+    public boolean isProvisioningBreakerTripped() { return ProvisioningBreaker.isTripped(); }
+
+    /** One-time read of the temp password stashed by the last native approval, for the flash. */
+    public String getProvisioningTempPassword() {
+        org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
+        if (req == null) return null;
+        Object pwd = req.getSession().getAttribute("omniauth.provTmpPwd");
+        if (pwd == null) return null;
+        req.getSession().removeAttribute("omniauth.provTmpPwd");
+        return pwd.toString();
+    }
+
+    public void doProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        req.getView(this, "provisioning.jelly").forward(req, rsp);
+    }
+
+    /** Approve a pending request — create the account (mirroring doAddUser) and mark it approved. */
+    @POST
+    public void doApproveProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String requestId = req.getParameter("requestId");
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        ProvisioningRequest r = store != null ? store.findById(requestId) : null;
+        if (r == null || !r.isPending()) { rsp.sendRedirect("provisioning?error=notFound"); return; }
+
+        String admin = Jenkins.getAuthentication2().getName();
+
+        // Never clobber an existing account — reject the (now redundant) request instead.
+        if (User.getById(r.getUserId(), false) != null) {
+            store.markRejected(requestId, admin, "An account with this id already exists");
+            rsp.sendRedirect("provisioning?error=exists"); return;
+        }
+
+        String tmpPwd = createAccountFromRequest(r);
+        store.markApproved(requestId, admin, null);
+
+        OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+        if (audit != null) audit.logUserCreated(admin, r.getUserId());
+        LOGGER.log(Level.INFO, "Provisioning: approved {0} request for {1} ({2})",
+                new Object[]{ r.getRequestType(), r.getUserId(), r.durationLabel() });
+
+        // Stash the one-time temp password for display (NATIVE only). Account expiry
+        // enforcement for time-limited requests is wired in a later increment.
+        if (tmpPwd != null) {
+            req.getSession().setAttribute("omniauth.provTmpPwd", tmpPwd);
+        }
+        rsp.sendRedirect("provisioning?approved=" + enc(r.getUserId()));
+    }
+
+    /** Reject a pending request with an optional reason. */
+    @POST
+    public void doRejectProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String requestId = req.getParameter("requestId");
+        String comment   = req.getParameter("comment");
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        if (store == null || !store.markRejected(requestId, Jenkins.getAuthentication2().getName(), comment)) {
+            rsp.sendRedirect("provisioning?error=notFound"); return;
+        }
+        rsp.sendRedirect("provisioning?rejected=true");
+    }
+
+    /** Admin control: clear the native-intake circuit breaker cooldown. */
+    @POST
+    public void doResetProvisioningBreaker(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        ProvisioningBreaker.reset();
+        rsp.sendRedirect("provisioning?breakerReset=true");
+    }
+
+    /**
+     * Create the Jenkins account described by an approved request, mirroring doAddUser.
+     * NATIVE → generate + return a temp password (account must change it on first login);
+     * ENTRA → pre-provision the user with no password. Returns the temp password, or null.
+     */
+    private String createAccountFromRequest(ProvisioningRequest r) throws Exception {
+        String sid = r.getUserId();
+        if (r.isNative()) {
+            hudson.security.SecurityRealm realm = Jenkins.get().getSecurityRealm();
+            if (!(realm instanceof hudson.security.HudsonPrivateSecurityRealm)) {
+                throw new IllegalStateException("Native account creation requires HudsonPrivateSecurityRealm");
+            }
+            String tmpPwd = generateTempPassword();
+            ((hudson.security.HudsonPrivateSecurityRealm) realm).createAccount(sid, tmpPwd);
+            User user = User.getById(sid, false);
+            if (user != null) {
+                if (!r.getFullName().isEmpty()) user.setFullName(r.getFullName());
+                applyEmail(user, r.getEmail());
+                user.addProperty(new OmniAuthForcePasswordProperty(true));
+                user.save();
+            }
+            grantGlobalRead(sid, AuthorizationType.USER);
+            return tmpPwd;
+        } else {
+            User user = User.getOrCreateByIdOrFullName(sid);
+            user.setFullName(!r.getFullName().isEmpty() ? r.getFullName() : sid);
+            OmniAuthUserProperty prop = new OmniAuthUserProperty(r.getOid().isEmpty() ? null : r.getOid(), sid);
+            prop.setProvisioningSource("INDIVIDUAL");
+            user.addProperty(prop);
+            applyEmail(user, r.getEmail());
+            user.save();
+            grantGlobalRead(sid, AuthorizationType.USER);
+            return null;
+        }
+    }
+
+    /** Attach a Mailer email property, same reflective approach as doAddUser. */
+    private void applyEmail(User user, String email) {
+        if (email == null || email.trim().isEmpty()) return;
+        try {
+            ClassLoader uberCl = Jenkins.get().getPluginManager().uberClassLoader;
+            Class<?> mailerPropClass = Class.forName("hudson.tasks.Mailer$UserProperty", true, uberCl);
+            java.lang.reflect.Constructor<?> ctor = mailerPropClass.getConstructor(String.class);
+            hudson.model.UserProperty prop = (hudson.model.UserProperty) ctor.newInstance(email.trim());
+            user.addProperty(prop);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not set email for provisioned user " + user.getId(), e);
+        }
+    }
+
     // ── JIT: admin actions ───────────────────────────────────────────────────
 
     @POST
