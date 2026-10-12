@@ -1326,6 +1326,32 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("provisioning?breakerReset=true");
     }
 
+    /** Save the provisioning-portal settings from the Access Requests page. */
+    @POST
+    public void doSaveProvisioningSettings(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get();
+        if (c != null) {
+            c.setProvisioningEnabled(req.getParameter("provisioningEnabled") != null);
+            c.setProvisioningAllowEntra(req.getParameter("provisioningAllowEntra") != null);
+            c.setProvisioningAllowNative(req.getParameter("provisioningAllowNative") != null);
+            c.setProvisioningAllowedDomains(req.getParameter("provisioningAllowedDomains"));
+            c.setProvisioningDefaultDurationDays(parseIntOr(req.getParameter("provisioningDefaultDurationDays"), 0));
+            c.setProvisioningExpiryAction(req.getParameter("provisioningExpiryAction"));
+            c.setProvisioningMaxPendingPerUser(parseIntOr(req.getParameter("provisioningMaxPendingPerUser"), 1));
+            c.setProvisioningBreakerMax(parseIntOr(req.getParameter("provisioningBreakerMax"), 100));
+            c.setProvisioningBreakerWindowMin(parseIntOr(req.getParameter("provisioningBreakerWindowMin"), 10));
+            c.setProvisioningBreakerCooldownMin(parseIntOr(req.getParameter("provisioningBreakerCooldownMin"), 30));
+            c.save();
+        }
+        rsp.sendRedirect("provisioning?settingsSaved=true");
+    }
+
+    private static int parseIntOr(String v, int fallback) {
+        if (v == null || v.isBlank()) return fallback;
+        try { return Integer.parseInt(v.trim()); } catch (NumberFormatException e) { return fallback; }
+    }
+
     /**
      * Create the Jenkins account described by an approved request, mirroring doAddUser.
      * NATIVE → generate + return a temp password (account must change it on first login);

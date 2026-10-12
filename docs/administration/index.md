@@ -20,6 +20,7 @@ groups the governance and operations features into sections:
 | **Access management** | Grant/edit/revoke roles and permissions per user and group | [Access management](access-management.md) |
 | **Access review** | Certify existing access on a schedule | [Access review](access-review.md) |
 | **JIT requests** | Approve/deny/revoke Just-in-Time elevation | [JIT access](jit-access.md) |
+| **Access Requests** | Approve/reject self-service access requests | [Provisioning portal](provisioning-portal.md) |
 | **Sessions** | View and revoke active user sessions | [Sessions](sessions.md) |
 | **Protected users** | Exempt accounts from automated cleanup | [User lifecycle](user-lifecycle.md) |
 | **Stale users** | Review and clean up inactive accounts | [User lifecycle](user-lifecycle.md) |

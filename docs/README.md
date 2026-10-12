@@ -46,6 +46,7 @@ developers.
 - [Break Glass emergency access](administration/break-glass.md)
 - [Notifications](administration/notifications.md) — email, Slack, Teams
 - [User lifecycle](administration/user-lifecycle.md) — provisioning, stale cleanup, force password change
+- [Provisioning portal](administration/provisioning-portal.md) — self-service access requests + approval
 - [Login page branding](administration/login-branding.md)
 
 ### Security

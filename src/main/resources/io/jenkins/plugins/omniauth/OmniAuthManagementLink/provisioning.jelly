@@ -69,6 +69,23 @@
         .pr-reject { display:inline-flex; gap:6px; align-items:center; margin-left:6px; }
         .pr-reject input { font-size:0.82em; padding:5px 8px; width:130px;
           border:1px solid var(--input-border,#ccc); border-radius:6px; }
+
+        .pr-settings { margin-bottom:22px; }
+        .pr-settings > summary { cursor:pointer; padding:14px 18px; font-weight:700; font-size:0.95em;
+          list-style:none; display:flex; align-items:center; gap:8px; }
+        .pr-settings > summary::-webkit-details-marker { display:none; }
+        .pr-settings > summary::before { content:"\25B8"; color:var(--text-color-secondary,#888); transition:transform .15s; }
+        .pr-settings[open] > summary::before { transform:rotate(90deg); }
+        .pr-set-body { padding:4px 18px 20px; }
+        .pr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px 24px; }
+        .pr-field label { display:block; font-size:0.82em; color:var(--text-color-secondary,#888); margin-bottom:5px; }
+        .pr-field input[type=text], .pr-field input[type=number], .pr-field select {
+          width:100%; padding:7px 10px; border:1px solid var(--input-border,#ccc);
+          border-radius:6px; font-size:0.9em; box-sizing:border-box; }
+        .pr-check { display:flex; align-items:center; gap:8px; font-size:0.9em; }
+        .pr-check input { width:16px; height:16px; }
+        .pr-url { font-size:0.84em; color:var(--text-color-secondary,#888); margin-top:14px; }
+        .pr-url code { background:var(--pre-background,#f5f5f5); padding:2px 7px; border-radius:4px; }
       </style>
 
       <div class="pr-wrap">
@@ -91,6 +108,9 @@
         </j:if>
         <j:if test="${request2.getParameter('breakerReset') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Native request intake re-opened.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('settingsSaved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Portal settings saved.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'exists'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists — the request was rejected instead.</div>
@@ -123,6 +143,80 @@
             <div class="oau-kpi-card__label">Rejected</div>
           </div>
         </div>
+
+        <!-- Portal settings (collapsible) -->
+        <j:set var="cfg" value="${it.omniAuthGlobalConfig}"/>
+        <details class="jenkins-card pr-settings">
+          <summary>
+            Portal settings
+            <j:choose>
+              <j:when test="${cfg.isProvisioningEnabled()}"><span class="oau-pill oau-pill--green" style="margin-left:4px;">On</span></j:when>
+              <j:otherwise><span class="oau-pill oau-pill--gray" style="margin-left:4px;">Off</span></j:otherwise>
+            </j:choose>
+          </summary>
+          <div class="pr-set-body">
+            <form method="post" action="saveProvisioningSettings">
+              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+
+              <div style="display:flex;flex-wrap:wrap;gap:18px 28px;margin-bottom:18px;">
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningEnabled" checked="${cfg.isProvisioningEnabled() ? 'checked' : null}"/>
+                  Enable self-service access requests
+                </label>
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningAllowEntra" checked="${cfg.isProvisioningAllowEntra() ? 'checked' : null}"/>
+                  Allow Microsoft (Entra) requests
+                </label>
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningAllowNative" checked="${cfg.isProvisioningAllowNative() ? 'checked' : null}"/>
+                  Allow service-account (native) requests
+                </label>
+              </div>
+
+              <div class="pr-grid">
+                <div class="pr-field">
+                  <label for="pset-domains">Allowed email domains (comma/space separated; blank = any)</label>
+                  <input id="pset-domains" type="text" name="provisioningAllowedDomains" value="${cfg.getProvisioningAllowedDomains()}" placeholder="company.com, example.org"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-duration">Default access duration (days, 0 = permanent)</label>
+                  <input id="pset-duration" type="number" min="0" name="provisioningDefaultDurationDays" value="${cfg.getProvisioningDefaultDurationDays()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-expiry">On expiry</label>
+                  <select id="pset-expiry" name="provisioningExpiryAction">
+                    <option value="DISABLE" selected="${cfg.getProvisioningExpiryAction() == 'DISABLE' ? 'selected' : null}">Disable the account (revoke access)</option>
+                    <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
+                  </select>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-maxpending">Max pending requests per user (Entra)</label>
+                  <input id="pset-maxpending" type="number" min="1" name="provisioningMaxPendingPerUser" value="${cfg.getProvisioningMaxPendingPerUser()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-bmax">Native breaker — max requests</label>
+                  <input id="pset-bmax" type="number" min="1" name="provisioningBreakerMax" value="${cfg.getProvisioningBreakerMax()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-bwin">Native breaker — window (minutes)</label>
+                  <input id="pset-bwin" type="number" min="1" name="provisioningBreakerWindowMin" value="${cfg.getProvisioningBreakerWindowMin()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-bcool">Native breaker — cooldown (minutes)</label>
+                  <input id="pset-bcool" type="number" min="1" name="provisioningBreakerCooldownMin" value="${cfg.getProvisioningBreakerCooldownMin()}"/>
+                </div>
+              </div>
+
+              <div class="pr-url">
+                Public request page: <code>${rootURL}request-access/</code> — share this link with people who need access.
+              </div>
+
+              <div style="margin-top:18px;">
+                <button type="submit" class="jenkins-button jenkins-button--primary">Save settings</button>
+              </div>
+            </form>
+          </div>
+        </details>
 
         <!-- Circuit breaker notice -->
         <j:if test="${it.provisioningBreakerTripped}">
