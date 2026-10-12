@@ -55,6 +55,8 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     static final String SESSION_FROM_URL       = "omniauth_from_url";
     static final String SESSION_CODE_VERIFIER  = "omniauth_code_verifier";
     static final String SESSION_NONCE          = "omniauth_nonce";
+    /** Set when the OAuth flow was started as a provisioning-portal access request, not a login. */
+    static final String SESSION_PROVISION_MODE = "omniauth_provision_mode";
 
     /** Azure AD configuration — may be null when Entra login is not yet configured. */
     private final EntraOAuthConfig entraConfig;
@@ -285,6 +287,14 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             req.getSession().setAttribute(SESSION_FROM_URL, from);
         }
 
+        // Provisioning portal: this OAuth flow is an access REQUEST, not a login. The flag is
+        // read back in finishEntraLogin to create a PENDING request instead of a session.
+        if ("1".equals(req.getParameter("provision"))) {
+            req.getSession().setAttribute(SESSION_PROVISION_MODE, Boolean.TRUE);
+        } else {
+            req.getSession().removeAttribute(SESSION_PROVISION_MODE);
+        }
+
         // PKCE — generate a cryptographically random code verifier and derive its challenge
         // The verifier stays in the session; only the SHA-256 hash (challenge) goes to Azure.
         // On token exchange, Azure re-hashes the verifier and compares — proving the same
@@ -389,6 +399,14 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             }
         }
 
+        // Provisioning portal: if this flow was started as an access REQUEST (provision=1),
+        // create a PENDING request from the Microsoft-verified identity instead of logging in.
+        boolean provisionMode = Boolean.TRUE.equals(req.getSession().getAttribute(SESSION_PROVISION_MODE));
+        req.getSession().removeAttribute(SESSION_PROVISION_MODE);
+        if (provisionMode) {
+            return handleEntraProvisionRequest(oid, upn, name, email, groups);
+        }
+
         // Gate: only individually pre-provisioned users or members of allowed groups can log in.
         if (!isPreProvisioned(oid, upn, groups)) {
             String displayId = upn != null ? upn : oid;
@@ -449,6 +467,49 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Handle a provisioning-portal access request that came through the Microsoft sign-in flow.
+     * The caller has already proven the user's identity via OAuth; here we record a PENDING
+     * {@link ProvisioningRequest} (unless the user already has access or a request is pending),
+     * then send them back to the request page. Never establishes a session.
+     */
+    private HttpResponse handleEntraProvisionRequest(String oid, String upn, String name,
+                                                     String email, List<EntraGroupDetails> groups) {
+        String root = Jenkins.get().getRootUrl();
+        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+
+        // Portal must be enabled with Entra requests allowed; otherwise behave like a normal
+        // not-provisioned rejection so we don't silently swallow the login.
+        if (cfg == null || !cfg.isProvisioningEnabled() || !cfg.isProvisioningAllowEntra()) {
+            return HttpResponses.redirectTo(root + "loginError?error=notProvisioned");
+        }
+
+        // The Jenkins user id mirrors the login flow: UPN (email) when present, else the OID.
+        String userId = (upn != null && !upn.isEmpty()) ? upn : oid;
+
+        // Already has access (individually or via group)? Don't create a request — tell them.
+        if (isPreProvisioned(oid, upn, groups) || User.getById(userId, false) != null) {
+            return HttpResponses.redirectTo(root + "request-access/?already=1");
+        }
+
+        // Optional domain gate, against the verified UPN/email.
+        String emailForDomain = (email != null && !email.isEmpty()) ? email : userId;
+        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, cfg.getProvisioningAllowedDomains())) {
+            return HttpResponses.redirectTo(root + "request-access/?error=domain");
+        }
+
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        if (store != null && store.findPendingForUser(userId) == null) {
+            ProvisioningRequest r = ProvisioningRequest.create(
+                    ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid,
+                    "Requested via Microsoft sign-in", cfg.getProvisioningDefaultDurationDays(), null);
+            store.addRequest(r);
+            LOGGER.log(Level.INFO, "Provisioning: Entra access request submitted for {0}", userId);
+            // Admin notification is wired in the notifications increment.
+        }
+        return HttpResponses.redirectTo(root + "request-access/?submitted=1");
+    }
 
     private User getOrCreateEntraUser(String oid, String upn, String displayName,
                                       List<EntraGroupDetails> groups) throws IOException {

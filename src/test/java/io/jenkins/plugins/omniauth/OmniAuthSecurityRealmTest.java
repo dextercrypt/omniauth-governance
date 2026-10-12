@@ -562,4 +562,56 @@ public class OmniAuthSecurityRealmTest {
 
         assertEquals("Nonce mismatch should return 400", 400, resp.status);
     }
+
+    /**
+     * Provisioning portal via SSO: when the OAuth flow is started with provision=1 and the
+     * user is NOT already provisioned, finishEntraLogin must create a PENDING access request
+     * (no session, no account) and redirect to the request page — never to notProvisioned.
+     */
+    @Test
+    public void finishLogin_provisionMode_createsPendingRequestInsteadOfLogin() throws Exception {
+        FakeMsalTokenHelper fakeHelper = new FakeMsalTokenHelper();
+        fakeHelper.fakeResult = new FakeAuthResult("fake.id.token", null); // no accessToken → no group sync
+
+        OmniAuthSecurityRealm realm = realmWithFakeHelper(testConfig(), fakeHelper);
+        j.jenkins.setSecurityRealm(realm);
+
+        // Enable the provisioning portal with Entra requests allowed.
+        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+        cfg.setProvisioningEnabled(true);
+        cfg.setProvisioningAllowEntra(true);
+        cfg.save();
+
+        FakeSession session = new FakeSession();
+
+        // Step 1: commenceLogin WITH provision=1 → sets the provision-mode session flag.
+        realm.startEntraLogin(fakeRequest(Map.of("provision", "1"), session));
+        assertNotNull("Nonce must be captured", fakeHelper.capturedNonce);
+
+        // Step 2: arm the token with the matching nonce.
+        fakeHelper.fakeClaims = fakeClaims(fakeHelper.capturedNonce);
+
+        // Step 3: finishLogin — identity is proven, but this is a REQUEST, not a login.
+        Map<String, String> params = new HashMap<>();
+        params.put("state", fakeHelper.capturedState);
+        params.put("code",  "fake-auth-code");
+        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        Resp resp = captureResponse(response);
+
+        assertEquals(302, resp.status);
+        assertTrue("Should redirect to the request page as submitted, got: " + resp.location,
+                resp.location.contains("request-access/?submitted=1"));
+        assertFalse("Must NOT reject as notProvisioned", resp.location.contains("notProvisioned"));
+
+        // No Jenkins account should be created for a mere request.
+        assertNull("No user should be provisioned by a request",
+                hudson.model.User.getById("testuser@example.com", false));
+
+        // A PENDING Entra request should exist, carrying the Microsoft-verified identity.
+        ProvisioningRequest pending = ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com");
+        assertNotNull("A PENDING request should have been created", pending);
+        assertEquals(ProvisioningRequest.TYPE_ENTRA, pending.getRequestType());
+        assertEquals("test-oid-abc123", pending.getOid());
+        assertTrue("Request should be pending", pending.isPending());
+    }
 }

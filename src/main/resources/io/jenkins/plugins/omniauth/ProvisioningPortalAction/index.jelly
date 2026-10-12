@@ -24,6 +24,7 @@
     <j:set var="simpleDecorator" value="${h.simplePageDecorator}"/>
     <j:set var="err" value="${request2.getParameter('error')}"/>
     <j:set var="submitted" value="${request2.getParameter('submitted')}"/>
+    <j:set var="already" value="${request2.getParameter('already')}"/>
 
     <html lang="${request2.getLocale().toLanguageTag()}">
       <head data-rooturl="${rootURL}" data-resurl="${resURL}" data-imagesurl="${imagesURL}" resURL="${resURL}">
@@ -147,7 +148,14 @@
               <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
             </j:if>
 
-            <j:if test="${submitted == null}">
+            <j:if test="${already != null}">
+              <div class="pa-banner pa-ok">
+                You already have access to this Jenkins — no request needed. Please sign in.
+              </div>
+              <div class="pa-foot"><a href="${rootURL}/">Go to sign in</a></div>
+            </j:if>
+
+            <j:if test="${submitted == null and already == null}">
               <!-- Error banners -->
               <j:choose>
                 <j:when test="${err == 'unavailable'}">
