@@ -1345,6 +1345,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                 if (!r.getFullName().isEmpty()) user.setFullName(r.getFullName());
                 applyEmail(user, r.getEmail());
                 user.addProperty(new OmniAuthForcePasswordProperty(true));
+                applyAccountExpiry(user, r);
                 user.save();
             }
             grantGlobalRead(sid, AuthorizationType.USER);
@@ -1356,10 +1357,19 @@ public class OmniAuthManagementLink extends ManagementLink {
             prop.setProvisioningSource("INDIVIDUAL");
             user.addProperty(prop);
             applyEmail(user, r.getEmail());
+            applyAccountExpiry(user, r);
             user.save();
             grantGlobalRead(sid, AuthorizationType.USER);
             return null;
         }
+    }
+
+    /** Attach a time-limited expiry to a provisioned account when the request had a duration. */
+    private void applyAccountExpiry(User user, ProvisioningRequest r) throws java.io.IOException {
+        if (r.getRequestedDurationDays() <= 0) return; // 0 = permanent
+        String expiresAt = java.time.Instant.now()
+                .plus(r.getRequestedDurationDays(), java.time.temporal.ChronoUnit.DAYS).toString();
+        user.addProperty(new OmniAuthAccountExpiryProperty(expiresAt));
     }
 
     /** Attach a Mailer email property, same reflective approach as doAddUser. */
@@ -2340,6 +2350,29 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
         String back = ("userStatus".equals(from)) ? "userStatus" : "staleUsers";
         rsp.sendRedirect(back + "?unmarked=true");
+    }
+
+    /**
+     * Revoke all GLOBAL permission entries for a sid (rebuilds the global strategy without them).
+     * Used by the account-expiry worker to disable an account — losing global Read effectively
+     * locks the user out. Static so background work can call it without a console instance.
+     */
+    static void purgeGlobalMatrix(String userId) {
+        hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
+        if (!(strat instanceof OmniAuthAuthorizationStrategy)) return;
+        OmniAuthAuthorizationStrategy current = (OmniAuthAuthorizationStrategy) strat;
+        OmniAuthAuthorizationStrategy rebuilt = new OmniAuthAuthorizationStrategy();
+        for (Map.Entry<Permission, Set<PermissionEntry>> e : current.getGrantedPermissionEntries().entrySet()) {
+            for (PermissionEntry pe : e.getValue()) {
+                if (!pe.getSid().equals(userId)) {
+                    rebuilt.add(e.getKey(), pe);
+                }
+            }
+        }
+        Jenkins.get().setAuthorizationStrategy(rebuilt);
+        try { Jenkins.get().save(); } catch (Exception ex) {
+            LOGGER.log(Level.WARNING, "Failed to save Jenkins config after purging global matrix for " + userId, ex);
+        }
     }
 
     private void purgeMatrixEntries(String userId) {
