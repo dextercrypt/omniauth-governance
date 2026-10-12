@@ -1250,6 +1250,13 @@ public class OmniAuthManagementLink extends ManagementLink {
     /** True when the native-intake circuit breaker is currently tripped. */
     public boolean isProvisioningBreakerTripped() { return ProvisioningBreaker.isTripped(); }
 
+    /** Count of provisioning requests in a given status (for the queue's summary tiles). */
+    public long getProvisioningCountByStatus(String status) {
+        ProvisioningRequestConfig s = ProvisioningRequestConfig.get();
+        if (s == null || status == null) return 0;
+        return s.getAllRequests().stream().filter(r -> status.equals(r.getStatus())).count();
+    }
+
     /** One-time read of the temp password stashed by the last native approval, for the flash. */
     public String getProvisioningTempPassword() {
         org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();

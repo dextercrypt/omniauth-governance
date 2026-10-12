@@ -17,45 +17,116 @@
       </div>
 
       <style>
-        .pr-th { text-align:left; padding:10px 16px; font-size:0.72em; font-weight:700;
-                 text-transform:uppercase; letter-spacing:0.04em; color:var(--text-color-secondary,#888); }
-        .pr-td { padding:12px 16px; font-size:0.88em; vertical-align:top; }
-        .pr-badge { display:inline-block; font-size:0.72em; font-weight:700; padding:2px 8px; border-radius:10px; }
-        .pr-entra  { background:rgba(0,120,212,0.15); color:#2563eb; }
-        .pr-native { background:rgba(100,116,139,0.18); color:#475569; }
+        .pr-wrap { padding: 4px 4px 60px; max-width: 1100px; }
+
+        /* KPI tiles — same component as the Overview page (oau-kpi-card, centered). */
+        .pr-kpis { display:flex; gap:14px; margin: 6px 0 22px; flex-wrap:wrap; }
+        .oau-kpi-card {
+          flex:1; min-width:120px; padding:16px 12px; text-align:center;
+          border-radius: var(--card-border-radius, 8px);
+          background: var(--background, #fff);
+          border: 1px solid var(--panel-border-color, #e0e0e0);
+        }
+        .oau-kpi-card__icon { width:40px; height:40px; border-radius:10px;
+          display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
+        .oau-kpi-card__value { font-size:1.8em; font-weight:700; line-height:1.1; }
+        .oau-kpi-card__label { font-size:0.78em; color:var(--text-color-secondary,#6c757d); margin-top:4px; }
+
+        /* Status/type pills — same component as the rest of the console (oau-pill). */
+        .oau-pill { display:inline-block; font-size:0.72em; font-weight:600; padding:2px 9px; border-radius:12px; white-space:nowrap; }
+        .oau-pill--green { background:#d1e7dd; color:#0a3622; }
+        .oau-pill--blue  { background:#dbeafe; color:#1e40af; }
+        .oau-pill--amber { background:#fff3cd; color:#664d03; }
+        .oau-pill--gray  { background:#f0f0f0; color:#6c757d; }
+        .oau-pill--red   { background:#f8d7da; color:#58151c; }
+
+        .pr-card { padding: 0; overflow:hidden; margin-bottom:22px; border-radius: var(--card-border-radius, 8px); }
+        .pr-card__head {
+          display:flex; align-items:center; gap:8px;
+          padding:14px 18px; border-bottom:1px solid var(--panel-border-color,#eee);
+          font-weight:700; font-size:0.95em;
+        }
+        .pr-count {
+          background:#d97706; color:#fff; border-radius:11px;
+          font-size:0.72em; font-weight:700; padding:2px 9px;
+        }
+        .pr-table { width:100%; border-collapse:collapse; }
+        .pr-th { text-align:left; padding:10px 16px; font-size:0.76em; font-weight:700;
+          text-transform:uppercase; letter-spacing:0.04em; color:var(--text-color-secondary,#888);
+          background: var(--table-header-background, rgba(0,0,0,0.015)); }
+        .pr-td { padding:12px 16px; font-size:0.88em; vertical-align:middle;
+          border-top:1px solid var(--panel-border-color,#f1f1f1); }
+        .pr-row:hover .pr-td { background: var(--table-row-hover, rgba(0,0,0,0.018)); }
+
+        .pr-user  { font-weight:600; }
+        .pr-sub   { font-size:0.84em; color:var(--text-color-secondary,#8a9099); margin-top:2px; }
+        .pr-reason{ max-width:260px; white-space:normal; word-break:break-word; color:var(--text-color,#333); }
+        .pr-when  { color:var(--text-color-secondary,#9aa0a6); white-space:nowrap; font-size:0.86em; }
+
+        .pr-empty { padding:46px 20px; text-align:center; color:var(--text-color-secondary,#9aa0a6); }
+        .pr-empty svg { opacity:0.28; margin-bottom:10px; }
+
+        .pr-reject { display:inline-flex; gap:6px; align-items:center; margin-left:6px; }
+        .pr-reject input { font-size:0.82em; padding:5px 8px; width:130px;
+          border:1px solid var(--input-border,#ccc); border-radius:6px; }
       </style>
 
-      <div style="padding:0 16px 60px;">
+      <div class="pr-wrap">
 
         <!-- Flash messages -->
         <j:if test="${request2.getParameter('approved') != null}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">
             Approved — account <b>${request2.getParameter('approved')}</b> has been created.
             <j:set var="tmp" value="${it.provisioningTempPassword}"/>
             <j:if test="${tmp != null}">
               <div style="margin-top:8px;">
                 Temporary password (shown once — share it securely; the user must change it on first sign-in):
-                <code style="font-size:1em;background:#0b1220;color:#eaf1ff;padding:3px 8px;border-radius:4px;">${tmp}</code>
+                <code style="font-size:1em;background:#0b1220;color:#eaf1ff;padding:3px 9px;border-radius:5px;">${tmp}</code>
               </div>
             </j:if>
           </div>
         </j:if>
         <j:if test="${request2.getParameter('rejected') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Request rejected.</div>
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Request rejected.</div>
         </j:if>
         <j:if test="${request2.getParameter('breakerReset') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Native request intake re-opened.</div>
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Native request intake re-opened.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'exists'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">An account with that id already exists — the request was rejected instead.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists — the request was rejected instead.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'notFound'}">
-          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">That request no longer exists or was already decided.</div>
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:14px;">That request no longer exists or was already decided.</div>
         </j:if>
+
+        <!-- Summary tiles (oau-kpi-card, same as Overview) -->
+        <div class="pr-kpis">
+          <div class="oau-kpi-card">
+            <div class="oau-kpi-card__icon" style="background:#fff3cd;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#b45309"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="oau-kpi-card__value" style="color:#b45309;">${it.pendingProvisioningCount}</div>
+            <div class="oau-kpi-card__label">Pending</div>
+          </div>
+          <div class="oau-kpi-card">
+            <div class="oau-kpi-card__icon" style="background:#d1e7dd;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#0a7a43"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="oau-kpi-card__value" style="color:#0a7a43;">${it.getProvisioningCountByStatus('APPROVED')}</div>
+            <div class="oau-kpi-card__label">Approved</div>
+          </div>
+          <div class="oau-kpi-card">
+            <div class="oau-kpi-card__icon" style="background:#f8d7da;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#b42318"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="oau-kpi-card__value" style="color:#b42318;">${it.getProvisioningCountByStatus('REJECTED')}</div>
+            <div class="oau-kpi-card__label">Rejected</div>
+          </div>
+        </div>
 
         <!-- Circuit breaker notice -->
         <j:if test="${it.provisioningBreakerTripped}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <span>Native request intake is paused by the circuit breaker (too many requests).</span>
             <form method="post" action="resetProvisioningBreaker" style="margin:0;">
               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
@@ -65,63 +136,54 @@
         </j:if>
 
         <!-- Pending -->
-        <div style="display:flex;align-items:center;gap:8px;margin:8px 0 10px;font-weight:700;font-size:0.95em;">
-          Pending
-          <j:if test="${!it.pendingProvisioningRequests.isEmpty()}">
-            <span style="background:#d97706;color:#fff;border-radius:10px;font-size:0.72em;font-weight:700;padding:2px 8px;">${it.pendingProvisioningRequests.size()}</span>
-          </j:if>
-        </div>
-
-        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;margin-bottom:28px;">
+        <div class="jenkins-card pr-card">
+          <div class="pr-card__head">
+            Pending
+            <j:if test="${!it.pendingProvisioningRequests.isEmpty()}">
+              <span class="pr-count">${it.pendingProvisioningRequests.size()}</span>
+            </j:if>
+          </div>
           <j:choose>
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
-              <div style="padding:40px;text-align:center;color:var(--text-color-secondary,#888);font-size:0.9em;">
-                No pending access requests.
+              <div class="pr-empty">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                <div style="font-size:0.92em;">You're all caught up — no pending access requests.</div>
               </div>
             </j:when>
             <j:otherwise>
-              <table style="width:100%;border-collapse:collapse;">
+              <table class="pr-table">
                 <thead>
-                  <tr style="background:var(--background-color,#fafafa);border-bottom:2px solid var(--panel-border-color,#e0e0e0);">
+                  <tr>
                     <th class="pr-th">Type</th>
                     <th class="pr-th">User</th>
                     <th class="pr-th">Reason</th>
                     <th class="pr-th">Duration</th>
                     <th class="pr-th">Requested</th>
-                    <th class="pr-th" style="width:300px;"></th>
+                    <th class="pr-th" style="text-align:right;">Decision</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <j:forEach var="r" items="${it.pendingProvisioningRequests}" varStatus="rs">
-                    <tr style="border-bottom:${rs.last ? '0' : '1px'} solid var(--panel-border-color,#f0f0f0);">
+                  <j:forEach var="r" items="${it.pendingProvisioningRequests}">
+                    <tr class="pr-row">
+                      <td class="pr-td"><span class="oau-pill ${r.entra ? 'oau-pill--blue' : 'oau-pill--gray'}">${r.typeLabel()}</span></td>
                       <td class="pr-td">
-                        <span class="pr-badge ${r.entra ? 'pr-entra' : 'pr-native'}">${r.typeLabel()}</span>
+                        <div class="pr-user">${r.userId}</div>
+                        <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
+                        <j:if test="${r.fullName != '' and r.fullName != r.userId}"><div class="pr-sub">${r.fullName}</div></j:if>
                       </td>
-                      <td class="pr-td">
-                        <div style="font-weight:600;">${r.userId}</div>
-                        <j:if test="${r.email != ''}">
-                          <div style="font-size:0.85em;color:var(--text-color-secondary,#888);">${r.email}</div>
-                        </j:if>
-                        <j:if test="${r.fullName != ''}">
-                          <div style="font-size:0.85em;color:var(--text-color-secondary,#888);">${r.fullName}</div>
-                        </j:if>
-                      </td>
-                      <td class="pr-td" style="max-width:240px;">
-                        <div style="white-space:normal;word-break:break-word;">${r.reason}</div>
-                      </td>
+                      <td class="pr-td"><div class="pr-reason">${r.reason}</div></td>
                       <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
-                      <td class="pr-td" style="white-space:nowrap;color:var(--text-color-secondary,#888);">${r.timeAgo()}</td>
+                      <td class="pr-td pr-when">${r.timeAgo()}</td>
                       <td class="pr-td" style="text-align:right;white-space:nowrap;">
                         <form method="post" action="approveProvisioning" style="display:inline;">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
                           <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
                         </form>
-                        <form method="post" action="rejectProvisioning" style="display:inline-flex;gap:6px;margin-left:6px;align-items:center;">
+                        <form method="post" action="rejectProvisioning" class="pr-reject">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
-                          <input type="text" name="comment" placeholder="reason (optional)"
-                                 style="font-size:0.82em;padding:4px 6px;width:120px;"/>
+                          <input type="text" name="comment" placeholder="reason (optional)"/>
                           <button type="submit" class="jenkins-button jenkins-button--small">Reject</button>
                         </form>
                       </td>
@@ -133,33 +195,54 @@
           </j:choose>
         </div>
 
-        <!-- Recent (decided) -->
-        <div style="margin:8px 0 10px;font-weight:700;font-size:0.95em;">Recent</div>
-        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;">
+        <!-- Recent -->
+        <div class="jenkins-card pr-card">
+          <div class="pr-card__head">Recent decisions</div>
           <j:set var="decided" value="${it.recentProvisioningRequests}"/>
-          <table style="width:100%;border-collapse:collapse;">
-            <tbody>
-              <j:forEach var="r" items="${decided}">
-                <j:if test="${!r.pending}">
-                  <tr style="border-bottom:1px solid var(--panel-border-color,#f3f3f3);">
-                    <td class="pr-td" style="width:1%;"><span class="pr-badge ${r.entra ? 'pr-entra' : 'pr-native'}">${r.typeLabel()}</span></td>
-                    <td class="pr-td" style="font-weight:600;">${r.userId}</td>
-                    <td class="pr-td">
-                      <j:choose>
-                        <j:when test="${r.approved}"><span style="color:#16a34a;font-weight:600;">Approved</span></j:when>
-                        <j:when test="${r.rejected}"><span style="color:#dc2626;font-weight:600;">Rejected</span></j:when>
-                        <j:otherwise>${r.statusLabel()}</j:otherwise>
-                      </j:choose>
-                      <j:if test="${r.decisionComment != ''}">
-                        <span style="color:var(--text-color-secondary,#888);font-size:0.85em;"> — ${r.decisionComment}</span>
-                      </j:if>
-                    </td>
-                    <td class="pr-td" style="color:var(--text-color-secondary,#888);white-space:nowrap;">${r.decidedBy}</td>
+          <j:set var="anyDecided" value="false"/>
+          <j:forEach var="r" items="${decided}"><j:if test="${!r.pending}"><j:set var="anyDecided" value="true"/></j:if></j:forEach>
+          <j:choose>
+            <j:when test="${anyDecided == 'false'}">
+              <div class="pr-empty"><div style="font-size:0.92em;">No decisions yet.</div></div>
+            </j:when>
+            <j:otherwise>
+              <table class="pr-table">
+                <thead>
+                  <tr>
+                    <th class="pr-th">Type</th>
+                    <th class="pr-th">User</th>
+                    <th class="pr-th">Status</th>
+                    <th class="pr-th">Note</th>
+                    <th class="pr-th" style="text-align:right;">By</th>
                   </tr>
-                </j:if>
-              </j:forEach>
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  <j:forEach var="r" items="${decided}">
+                    <j:if test="${!r.pending}">
+                      <tr class="pr-row">
+                        <td class="pr-td"><span class="oau-pill ${r.entra ? 'oau-pill--blue' : 'oau-pill--gray'}">${r.typeLabel()}</span></td>
+                        <td class="pr-td"><span class="pr-user">${r.userId}</span></td>
+                        <td class="pr-td">
+                          <j:choose>
+                            <j:when test="${r.approved}"><span class="oau-pill oau-pill--green">Approved</span></j:when>
+                            <j:when test="${r.rejected}"><span class="oau-pill oau-pill--red">Rejected</span></j:when>
+                            <j:otherwise><span class="oau-pill oau-pill--amber">${r.statusLabel()}</span></j:otherwise>
+                          </j:choose>
+                        </td>
+                        <td class="pr-td pr-sub" style="max-width:280px;">
+                          <j:choose>
+                            <j:when test="${r.decisionComment != ''}">${r.decisionComment}</j:when>
+                            <j:otherwise><span style="opacity:0.5;">—</span></j:otherwise>
+                          </j:choose>
+                        </td>
+                        <td class="pr-td pr-when" style="text-align:right;">${r.decidedBy}</td>
+                      </tr>
+                    </j:if>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </j:otherwise>
+          </j:choose>
         </div>
 
       </div>
