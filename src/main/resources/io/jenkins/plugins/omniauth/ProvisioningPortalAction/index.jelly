@@ -35,20 +35,29 @@
           /* ===== Dark right panel + soft glow (verbatim from login.jelly) ===== */
           .app-sign-in-register__content {
             position: relative;
-            overflow: hidden;
-            background: linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
-          }
-          .app-sign-in-register__content::before {
-            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            /* Taller than the login form — allow vertical scroll instead of clipping
+               the heading. The glow + vignette are baked into this element's own
+               background (stacked layers, painted top→bottom) rather than into scrolling
+               ::before/::after overlays, so they stay fixed to the panel and don't drift
+               away as the form scrolls — keeping the panel uniform top to bottom. */
+            overflow-y: auto;
+            overflow-x: hidden;
             background:
+              radial-gradient(120% 120% at 70% 50%, transparent 55%, rgba(2,6,16,0.55) 100%),
               radial-gradient(140% 90% at -6% 50%, rgba(40,120,230,0.18) 0%, rgba(30,90,200,0.06) 28%, transparent 56%),
-              radial-gradient(60% 50% at 6% 42%, rgba(34,211,238,0.07) 0%, transparent 60%);
+              radial-gradient(60% 50% at 6% 42%, rgba(34,211,238,0.07) 0%, transparent 60%),
+              linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
+            background-repeat: no-repeat;
           }
-          .app-sign-in-register__content::after {
-            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-            background: radial-gradient(120% 120% at 70% 50%, transparent 55%, rgba(2,6,16,0.55) 100%);
+          .app-sign-in-register__content-inner {
+            position: relative; z-index: 2;
+            /* Center vertically when there's room; when the form is taller than the
+               viewport the auto margins collapse and it scrolls from the top, so the
+               "Request access" heading is never clipped. */
+            margin-block: auto;
+            padding-block: 40px;
+            box-sizing: border-box;
           }
-          .app-sign-in-register__content-inner { position: relative; z-index: 2; }
 
           /* company-logo placement (Settings → Logo Position: a|e|f) */
           .brand-logo img { height: ${logoSize}px; width: auto; max-width: none; object-fit: contain; display: block; }
