@@ -492,8 +492,9 @@ public class OmniAuthSecurityRealmTest {
     // ─── Tier 3: Full OAuth2 flow (direct method calls) ──────────────────────
 
     /**
-     * Happy path: commenceLogin followed by finishLogin with a valid code and
-     * correct nonce should provision a Jenkins user and redirect to the dashboard.
+     * Happy path under Option B pre-provisioning: a user whose account already exists (admin
+     * pre-provisioned) completing a valid commenceLogin → finishLogin should be signed in and
+     * redirected to the dashboard, not rejected. (Unprovisioned users are covered separately.)
      */
     @Test
     public void finishLogin_validOAuthFlow_createsJenkinsUserAndRedirects() throws Exception {
@@ -503,6 +504,13 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = realmWithFakeHelper(testConfig(), fakeHelper);
         j.jenkins.setSecurityRealm(realm);
         FakeSession session = new FakeSession();
+
+        // Pre-provision the account (SSO login requires the account to already exist under Option B).
+        // A returning user keeps their stored name — only brand-new users take it from the token.
+        hudson.model.User pre = hudson.model.User.getById("testuser@example.com", true);
+        pre.setFullName("Test User");
+        pre.addProperty(new OmniAuthUserProperty("test-oid-abc123", "testuser@example.com"));
+        pre.save();
 
         // Step 1: commenceLogin — stores state and nonce in session, captures them in fakeHelper
         realm.startEntraLogin(fakeRequest(Map.of(), session));
