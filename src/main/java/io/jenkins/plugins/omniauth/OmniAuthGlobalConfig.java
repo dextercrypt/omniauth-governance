@@ -116,6 +116,15 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     public List<String> getProtectedUsers()  { return Collections.unmodifiableList(protectedUsers); }
     public boolean isProtected(String uid)   { return uid != null && protectedUsers.contains(uid); }
+    /**
+     * Replace the protected-users list and persist, WITHOUT touching any other setting.
+     * Use this instead of routing a single-field change through {@link #configure} — that
+     * reparses every field from the given JSON and resets anything absent to its default.
+     */
+    public void setProtectedUsers(List<String> users) {
+        this.protectedUsers = (users == null) ? new ArrayList<>() : new ArrayList<>(users);
+        save();
+    }
     public int getStaleThresholdDays()       { return staleThresholdDays; }
     public int getActiveThresholdDays()      { return activeThresholdDays; }
     public boolean isCleanupEnabled()        { return cleanupEnabled; }

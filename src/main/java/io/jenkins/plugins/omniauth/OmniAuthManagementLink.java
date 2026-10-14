@@ -680,13 +680,10 @@ public class OmniAuthManagementLink extends ManagementLink {
         if (config != null) {
             List<String> oldProtected = new ArrayList<>(config.getProtectedUsers());
 
-            net.sf.json.JSONObject json = new net.sf.json.JSONObject();
-            if (selected != null && selected.length > 0) {
-                net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
-                for (String s : selected) arr.add(s);
-                json.put("protectedUsers", arr);
-            }
-            config.configure(req, json);
+            // Change ONLY the protected-users list. Do NOT route through configure(json):
+            // that reparses every field and would reset all other settings to defaults.
+            List<String> newList = (selected != null) ? new ArrayList<>(java.util.Arrays.asList(selected)) : new ArrayList<>();
+            config.setProtectedUsers(newList);
 
             List<String> newProtected = new ArrayList<>(config.getProtectedUsers());
             List<String> added   = new ArrayList<>(newProtected);
