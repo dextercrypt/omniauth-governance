@@ -162,7 +162,7 @@
                   <div class="pa-banner pa-warn">The request portal is busy right now. Please try again in a few minutes.</div>
                 </j:when>
                 <j:when test="${err == 'missing'}">
-                  <div class="pa-banner pa-err">Please fill in your username, email, and a reason.</div>
+                  <div class="pa-banner pa-err">Please fill in your username, email, a reason, and what access you need.</div>
                 </j:when>
                 <j:when test="${err == 'domain'}">
                   <div class="pa-banner pa-err">That email domain isn't accepted for access requests.</div>
@@ -245,6 +245,11 @@
                           <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
                           <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
                                     placeholder="Why do you need access?"></textarea>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-access">What access do you need?</label>
+                          <textarea id="pa-access" class="jenkins-input" name="requestedAccess" required="required"
+                                    placeholder="e.g. run and configure jobs in the mobile-app folder"></textarea>
                         </div>
                         <div style="margin-top:16px;">
                           <label class="app-sign-in-register__form-label" for="pa-days">Access duration (days, 0 = permanent)</label>

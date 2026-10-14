@@ -101,7 +101,7 @@
         <!-- Flash messages -->
         <j:if test="${request2.getParameter('approved') != null}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">
-            Approved — account <b>${request2.getParameter('approved')}</b> has been created.
+            Approved — account <b>${request2.getParameter('approved')}</b> has been created<j:choose><j:when test="${request2.getParameter('role') != null}"> and granted the <b>${request2.getParameter('role')}</b> role.</j:when><j:otherwise> with sign-in access.</j:otherwise></j:choose>
             <j:set var="tmp" value="${it.provisioningTempPassword}"/>
             <j:if test="${tmp != null}">
               <div style="margin-top:8px;">
@@ -285,13 +285,25 @@
                         <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
                         <j:if test="${r.fullName != '' and r.fullName != r.userId}"><div class="pr-sub">${r.fullName}</div></j:if>
                       </td>
-                      <td class="pr-td"><div class="pr-reason">${r.reason}</div></td>
+                      <td class="pr-td">
+                        <div class="pr-reason">${r.reason}</div>
+                        <j:if test="${r.requestedAccess != ''}">
+                          <div class="pr-sub" style="margin-top:5px;"><span style="font-weight:600;opacity:0.75;">Wants:</span> ${r.requestedAccess}</div>
+                        </j:if>
+                      </td>
                       <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
                       <td class="pr-td pr-when">${r.timeAgo()}</td>
                       <td class="pr-td" style="text-align:right;white-space:nowrap;">
-                        <form method="post" action="approveProvisioning" style="display:inline;">
+                        <form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
+                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later"
+                                  style="font-size:0.82em;padding:4px 6px;border:1px solid var(--input-border,#ccc);border-radius:6px;max-width:150px;">
+                            <option value="NONE">Sign-in only</option>
+                            <j:forEach var="role" items="${it.roles}">
+                              <option value="${role.name}">+ ${role.name}</option>
+                            </j:forEach>
+                          </select>
                           <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
                         </form>
                         <form method="post" action="rejectProvisioning" class="pr-reject">

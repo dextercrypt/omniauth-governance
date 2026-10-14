@@ -125,9 +125,10 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         String fullName = trim(req.getParameter("fullName"));
         String email    = trim(req.getParameter("email"));
         String reason   = trim(req.getParameter("reason"));
+        String access   = trim(req.getParameter("requestedAccess"));
         int    days     = parseDays(req.getParameter("durationDays"), c.getProvisioningDefaultDurationDays());
 
-        if (username.isEmpty() || email.isEmpty() || reason.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty() || reason.isEmpty() || access.isEmpty()) {
             rsp.sendRedirect(ctx + "/request-access/?error=missing"); return;
         }
 
@@ -147,6 +148,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         if (!duplicate && store != null) {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_NATIVE, username, fullName, email, null, reason, days, clientIp(req));
+            r.setRequestedAccess(access);
             store.addRequest(r);
             LOGGER.info("Provisioning: native access request submitted for '" + username + "'");
             // Admin notification is wired in the notifications increment.
@@ -181,8 +183,9 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         String email = str(s.getAttribute(SESSION_ENTRA_EMAIL));
 
         String reason = trim(req.getParameter("reason"));
+        String access = trim(req.getParameter("requestedAccess"));
         int    days   = parseDays(req.getParameter("durationDays"), c.getProvisioningDefaultDurationDays());
-        if (reason.isEmpty()) {
+        if (reason.isEmpty() || access.isEmpty()) {
             rsp.sendRedirect(ctx + "/request-access/reason?error=missing"); return;
         }
 
@@ -200,6 +203,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         if (store != null && store.findPendingForUser(userId) == null) {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid, reason, days, clientIp(req));
+            r.setRequestedAccess(access);
             store.addRequest(r);
             LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
             // Admin notification is wired in the notifications increment.

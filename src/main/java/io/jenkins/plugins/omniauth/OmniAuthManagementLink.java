@@ -1297,12 +1297,31 @@ public class OmniAuthManagementLink extends ManagementLink {
         LOGGER.log(Level.INFO, "Provisioning: approved {0} request for {1} ({2})",
                 new Object[]{ r.getRequestType(), r.getUserId(), r.durationLabel() });
 
+        // Optional approve-with-a-role: if the admin picked a role, grant it globally. The account
+        // already has global Read (grantGlobalRead in createAccountFromRequest); this layers the
+        // role's permissions on top. Blank/NONE keeps today's sign-in-only behaviour. Scoped grants
+        // stay on the user-detail page.
+        String grantRole = req.getParameter("grantRole");
+        String grantedRole = null;
+        if (grantRole != null && !grantRole.isBlank() && !"NONE".equalsIgnoreCase(grantRole)) {
+            OmniAuthRoleConfig roleConfig = OmniAuthRoleConfig.get();
+            OmniAuthRoleConfig.RoleDefinition roleDef = roleConfig != null ? roleConfig.findRole(grantRole) : null;
+            if (roleDef != null && !roleDef.getPermissionIds().isEmpty()) {
+                grantGlobalRole(r.getUserId(), AuthorizationType.USER, new HashSet<>(roleDef.getPermissionIds()));
+                grantedRole = roleDef.getName();
+                if (audit != null) audit.logGrant(admin, r.getUserId(), grantedRole, "", null);
+                LOGGER.log(Level.INFO, "Provisioning: granted role {0} (global) to {1}",
+                        new Object[]{ grantedRole, r.getUserId() });
+            }
+        }
+
         // Stash the one-time temp password for display (NATIVE only). Account expiry
         // enforcement for time-limited requests is wired in a later increment.
         if (tmpPwd != null) {
             req.getSession().setAttribute("omniauth.provTmpPwd", tmpPwd);
         }
-        rsp.sendRedirect("provisioning?approved=" + enc(r.getUserId()));
+        rsp.sendRedirect("provisioning?approved=" + enc(r.getUserId())
+                + (grantedRole != null ? "&role=" + enc(grantedRole) : ""));
     }
 
     /** Reject a pending request with an optional reason. */
@@ -3548,6 +3567,28 @@ public class OmniAuthManagementLink extends ManagementLink {
             Jenkins.get().save();
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Could not auto-grant Hudson.Read to " + sid, e);
+        }
+    }
+
+    /**
+     * Additively grant a set of permission ids at global scope (used by approve-with-a-role for a
+     * freshly created account). Mirrors {@link #grantGlobalRead} — additive, so no existing-entry
+     * rebuild is needed for a brand-new user.
+     */
+    private void grantGlobalRole(String sid, AuthorizationType atype, Set<String> permIds) {
+        if (permIds == null || permIds.isEmpty()) return;
+        try {
+            hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
+            if (!(strat instanceof OmniAuthAuthorizationStrategy)) return;
+            OmniAuthAuthorizationStrategy omniStrat = (OmniAuthAuthorizationStrategy) strat;
+            PermissionEntry entry = new PermissionEntry(atype, sid);
+            for (String pid : permIds) {
+                Permission p = Permission.fromId(pid);
+                if (p != null) omniStrat.add(p, entry);
+            }
+            Jenkins.get().save();
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not grant global role to " + sid, e);
         }
     }
 

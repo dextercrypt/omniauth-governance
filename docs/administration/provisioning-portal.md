@@ -33,17 +33,28 @@ The page offers up to two paths, depending on settings:
   breaker (below). Responses are identical whether or not the account/request already exists, so
   the form can't be used to discover who has an account.
 
-Both paths capture a **reason** and end at the same place: a **pending `ProvisioningRequest`**.
+Both paths require a **reason** and a free-text **"what access do you need?"** note, and end
+at the same place: a **pending `ProvisioningRequest`**. (The portal never shows requesters a role or
+folder picker — that would leak your structure to unauthenticated users; the admin maps the request to a
+role at approval.)
 
 ## Admin queue
 
 At **Manage Jenkins → OmniAuth → Access Requests** you see pending requests with summary tiles
 (Pending / Approved / Rejected) and can:
 
+Each request shows the requester's free-text **"what access do you need?"** note, so you have their
+stated intent when deciding what to grant.
+
 | Action | Result |
 |---|---|
-| **Approve** | Creates the Jenkins account and grants global Read so the user can sign in. Native accounts get a one-time temporary password (shown once) and must change it on first login; Entra accounts are pre-provisioned. |
+| **Approve** | Creates the Jenkins account and grants global Read so the user can sign in. Native accounts get a one-time temporary password (shown once) and must change it on first login; Entra accounts are pre-provisioned. You can optionally pick a **role** in the approve control to grant it (globally) in the same step; leave it on **Sign-in only** to grant access later on the user's detail page. |
 | **Reject** | Records the decision with an optional reason. No account is created. |
+
+**Approve with a role:** the role dropdown grants the chosen role's permissions at **global** scope on
+approval — the common "make them a Developer" case in one click. For **scoped** grants (a specific
+job/folder), custom permissions, JIT or expiry, approve with sign-in only and use the full grant drawer
+on the [user detail page](access-management.md).
 
 An existing account is never clobbered — approving a request whose id already exists rejects it
 instead.

@@ -35,6 +35,7 @@ public class ProvisioningRequest {
     private String oid;           // Entra object id, when known (ENTRA only)
 
     private String reason;
+    private String requestedAccess; // free-text "what access do you need?" (optional, requester's words)
     private int    requestedDurationDays; // 0 = permanent
 
     private String status;
@@ -87,6 +88,9 @@ public class ProvisioningRequest {
 
     public String getReason()                 { return reason != null ? reason : ""; }
     public void   setReason(String v)         { this.reason = v; }
+
+    public String getRequestedAccess()         { return requestedAccess != null ? requestedAccess : ""; }
+    public void   setRequestedAccess(String v) { this.requestedAccess = v != null ? v.trim() : ""; }
 
     public int    getRequestedDurationDays()      { return requestedDurationDays; }
     public void   setRequestedDurationDays(int v) { this.requestedDurationDays = Math.max(0, v); }
