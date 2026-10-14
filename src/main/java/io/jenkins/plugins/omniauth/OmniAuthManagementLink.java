@@ -381,7 +381,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     public void doClearBruteForce(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
-        if (userId != null && !userId.isEmpty()) BruteForceTracker.clearAlert(userId);
+        if (userId != null && !userId.isEmpty()) BruteForceTracker.clear(userId);
         rsp.sendRedirect("security");
     }
 
@@ -524,6 +524,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             // brute force
             String bft = req.getParameter("bruteForceThreshold");
             if (bft != null) json.put("bruteForceThreshold", bft.trim());
+            json.put("bruteForceLockoutEnabled", req.getParameter("bruteForceLockoutEnabled") != null);
+            String bfm = req.getParameter("bruteForceLockoutMinutes");
+            if (bfm != null) json.put("bruteForceLockoutMinutes", bfm.trim());
             // stale warning
             json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
             String swCron = req.getParameter("staleWarningCron");
@@ -781,6 +784,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             json.put("teamsEnabled",         config.isTeamsEnabled());
             json.put("teamsWebhookUrl",      config.getTeamsWebhookUrl());
             json.put("bruteForceThreshold",  config.getBruteForceThreshold());
+            json.put("bruteForceLockoutEnabled", config.isBruteForceLockoutEnabled());
+            json.put("bruteForceLockoutMinutes", config.getBruteForceLockoutMinutes());
             json.put("staleWarningEnabled",    config.isStaleWarningEnabled());
             json.put("staleWarningCron",       config.getStaleWarningCron());
             json.put("staleWarningWindowDays", config.getStaleWarningWindowDays());
@@ -1639,6 +1644,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     public List<BruteForceEntry> getBruteForceEntries() {
         Map<String, Integer> live    = BruteForceTracker.getAllFailureCounts();
         Map<String, String>  alerted = BruteForceTracker.getAlertedUsers();
+        java.util.Set<String> locked = BruteForceTracker.getLockedUsers();
         Map<String, BruteForceEntry> merged = new HashMap<>();
 
         for (Map.Entry<String, Integer> e : live.entrySet()) {
@@ -1657,6 +1663,18 @@ public class OmniAuthManagementLink extends ManagementLink {
                 BruteForceEntry existing = merged.get(username);
                 merged.put(username, new BruteForceEntry(existing.userId, existing.fullName, existing.failureCount, e.getValue()));
             }
+        }
+        // Ensure any currently-locked user is present, and stamp lock state + remaining time.
+        for (String username : locked) {
+            BruteForceEntry existing = merged.get(username);
+            if (existing == null) {
+                User user = User.getById(username, false);
+                String fullName = (user != null) ? user.getFullName() : username;
+                existing = new BruteForceEntry(username, fullName, 0, null);
+            }
+            existing.locked = true;
+            existing.lockRemainingMinutes = BruteForceTracker.lockRemainingMinutes(username);
+            merged.put(username, existing);
         }
         List<BruteForceEntry> result = new ArrayList<>(merged.values());
         result.sort((a, b) -> Integer.compare(b.failureCount, a.failureCount));
@@ -1680,6 +1698,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         public final String fullName;
         public final int failureCount;
         public final String alertedAt;
+        public boolean locked;
+        public long lockRemainingMinutes;
         public BruteForceEntry(String userId, String fullName, int failureCount, String alertedAt) {
             this.userId = userId; this.fullName = fullName;
             this.failureCount = failureCount; this.alertedAt = alertedAt;
@@ -1690,6 +1710,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         public String getAlertedAt()  { return alertedAt; }
         public boolean isAlerted()    { return alertedAt != null; }
         public String getRelativeAlertedAt() { return alertedAt != null ? relativeTime(alertedAt) : null; }
+        public boolean isLocked()     { return locked; }
+        public long getLockRemainingMinutes() { return lockRemainingMinutes; }
     }
 
     public List<RecentLoginEntry> getRecentLoginEvents() {

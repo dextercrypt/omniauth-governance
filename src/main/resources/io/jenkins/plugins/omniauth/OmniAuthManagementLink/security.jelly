@@ -23,7 +23,16 @@
           <p style="color:#6c757d;font-size:0.85em;margin:0 0 12px;">
             Users with consecutive failed logins. Counters reset on successful login.
             Alert fires at <strong>${cfg.bruteForceThreshold}</strong> failures.
-            Configure in <a href="settings">Settings</a>.
+            <j:choose>
+              <j:when test="${cfg.bruteForceLockoutEnabled}">
+                Lockout is <strong style="color:#27ae60;">enforced</strong> — a reached account is locked for
+                <strong>${cfg.bruteForceLockoutMinutes} min</strong> (protected users exempt).
+              </j:when>
+              <j:otherwise>
+                Lockout enforcement is <strong style="color:#e67e22;">off</strong> (detection only).
+              </j:otherwise>
+            </j:choose>
+            Configure in <a href="notifications">Notifications</a>.
           </p>
 
           <j:set var="bfEntries" value="${it.bruteForceEntries}"/>
@@ -60,6 +69,9 @@
                       </td>
                       <td>
                         <j:choose>
+                          <j:when test="${bf.locked}">
+                            <span style="background:#721c24;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;">🔒 Locked · ~${bf.lockRemainingMinutes}m left</span>
+                          </j:when>
                           <j:when test="${bf.failureCount >= cfg.bruteForceThreshold}">
                             <span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
                           </j:when>
@@ -80,11 +92,11 @@
                         </j:choose>
                       </td>
                       <td>
-                        <j:if test="${bf.alerted}">
+                        <j:if test="${bf.alerted or bf.locked}">
                           <form method="post" action="clearBruteForce" style="display:inline;">
                             <input type="hidden" name="userId" value="${bf.userId}"/>
                             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-                            <button type="submit" class="jenkins-button jenkins-button--small">Clear</button>
+                            <button type="submit" class="jenkins-button jenkins-button--small">${bf.locked ? 'Unlock' : 'Clear'}</button>
                           </form>
                         </j:if>
                       </td>

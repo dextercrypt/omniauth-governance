@@ -104,6 +104,14 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         SecurityComponents base = super.createSecurityComponents();
         final org.springframework.security.authentication.AuthenticationManager delegate = base.manager2;
         org.springframework.security.authentication.AuthenticationManager wrapped = authentication -> {
+            // Brute-force lockout: reject a locked account BEFORE verifying the password,
+            // so a correct password cannot get in during the cooldown. Covers every
+            // channel (web form, HTTP BASIC, API token, CLI) since all route through here.
+            String name = authentication != null ? authentication.getName() : null;
+            if (BruteForceTracker.isLocked(name)) {
+                throw new org.springframework.security.authentication.LockedException(
+                        "Account temporarily locked due to too many failed login attempts.");
+            }
             Authentication result = delegate.authenticate(authentication);
             if (result != null && result.isAuthenticated() && isForcePasswordChange(result.getName())) {
                 throw new PasswordChangeRequiredException(result.getName());

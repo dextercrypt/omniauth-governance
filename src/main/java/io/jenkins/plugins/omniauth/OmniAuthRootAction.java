@@ -147,8 +147,17 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
             s.setAttribute(PENDING_AT, System.currentTimeMillis());
             rsp.sendRedirect(ctx + "/omniauth/changePassword");
 
-        } catch (AuthenticationException e) {
+        } catch (org.springframework.security.authentication.LockedException e) {
+            // Too many failed attempts. We rejected BEFORE the delegate ran, so core
+            // fires no failure event — fire it ourselves to record the attempt and
+            // slide the cooldown, and show the dedicated "locked" message.
             SecurityListener.fireFailedToAuthenticate(username);
+            rsp.sendRedirect(ctx + "/loginError?error=locked");
+
+        } catch (AuthenticationException e) {
+            // The delegate already published a failure event (which core bridges to
+            // SecurityListener.failedToAuthenticate), so do NOT fire again here or the
+            // brute-force counter double-counts and locks at half the configured threshold.
             rsp.sendRedirect(ctx + "/loginError");
         }
     }

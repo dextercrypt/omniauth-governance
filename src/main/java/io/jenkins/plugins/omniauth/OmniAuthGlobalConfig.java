@@ -50,8 +50,12 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     private String  smtpReplyTo     = "";
     private String  notifyEmails    = ""; // comma-separated recipients
 
-    // ── Brute force detection ─────────────────────────────────────────────────
+    // ── Brute force detection + lockout ───────────────────────────────────────
     private int bruteForceThreshold = 5;
+    /** Enforce a temporary account lockout once the threshold is reached (not just alert). */
+    private boolean bruteForceLockoutEnabled = true;
+    /** How long a locked account stays locked, in minutes. */
+    private int bruteForceLockoutMinutes = 15;
 
     // ── Stale warning ─────────────────────────────────────────────────────────
     private boolean staleWarningEnabled    = false;
@@ -253,6 +257,10 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // Brute force
     public int getBruteForceThreshold() { return bruteForceThreshold; }
+    public boolean isBruteForceLockoutEnabled() { return bruteForceLockoutEnabled; }
+    public void setBruteForceLockoutEnabled(boolean v) { this.bruteForceLockoutEnabled = v; }
+    public int getBruteForceLockoutMinutes() { return bruteForceLockoutMinutes > 0 ? bruteForceLockoutMinutes : 15; }
+    public void setBruteForceLockoutMinutes(int v) { this.bruteForceLockoutMinutes = v > 0 ? v : 15; }
 
     // Stale warning
     public boolean isStaleWarningEnabled()    { return staleWarningEnabled; }
@@ -404,6 +412,8 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
         // Brute force
         bruteForceThreshold = jsonInt(json, "bruteForceThreshold", 5);
+        bruteForceLockoutEnabled = json.optBoolean("bruteForceLockoutEnabled", true);
+        bruteForceLockoutMinutes = jsonInt(json, "bruteForceLockoutMinutes", 15);
 
         // Stale warning
         staleWarningEnabled    = json.optBoolean("staleWarningEnabled", false);

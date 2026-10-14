@@ -534,6 +534,37 @@
                   <span style="margin-left:8px; color:var(--text-color-secondary,#888); font-size:0.85em;">failures</span>
                 </div>
 
+                <!-- Brute force lockout enforcement -->
+                <div style="padding: 12px 0; border-bottom: 1px solid var(--panel-border-color,#f0f0f0);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Account Lockout Enforcement</div>
+                      <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em;">
+                        When the threshold is reached, lock the account for a cooldown period — a correct password
+                        is rejected until it expires or an admin clears it. Protected users are never locked.
+                      </div>
+                    </div>
+                    <label class="oau-toggle-wrap" style="flex-shrink:0;">
+                      <j:choose>
+                        <j:when test="${cfg.bruteForceLockoutEnabled}">
+                          <input type="checkbox" name="bruteForceLockoutEnabled" class="oau-toggle-chk" checked="checked"/>
+                        </j:when>
+                        <j:otherwise>
+                          <input type="checkbox" name="bruteForceLockoutEnabled" class="oau-toggle-chk"/>
+                        </j:otherwise>
+                      </j:choose>
+                      <div class="oau-toggle-track"><div class="oau-toggle-thumb"></div></div>
+                    </label>
+                  </div>
+                  <div style="margin-top: 10px;">
+                    <div style="font-weight: 600; font-size: 0.85em; margin-bottom: 4px;">Lockout Duration</div>
+                    <input type="number" onwheel="this.blur()" name="bruteForceLockoutMinutes" min="1" max="1440"
+                           value="${cfg.bruteForceLockoutMinutes}"
+                           class="jenkins-input" style="width:100px;"/>
+                    <span style="margin-left:8px; color:var(--text-color-secondary,#888); font-size:0.85em;">minutes</span>
+                  </div>
+                </div>
+
                 <!-- Stale warning schedule -->
                 <div style="padding: 12px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                   <div style="flex: 1;">
