@@ -162,6 +162,34 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
         }
     }
 
+    /**
+     * GET: one-time activation link for a provisioning-portal native account.
+     * Validates the token on the user's {@link OmniAuthActivationProperty} and, on success,
+     * marks the set-password session so the requester lands on the branded set-password page
+     * without ever handling a password. Invalid / expired / already-used → branded login error.
+     * URL: /omniauth/activate?u=&lt;userId&gt;&amp;t=&lt;rawToken&gt;
+     */
+    @StaplerDispatchable
+    public void doActivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
+        String ctx    = req.getContextPath();
+        String userId = req.getParameter("u");
+        String token  = req.getParameter("t");
+        if (userId == null || userId.isEmpty() || token == null || token.isEmpty()) {
+            rsp.sendRedirect(ctx + "/loginError?error=activation"); return;
+        }
+        User user = User.getById(userId, false);
+        OmniAuthActivationProperty act = (user != null) ? user.getProperty(OmniAuthActivationProperty.class) : null;
+        // Valid only while the account still owes its first password set (single-use by construction:
+        // the property is removed once the password is set).
+        if (act == null || !act.matches(token) || !OmniAuthSecurityRealm.isForcePasswordChange(userId)) {
+            rsp.sendRedirect(ctx + "/loginError?error=activation"); return;
+        }
+        HttpSession s = req.getSession(true);
+        s.setAttribute(PENDING_USER, userId);
+        s.setAttribute(PENDING_AT, System.currentTimeMillis());
+        rsp.sendRedirect(ctx + "/omniauth/changePassword");
+    }
+
     /** GET: serve the branded set-password page, but only to a user that has a valid pending marker. */
     @StaplerDispatchable
     public void doChangePassword(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -221,6 +249,12 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
         }
 
         prop.setForcePasswordChange(false);
+        // Consume any one-time activation token. Clearing force-password-change already makes the
+        // link unusable (doActivate requires it), but overwrite the token with an expired marker
+        // so no live hash lingers in JENKINS_HOME.
+        if (user.getProperty(OmniAuthActivationProperty.class) != null) {
+            user.addProperty(new OmniAuthActivationProperty("", 1L));
+        }
         user.save();
         clearPending(req);
 

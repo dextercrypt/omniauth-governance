@@ -105,7 +105,8 @@
             <j:set var="tmp" value="${it.provisioningTempPassword}"/>
             <j:if test="${tmp != null}">
               <div style="margin-top:8px;">
-                Temporary password (shown once — share it securely; the user must change it on first sign-in):
+                A one-time activation link was emailed to the requester. The temporary password below is a
+                fallback to convey manually only if email delivery fails (the user must change it on first sign-in):
                 <code style="font-size:1em;background:#0b1220;color:#eaf1ff;padding:3px 9px;border-radius:5px;">${tmp}</code>
               </div>
             </j:if>
@@ -119,6 +120,12 @@
         </j:if>
         <j:if test="${request2.getParameter('settingsSaved') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Portal settings saved.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('resent') != null}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">A fresh activation link was emailed to <strong>${request2.getParameter('resent')}</strong>.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'activated'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">That account has already been activated — no link was sent.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'exists'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists — the request was rejected instead.</div>
@@ -206,6 +213,14 @@
                     <option value="DISABLE" selected="${cfg.getProvisioningExpiryAction() == 'DISABLE' ? 'selected' : null}">Disable the account (revoke access)</option>
                     <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
                   </select>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-remind">Expiry reminder (days before, 0 = off)</label>
+                  <input id="pset-remind" type="number" min="0" name="provisioningExpiryReminderDays" value="${cfg.getProvisioningExpiryReminderDays()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-actttl">Activation link lifetime (hours)</label>
+                  <input id="pset-actttl" type="number" min="1" name="activationLinkTtlHours" value="${cfg.getActivationLinkTtlHours()}"/>
                 </div>
               </div>
 
@@ -354,6 +369,13 @@
                             <j:when test="${r.rejected}"><span class="oau-pill oau-pill--red">Rejected</span></j:when>
                             <j:otherwise><span class="oau-pill oau-pill--amber">${r.statusLabel()}</span></j:otherwise>
                           </j:choose>
+                          <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
+                            <form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
+                              <input type="hidden" name="requestId" value="${r.requestId}"/>
+                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                              <button type="submit" class="jenkins-button jenkins-button--small" title="Email a fresh one-time activation link">Resend link</button>
+                            </form>
+                          </j:if>
                         </td>
                         <td class="pr-td pr-sub" style="max-width:280px;">
                           <j:choose>

@@ -178,6 +178,129 @@ public class SmtpHelper {
                 "Automated Security Alert", footerNote(cfg));
     }
 
+    // -------------------------------------------------------------------------
+    // Provisioning portal + account-lifecycle emails (added in the notifications pass)
+    // -------------------------------------------------------------------------
+
+    /** Thin wrapper over {@link #card} that derives the icon/badge palette from one accent + tint. */
+    private static String simpleCard(OmniAuthGlobalConfig cfg, String accent, String tint, String fg,
+                                     String iconChar, String badgeText, String title, String subtitle,
+                                     String contentHtml, String ctaUrl, String ctaLabel, String footerRight) {
+        return card(logoSrc(cfg), now(), accent, tint, iconChar, accent,
+                tint, fg, accent, badgeText, title, subtitle, contentHtml,
+                accent, ctaUrl, ctaLabel, footerRight, footerNote(cfg));
+    }
+
+    /** Admin: a new access request is awaiting review. */
+    public static String buildProvisioningRequestedHtml(OmniAuthGlobalConfig cfg, ProvisioningRequest r) {
+        String content = kvTable(new String[][]{
+                {"Requester", code(esc(r.getUserId()))},
+                {"Full name", esc(r.getFullName().isEmpty() ? "—" : r.getFullName())},
+                {"Email", esc(r.getEmail().isEmpty() ? "—" : r.getEmail())},
+                {"Type", esc(r.typeLabel())},
+                {"Wants", esc(r.getRequestedAccess().isEmpty() ? "—" : r.getRequestedAccess())},
+                {"Reason", esc(r.getReason().isEmpty() ? "—" : r.getReason())},
+                {"Duration", esc(r.durationLabel())}
+        }) + gap(12)
+        + notice("#eff6ff", "#bfdbfe", "#1e40af",
+                "No account exists yet — approving this request creates it. Review and approve or reject in the queue.");
+        return simpleCard(cfg, "#2563eb", "#dbeafe", "#1e40af", "&#128276;",
+                "Action Needed &nbsp;&middot;&nbsp; Access Request",
+                "New access request", "Someone has requested access to Jenkins and is awaiting your decision.",
+                content, rootUrl() + "/manage/omniauth-management/provisioning",
+                "Review Access Requests &rarr;", "Access Governance");
+    }
+
+    /** Requester (native): approved — carries the one-time activation link. */
+    public static String buildProvisioningApprovedNativeHtml(OmniAuthGlobalConfig cfg, ProvisioningRequest r,
+                                                             String activationUrl, int ttlHours) {
+        String content = kvTable(new String[][]{
+                {"Username", code(esc(r.getUserId()))},
+                {"Access", esc(r.getRequestedAccess().isEmpty() ? "Sign-in" : r.getRequestedAccess())}
+        }) + gap(12)
+        + notice("#f0fdf4", "#bbf7d0", "#166534",
+                "Click the button below to set your password and sign in. The link is single-use and expires in "
+                + ttlHours + " hours. For security we never email passwords.");
+        return simpleCard(cfg, "#16a34a", "#dcfce7", "#166534", "&#10003;",
+                "Approved &nbsp;&middot;&nbsp; Access Granted",
+                "Your access request was approved", "Set your password to finish activating your Jenkins account.",
+                content, activationUrl, "Set Password &amp; Sign In &rarr;", "Access Governance");
+    }
+
+    /** Requester (Entra): approved — just sign in with Microsoft. */
+    public static String buildProvisioningApprovedEntraHtml(OmniAuthGlobalConfig cfg, ProvisioningRequest r) {
+        String content = kvTable(new String[][]{
+                {"Account", code(esc(r.getUserId()))},
+                {"Access", esc(r.getRequestedAccess().isEmpty() ? "Sign-in" : r.getRequestedAccess())}
+        }) + gap(12)
+        + notice("#f0fdf4", "#bbf7d0", "#166534",
+                "Your account is ready. Sign in with Microsoft using the same account you requested with.");
+        return simpleCard(cfg, "#16a34a", "#dcfce7", "#166534", "&#10003;",
+                "Approved &nbsp;&middot;&nbsp; Access Granted",
+                "Your access request was approved", "You can now sign in to Jenkins.",
+                content, rootUrl() + "/securityRealm/login", "Sign In with Microsoft &rarr;", "Access Governance");
+    }
+
+    /** Requester: rejected. */
+    public static String buildProvisioningRejectedHtml(OmniAuthGlobalConfig cfg, ProvisioningRequest r, String comment) {
+        String content = kvTable(new String[][]{
+                {"Requested as", code(esc(r.getUserId()))},
+                {"Decision", "Not approved"}
+        }) + gap(12)
+        + notice("#fffbeb", "#fde68a", "#92400e",
+                (comment != null && !comment.isBlank())
+                        ? "Reason from the administrator: " + comment.trim()
+                        : "If you believe you still need access, contact your administrator.");
+        return simpleCard(cfg, "#d97706", "#fef3c7", "#92400e", "&#10007;",
+                "Access Request &nbsp;&middot;&nbsp; Declined",
+                "Your access request was not approved", "No account was created.",
+                content, rootUrl(), "Return to Jenkins", "Access Governance");
+    }
+
+    /** Requester: account expiring soon. */
+    public static String buildExpiryReminderHtml(OmniAuthGlobalConfig cfg, String userId, String expiresAt, long daysLeft) {
+        String content = kvTable(new String[][]{
+                {"Account", code(esc(userId))},
+                {"Expires in", "<strong>" + daysLeft + " day" + (daysLeft == 1 ? "" : "s") + "</strong>"},
+                {"Expires at", esc(expiresAt)}
+        }) + gap(12)
+        + notice("#fffbeb", "#fde68a", "#92400e",
+                "When it expires, access is revoked automatically. If you still need it, contact your administrator to extend.");
+        return simpleCard(cfg, "#d97706", "#fef3c7", "#92400e", "&#9203;",
+                "Reminder &nbsp;&middot;&nbsp; Account Expiring",
+                "Your Jenkins access is expiring soon", "This is a heads-up before your time-limited account expires.",
+                content, rootUrl() + "/securityRealm/login", "Sign In", "Access Governance");
+    }
+
+    /** Admin: a time-limited account hit its expiry and was disabled/deleted. */
+    public static String buildAccountExpiredHtml(OmniAuthGlobalConfig cfg, String userId, String action) {
+        String content = kvTable(new String[][]{
+                {"Account", code(esc(userId))},
+                {"Action taken", esc(action)}
+        }) + gap(12)
+        + notice("#fef2f2", "#fecaca", "#991b1b",
+                "A time-limited account reached its expiry and was " + esc(action.toLowerCase()) + " automatically.");
+        return simpleCard(cfg, "#dc2626", "#fee2e2", "#991b1b", "&#9888;",
+                "Lifecycle &nbsp;&middot;&nbsp; Account Expired",
+                "A time-limited account expired", "The account expiry worker acted on an account.",
+                content, rootUrl() + "/manage/omniauth-management/userStatus", "View User Status &rarr;", "Access Governance");
+    }
+
+    /** Admin: an account was locked by brute-force protection. */
+    public static String buildAccountLockedHtml(OmniAuthGlobalConfig cfg, String username, int minutes) {
+        String content = kvTable(new String[][]{
+                {"Account", code(esc(username))},
+                {"Locked for", "<strong>" + minutes + " minutes</strong>"}
+        }) + gap(12)
+        + notice("#fef2f2", "#fecaca", "#991b1b",
+                "Consecutive failed logins reached the threshold. Further sign-ins are refused until the cooldown "
+                + "passes or an admin clears the lock. Protected users are never locked.");
+        return simpleCard(cfg, "#dc2626", "#fee2e2", "#991b1b", "&#128274;",
+                "Security &nbsp;&middot;&nbsp; Account Locked",
+                "An account was locked", "Brute-force protection locked an account after repeated failures.",
+                content, rootUrl() + "/manage/omniauth-management/security", "View Security &rarr;", "Automated Security Alert");
+    }
+
     public static String buildUserDeletedHtml(OmniAuthGlobalConfig cfg,
                                                String deletedUserId, String deletedBy) {
         String ts = now();

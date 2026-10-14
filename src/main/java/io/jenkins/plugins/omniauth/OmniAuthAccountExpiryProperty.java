@@ -15,8 +15,9 @@ import hudson.model.UserPropertyDescriptor;
  */
 public class OmniAuthAccountExpiryProperty extends UserProperty {
 
-    private String  expiresAt; // ISO-8601 UTC; null/blank = no expiry
-    private boolean disabled;  // set once the worker has disabled this account (so it isn't reprocessed)
+    private String  expiresAt;    // ISO-8601 UTC; null/blank = no expiry
+    private boolean disabled;     // set once the worker has disabled this account (so it isn't reprocessed)
+    private boolean reminderSent; // set once the pre-expiry reminder email has gone out
 
     public OmniAuthAccountExpiryProperty() {}
 
@@ -28,10 +29,23 @@ public class OmniAuthAccountExpiryProperty extends UserProperty {
     public boolean isDisabled()             { return disabled; }
     public void    setDisabled(boolean v)   { this.disabled = v; }
 
+    public boolean isReminderSent()          { return reminderSent; }
+    public void    setReminderSent(boolean v) { this.reminderSent = v; }
+
     public boolean isExpired() {
         if (expiresAt == null || expiresAt.isBlank()) return false;
         try { return java.time.Instant.parse(expiresAt).isBefore(java.time.Instant.now()); }
         catch (Exception e) { return false; }
+    }
+
+    /** Whole days until expiry (rounded up), or -1 if no/invalid expiry or already past. */
+    public long daysUntilExpiry() {
+        if (expiresAt == null || expiresAt.isBlank()) return -1;
+        try {
+            long ms = java.time.Instant.parse(expiresAt).toEpochMilli() - System.currentTimeMillis();
+            if (ms <= 0) return -1;
+            return (ms + 86_399_999L) / 86_400_000L;
+        } catch (Exception e) { return -1; }
     }
 
     @Extension

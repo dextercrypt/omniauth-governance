@@ -1317,8 +1317,22 @@ public class OmniAuthManagementLink extends ManagementLink {
             }
         }
 
-        // Stash the one-time temp password for display (NATIVE only). Account expiry
-        // enforcement for time-limited requests is wired in a later increment.
+        // Notify the requester of the decision. Native accounts get a one-time activation link
+        // (so we never email a password); Entra accounts just sign in with Microsoft.
+        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+        if (r.isNative()) {
+            User u = User.getById(r.getUserId(), false);
+            String link = (u != null) ? issueActivationLink(u, cfg) : null;
+            if (link != null) {
+                NotificationService.sendProvisioningApprovedNative(cfg, r, link,
+                        cfg != null ? cfg.getActivationLinkTtlHours() : 72);
+            }
+        } else {
+            NotificationService.sendProvisioningApprovedEntra(cfg, r);
+        }
+
+        // Stash the one-time temp password for display (NATIVE only) as an email-failure fallback —
+        // the admin can convey it manually if delivery fails.
         if (tmpPwd != null) {
             req.getSession().setAttribute("omniauth.provTmpPwd", tmpPwd);
         }
@@ -1333,10 +1347,40 @@ public class OmniAuthManagementLink extends ManagementLink {
         String requestId = req.getParameter("requestId");
         String comment   = req.getParameter("comment");
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        ProvisioningRequest r = (store != null) ? store.findById(requestId) : null;
         if (store == null || !store.markRejected(requestId, Jenkins.getAuthentication2().getName(), comment)) {
             rsp.sendRedirect("provisioning?error=notFound"); return;
         }
+        if (r != null) NotificationService.sendProvisioningRejected(OmniAuthGlobalConfig.get(), r, comment);
         rsp.sendRedirect("provisioning?rejected=true");
+    }
+
+    /** True when a native provisioned account still owes its first password set (link not yet used). */
+    public boolean isAwaitingActivation(String userId) {
+        return userId != null && User.getById(userId, false) != null
+                && OmniAuthSecurityRealm.isForcePasswordChange(userId);
+    }
+
+    /** Re-issue + re-email the one-time activation link for a native account that hasn't activated yet. */
+    @POST
+    public void doResendActivation(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String requestId = req.getParameter("requestId");
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        ProvisioningRequest r = (store != null) ? store.findById(requestId) : null;
+        if (r == null || !r.isNative()) { rsp.sendRedirect("provisioning?error=notFound"); return; }
+        User u = User.getById(r.getUserId(), false);
+        // Only meaningful while the account still owes its first password set.
+        if (u == null || !OmniAuthSecurityRealm.isForcePasswordChange(r.getUserId())) {
+            rsp.sendRedirect("provisioning?error=activated"); return;
+        }
+        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+        String link = issueActivationLink(u, cfg);
+        if (link != null) {
+            NotificationService.sendProvisioningApprovedNative(cfg, r, link,
+                    cfg != null ? cfg.getActivationLinkTtlHours() : 72);
+        }
+        rsp.sendRedirect("provisioning?resent=" + enc(r.getUserId()));
     }
 
     /** Admin control: clear the native-intake circuit breaker cooldown. */
@@ -1363,6 +1407,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             c.setProvisioningBreakerMax(parseIntOr(req.getParameter("provisioningBreakerMax"), 100));
             c.setProvisioningBreakerWindowMin(parseIntOr(req.getParameter("provisioningBreakerWindowMin"), 10));
             c.setProvisioningBreakerCooldownMin(parseIntOr(req.getParameter("provisioningBreakerCooldownMin"), 30));
+            c.setProvisioningExpiryReminderDays(parseIntOr(req.getParameter("provisioningExpiryReminderDays"), 7));
+            c.setActivationLinkTtlHours(parseIntOr(req.getParameter("activationLinkTtlHours"), 72));
             c.save();
         }
         rsp.sendRedirect("provisioning?settingsSaved=true");
@@ -1371,6 +1417,21 @@ public class OmniAuthManagementLink extends ManagementLink {
     private static int parseIntOr(String v, int fallback) {
         if (v == null || v.isBlank()) return fallback;
         try { return Integer.parseInt(v.trim()); } catch (NumberFormatException e) { return fallback; }
+    }
+
+    /**
+     * Issue a fresh one-time activation link for a native account: generate a token, store its
+     * hash + expiry on the user, and return the full click URL. Returns null if no root URL.
+     */
+    private String issueActivationLink(User user, OmniAuthGlobalConfig cfg) throws java.io.IOException {
+        String root = Jenkins.get().getRootUrl();
+        if (root == null || root.isEmpty()) return null;
+        if (root.endsWith("/")) root = root.substring(0, root.length() - 1);
+        int ttlHours = (cfg != null) ? cfg.getActivationLinkTtlHours() : 72;
+        String raw = OmniAuthActivationProperty.newRawToken();
+        long expiresAt = System.currentTimeMillis() + ttlHours * 3600_000L;
+        user.addProperty(new OmniAuthActivationProperty(OmniAuthActivationProperty.hash(raw), expiresAt));
+        return root + "/omniauth/activate?u=" + enc(user.getId()) + "&t=" + enc(raw);
     }
 
     /**

@@ -46,10 +46,17 @@ public class BruteForceTracker {
         // Protected users (admins) are exempt so they can never be locked out. The
         // window slides on each new failure, so continued hammering stays locked.
         if (count >= threshold && lockoutEnabled(cfg) && !isProtected(cfg, username)) {
-            long until = System.currentTimeMillis() + cooldownMillis(cfg);
-            LOCKED.put(username, until);
-            LOGGER.warning("Account locked by brute-force protection: " + username
-                    + " (until " + Instant.ofEpochMilli(until) + ")");
+            long now = System.currentTimeMillis();
+            Long prev = LOCKED.get(username);
+            boolean wasLocked = prev != null && prev > now;
+            LOCKED.put(username, now + cooldownMillis(cfg));
+            if (!wasLocked) {
+                LOGGER.warning("Account locked by brute-force protection: " + username
+                        + " (for " + (cfg != null ? cfg.getBruteForceLockoutMinutes() : 15) + " min)");
+                // Notify admins once per lock episode (not on every subsequent failure while locked).
+                NotificationService.sendAccountLocked(cfg, username,
+                        cfg != null ? cfg.getBruteForceLockoutMinutes() : 15);
+            }
         }
     }
 

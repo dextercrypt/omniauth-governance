@@ -160,6 +160,119 @@ public class NotificationService {
     }
 
     // -------------------------------------------------------------------------
+    // Provisioning portal + account lifecycle (notifications pass)
+    // -------------------------------------------------------------------------
+
+    /** Admin: a new access request is awaiting review. Goes to the configured admin channels. */
+    public static void sendProvisioningRequested(OmniAuthGlobalConfig cfg, ProvisioningRequest r) {
+        if (cfg == null || r == null) return;
+        String subject = "[Jenkins OmniAuth] Access request from " + r.getUserId();
+        String plain = "OmniAuth Access Request\n"
+                + "=======================\n\n"
+                + "Requester: " + r.getUserId() + "\n"
+                + "Full name: " + nz(r.getFullName()) + "\n"
+                + "Email:     " + nz(r.getEmail()) + "\n"
+                + "Type:      " + r.typeLabel() + "\n"
+                + "Wants:     " + nz(r.getRequestedAccess()) + "\n"
+                + "Reason:    " + nz(r.getReason()) + "\n"
+                + "Duration:  " + r.durationLabel() + "\n\n"
+                + "No account exists yet — approving creates it.\n"
+                + ctaLine("Review Access Requests", "provisioning")
+                + "\n---\nJenkins OmniAuth Plugin";
+        dispatch(cfg, "provisionRequest", subject, plain,
+                SmtpHelper.buildProvisioningRequestedHtml(cfg, r));
+    }
+
+    /** Requester (native): approved — emails the one-time activation link directly to them. */
+    public static void sendProvisioningApprovedNative(OmniAuthGlobalConfig cfg, ProvisioningRequest r,
+                                                      String activationUrl, int ttlHours) {
+        if (cfg == null || r == null || r.getEmail().isEmpty()) return;
+        String subject = "[Jenkins OmniAuth] Your access request was approved";
+        String plain = "Your Jenkins access request was approved.\n\n"
+                + "Username: " + r.getUserId() + "\n\n"
+                + "Set your password and sign in using this single-use link (expires in "
+                + ttlHours + " hours):\n" + activationUrl + "\n\n"
+                + "For security we never email passwords.\n"
+                + "\n---\nJenkins OmniAuth Plugin";
+        SmtpHelper.sendTo(cfg, r.getEmail(), subject,
+                SmtpHelper.buildProvisioningApprovedNativeHtml(cfg, r, activationUrl, ttlHours), plain);
+    }
+
+    /** Requester (Entra): approved — sign in with Microsoft. */
+    public static void sendProvisioningApprovedEntra(OmniAuthGlobalConfig cfg, ProvisioningRequest r) {
+        if (cfg == null || r == null || r.getEmail().isEmpty()) return;
+        String subject = "[Jenkins OmniAuth] Your access request was approved";
+        String plain = "Your Jenkins access request was approved.\n\n"
+                + "Account: " + r.getUserId() + "\n\n"
+                + "Sign in with Microsoft: " + rootUrl() + "/securityRealm/login\n"
+                + "\n---\nJenkins OmniAuth Plugin";
+        SmtpHelper.sendTo(cfg, r.getEmail(), subject,
+                SmtpHelper.buildProvisioningApprovedEntraHtml(cfg, r), plain);
+    }
+
+    /** Requester: rejected. */
+    public static void sendProvisioningRejected(OmniAuthGlobalConfig cfg, ProvisioningRequest r, String comment) {
+        if (cfg == null || r == null || r.getEmail().isEmpty()) return;
+        String subject = "[Jenkins OmniAuth] Your access request was not approved";
+        String plain = "Your Jenkins access request was not approved.\n\n"
+                + "Requested as: " + r.getUserId() + "\n"
+                + ((comment != null && !comment.isBlank()) ? "Reason: " + comment.trim() + "\n" : "")
+                + "\nContact your administrator if you still need access.\n"
+                + "\n---\nJenkins OmniAuth Plugin";
+        SmtpHelper.sendTo(cfg, r.getEmail(), subject,
+                SmtpHelper.buildProvisioningRejectedHtml(cfg, r, comment), plain);
+    }
+
+    /** Requester: time-limited account expiring soon. */
+    public static void sendExpiryReminder(OmniAuthGlobalConfig cfg, String userId, String email,
+                                          String expiresAt, long daysLeft) {
+        if (cfg == null || email == null || email.isEmpty()) return;
+        String subject = "[Jenkins OmniAuth] Your access expires in " + daysLeft
+                + " day" + (daysLeft == 1 ? "" : "s");
+        String plain = "Your time-limited Jenkins access is expiring soon.\n\n"
+                + "Account:    " + userId + "\n"
+                + "Expires in: " + daysLeft + " day" + (daysLeft == 1 ? "" : "s") + "\n"
+                + "Expires at: " + expiresAt + "\n\n"
+                + "When it expires, access is revoked automatically. Contact your administrator to extend.\n"
+                + "\n---\nJenkins OmniAuth Plugin";
+        SmtpHelper.sendTo(cfg, email, subject,
+                SmtpHelper.buildExpiryReminderHtml(cfg, userId, expiresAt, daysLeft), plain);
+    }
+
+    /** Admin: a time-limited account expired and was disabled/deleted by the worker. */
+    public static void sendAccountExpired(OmniAuthGlobalConfig cfg, String userId, String action) {
+        if (cfg == null) return;
+        String subject = "[Jenkins OmniAuth] Time-limited account expired: " + userId;
+        String plain = "OmniAuth Account Expiry\n"
+                + "=======================\n\n"
+                + "Account:      " + userId + "\n"
+                + "Action taken: " + action + "\n\n"
+                + "A time-limited account reached its expiry and was handled automatically.\n"
+                + ctaLine("View User Status", "userStatus")
+                + "\n---\nJenkins OmniAuth Plugin";
+        dispatch(cfg, "accountExpired", subject, plain,
+                SmtpHelper.buildAccountExpiredHtml(cfg, userId, action));
+    }
+
+    /** Admin: an account was locked by brute-force protection. */
+    public static void sendAccountLocked(OmniAuthGlobalConfig cfg, String username, int minutes) {
+        if (cfg == null) return;
+        String subject = "[Jenkins OmniAuth] Account locked: " + username;
+        String plain = "OmniAuth Account Lockout\n"
+                + "========================\n\n"
+                + "Account:    " + username + "\n"
+                + "Locked for: " + minutes + " minutes\n\n"
+                + "Consecutive failed logins reached the threshold. Sign-ins are refused until the\n"
+                + "cooldown passes or an admin clears the lock. Protected users are never locked.\n"
+                + ctaLine("View Security", "security")
+                + "\n---\nJenkins OmniAuth Plugin";
+        dispatch(cfg, "accountLocked", subject, plain,
+                SmtpHelper.buildAccountLockedHtml(cfg, username, minutes));
+    }
+
+    private static String nz(String s) { return (s == null || s.isEmpty()) ? "—" : s; }
+
+    // -------------------------------------------------------------------------
     // Event: Stale warning digest
     // -------------------------------------------------------------------------
 

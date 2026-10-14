@@ -98,7 +98,11 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     public static final String[] ALL_EVENTS = {
         "cleanup", "userDeleted", "configChanged", "protectedListChanged",
-        "graphApiFailure", "adminGranted", "bruteForce", "staleWarning", "accessReview"
+        "graphApiFailure", "adminGranted", "bruteForce", "staleWarning", "accessReview",
+        // JIT (were dispatched but missing from the catalog, so they defaulted off — now included)
+        "jitRequest", "jitApproved", "jitDenied",
+        // Provisioning + account lifecycle (admin-facing)
+        "provisionRequest", "accountExpired", "accountLocked"
     };
 
     // ── Cleanup history ───────────────────────────────────────────────────────
@@ -293,6 +297,8 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     private int     provisioningBreakerMax         = 100;  // native: max requests in the window
     private int     provisioningBreakerWindowMin   = 10;   // native: rolling window (minutes)
     private int     provisioningBreakerCooldownMin = 30;   // native: pause duration once tripped
+    private int     provisioningExpiryReminderDays = 7;    // email the account this many days before expiry (0 = off)
+    private int     activationLinkTtlHours         = 72;   // native approval: one-time activation link lifetime
 
     public boolean isProvisioningEnabled()            { return provisioningEnabled; }
     public void    setProvisioningEnabled(boolean v)  { this.provisioningEnabled = v; }
@@ -311,6 +317,12 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     public String  getProvisioningExpiryAction()         { return "DELETE".equals(provisioningExpiryAction) ? "DELETE" : "DISABLE"; }
     public void    setProvisioningExpiryAction(String v) { this.provisioningExpiryAction = "DELETE".equalsIgnoreCase(v) ? "DELETE" : "DISABLE"; }
+
+    public int     getProvisioningExpiryReminderDays()      { return Math.max(0, provisioningExpiryReminderDays); }
+    public void    setProvisioningExpiryReminderDays(int v) { this.provisioningExpiryReminderDays = Math.max(0, v); }
+
+    public int     getActivationLinkTtlHours()      { return activationLinkTtlHours > 0 ? activationLinkTtlHours : 72; }
+    public void    setActivationLinkTtlHours(int v) { this.activationLinkTtlHours = v > 0 ? v : 72; }
 
     public int     getProvisioningMaxPendingPerUser()        { return provisioningMaxPendingPerUser > 0 ? provisioningMaxPendingPerUser : 1; }
     public void    setProvisioningMaxPendingPerUser(int v)   { this.provisioningMaxPendingPerUser = v > 0 ? v : 1; }

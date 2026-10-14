@@ -151,7 +151,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             r.setRequestedAccess(access);
             store.addRequest(r);
             LOGGER.info("Provisioning: native access request submitted for '" + username + "'");
-            // Admin notification is wired in the notifications increment.
+            NotificationService.sendProvisioningRequested(c, r);
         }
 
         rsp.sendRedirect(ctx + "/request-access/?submitted=1");
@@ -206,7 +206,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             r.setRequestedAccess(access);
             store.addRequest(r);
             LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
-            // Admin notification is wired in the notifications increment.
+            NotificationService.sendProvisioningRequested(c, r);
         }
         rsp.sendRedirect(ctx + "/request-access/?submitted=1");
     }
