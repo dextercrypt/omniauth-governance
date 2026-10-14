@@ -11,13 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Exempts the public provisioning portal's native submission from CSRF crumb checking,
+ * Exempts the public provisioning portal's submissions from CSRF crumb checking,
  * exactly as {@link NativeLoginCrumbExclusion} does for the login form.
  *
- * <p>{@code /request-access/submitNative} is posted by <em>anonymous</em> users, for whom a
- * Jelly-issued crumb is unreliable. CSRF adds little here — the endpoint only creates a
- * {@code PENDING} request that still requires admin approval, and the {@link ProvisioningBreaker}
- * guards against flooding.
+ * <p>{@code /request-access/submitNative} and {@code /request-access/submitEntraReason} are
+ * posted by <em>anonymous</em> users, for whom a Jelly-issued crumb is unreliable. CSRF adds
+ * little here — both endpoints only create a {@code PENDING} request that still requires admin
+ * approval; the native form is additionally guarded by the {@link ProvisioningBreaker}, and the
+ * Entra reason page requires a Microsoft-verified identity already stashed on the session.
  */
 @Extension
 public class ProvisioningCrumbExclusion extends CrumbExclusion {
@@ -26,7 +27,9 @@ public class ProvisioningCrumbExclusion extends CrumbExclusion {
     public boolean process(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String path = request.getPathInfo();
-        if (path != null && path.equals("/request-access/submitNative")) {
+        if (path != null
+                && (path.equals("/request-access/submitNative")
+                 || path.equals("/request-access/submitEntraReason"))) {
             chain.doFilter(request, response);
             return true;
         }

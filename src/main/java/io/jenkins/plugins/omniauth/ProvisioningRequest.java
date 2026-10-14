@@ -125,7 +125,7 @@ public class ProvisioningRequest {
 
     public String typeLabel() {
         if (TYPE_ENTRA.equals(requestType))  return "Microsoft Entra";
-        if (TYPE_NATIVE.equals(requestType)) return "Service account";
+        if (TYPE_NATIVE.equals(requestType)) return "Native";
         return getRequestType();
     }
 

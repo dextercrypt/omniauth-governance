@@ -1,0 +1,178 @@
+<!--
+  Entra reason-capture page at /request-access/reason.
+
+  Reached only after a successful "Request access with Microsoft" round-trip: the
+  realm has verified the identity and stashed it on the session, and here we collect
+  the reason (and duration) before creating the PENDING request. Same shell / branding
+  as index.jelly (the request page), which is itself the login-page twin.
+-->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+  <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
+    <st:setHeader name="Expires" value="0" />
+    <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
+    ${h.initPageVariables(context)}
+    <x:doctype name="html" />
+
+    <j:set var="realm" value="${app.securityRealm}"/>
+    <j:set var="logoPos" value="${realm.loginLogoPosition}"/>
+    <j:set var="logoSize" value="${realm.loginLogoSize}"/>
+    <j:set var="simpleDecorator" value="${h.simplePageDecorator}"/>
+    <j:set var="err" value="${request2.getParameter('error')}"/>
+
+    <html lang="${request2.getLocale().toLanguageTag()}">
+      <head data-rooturl="${rootURL}" data-resurl="${resURL}" data-imagesurl="${imagesURL}" resURL="${resURL}">
+        <title>Request access</title>
+        <meta name="ROBOTS" content="NOFOLLOW" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <st:include it="${simpleDecorator}" page="simple-head.jelly" />
+        <style>
+          /* ===== Dark right panel + soft glow (verbatim from index.jelly) ===== */
+          .app-sign-in-register__content {
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background:
+              radial-gradient(120% 120% at 70% 50%, transparent 55%, rgba(2,6,16,0.55) 100%),
+              radial-gradient(140% 90% at -6% 50%, rgba(40,120,230,0.18) 0%, rgba(30,90,200,0.06) 28%, transparent 56%),
+              radial-gradient(60% 50% at 6% 42%, rgba(34,211,238,0.07) 0%, transparent 60%),
+              linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
+            background-repeat: no-repeat;
+          }
+          .app-sign-in-register__content-inner {
+            position: relative; z-index: 2;
+            margin-block: auto;
+            padding-block: 40px;
+            box-sizing: border-box;
+          }
+
+          .brand-logo img { height: ${logoSize}px; width: auto; max-width: none; object-fit: contain; display: block; }
+          .pos-a .brand-logo { align-self: flex-start; margin: 0 0 18px 0; }
+          .pos-e .brand-logo { position: absolute; top: 28px; right: 9%; z-index: 3; }
+          .pos-f .brand-logo { align-self: center; margin: 0 auto 18px auto; }
+
+          .app-sign-in-register__content-inner h1 { color: #f2f6ff; }
+          .app-sign-in-register__content-inner label { color: #aebbd0; }
+
+          .app-sign-in-register__content-inner input[type=number],
+          .app-sign-in-register__content-inner textarea {
+            background: #101a2e;
+            border: 1px solid #26344c;
+            color: #eaf1ff;
+            transition: box-shadow .2s, border-color .2s;
+          }
+          .app-sign-in-register__content-inner textarea::placeholder { color: #6b7a92; }
+          .app-sign-in-register__content-inner input:focus,
+          .app-sign-in-register__content-inner textarea:focus {
+            border-color: #3f7ce8;
+            box-shadow: 0 0 0 2px rgba(47,116,232,0.18), 0 0 10px rgba(47,116,232,0.10);
+            outline: none;
+          }
+          .app-sign-in-register__content-inner textarea { min-height: 76px; resize: vertical; font-family: inherit; }
+
+          .app-sign-in-register__content-inner button[type=submit] {
+            background: #1f57e0;
+            color: #fff;
+            box-shadow: 0 0 0 1px rgba(80,150,255,.22), 0 6px 18px rgba(31,87,224,0.32);
+          }
+          .app-sign-in-register__content-inner button[type=submit]:hover { background: #2a63ee; }
+          .pa-btn {
+            width: 100%; margin-top: 22px; padding: 11px; font-size: 15px; font-weight: 600;
+            border: none; border-radius: var(--form-input-border-radius,4px); cursor: pointer;
+          }
+
+          .pa-sub { color: #9fb2d0; font-size: 14px; line-height: 1.5; margin: -6px 0 22px; }
+          .pa-hint { font-size: 12px; color: #8ea3c4; margin-top: 5px; }
+          .pa-foot { margin-top: 20px; text-align: center; font-size: 12px; color: #6f81a0; }
+          .pa-banner { margin-bottom: 16px; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
+          .pa-ok   { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.45);  color: #86efac; }
+          .pa-warn { background: rgba(180,83,9,0.14);   border: 1px solid rgba(180,83,9,0.5);    color: #fed7aa; }
+          .pa-err  { background: rgba(229,62,62,0.12);  border: 1px solid rgba(229,62,62,0.45);  color: #fca5a5; }
+
+          /* Verified-identity chip */
+          .pa-whoami {
+            display:flex; align-items:center; gap:10px; margin-bottom:20px; padding:11px 13px;
+            background:#101c30; border:1px solid #2a3a54; border-radius:8px;
+          }
+          .pa-whoami__name { color:#eaf1ff; font-size:14px; font-weight:600; line-height:1.2; }
+          .pa-whoami__mail { color:#8ea3c4; font-size:12px; margin-top:2px; }
+          .pa-whoami__badge { display:flex; align-items:center; gap:5px; margin-left:auto;
+            color:#86efac; font-size:11px; font-weight:600; white-space:nowrap; }
+        </style>
+      </head>
+      <body class="app-sign-in-register">
+        <!-- Left branding panel: identical to the login / request page. -->
+        <j:choose>
+          <j:when test="${realm.loginBackground == 'starburst'}">
+            <st:include it="${simpleDecorator}" page="simple-branding.jelly" />
+          </j:when>
+          <j:otherwise>
+            <st:include it="${realm}" page="animated-branding.jelly"/>
+          </j:otherwise>
+        </j:choose>
+
+        <main id="main-panel" class="app-sign-in-register__content pos-${logoPos}">
+          <j:if test="${logoPos == 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+            <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt=""/></div>
+          </j:if>
+          <div class="app-sign-in-register__content-inner">
+            <j:if test="${logoPos != 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+              <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt=""/></div>
+            </j:if>
+
+            <h1>Request access</h1>
+
+            <j:choose>
+              <!-- No verified identity on the session — expired or reached directly. -->
+              <j:when test="${!it.entraReasonReady}">
+                <div class="pa-sub">Your session has expired before the request could be completed.</div>
+                <div class="pa-banner pa-warn">
+                  Please start again — identity is verified with Microsoft each time.
+                </div>
+                <div class="pa-foot"><a href="${rootURL}/request-access/">Back to request access</a></div>
+              </j:when>
+
+              <j:otherwise>
+                <div class="pa-sub">You're verified with Microsoft. Tell us why you need access.</div>
+
+                <div class="pa-whoami">
+                  <div>
+                    <div class="pa-whoami__name">${it.entraReasonName != '' ? it.entraReasonName : it.entraReasonUserId}</div>
+                    <j:if test="${it.entraReasonEmail != ''}">
+                      <div class="pa-whoami__mail">${it.entraReasonEmail}</div>
+                    </j:if>
+                  </div>
+                  <span class="pa-whoami__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    Verified
+                  </span>
+                </div>
+
+                <j:if test="${err == 'missing'}">
+                  <div class="pa-banner pa-err">Please enter a reason for access.</div>
+                </j:if>
+
+                <form method="post" action="${rootURL}/request-access/submitEntraReason">
+                  <div>
+                    <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
+                    <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
+                              placeholder="Why do you need access?"></textarea>
+                  </div>
+                  <div style="margin-top:16px;">
+                    <label class="app-sign-in-register__form-label" for="pa-days">Access duration (days, 0 = permanent)</label>
+                    <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
+                           min="0" value="${it.defaultDurationDays}"/>
+                  </div>
+                  <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
+                  <button type="submit" class="pa-btn">Submit request</button>
+                </form>
+
+                <div class="pa-foot"><a href="${rootURL}/">Cancel</a></div>
+              </j:otherwise>
+            </j:choose>
+          </div>
+        </main>
+      </body>
+    </html>
+  </l:view>
+</j:jelly>

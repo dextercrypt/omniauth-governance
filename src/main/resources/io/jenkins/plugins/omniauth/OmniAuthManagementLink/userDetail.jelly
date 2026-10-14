@@ -158,6 +158,18 @@
                 <j:if test="${header.displayName != null and header.displayName != header.sid}"> · ${header.displayName}</j:if>
                 <j:if test="${header.relativeLastLogin != null}"> · Last login: ${header.relativeLastLogin}</j:if>
               </div>
+              <!-- Time-limited account expiry (provisioning portal) -->
+              <j:if test="${header.hasExpiry()}">
+                <j:set var="pillBase" value="display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.76em;font-weight:600;"/>
+                <div style="margin-top:6px;">
+                  <j:choose>
+                    <j:when test="${header.accountDisabledByExpiry}"><span style="${pillBase}background:#fde2e1;color:#8a1c13;" title="Disabled by the expiry worker on ${header.formattedExpiresAt}">Access expired &#183; account disabled</span></j:when>
+                    <j:when test="${header.accountExpired}">        <span style="${pillBase}background:#fde2e1;color:#8a1c13;" title="Expired ${header.formattedExpiresAt}">Access expired</span></j:when>
+                    <j:when test="${header.expiresInDays &lt;= 7}">  <span style="${pillBase}background:#fdeccb;color:#7a4b06;" title="${header.formattedExpiresAt}">Access expires in ${header.expiresInDays} day(s)</span></j:when>
+                    <j:otherwise>                                   <span style="${pillBase}background:#eef0f2;color:#5a6472;" title="${header.formattedExpiresAt}">Access expires ${header.formattedExpiresAt} (in ${header.expiresInDays} days)</span></j:otherwise>
+                  </j:choose>
+                </div>
+              </j:if>
             </div>
           </div>
         </j:if>

@@ -84,8 +84,16 @@
           border-radius:6px; font-size:0.9em; box-sizing:border-box; }
         .pr-check { display:flex; align-items:center; gap:8px; font-size:0.9em; }
         .pr-check input { width:16px; height:16px; }
-        .pr-url { font-size:0.84em; color:var(--text-color-secondary,#888); margin-top:14px; }
+        .pr-url { font-size:0.84em; color:var(--text-color-secondary,#888); margin-top:18px; }
         .pr-url code { background:var(--pre-background,#f5f5f5); padding:2px 7px; border-radius:4px; }
+
+        /* Grouped settings sections */
+        .pr-subhead { font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+          color:var(--text-color-secondary,#888); margin:24px 0 13px; padding-bottom:7px;
+          border-bottom:1px solid var(--panel-border-color,#eee); }
+        .pr-subhead:first-child { margin-top:2px; }
+        .pr-checks { display:flex; flex-wrap:wrap; gap:14px 28px; margin-bottom:16px; }
+        .pr-hint { font-size:0.8em; color:var(--text-color-secondary,#9aa0a6); margin-top:-2px; margin-bottom:2px; }
       </style>
 
       <div class="pr-wrap">
@@ -158,7 +166,9 @@
             <form method="post" action="saveProvisioningSettings">
               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
 
-              <div style="display:flex;flex-wrap:wrap;gap:18px 28px;margin-bottom:18px;">
+              <!-- Group 1: what requests are accepted -->
+              <div class="pr-subhead">Requests</div>
+              <div class="pr-checks">
                 <label class="pr-check">
                   <input type="checkbox" name="provisioningEnabled" checked="${cfg.isProvisioningEnabled() ? 'checked' : null}"/>
                   Enable self-service access requests
@@ -169,15 +179,23 @@
                 </label>
                 <label class="pr-check">
                   <input type="checkbox" name="provisioningAllowNative" checked="${cfg.isProvisioningAllowNative() ? 'checked' : null}"/>
-                  Allow service-account (native) requests
+                  Allow native (username / password) requests
                 </label>
               </div>
-
               <div class="pr-grid">
                 <div class="pr-field">
                   <label for="pset-domains">Allowed email domains (comma/space separated; blank = any)</label>
                   <input id="pset-domains" type="text" name="provisioningAllowedDomains" value="${cfg.getProvisioningAllowedDomains()}" placeholder="company.com, example.org"/>
                 </div>
+                <div class="pr-field">
+                  <label for="pset-maxpending">Max pending requests per user (Entra)</label>
+                  <input id="pset-maxpending" type="number" min="1" name="provisioningMaxPendingPerUser" value="${cfg.getProvisioningMaxPendingPerUser()}"/>
+                </div>
+              </div>
+
+              <!-- Group 2: what an approved account looks like -->
+              <div class="pr-subhead">Granted accounts</div>
+              <div class="pr-grid">
                 <div class="pr-field">
                   <label for="pset-duration">Default access duration (days, 0 = permanent)</label>
                   <input id="pset-duration" type="number" min="0" name="provisioningDefaultDurationDays" value="${cfg.getProvisioningDefaultDurationDays()}"/>
@@ -189,30 +207,32 @@
                     <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
                   </select>
                 </div>
+              </div>
+
+              <!-- Group 3: flood protection for the anonymous native form -->
+              <div class="pr-subhead">Native flood protection</div>
+              <div class="pr-hint">Pauses the anonymous native form if it is flooded. Microsoft (Entra) requests are identity-proven and never throttled.</div>
+              <div class="pr-grid">
                 <div class="pr-field">
-                  <label for="pset-maxpending">Max pending requests per user (Entra)</label>
-                  <input id="pset-maxpending" type="number" min="1" name="provisioningMaxPendingPerUser" value="${cfg.getProvisioningMaxPendingPerUser()}"/>
-                </div>
-                <div class="pr-field">
-                  <label for="pset-bmax">Native breaker — max requests</label>
+                  <label for="pset-bmax">Breaker — max requests</label>
                   <input id="pset-bmax" type="number" min="1" name="provisioningBreakerMax" value="${cfg.getProvisioningBreakerMax()}"/>
                 </div>
                 <div class="pr-field">
-                  <label for="pset-bwin">Native breaker — window (minutes)</label>
+                  <label for="pset-bwin">Breaker — window (minutes)</label>
                   <input id="pset-bwin" type="number" min="1" name="provisioningBreakerWindowMin" value="${cfg.getProvisioningBreakerWindowMin()}"/>
                 </div>
                 <div class="pr-field">
-                  <label for="pset-bcool">Native breaker — cooldown (minutes)</label>
+                  <label for="pset-bcool">Breaker — cooldown (minutes)</label>
                   <input id="pset-bcool" type="number" min="1" name="provisioningBreakerCooldownMin" value="${cfg.getProvisioningBreakerCooldownMin()}"/>
                 </div>
               </div>
 
               <div class="pr-url">
-                Public request page: <code>${rootURL}request-access/</code> — share this link with people who need access.
+                Public request page: <code>${rootURL}/request-access/</code> — share this link with people who need access.
               </div>
 
               <div style="margin-top:18px;">
-                <button type="submit" class="jenkins-button jenkins-button--primary">Save settings</button>
+                <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;line-height:1.2;padding:7px 16px;min-height:0;height:auto;">Save Settings</button>
               </div>
             </form>
           </div>

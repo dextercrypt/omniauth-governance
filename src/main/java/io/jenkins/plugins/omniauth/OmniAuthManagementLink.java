@@ -1702,8 +1702,18 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     public int getTotalUserCount()     { return (int) User.getAll().stream().filter(u -> !isInternalUser(u)).count(); }
-    public int getEntraUserCount()     { return (int) User.getAll().stream().filter(u -> !isInternalUser(u) && u.getProperty(OmniAuthUserProperty.class) != null).count(); }
+    public int getEntraUserCount()     { return (int) User.getAll().stream().filter(u -> !isInternalUser(u) && isEntraIdentity(u.getProperty(OmniAuthUserProperty.class))).count(); }
     public int getLegacyUserCount()    { return getTotalUserCount() - getEntraUserCount(); }
+
+    /**
+     * True only when the property carries a real Entra identity (an object id). {@link OmniAuthUserProperty}
+     * is also attached to <em>native</em> users purely to hold Break Glass enrollment, so its mere presence
+     * must not be read as "this is an Entra user" — otherwise a native account (e.g. admin) that enrolled a
+     * Break Glass device would be mislabelled "Entra · Individual".
+     */
+    static boolean isEntraIdentity(OmniAuthUserProperty p) {
+        return p != null && p.hasEntraIdentity();
+    }
     public int getStaleUserCount()     { return getStaleUsers(staleThresholdDays()).size(); }
     public int getProtectedUserCount() { OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get(); return c == null ? 0 : c.getProtectedUsers().size(); }
 
@@ -1748,7 +1758,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             LastLoginProperty     loginProp = user.getProperty(LastLoginProperty.class);
             LoginHistoryProperty  histProp  = user.getProperty(LoginHistoryProperty.class);
 
-            String userType  = (entraProp != null) ? "Entra" : "Native";
+            boolean isEntra  = isEntraIdentity(entraProp);
+            String userType  = isEntra ? "Entra" : "Native";
             String lastLogin = resolveLastLogin(entraProp, loginProp);
             LastJobInfo lastJob = lastJobMap.get(user.getId());
             String status = deriveStatus(lastLogin, lastJob);
@@ -1764,8 +1775,15 @@ public class OmniAuthManagementLink extends ManagementLink {
             );
             if (histProp != null) info.setLatestEvent(histProp.getLatestEvent());
 
-            // Extended fields
-            if (entraProp != null) {
+            // Time-limited account expiry (provisioning portal duration) — surface it if present.
+            OmniAuthAccountExpiryProperty expProp = user.getProperty(OmniAuthAccountExpiryProperty.class);
+            if (expProp != null && expProp.getExpiresAt() != null && !expProp.getExpiresAt().isBlank()) {
+                info.setAccountExpiresAt(expProp.getExpiresAt());
+                info.setAccountDisabledByExpiry(expProp.isDisabled());
+            }
+
+            // Extended fields — only for real Entra identities (not break-glass-only natives).
+            if (isEntra) {
                 info.setProvisioningSource(entraProp.getProvisioningSource());
                 info.setEntraUpn(entraProp.getEntraUpn());
                 if (entraProp.isViaGroup()) {
@@ -1841,7 +1859,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             result.add(new UserInfo(
                     user.getId(),
                     user.getFullName(),
-                    (entraProp != null) ? "Entra" : "Legacy",
+                    isEntraIdentity(entraProp) ? "Entra" : "Legacy",
                     lastLogin,
                     entraProp != null ? entraProp.getEntraObjectId() : null
             ));
@@ -1871,7 +1889,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             UserInfo info = new UserInfo(
                     user.getId(),
                     user.getFullName(),
-                    (entraProp != null) ? "Entra" : "Legacy",
+                    isEntraIdentity(entraProp) ? "Entra" : "Legacy",
                     lastLogin,
                     entraProp.getEntraObjectId()
             );
@@ -1903,7 +1921,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         if (user == null) return null;
 
         OmniAuthUserProperty entraProp = user.getProperty(OmniAuthUserProperty.class);
-        String userType = (entraProp != null) ? "Entra" : "Legacy";
+        boolean isEntra = isEntraIdentity(entraProp);
+        String userType = isEntra ? "Entra" : "Legacy";
 
         // Check key permissions using ACL.as2() so the thread-local auth context is set correctly
         boolean isAdmin      = false;
@@ -1944,8 +1963,8 @@ public class OmniAuthManagementLink extends ManagementLink {
                 userId,
                 user.getFullName(),
                 userType,
-                entraProp != null ? entraProp.getEntraObjectId() : null,
-                entraProp != null ? entraProp.getEntraUpn() : null,
+                isEntra ? entraProp.getEntraObjectId() : null,
+                isEntra ? entraProp.getEntraUpn() : null,
                 lastLogin,
                 jobAccess,
                 authStrategy,
@@ -1953,11 +1972,18 @@ public class OmniAuthManagementLink extends ManagementLink {
                 loginHistory
         );
 
-        // Provisioning source
-        if (entraProp != null) accessInfo.setProvisioningSource(entraProp.getProvisioningSource());
+        // Provisioning source — only meaningful for real Entra identities.
+        if (isEntra) accessInfo.setProvisioningSource(entraProp.getProvisioningSource());
+
+        // Time-limited account expiry (provisioning portal duration) — surface if present.
+        OmniAuthAccountExpiryProperty detailExp = user.getProperty(OmniAuthAccountExpiryProperty.class);
+        if (detailExp != null && detailExp.getExpiresAt() != null && !detailExp.getExpiresAt().isBlank()) {
+            accessInfo.setAccountExpiresAt(detailExp.getExpiresAt());
+            accessInfo.setAccountDisabledByExpiry(detailExp.isDisabled());
+        }
 
         // Populate group info for VIA_ENTRA_GROUP users
-        if (entraProp != null && entraProp.isViaGroup()) {
+        if (isEntra && entraProp.isViaGroup()) {
             String gName = null, gOid = null;
             OmniAuthAssignmentConfig ac = OmniAuthAssignmentConfig.get();
             for (String oid : entraProp.getActiveGroupOids()) {
@@ -2087,17 +2113,26 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (roleName == null) roleName = "Custom";
             String lastLogin = null;
             String provisioningSource = "NATIVE";
+            String acctExpiresAt = null;
+            boolean acctDisabledByExpiry = false;
             if (atype == AuthorizationType.USER) {
                 User u = User.getById(sid, false);
                 if (u != null) {
                     OmniAuthUserProperty ep = u.getProperty(OmniAuthUserProperty.class);
                     LastLoginProperty lp = u.getProperty(LastLoginProperty.class);
                     lastLogin = resolveLastLogin(ep, lp);
-                    if (ep != null) provisioningSource = ep.getProvisioningSource();
+                    if (isEntraIdentity(ep)) provisioningSource = ep.getProvisioningSource();
+                    OmniAuthAccountExpiryProperty xp = u.getProperty(OmniAuthAccountExpiryProperty.class);
+                    if (xp != null && xp.getExpiresAt() != null && !xp.getExpiresAt().isBlank()) {
+                        acctExpiresAt = xp.getExpiresAt();
+                        acctDisabledByExpiry = xp.isDisabled();
+                    }
                 }
             }
             AccessManagementUserInfo userInfo = new AccessManagementUserInfo(sid, dn, atype, roleName, entry.getValue(), lastLogin);
             userInfo.setProvisioningSource(provisioningSource);
+            userInfo.setAccountExpiresAt(acctExpiresAt);
+            userInfo.setAccountDisabledByExpiry(acctDisabledByExpiry);
             // Check if any scoped OmniAuth assignment for this principal is overdue for review
             OmniAuthGlobalConfig reviewCfg = OmniAuthGlobalConfig.get();
             if (reviewCfg != null && reviewCfg.isAccessReviewEnabled()) {
@@ -3805,6 +3840,29 @@ public class OmniAuthManagementLink extends ManagementLink {
         private LoginEvent latestEvent;
         public void setLatestEvent(LoginEvent e) { this.latestEvent = e; }
         public LoginEvent getLatestEvent()        { return latestEvent; }
+
+        // Time-limited account expiry (from OmniAuthAccountExpiryProperty; null = permanent)
+        private String  accountExpiresAt;
+        private boolean accountDisabledByExpiry;
+        public void setAccountExpiresAt(String s)        { this.accountExpiresAt = s; }
+        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
+        public String  getAccountExpiresAt()             { return accountExpiresAt; }
+        public String  getFormattedExpiresAt()           { return formatDate(accountExpiresAt); }
+        public boolean hasExpiry()                       { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
+        public boolean isAccountDisabledByExpiry()       { return accountDisabledByExpiry; }
+        public boolean isAccountExpired() {
+            if (!hasExpiry()) return false;
+            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
+            catch (Exception e) { return false; }
+        }
+        /** Days until expiry, rounded UP so "5 days out" reads as 5 (negative if past); 0 when no expiry. */
+        public long getExpiresInDays() {
+            if (!hasExpiry()) return 0;
+            try {
+                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
+                return hours >= 0 ? (hours + 23) / 24 : hours / 24; // ceil forward, floor when past
+            } catch (Exception e) { return 0; }
+        }
     }
 
     static String relativeTime(String isoStr) {
@@ -3932,6 +3990,28 @@ public class OmniAuthManagementLink extends ManagementLink {
         public boolean isViaGroup()                { return "VIA_ENTRA_GROUP".equals(provisioningSource); }
         public List<GrantDisplay> getOmniAuthGrants() { return omniAuthGrants != null ? omniAuthGrants : Collections.emptyList(); }
         public void setOmniAuthGrants(List<GrantDisplay> grants) { this.omniAuthGrants = grants; }
+
+        // Time-limited account expiry (provisioning portal duration; null = permanent)
+        private String  accountExpiresAt;
+        private boolean accountDisabledByExpiry;
+        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
+        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
+        public String  getAccountExpiresAt()              { return accountExpiresAt; }
+        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
+        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
+        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
+        public boolean isAccountExpired() {
+            if (!hasExpiry()) return false;
+            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
+            catch (Exception e) { return false; }
+        }
+        public long getExpiresInDays() {
+            if (!hasExpiry()) return 0;
+            try {
+                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
+                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
+            } catch (Exception e) { return 0; }
+        }
         public boolean isPerJobSupported() {
             return authStrategy != null &&
                    (authStrategy.toLowerCase().contains("projectmatrix") ||
@@ -4100,6 +4180,28 @@ public class OmniAuthManagementLink extends ManagementLink {
         public boolean isHasReviewDue()             { return hasReviewDue; }
         public void setHasReviewDue(boolean v)      { this.hasReviewDue = v; }
 
+        // Time-limited account expiry (provisioning portal duration; null = permanent)
+        private String  accountExpiresAt;
+        private boolean accountDisabledByExpiry;
+        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
+        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
+        public String  getAccountExpiresAt()              { return accountExpiresAt; }
+        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
+        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
+        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
+        public boolean isAccountExpired() {
+            if (!hasExpiry()) return false;
+            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
+            catch (Exception e) { return false; }
+        }
+        public long getExpiresInDays() {
+            if (!hasExpiry()) return 0;
+            try {
+                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
+                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
+            } catch (Exception e) { return 0; }
+        }
+
         public String getAvatarLetter() {
             String src = (displayName != null && !displayName.equals(sid)) ? displayName : sid;
             return src != null && !src.isEmpty() ? src.substring(0, 1).toUpperCase() : "?";
@@ -4244,16 +4346,25 @@ public class OmniAuthManagementLink extends ManagementLink {
         // Build a minimal placeholder if not found in the list (e.g. user being added)
         String display = resolveDisplayName(sid, atype);
         String ps = "NATIVE";
+        String phExpiresAt = null;
+        boolean phDisabled = false;
         if (atype == AuthorizationType.USER) {
             User u2 = User.getById(sid, false);
             if (u2 != null) {
                 OmniAuthUserProperty ep2 = u2.getProperty(OmniAuthUserProperty.class);
-                if (ep2 != null) ps = ep2.getProvisioningSource();
+                if (isEntraIdentity(ep2)) ps = ep2.getProvisioningSource();
+                OmniAuthAccountExpiryProperty xp2 = u2.getProperty(OmniAuthAccountExpiryProperty.class);
+                if (xp2 != null && xp2.getExpiresAt() != null && !xp2.getExpiresAt().isBlank()) {
+                    phExpiresAt = xp2.getExpiresAt();
+                    phDisabled = xp2.isDisabled();
+                }
             }
         }
         AccessManagementUserInfo placeholder = new AccessManagementUserInfo(sid, display, atype, "NONE",
                 Collections.emptySet(), null);
         placeholder.setProvisioningSource(ps);
+        placeholder.setAccountExpiresAt(phExpiresAt);
+        placeholder.setAccountDisabledByExpiry(phDisabled);
         return placeholder;
     }
 

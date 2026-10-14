@@ -24,14 +24,16 @@ with the right permissions — a governed workflow rather than manual account cr
 The page offers up to two paths, depending on settings:
 
 - **Request access with Microsoft (Entra)** — the user signs in through Microsoft first, so
-  their identity (name, email, UPN, object id) is **verified** by the identity provider, then a
-  request is created from it. No password, no account — just a pending request.
-- **Service-account (native) form** — an anonymous form (username, full name, email, reason,
+  their identity (name, email, UPN, object id) is **verified** by the identity provider. They are
+  then shown a short **reason page** ("why do you need access?", plus an optional duration) and the
+  request is created from the verified identity and that reason. No password, no account — just a
+  pending request. If they already have access, or a request is already pending, no reason is asked.
+- **Native (username/password) form** — an anonymous form (username, full name, email, reason,
   duration). Because it is unauthenticated, it is **off by default** and protected by a circuit
   breaker (below). Responses are identical whether or not the account/request already exists, so
   the form can't be used to discover who has an account.
 
-Both paths end at the same place: a **pending `ProvisioningRequest`**.
+Both paths capture a **reason** and end at the same place: a **pending `ProvisioningRequest`**.
 
 ## Admin queue
 
@@ -73,7 +75,7 @@ Configure the portal from the **Portal settings** panel on the Access Requests p
 |---|---|---|
 | Enable self-service access requests | off | Master switch |
 | Allow Microsoft (Entra) requests | on | Identity-proven SSO requests |
-| Allow service-account (native) requests | off | Anonymous form requests |
+| Allow native (username/password) requests | off | Anonymous form requests |
 | Allowed email domains | any | Hard gate on requester email domain |
 | Default access duration (days, 0 = permanent) | 0 | Pre-fills the request duration |
 | On expiry | Disable | Disable vs delete expired accounts |

@@ -170,6 +170,18 @@
                       <j:when test="${ds == 'inactive'}"> <span class="us-badge us-red">Inactive</span></j:when>
                       <j:otherwise>                       <span class="us-badge us-gray">Never</span></j:otherwise>
                     </j:choose>
+                    <!-- Time-limited account expiry (provisioning portal) -->
+                    <j:if test="${u.hasExpiry()}">
+                      <div style="margin-top:4px;">
+                        <j:choose>
+                          <j:when test="${u.accountDisabledByExpiry}"><span class="us-badge us-crimson" title="Disabled by the expiry worker on ${u.formattedExpiresAt}">Expired · disabled</span></j:when>
+                          <j:when test="${u.accountExpired}">         <span class="us-badge us-red"     title="Expired ${u.formattedExpiresAt}">Expired</span></j:when>
+                          <j:when test="${u.expiresInDays &lt;= 0}">  <span class="us-badge us-amber"   title="Expires ${u.formattedExpiresAt}">Expires today</span></j:when>
+                          <j:when test="${u.expiresInDays &lt;= 7}">  <span class="us-badge us-amber"   title="Expires ${u.formattedExpiresAt}">Expires in ${u.expiresInDays}d</span></j:when>
+                          <j:otherwise>                               <span class="us-badge us-gray"    title="Expires ${u.formattedExpiresAt}">Expires in ${u.expiresInDays}d</span></j:otherwise>
+                        </j:choose>
+                      </div>
+                    </j:if>
                   </td>
 
                   <!-- Actions: kebab ··· menu -->

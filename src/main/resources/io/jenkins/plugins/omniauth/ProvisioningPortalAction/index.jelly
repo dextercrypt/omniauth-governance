@@ -167,6 +167,9 @@
                 <j:when test="${err == 'domain'}">
                   <div class="pa-banner pa-err">That email domain isn't accepted for access requests.</div>
                 </j:when>
+                <j:when test="${err == 'session'}">
+                  <div class="pa-banner pa-warn">Your session expired before the request was completed. Please try again.</div>
+                </j:when>
               </j:choose>
 
               <!-- Portal disabled entirely -->
@@ -215,7 +218,7 @@
                   </j:if>
                 </j:if>
 
-                <!-- Native / service-account request -->
+                <!-- Native (username/password) request -->
                 <j:if test="${it.nativeAllowed}">
                   <j:choose>
                     <j:when test="${it.nativeAvailable}">

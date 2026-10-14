@@ -85,7 +85,10 @@ public class LoginContextFilter {
                             User user = User.getById(username, false);
                             if (user != null) {
                                 OmniAuthUserProperty p = user.getProperty(OmniAuthUserProperty.class);
-                                String method = (p != null) ? "Entra" : "Native";
+                                // Entra identity (object id) ⇒ Entra login; otherwise native. The
+                                // property's mere presence isn't enough — a native user with a Break
+                                // Glass device also has one (that mislabelled their logins "Entra").
+                                String method = (p != null && p.hasEntraIdentity()) ? "Entra" : "Native";
                                 LoginHistoryProperty.record(user,
                                         new LoginEvent(now, finalIp, finalUa, browser, os, method, true));
                                 HttpSession httpSession = http.getSession(false);
@@ -111,7 +114,7 @@ public class LoginContextFilter {
                                 User user = User.getById(uname, false);
                                 if (user != null) {
                                     OmniAuthUserProperty p = user.getProperty(OmniAuthUserProperty.class);
-                                    String method = (p != null) ? "Entra" : "Native";
+                                    String method = (p != null && p.hasEntraIdentity()) ? "Entra" : "Native";
                                     LoginHistoryProperty.record(user,
                                             new LoginEvent(now, finalIp, finalUa, browser, os, method, false));
                                 }

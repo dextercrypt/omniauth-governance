@@ -565,11 +565,13 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * Provisioning portal via SSO: when the OAuth flow is started with provision=1 and the
-     * user is NOT already provisioned, finishEntraLogin must create a PENDING access request
-     * (no session, no account) and redirect to the request page — never to notProvisioned.
+     * user is NOT already provisioned, finishEntraLogin must NOT log in or reject as
+     * notProvisioned. Identity is verified, then the user is sent to the reason-capture page
+     * ({@code request-access/reason}); the PENDING request is created only when they submit a
+     * reason there (ProvisioningPortalAction#doSubmitEntraReason) — so no request exists yet.
      */
     @Test
-    public void finishLogin_provisionMode_createsPendingRequestInsteadOfLogin() throws Exception {
+    public void finishLogin_provisionMode_redirectsToReasonPageWithoutCreatingRequest() throws Exception {
         FakeMsalTokenHelper fakeHelper = new FakeMsalTokenHelper();
         fakeHelper.fakeResult = new FakeAuthResult("fake.id.token", null); // no accessToken → no group sync
 
@@ -599,19 +601,16 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertTrue("Should redirect to the request page as submitted, got: " + resp.location,
-                resp.location.contains("request-access/?submitted=1"));
+        assertTrue("Should redirect to the reason-capture page, got: " + resp.location,
+                resp.location.contains("request-access/reason"));
         assertFalse("Must NOT reject as notProvisioned", resp.location.contains("notProvisioned"));
 
         // No Jenkins account should be created for a mere request.
         assertNull("No user should be provisioned by a request",
                 hudson.model.User.getById("testuser@example.com", false));
 
-        // A PENDING Entra request should exist, carrying the Microsoft-verified identity.
-        ProvisioningRequest pending = ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com");
-        assertNotNull("A PENDING request should have been created", pending);
-        assertEquals(ProvisioningRequest.TYPE_ENTRA, pending.getRequestType());
-        assertEquals("test-oid-abc123", pending.getOid());
-        assertTrue("Request should be pending", pending.isPending());
+        // The request is created only once a reason is submitted — none should exist yet.
+        assertNull("No PENDING request should exist before the reason is submitted",
+                ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com"));
     }
 }

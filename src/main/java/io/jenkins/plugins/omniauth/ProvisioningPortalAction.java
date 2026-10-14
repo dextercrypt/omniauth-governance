@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.model.UnprotectedRootAction;
 import hudson.model.User;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * <p>Renders a page (index.jelly) offering, per the admin settings:
  * <ul>
  *   <li>"Request access via Microsoft" — identity-proven Entra flow (wired in a later increment), and</li>
- *   <li>a native/service-account request form (this increment).</li>
+ *   <li>a native (username/password) request form (this increment).</li>
  * </ul>
  *
  * <p>Nothing is created here — a submission produces a {@code PENDING}
@@ -31,6 +32,13 @@ import java.util.logging.Logger;
 public class ProvisioningPortalAction implements UnprotectedRootAction {
 
     private static final Logger LOGGER = Logger.getLogger(ProvisioningPortalAction.class.getName());
+
+    // Session keys for the verified Entra identity awaiting a reason (written by
+    // OmniAuthSecurityRealm#handleEntraProvisionRequest, read here on the reason page).
+    static final String SESSION_ENTRA_OID    = "omniauth.provision.entra.oid";
+    static final String SESSION_ENTRA_USERID = "omniauth.provision.entra.userId";
+    static final String SESSION_ENTRA_NAME   = "omniauth.provision.entra.name";
+    static final String SESSION_ENTRA_EMAIL  = "omniauth.provision.entra.email";
 
     @Override public String getUrlName()      { return "request-access"; }
     @Override public String getIconFileName() { return null; }
@@ -74,9 +82,31 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         return c != null ? c.getProvisioningDefaultDurationDays() : 0;
     }
 
+    // ── Entra reason-capture page state (read from the session stash) ──────────
+
+    private static String entraStash(String key) {
+        StaplerRequest2 r = Stapler.getCurrentRequest2();
+        if (r == null) return null;
+        jakarta.servlet.http.HttpSession s = r.getSession(false);
+        if (s == null) return null;
+        Object v = s.getAttribute(key);
+        return v != null ? v.toString() : null;
+    }
+
+    /** True when a Microsoft-verified identity is waiting for a reason (reason.jelly gate). */
+    public boolean isEntraReasonReady() {
+        String oid = entraStash(SESSION_ENTRA_OID);
+        String uid = entraStash(SESSION_ENTRA_USERID);
+        return oid != null && !oid.isEmpty() && uid != null && !uid.isEmpty();
+    }
+
+    public String getEntraReasonName()   { String v = entraStash(SESSION_ENTRA_NAME);   return v != null ? v : ""; }
+    public String getEntraReasonEmail()  { String v = entraStash(SESSION_ENTRA_EMAIL);  return v != null ? v : ""; }
+    public String getEntraReasonUserId() { String v = entraStash(SESSION_ENTRA_USERID); return v != null ? v : ""; }
+
     // ── Native request submission ─────────────────────────────────────────────
 
-    /** POST from the native/service-account request form. */
+    /** POST from the native (username/password) request form. */
     @POST
     public void doSubmitNative(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         String ctx = req.getContextPath();
@@ -125,7 +155,61 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         rsp.sendRedirect(ctx + "/request-access/?submitted=1");
     }
 
+    // ── Entra reason submission ───────────────────────────────────────────────
+
+    /**
+     * POST from the Entra reason-capture page. The requester's identity was already proven by
+     * Microsoft and stashed on the session; here we add their reason and create the PENDING
+     * request. No account is created — an admin still approves.
+     */
+    @POST
+    public void doSubmitEntraReason(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
+        String ctx = req.getContextPath();
+        OmniAuthGlobalConfig c = cfg();
+        if (c == null || !c.isProvisioningEnabled() || !c.isProvisioningAllowEntra()) {
+            rsp.sendRedirect(ctx + "/request-access/"); return;
+        }
+
+        jakarta.servlet.http.HttpSession s = req.getSession(false);
+        String oid    = s == null ? null : str(s.getAttribute(SESSION_ENTRA_OID));
+        String userId = s == null ? null : str(s.getAttribute(SESSION_ENTRA_USERID));
+        if (oid == null || oid.isEmpty() || userId == null || userId.isEmpty()) {
+            // Stash gone (session expired, or page reached without the Microsoft round-trip).
+            rsp.sendRedirect(ctx + "/request-access/?error=session"); return;
+        }
+        String name  = str(s.getAttribute(SESSION_ENTRA_NAME));
+        String email = str(s.getAttribute(SESSION_ENTRA_EMAIL));
+
+        String reason = trim(req.getParameter("reason"));
+        int    days   = parseDays(req.getParameter("durationDays"), c.getProvisioningDefaultDurationDays());
+        if (reason.isEmpty()) {
+            rsp.sendRedirect(ctx + "/request-access/reason?error=missing"); return;
+        }
+
+        // Consume the stash — one reason page per verified round-trip.
+        s.removeAttribute(SESSION_ENTRA_OID);
+        s.removeAttribute(SESSION_ENTRA_USERID);
+        s.removeAttribute(SESSION_ENTRA_NAME);
+        s.removeAttribute(SESSION_ENTRA_EMAIL);
+
+        // Never clobber an existing account; dedupe a pending request (same guards as the realm).
+        if (User.getById(userId, false) != null) {
+            rsp.sendRedirect(ctx + "/request-access/?already=1"); return;
+        }
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        if (store != null && store.findPendingForUser(userId) == null) {
+            ProvisioningRequest r = ProvisioningRequest.create(
+                    ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid, reason, days, clientIp(req));
+            store.addRequest(r);
+            LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
+            // Admin notification is wired in the notifications increment.
+        }
+        rsp.sendRedirect(ctx + "/request-access/?submitted=1");
+    }
+
     // ── helpers ────────────────────────────────────────────────────────────────
+
+    private static String str(Object o) { return o == null ? null : o.toString(); }
 
     private static String trim(String s) { return s == null ? "" : s.trim(); }
 

@@ -104,6 +104,15 @@ public class OmniAuthUserProperty extends UserProperty {
         return entraObjectId;
     }
 
+    /**
+     * True when this property actually carries an Entra identity (an object id). The property is
+     * also attached to <em>native</em> users purely to hold Break Glass enrollment, so callers must
+     * use this — not the property's mere presence — to decide "is this an Entra user / login".
+     */
+    public boolean hasEntraIdentity() {
+        return entraObjectId != null && !entraObjectId.isEmpty();
+    }
+
     public String getEntraUpn() {
         return entraUpn;
     }

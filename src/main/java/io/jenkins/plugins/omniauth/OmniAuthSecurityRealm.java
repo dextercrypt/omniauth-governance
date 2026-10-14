@@ -499,16 +499,25 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             return HttpResponses.redirectTo(root + "request-access/?error=domain");
         }
 
+        // Already a pending request for this identity? Don't ask for a reason again.
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
-        if (store != null && store.findPendingForUser(userId) == null) {
-            ProvisioningRequest r = ProvisioningRequest.create(
-                    ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid,
-                    "Requested via Microsoft sign-in", cfg.getProvisioningDefaultDurationDays(), null);
-            store.addRequest(r);
-            LOGGER.log(Level.INFO, "Provisioning: Entra access request submitted for {0}", userId);
-            // Admin notification is wired in the notifications increment.
+        if (store != null && store.findPendingForUser(userId) != null) {
+            return HttpResponses.redirectTo(root + "request-access/?submitted=1");
         }
-        return HttpResponses.redirectTo(root + "request-access/?submitted=1");
+
+        // Identity is Microsoft-verified. Stash it on the session and collect a reason on the
+        // next page; the PENDING request is created from that submission (ProvisioningPortalAction
+        // #doSubmitEntraReason), bringing Entra to parity with the native form's reason field.
+        StaplerRequest2 cur = Stapler.getCurrentRequest2();
+        if (cur != null) {
+            jakarta.servlet.http.HttpSession s = cur.getSession(true);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_OID,    oid);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_USERID, userId);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_NAME,   name  != null ? name  : "");
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_EMAIL,  email != null ? email : "");
+        }
+        LOGGER.log(Level.INFO, "Provisioning: Entra identity verified for {0}, collecting reason", userId);
+        return HttpResponses.redirectTo(root + "request-access/reason");
     }
 
     private User getOrCreateEntraUser(String oid, String upn, String displayName,
