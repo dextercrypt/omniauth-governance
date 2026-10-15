@@ -74,19 +74,24 @@ public class OmniAuthUserProperty extends UserProperty {
     public static class BreakGlassDevice {
         private String id;
         private String name;
-        private String secret;
+        // TOTP shared secret — credential-equivalent, so stored encrypted at rest via
+        // hudson.util.Secret. Secret's XStream converter reads legacy plaintext values
+        // transparently, so already-enrolled devices keep working and are re-encrypted
+        // on the next save.
+        private hudson.util.Secret secret;
         private String enrolledAt;
 
         public BreakGlassDevice() {}
         public BreakGlassDevice(String name, String secret) {
             this.id = java.util.UUID.randomUUID().toString();
             this.name = name;
-            this.secret = secret;
+            this.secret = hudson.util.Secret.fromString(secret);
             this.enrolledAt = java.time.Instant.now().toString();
         }
         public String getId()         { return id; }
         public String getName()       { return name; }
-        public String getSecret()     { return secret; }
+        /** Decrypted secret, used in-process only (TOTP verification). */
+        public String getSecret()     { return secret != null ? secret.getPlainText() : null; }
         public String getEnrolledAt() { return enrolledAt; }
         public void setName(String n) { this.name = n; }
     }
