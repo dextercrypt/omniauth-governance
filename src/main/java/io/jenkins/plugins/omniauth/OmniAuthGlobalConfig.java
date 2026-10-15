@@ -35,9 +35,9 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     private boolean notificationsEnabled = false;
     private boolean smtpEnabled          = false;
     private boolean slackEnabled         = false;
-    private String  slackWebhookUrl      = "";
+    private Secret  slackWebhookUrl      = null;   // incoming-webhook URL = bearer secret -> encrypted at rest
     private boolean teamsEnabled         = false;
-    private String  teamsWebhookUrl      = "";
+    private Secret  teamsWebhookUrl      = null;   // incoming-webhook URL = bearer secret -> encrypted at rest
 
     // ── SMTP configuration ────────────────────────────────────────────────────
     private String  smtpHost        = "";
@@ -260,9 +260,9 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     public boolean isNotificationsEnabled() { return notificationsEnabled; }
     public boolean isSmtpEnabled()          { return smtpEnabled; }
     public boolean isSlackEnabled()         { return slackEnabled; }
-    public String  getSlackWebhookUrl()     { return slackWebhookUrl; }
+    public String  getSlackWebhookUrl()     { return slackWebhookUrl != null ? slackWebhookUrl.getPlainText() : ""; }
     public boolean isTeamsEnabled()         { return teamsEnabled; }
-    public String  getTeamsWebhookUrl()     { return teamsWebhookUrl; }
+    public String  getTeamsWebhookUrl()     { return teamsWebhookUrl != null ? teamsWebhookUrl.getPlainText() : ""; }
 
     // JIT history retention
     public int getJitHistoryRetentionDays() { return jitHistoryRetentionDays > 0 ? jitHistoryRetentionDays : 90; }
@@ -427,9 +427,9 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
         notificationsEnabled = json.optBoolean("notificationsEnabled", false);
         smtpEnabled          = json.optBoolean("smtpEnabled",          false);
         slackEnabled         = json.optBoolean("slackEnabled",         false);
-        slackWebhookUrl      = jsonStr(json, "slackWebhookUrl",        "");
+        slackWebhookUrl      = Secret.fromString(jsonStr(json, "slackWebhookUrl", ""));
         teamsEnabled         = json.optBoolean("teamsEnabled",         false);
-        teamsWebhookUrl      = jsonStr(json, "teamsWebhookUrl",        "");
+        teamsWebhookUrl      = Secret.fromString(jsonStr(json, "teamsWebhookUrl", ""));
 
         // Brute force
         bruteForceThreshold = jsonInt(json, "bruteForceThreshold", 5);
