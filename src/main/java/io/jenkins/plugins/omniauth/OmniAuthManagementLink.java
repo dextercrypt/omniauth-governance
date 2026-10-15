@@ -740,9 +740,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             putParam(json, req, "smtpFromName");
             putParam(json, req, "smtpReplyTo");
             putParam(json, req, "notifyEmails");
-            // brute force
-            String bft = req.getParameter("bruteForceThreshold");
-            if (bft != null) json.put("bruteForceThreshold", bft.trim());
+            // (bruteForceThreshold is owned by the Notifications page; this handler preserves
+            //  the stored value via the config re-injection below — there is no input here.)
             // stale warning
             json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
             String swCron = req.getParameter("staleWarningCron");
