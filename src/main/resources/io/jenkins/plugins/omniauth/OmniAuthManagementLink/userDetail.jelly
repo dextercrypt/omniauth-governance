@@ -144,7 +144,7 @@
 
         <!-- User card -->
         <j:if test="${header != null}">
-          <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--background-color,#fff);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:10px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--oau-card-bg);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:10px;margin-bottom:20px;">
             <div class="udx-avatar"
                  style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15em;font-weight:700;color:#fff;flex-shrink:0;background:var(--oau-info-fg);">
               ${header.avatarLetter}
@@ -185,7 +185,7 @@
           </j:if>
         </div>
 
-        <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
+        <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:#888;">
@@ -201,7 +201,7 @@
             <j:otherwise>
               <table style="width:100%;border-collapse:collapse;">
                 <thead>
-                  <tr style="background:var(--background-color,var(--oau-neutral-bg));border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
+                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
                     <th class="udx-th">Scope</th>
                     <th class="udx-th">Role</th>
                     <th class="udx-th">Permissions</th>
@@ -566,7 +566,7 @@
           --udx-accent-soft: color-mix(in srgb, var(--udx-accent) 12%, transparent);
           --udx-accent-line: rgba(59,130,246,0.45);
           --udx-accent-line: color-mix(in srgb, var(--udx-accent) 45%, transparent);
-          --udx-card: var(--card-background, var(--background, #fff));
+          --udx-card: var(--card-background, var(--oau-card-bg));
           --udx-line: var(--panel-border-color, var(--input-border, var(--oau-card-border)));
           --udx-muted: var(--text-color-secondary, var(--text-color-secondary));
           position: fixed; inset: 0; z-index: 9998;
@@ -790,7 +790,7 @@
         }
         .udx-suggest-drop {
           position:absolute; top:100%; left:0; right:0; z-index:9990;
-          background:var(--card-background, var(--background, #fff)); border:1.5px solid var(--accent-color,var(--blue)); border-top:none;
+          background:var(--card-background, var(--oau-card-bg)); border:1.5px solid var(--accent-color,var(--blue)); border-top:none;
           border-radius:0 0 8px 8px; box-shadow:0 6px 20px rgba(0,0,0,0.18);
           max-height:220px; overflow-y:auto;
         }
@@ -1599,7 +1599,7 @@
     <div id="udxConflictModal"
          style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.45);
                 align-items:center;justify-content:center;">
-      <div style="background:var(--background-color,#fff);border-radius:12px;padding:28px 32px;
+      <div style="background:var(--oau-card-bg);border-radius:12px;padding:28px 32px;
                   max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.22);">
         <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
           <div style="flex-shrink:0;margin-top:2px;">

@@ -75,7 +75,7 @@
         <!-- ===== TAB: USERS ===== -->
         <div id="tabPanelUsers">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:8px;background:var(--background-color,#fff);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;padding:6px 12px;min-width:220px;">
+            <div style="display:flex;align-items:center;gap:8px;background:var(--oau-card-bg);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;padding:6px 12px;min-width:220px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#888;flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input id="oamSearch" type="text" placeholder="Search users and groups…" oninput="filterUsers(this.value)"
                      style="border:none;outline:none;background:transparent;font-size:0.88em;color:var(--text-color,#333);width:180px;"/>
@@ -105,7 +105,7 @@
               <j:otherwise>
                 <table style="width:100%;border-collapse:collapse;">
                   <thead>
-                    <tr style="background:var(--background-color,var(--oau-neutral-bg));border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
+                    <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
                       <th class="oam-th">User / Group</th>
                       <th class="oam-th">Type</th>
                       <th class="oam-th">Role</th>
@@ -204,7 +204,7 @@
                 <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;overflow:hidden;max-height:360px;overflow-y:auto;">
                   <j:forEach var="group" items="${it.availablePermissions}">
                     <details style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
-                      <summary style="padding:8px 14px;cursor:pointer;background:var(--background-color,var(--oau-neutral-bg));user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+                      <summary style="padding:8px 14px;cursor:pointer;background:var(--oau-neutral-bg);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
                         <span class="arr">&#9656;</span>
                         <span style="display:flex;flex-direction:column;gap:1px;">
                           <span style="font-size:0.83em;font-weight:600;line-height:1.2;">${group.groupName}</span>
@@ -253,7 +253,7 @@
               <j:otherwise>
                 <table style="width:100%;border-collapse:collapse;">
                   <thead>
-                    <tr style="background:var(--background-color,var(--oau-neutral-bg));border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
+                    <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
                       <th class="oam-th">Role Name</th>
                       <th class="oam-th">Description</th>
                       <th class="oam-th" style="text-align:center;">Permissions</th>
@@ -306,12 +306,12 @@
            style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9998;"></div>
 
       <div id="addUserDrawer"
-           style="position:fixed;top:0;right:-500px;bottom:0;width:460px;background:var(--background-color,#fff);
+           style="position:fixed;top:0;right:-500px;bottom:0;width:460px;background:var(--oau-card-bg);
                   z-index:9999;box-shadow:-6px 0 28px rgba(0,0,0,0.13);overflow-y:auto;
                   transition:right 0.26s cubic-bezier(0.4,0,0.2,1);display:none;flex-direction:column;">
 
         <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
-                    padding:18px 20px;border-bottom:1px solid var(--panel-border-color,#eee);background:var(--background-color,#fff);">
+                    padding:18px 20px;border-bottom:1px solid var(--panel-border-color,#eee);background:var(--oau-card-bg);">
           <div style="font-weight:700;font-size:1em;" id="auDrawerTitle">Add User</div>
           <button type="button" onclick="closeAddUserDrawer()"
                   style="background:none;border:none;cursor:pointer;color:#999;font-size:1.2em;padding:6px;line-height:1;">&#10005;</button>
@@ -332,12 +332,12 @@
                          onchange="auTypeChange('NATIVE')" style="display:none;"/> &#128274; Native / Local
                 </label>
                 <label id="auTypeEntraLabel"
-                       style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--background-color,#fff);color:var(--text-color,#333);transition:background 0.15s;">
+                       style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeEntra" value="ENTRA"
                          onchange="auTypeChange('ENTRA')" style="display:none;"/> &#9729; Entra / Microsoft
                 </label>
                 <label id="auTypeGroupLabel"
-                       style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--background-color,#fff);color:var(--text-color,#333);transition:background 0.15s;">
+                       style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeGroup" value="GROUP"
                          onchange="auTypeChange('GROUP')" style="display:none;"/> &#128101; Entra Group
                 </label>
@@ -510,7 +510,7 @@
           var nativeLabel = document.getElementById('auTypeNativeLabel');
           var entraLabel  = document.getElementById('auTypeEntraLabel');
           var groupLabel  = document.getElementById('auTypeGroupLabel');
-          var inactive    = 'var(--background-color,#fff)';
+          var inactive    = 'var(--oau-card-bg)';
           var inactiveClr = 'var(--text-color,#333)';
           var active      = 'var(--blue)';
           var activeClr   = '#fff';
