@@ -114,11 +114,18 @@ public class OmniAuthItemACL extends ACL {
                 return resolvePermissions(assignment, roleConfig, userId, scope);
             }
             if (scope.startsWith(itemFullName + "/")) {
-                // Jenkins delegates WorkflowJob ACL to its parent folder — so permission checks
-                // for the pipeline itself arrive here as a check on the parent folder.
-                // For STANDING: grant full permissions so the pipeline's Build button works.
-                // For JIT: grant full permissions only when there's an active request.
-                return resolvePermissions(assignment, roleConfig, userId, scope);
+                // itemFullName is an ancestor of the granted job. Jenkins delegates a
+                // WorkflowJob's own ACL check to its *direct parent* folder, so the pipeline's
+                // Build button needs the full role permissions to arrive on that immediate parent.
+                // Only the direct parent gets them — higher ancestors (grandparent … root) get
+                // navigation-only, otherwise a single job grant would leak Configure/Delete/etc.
+                // onto the whole folder chain above the job.
+                int lastSlash = scope.lastIndexOf('/');
+                String directParent = lastSlash > 0 ? scope.substring(0, lastSlash) : "";
+                if (itemFullName.equals(directParent)) {
+                    return resolvePermissions(assignment, roleConfig, userId, scope);
+                }
+                return NAV_PERMISSIONS;
             }
         }
 
