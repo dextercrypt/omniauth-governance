@@ -253,10 +253,14 @@ public class OmniAuthAuditLog {
         try {
             org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
             if (req != null) {
+                String remote = req.getRemoteAddr();
                 String forwarded = req.getHeader("X-Forwarded-For");
-                String raw = (forwarded != null && !forwarded.isBlank())
+                // Only trust X-Forwarded-For when the direct connection is from a reverse proxy
+                // (loopback / private range). Otherwise the header is client-controlled and an
+                // authenticated user could forge the IP recorded against their own audit events.
+                String raw = (forwarded != null && !forwarded.isBlank() && isTrustedProxyPeer(remote))
                         ? forwarded.split(",")[0].trim()
-                        : req.getRemoteAddr();
+                        : remote;
                 String ip = normalizeIp(raw);
                 if (ip != null && !ip.isBlank()) e.put("ip", ip);
             }
@@ -285,6 +289,23 @@ public class OmniAuthAuditLog {
         String s = ip.replaceAll("[\\[\\]]", ""); // strip IPv6 brackets
         if (s.equals("::1") || s.equals("0:0:0:0:0:0:0:1") || s.equals("127.0.0.1")) return "localhost";
         return s;
+    }
+
+    /**
+     * True when the direct peer looks like a trusted reverse proxy (loopback or a private /
+     * link-local range), in which case its X-Forwarded-For header can be believed. A public
+     * peer address is treated as untrusted, so its XFF header is ignored. Parses literal IPs
+     * only (no DNS).
+     */
+    private static boolean isTrustedProxyPeer(String addr) {
+        if (addr == null || addr.isBlank()) return false;
+        try {
+            java.net.InetAddress a = java.net.InetAddress.getByName(addr.replaceAll("[\\[\\]]", ""));
+            return a.isLoopbackAddress() || a.isAnyLocalAddress()
+                    || a.isSiteLocalAddress() || a.isLinkLocalAddress();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private synchronized void write(Map<String, String> fields) {
