@@ -269,7 +269,7 @@
           display:flex; align-items:center; justify-content:center;
           font-weight:700; font-size:0.9em; text-transform:uppercase;
         }
-        .oau-user-row:hover { background: var(--even-row-color, var(--oau-neutral-bg)) !important; }
+        .oau-user-row:hover { background: var(--oau-neutral-bg) !important; }
         .oau-user-row--on:hover { background: var(--oau-info-bg) !important; }
       </style>
 

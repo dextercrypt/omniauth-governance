@@ -113,7 +113,7 @@
                 <tbody>
                   <j:forEach var="item" items="${items}">
                     <tr style="border-bottom:1px solid var(--oau-card-border); transition:background 0.1s;"
-                        onmouseover="this.style.background='var(--even-row-color,var(--oau-neutral-bg))'"
+                        onmouseover="this.style.background='var(--oau-neutral-bg)'"
                         onmouseout="this.style.background=''">
 
                       <!-- User / Group cell -->
