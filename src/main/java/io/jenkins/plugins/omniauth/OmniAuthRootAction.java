@@ -205,6 +205,23 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
         return req == null ? null : pendingUser(req);
     }
 
+    /**
+     * CSRF crumb field name / value for the set-password form. This custom page doesn't use
+     * the standard Jenkins layout (which auto-injects the crumb), so the form supplies it
+     * explicitly. Empty when no crumb issuer is configured (then the endpoint is unprotected
+     * by crumb anyway, matching core behaviour with CSRF protection disabled).
+     */
+    public String getCrumbFieldName() {
+        hudson.security.csrf.CrumbIssuer ci = jenkins.model.Jenkins.get().getCrumbIssuer();
+        return ci != null ? ci.getCrumbRequestField() : "";
+    }
+
+    public String getCrumbValue() {
+        hudson.security.csrf.CrumbIssuer ci = jenkins.model.Jenkins.get().getCrumbIssuer();
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
+        return (ci != null && req != null) ? ci.getCrumb(req) : "";
+    }
+
     /** POST: set the new password for the pending user, clear the flag, send them to sign in. */
     @POST
     @StaplerDispatchable
