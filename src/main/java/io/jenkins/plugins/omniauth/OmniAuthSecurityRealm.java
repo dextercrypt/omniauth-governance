@@ -578,7 +578,19 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             User existing = User.getById(upn, false);
             if (existing != null) {
                 OmniAuthUserProperty prop = existing.getProperty(OmniAuthUserProperty.class);
-                if (prop != null && !prop.isViaGroup()) return true;
+                if (prop != null && !prop.isViaGroup()) {
+                    // Guard against UPN reuse: if this account already has a stable OID bound
+                    // and the incoming token's OID differs, the UPN now points at a different
+                    // directory object — do NOT let them inherit the existing account. When no
+                    // OID is stored yet (pre-provisioned by UPN, or legacy), allow the match and
+                    // let getOrCreateEntraUser bind the OID on this first login.
+                    String storedOid = prop.getEntraObjectId();
+                    if (storedOid == null || storedOid.isEmpty() || storedOid.equals(oid)) {
+                        return true;
+                    }
+                    LOGGER.log(Level.WARNING, "Entra UPN {0} matches a provisioned account with a "
+                            + "different stable OID — rejecting the UPN match (possible UPN reuse)", upn);
+                }
             }
         }
         if (oid != null) {
@@ -596,19 +608,8 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             }
         }
 
-        // Check 3 — returning VIA_ENTRA_GROUP user whose account already exists
-        // We still require their group to be present in Access Management
-        if (oid != null) {
-            for (User u : User.getAll()) {
-                OmniAuthUserProperty prop = u.getProperty(OmniAuthUserProperty.class);
-                if (prop != null && oid.equals(prop.getEntraObjectId()) && prop.isViaGroup()) {
-                    // Account exists but was group-provisioned — re-check group membership above
-                    // If we got here, none of their groups matched → blocked
-                    return false;
-                }
-            }
-        }
-
+        // (A group-provisioned user whose groups no longer match falls through to the
+        // return false below — re-validation already happened in Check 2 above.)
         return false;
     }
 

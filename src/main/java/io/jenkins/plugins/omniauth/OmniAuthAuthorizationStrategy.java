@@ -38,6 +38,18 @@ public class OmniAuthAuthorizationStrategy extends ProjectMatrixAuthorizationStr
         super();
     }
 
+    /**
+     * Evicts cached per-item ACLs when items are renamed, moved or deleted — otherwise the
+     * cache (keyed by full name) accumulates stale entries for the JVM's lifetime. Clearing
+     * the whole cache is cheap: entries are rebuilt lazily on the next permission check.
+     */
+    @Extension
+    public static final class CacheEvictingItemListener extends hudson.model.listeners.ItemListener {
+        @Override public void onDeleted(hudson.model.Item item) { invalidateCache(); }
+        @Override public void onRenamed(hudson.model.Item item, String oldName, String newName) { invalidateCache(); }
+        @Override public void onLocationChanged(hudson.model.Item item, String oldFullName, String newFullName) { invalidateCache(); }
+    }
+
     @Extension
     public static final class ConverterImpl extends GlobalMatrixAuthorizationStrategy.ConverterImpl {
         @Override

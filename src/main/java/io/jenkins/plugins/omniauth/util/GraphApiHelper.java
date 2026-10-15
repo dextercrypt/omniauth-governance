@@ -28,12 +28,16 @@ public class GraphApiHelper {
     private static final String GRAPH_BASE = "https://graph.microsoft.com/v1.0";
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    // HttpClient is thread-safe and owns a connection pool + selector thread; share one
+    // instance across logins rather than constructing (and leaking until GC) one per login.
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
     private final HttpClient httpClient;
 
     public GraphApiHelper() {
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
+        this.httpClient = HTTP_CLIENT;
     }
 
     /**

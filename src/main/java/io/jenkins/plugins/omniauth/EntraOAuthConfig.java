@@ -51,13 +51,21 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
 
     /**
      * Returns the OAuth2 scopes to request. Always includes openid, profile, email.
-     * Adds Graph API scope when group sync is enabled.
+     * Adds the Graph API scope whenever group information may be needed — i.e. group sync
+     * is enabled OR any GROUP entity exists in Access Management. (Otherwise group-based
+     * access would silently break: the token would lack the Graph scope, the /me/memberOf
+     * call would 403, and every group-gated user would be rejected at login.)
      */
     public String getScope() {
-        if (enableGroupSync) {
+        if (enableGroupSync || groupsConfigured()) {
             return "openid profile email https://graph.microsoft.com/.default";
         }
         return "openid profile email";
+    }
+
+    private static boolean groupsConfigured() {
+        OmniAuthAssignmentConfig c = OmniAuthAssignmentConfig.get();
+        return c != null && c.hasAnyGroups();
     }
 
     /**
