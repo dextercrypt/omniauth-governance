@@ -439,6 +439,8 @@
       </style>
 
       <script>//<![CDATA[
+        // HTML-escape a value before embedding it in innerHTML (user-controlled names etc.)
+        function oamEscHtml(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
         // ── Tabs ──────────────────────────────────────────────────────────────
         function switchTab(tab) {
           document.getElementById('tabPanelUsers').style.display = tab === 'users' ? '' : 'none';
@@ -563,7 +565,7 @@
                 status.style.border = '1px solid var(--oau-success-border)';
                 status.style.color = 'var(--oau-success-fg)';
                 status.innerHTML = '&#10003; Native user found' +
-                  (data.displayName ? ' — <strong>' + data.displayName + '</strong>' : '') +
+                  (data.displayName ? ' — <strong>' + oamEscHtml(data.displayName) + '</strong>' : '') +
                   '. Will be added to access management.';
                 createForm.style.display = 'none';
                 actionEl.value = 'existing';

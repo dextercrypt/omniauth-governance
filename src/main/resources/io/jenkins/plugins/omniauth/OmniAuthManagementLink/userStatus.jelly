@@ -507,25 +507,24 @@
 
         // ── Delete modal ─────────────────────────────────────────────────────
         // ── Mark / Unmark for deletion ───────────────────────────────────────
-        function usMark(btn) {
-          usCloseMenus();
+        // Build the hidden form with property assignment (never innerHTML), so a userId
+        // containing HTML metacharacters can't break out and inject markup/script.
+        function usPostDeletionForm(action, btn) {
           var f = document.createElement('form');
-          f.method = 'post'; f.action = 'markForDeletion'; f.style.display = 'none';
-          f.innerHTML = '<input name="userId" value="' + btn.dataset.userid + '">' +
-                        '<input name="from" value="userStatus">' +
-                        '<input name="' + btn.dataset.crumbField + '" value="' + btn.dataset.crumbValue + '">';
+          f.method = 'post'; f.action = action; f.style.display = 'none';
+          function hidden(name, val) {
+            var i = document.createElement('input');
+            i.type = 'hidden'; i.name = name; i.value = (val == null ? '' : val);
+            return i;
+          }
+          f.appendChild(hidden('userId', btn.dataset.userid));
+          f.appendChild(hidden('from', 'userStatus'));
+          f.appendChild(hidden(btn.dataset.crumbField, btn.dataset.crumbValue));
           document.body.appendChild(f); f.submit();
         }
 
-        function usUnmark(btn) {
-          usCloseMenus();
-          var f = document.createElement('form');
-          f.method = 'post'; f.action = 'unmarkForDeletion'; f.style.display = 'none';
-          f.innerHTML = '<input name="userId" value="' + btn.dataset.userid + '">' +
-                        '<input name="from" value="userStatus">' +
-                        '<input name="' + btn.dataset.crumbField + '" value="' + btn.dataset.crumbValue + '">';
-          document.body.appendChild(f); f.submit();
-        }
+        function usMark(btn)   { usCloseMenus(); usPostDeletionForm('markForDeletion', btn); }
+        function usUnmark(btn) { usCloseMenus(); usPostDeletionForm('unmarkForDeletion', btn); }
 
         function usDelete(btn) {
           usCloseMenus();
