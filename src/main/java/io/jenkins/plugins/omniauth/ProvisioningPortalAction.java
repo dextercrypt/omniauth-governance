@@ -121,11 +121,13 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             rsp.sendRedirect(ctx + "/request-access/?error=unavailable"); return;
         }
 
-        String username = trim(req.getParameter("username"));
-        String fullName = trim(req.getParameter("fullName"));
-        String email    = trim(req.getParameter("email"));
-        String reason   = trim(req.getParameter("reason"));
-        String access   = trim(req.getParameter("requestedAccess"));
+        // Bound every field — this endpoint is public and unauthenticated, so without caps a
+        // flood of large values would grow the persisted request store without limit.
+        String username = cap(trim(req.getParameter("username")), 64);
+        String fullName = cap(trim(req.getParameter("fullName")), 128);
+        String email    = cap(trim(req.getParameter("email")), 254);
+        String reason   = cap(trim(req.getParameter("reason")), 1000);
+        String access   = cap(trim(req.getParameter("requestedAccess")), 1000);
         int    days     = parseDays(req.getParameter("durationDays"), c.getProvisioningDefaultDurationDays());
 
         if (username.isEmpty() || email.isEmpty() || reason.isEmpty() || access.isEmpty()) {
@@ -183,8 +185,8 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         String name  = str(s.getAttribute(SESSION_ENTRA_NAME));
         String email = str(s.getAttribute(SESSION_ENTRA_EMAIL));
 
-        String reason = trim(req.getParameter("reason"));
-        String access = trim(req.getParameter("requestedAccess"));
+        String reason = cap(trim(req.getParameter("reason")), 1000);
+        String access = cap(trim(req.getParameter("requestedAccess")), 1000);
         int    days   = parseDays(req.getParameter("durationDays"), c.getProvisioningDefaultDurationDays());
         if (reason.isEmpty() || access.isEmpty()) {
             rsp.sendRedirect(ctx + "/request-access/reason?error=missing"); return;
@@ -217,6 +219,12 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
     private static String str(Object o) { return o == null ? null : o.toString(); }
 
     private static String trim(String s) { return s == null ? "" : s.trim(); }
+
+    /** Truncates to at most {@code max} chars, bounding stored field size from the public form. */
+    private static String cap(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max);
+    }
 
     private static int parseDays(String v, int fallback) {
         if (v == null || v.isBlank()) return Math.max(0, fallback);

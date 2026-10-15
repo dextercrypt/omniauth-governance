@@ -59,10 +59,16 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
      * The count+add is atomic under the store lock, closing the check-then-act race where two
      * near-simultaneous submissions both pass an external count check and exceed the cap.
      */
+    /** Hard ceiling on total stored requests — a backstop against the public form flooding the store. */
+    private static final int MAX_TOTAL_REQUESTS = 2000;
+
     public synchronized boolean addRequestIfUnderCap(ProvisioningRequest r, int maxPending) {
         int cap = maxPending > 0 ? maxPending : 1;
         if (r != null && r.getUserId() != null && countPendingForUser(r.getUserId()) >= cap) {
             return false;
+        }
+        if (requests.size() >= MAX_TOTAL_REQUESTS) {
+            return false; // store is full — drop silently (enumeration-safe)
         }
         requests.add(r);
         save();
