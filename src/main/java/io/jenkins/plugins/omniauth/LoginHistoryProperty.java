@@ -22,12 +22,12 @@ public class LoginHistoryProperty extends UserProperty {
 
     private List<LoginEvent> events = new ArrayList<>();
 
-    public List<LoginEvent> getEvents() {
+    public synchronized List<LoginEvent> getEvents() {
         if (events == null) events = new ArrayList<>();
-        return Collections.unmodifiableList(events);
+        return new ArrayList<>(events); // defensive copy — addEvent mutates under the same lock
     }
 
-    public LoginEvent getLatestEvent() {
+    public synchronized LoginEvent getLatestEvent() {
         if (events == null || events.isEmpty()) return null;
         return events.get(0);
     }

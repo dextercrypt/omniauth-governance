@@ -44,6 +44,25 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
         save();
     }
 
+    /**
+     * Adds the request only if the user has no pending request yet; returns true if added.
+     * The find+add is atomic under the store lock, closing the check-then-act race where two
+     * near-simultaneous submissions both pass an external findPendingForUser() check and create
+     * duplicate PENDING rows.
+     */
+    public synchronized boolean addRequestIfNoPending(ProvisioningRequest r) {
+        if (r != null && r.getUserId() != null) {
+            for (ProvisioningRequest existing : requests) {
+                if (existing.isPending() && existing.getUserId().equalsIgnoreCase(r.getUserId())) {
+                    return false;
+                }
+            }
+        }
+        requests.add(r);
+        save();
+        return true;
+    }
+
     public ProvisioningRequest findById(String requestId) {
         if (requestId == null) return null;
         return requests.stream()

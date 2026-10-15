@@ -48,21 +48,6 @@ public class LastLoginListener extends SecurityListener {
         }
     }
 
-    private static String getRemoteAddr() {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getDetails() instanceof WebAuthenticationDetails) {
-                return ((WebAuthenticationDetails) auth.getDetails()).getRemoteAddress();
-            }
-        } catch (Exception ignored) {}
-        // Fallback to Stapler request if available
-        try {
-            org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
-            if (req != null) return req.getRemoteAddr();
-        } catch (Exception ignored) {}
-        return "";
-    }
-
     @Override
     protected void failedToAuthenticate(String username) {
         LoginContextFilter.FRESH_LOGINS.put("__failed__" + username, Boolean.TRUE);

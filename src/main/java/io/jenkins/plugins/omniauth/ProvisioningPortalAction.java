@@ -149,7 +149,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_NATIVE, username, fullName, email, null, reason, days, clientIp(req));
             r.setRequestedAccess(access);
-            store.addRequest(r);
+            store.addRequestIfNoPending(r);
             LOGGER.info("Provisioning: native access request submitted for '" + username + "'");
             NotificationService.sendProvisioningRequested(c, r);
         }
@@ -204,7 +204,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid, reason, days, clientIp(req));
             r.setRequestedAccess(access);
-            store.addRequest(r);
+            store.addRequestIfNoPending(r);
             LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
             NotificationService.sendProvisioningRequested(c, r);
         }

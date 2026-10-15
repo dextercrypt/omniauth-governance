@@ -24,7 +24,14 @@ public class OmniAuthAccountExpiryProperty extends UserProperty {
     public OmniAuthAccountExpiryProperty(String expiresAt) { this.expiresAt = expiresAt; }
 
     public String getExpiresAt()            { return expiresAt; }
-    public void   setExpiresAt(String v)    { this.expiresAt = v; }
+    public void   setExpiresAt(String v)    {
+        // Changing the expiry (e.g. an admin extends the account) starts a fresh reminder
+        // window — otherwise the already-sent flag would suppress the reminder for the new date.
+        if (v == null ? this.expiresAt != null : !v.equals(this.expiresAt)) {
+            this.reminderSent = false;
+        }
+        this.expiresAt = v;
+    }
 
     public boolean isDisabled()             { return disabled; }
     public void    setDisabled(boolean v)   { this.disabled = v; }
