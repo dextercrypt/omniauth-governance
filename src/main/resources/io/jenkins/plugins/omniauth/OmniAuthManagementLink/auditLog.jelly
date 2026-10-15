@@ -2,6 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:layout title="OmniAuth — Audit Log" norefresh="true">
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -41,7 +42,7 @@
           <div style="margin-left:auto;">
             <button type="button" onclick="alxPurgeOpen()"
                     class="jenkins-button"
-                    style="font-size:0.82em;color:#dc3545;border-color:#dc3545;">
+                    style="font-size:0.82em;color:var(--error-color);border-color:var(--error-color);">
               Purge All Logs
             </button>
           </div>
@@ -56,7 +57,7 @@
                   class="jenkins-button" style="font-size:0.8em;">Clear filters</button>
         </div>
 
-        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
+        <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
           <j:choose>
             <j:when test="${it.auditEvents.isEmpty()}">
               <div style="padding:56px;text-align:center;color:#888;">
@@ -67,7 +68,7 @@
             <j:otherwise>
               <table id="alxTable" style="width:100%;border-collapse:collapse;">
                 <thead>
-                  <tr style="background:var(--background-color,#fafafa);border-bottom:2px solid var(--panel-border-color,#e0e0e0);">
+                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--oau-card-border);">
                     <th class="alx-th">Time</th>
                     <th class="alx-th">Action</th>
                     <th class="alx-th">User</th>
@@ -83,7 +84,7 @@
                         data-ip="${ev.get('ip')}"
                         data-ts="${ev.get('ts')}"
                         data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')}"
-                        style="border-bottom:1px solid var(--panel-border-color,#f0f0f0);">
+                        style="border-bottom:1px solid var(--oau-card-border);">
                       <td style="padding:10px 16px;font-size:0.8em;color:#999;white-space:nowrap;">
                         <span class="alx-ts" data-ts="${ev.get('ts')}">${ev.get('ts')}</span>
                       </td>
@@ -120,7 +121,7 @@
                           &#8201;&#8594;&#8201;<span class="alx-role">${ev.get('newRole')}</span>
                         </j:if>
                         <j:if test="${ev.get('expiresAt') != null and ev.get('expiresAt') != ''}">
-                          &#8201;<span style="color:#856404;font-size:0.88em;">(expires <span class="alx-ts" data-ts="${ev.get('expiresAt')}">${ev.get('expiresAt')}</span>)</span>
+                          &#8201;<span style="color:var(--warning-color);font-size:0.88em;">(expires <span class="alx-ts" data-ts="${ev.get('expiresAt')}">${ev.get('expiresAt')}</span>)</span>
                         </j:if>
                         <j:if test="${ev.get('authType') != null and ev.get('authType') != ''}">
                           via&#160;<strong>${ev.get('authType')}</strong>
@@ -154,19 +155,19 @@
           display:inline-block;padding:2px 9px;border-radius:10px;font-size:0.75em;
           font-weight:700;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em;
         }
-        .alx-badge-grant        { background:#d1fae5;color:#065f46; }
-        .alx-badge-revoke       { background:#fee2e2;color:#991b1b; }
-        .alx-badge-edit         { background:#dbeafe;color:#1e40af; }
-        .alx-badge-expired      { background:#fef3c7;color:#92400e; }
-        .alx-badge-role_created { background:#ede9fe;color:#5b21b6; }
-        .alx-badge-role_edited  { background:#e0e7ff;color:#3730a3; }
-        .alx-badge-role_deleted { background:#fce7f3;color:#9d174d; }
-        .alx-badge-login_success { background:#d1fae5;color:#065f46; }
-        .alx-badge-login_failure { background:#fee2e2;color:#991b1b; }
-        .alx-badge-user_created  { background:#d1fae5;color:#065f46; }
-        .alx-badge-user_deleted  { background:#fee2e2;color:#991b1b; }
+        .alx-badge-grant        { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+        .alx-badge-revoke       { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-edit         { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-expired      { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-role_created { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+        .alx-badge-role_edited  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-role_deleted { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
+        .alx-badge-login_success { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+        .alx-badge-login_failure { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-user_created  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+        .alx-badge-user_deleted  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
         .alx-role {
-          display:inline-block;padding:1px 7px;background:#e8f0fe;color:#1a56b0;
+          display:inline-block;padding:1px 7px;background:var(--oau-info-bg);color:var(--oau-info-fg);
           border-radius:8px;font-size:0.88em;font-weight:600;
         }
         .alx-row.alx-hidden { display:none; }
@@ -236,12 +237,12 @@
 
         <!-- Icon + title -->
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
-          <div style="width:44px;height:44px;border-radius:12px;background:#fee2e2;
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--oau-danger-bg);
                       display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3em;">
             &#128465;
           </div>
           <div>
-            <div style="font-weight:700;font-size:1.05em;color:#1a1a1a;">Purge All Audit Logs</div>
+            <div style="font-weight:700;font-size:1.05em;color:var(--text-color);">Purge All Audit Logs</div>
             <div style="font-size:0.82em;color:#999;margin-top:2px;">This action is permanent and cannot be undone.</div>
           </div>
         </div>
@@ -259,7 +260,7 @@
                  oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
                           document.getElementById('alxPurgeErr').style.display='none';"
                  onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
-          <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:#dc3545;margin-top:7px;
+          <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
                font-weight:600;">&#10005; Incorrect password. Try again.</div>
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -267,7 +268,7 @@
                   class="jenkins-button" style="font-size:0.88em;">Cancel</button>
           <button type="button" id="alxPurgeBtn" onclick="alxPurgeSubmit()"
                   class="jenkins-button" disabled="disabled"
-                  style="font-size:0.88em;background:#dc3545;color:#fff;border-color:#dc3545;">
+                  style="font-size:0.88em;background:var(--error-color);color:#fff;border-color:var(--error-color);">
             Delete All Logs
           </button>
         </div>
