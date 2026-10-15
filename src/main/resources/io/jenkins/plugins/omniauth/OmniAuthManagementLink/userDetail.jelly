@@ -1132,9 +1132,18 @@
           var chips = document.getElementById(chipsId);
           var chip = document.createElement('span');
           chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 10px;background:var(--oau-info-bg);color:var(--oau-info-fg);border-radius:12px;font-size:0.78em;font-weight:600;';
-          chip.innerHTML = '<span>' + v.replace(/</g,'&lt;') + '</span>'
-            + '<button type="button" onclick="udxChipRemove(\''+v.replace(/'/g,"\\'") + '\',\'' + chipsId + '\',\'' + hiddenId + '\')" '
-            + 'style="border:none;background:none;cursor:pointer;color:var(--oau-info-fg);font-size:0.9em;padding:0 0 0 2px;line-height:1;">&#10005;</button>';
+          // Build with DOM APIs (textContent / addEventListener), never innerHTML+onclick, so a
+          // chip value containing quotes or angle brackets can't inject markup or break out of
+          // the handler attribute.
+          var chipLabel = document.createElement('span');
+          chipLabel.textContent = v;
+          var chipBtn = document.createElement('button');
+          chipBtn.type = 'button';
+          chipBtn.style.cssText = 'border:none;background:none;cursor:pointer;color:var(--oau-info-fg);font-size:0.9em;padding:0 0 0 2px;line-height:1;';
+          chipBtn.innerHTML = '&#10005;';
+          chipBtn.addEventListener('click', function() { udxChipRemove(v, chipsId, hiddenId); });
+          chip.appendChild(chipLabel);
+          chip.appendChild(chipBtn);
           chips.appendChild(chip);
           udxUpdateChipValidation(chipsId, hiddenId);
         }
