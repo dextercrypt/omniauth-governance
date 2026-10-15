@@ -141,7 +141,8 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         // silently no-op and show the same confirmation.
         boolean duplicate = User.getById(username, false) != null;
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
-        if (!duplicate && store != null && store.findPendingForUser(username) != null) {
+        if (!duplicate && store != null
+                && store.countPendingForUser(username) >= c.getProvisioningMaxPendingPerUser()) {
             duplicate = true;
         }
 
@@ -149,7 +150,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_NATIVE, username, fullName, email, null, reason, days, clientIp(req));
             r.setRequestedAccess(access);
-            store.addRequestIfNoPending(r);
+            store.addRequestIfUnderCap(r, c.getProvisioningMaxPendingPerUser());
             LOGGER.info("Provisioning: native access request submitted for '" + username + "'");
             NotificationService.sendProvisioningRequested(c, r);
         }
@@ -200,11 +201,11 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             rsp.sendRedirect(ctx + "/request-access/?already=1"); return;
         }
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
-        if (store != null && store.findPendingForUser(userId) == null) {
+        if (store != null && store.countPendingForUser(userId) < c.getProvisioningMaxPendingPerUser()) {
             ProvisioningRequest r = ProvisioningRequest.create(
                     ProvisioningRequest.TYPE_ENTRA, userId, name, email, oid, reason, days, clientIp(req));
             r.setRequestedAccess(access);
-            store.addRequestIfNoPending(r);
+            store.addRequestIfUnderCap(r, c.getProvisioningMaxPendingPerUser());
             LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
             NotificationService.sendProvisioningRequested(c, r);
         }

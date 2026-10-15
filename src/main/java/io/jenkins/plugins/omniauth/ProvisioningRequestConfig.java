@@ -44,19 +44,25 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
         save();
     }
 
+    /** Number of still-pending requests for this user id. */
+    public synchronized int countPendingForUser(String userId) {
+        if (userId == null) return 0;
+        int n = 0;
+        for (ProvisioningRequest r : requests) {
+            if (r.isPending() && r.getUserId().equalsIgnoreCase(userId)) n++;
+        }
+        return n;
+    }
+
     /**
-     * Adds the request only if the user has no pending request yet; returns true if added.
-     * The find+add is atomic under the store lock, closing the check-then-act race where two
-     * near-simultaneous submissions both pass an external findPendingForUser() check and create
-     * duplicate PENDING rows.
+     * Adds the request only if the user is below the pending cap; returns true if added.
+     * The count+add is atomic under the store lock, closing the check-then-act race where two
+     * near-simultaneous submissions both pass an external count check and exceed the cap.
      */
-    public synchronized boolean addRequestIfNoPending(ProvisioningRequest r) {
-        if (r != null && r.getUserId() != null) {
-            for (ProvisioningRequest existing : requests) {
-                if (existing.isPending() && existing.getUserId().equalsIgnoreCase(r.getUserId())) {
-                    return false;
-                }
-            }
+    public synchronized boolean addRequestIfUnderCap(ProvisioningRequest r, int maxPending) {
+        int cap = maxPending > 0 ? maxPending : 1;
+        if (r != null && r.getUserId() != null && countPendingForUser(r.getUserId()) >= cap) {
+            return false;
         }
         requests.add(r);
         save();

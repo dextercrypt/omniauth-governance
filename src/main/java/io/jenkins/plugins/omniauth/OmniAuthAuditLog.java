@@ -204,7 +204,7 @@ public class OmniAuthAuditLog {
         return counts;
     }
 
-    public List<Map<String, String>> readRecent(int maxLines) {
+    public synchronized List<Map<String, String>> readRecent(int maxLines) {
         List<String> lines = new ArrayList<>();
         File logsDir = logsDir();
         if (logsDir == null) return Collections.emptyList();
@@ -383,11 +383,33 @@ public class OmniAuthAuditLog {
                 String key = pair.substring(0, colon).trim().replace("\"", "");
                 String val = pair.substring(colon + 1).trim();
                 if (val.startsWith("\"") && val.endsWith("\"")) val = val.substring(1, val.length() - 1);
-                map.put(key, val.replace("\\\"", "\"").replace("\\n", "\n").replace("\\\\", "\\"));
+                map.put(key, unescape(val));
             }
             return map;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Single left-to-right pass — handles the escape character first, so e.g. a stored \\ then \" round-trips correctly. */
+    private static String unescape(String v) {
+        StringBuilder sb = new StringBuilder(v.length());
+        for (int i = 0; i < v.length(); i++) {
+            char c = v.charAt(i);
+            if (c == '\\' && i + 1 < v.length()) {
+                char n = v.charAt(++i);
+                switch (n) {
+                    case 'n':  sb.append('\n'); break;
+                    case 't':  sb.append('\t'); break;
+                    case 'r':  sb.append('\r'); break;
+                    case '"':  sb.append('"');  break;
+                    case '\\': sb.append('\\'); break;
+                    default:   sb.append(n);
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }
