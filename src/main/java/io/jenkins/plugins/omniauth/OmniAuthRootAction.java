@@ -306,7 +306,11 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
 
     /** Only allow same-site relative redirect targets to avoid an open redirect. */
     private static String safeFrom(String from, String ctx) {
-        if (from != null && from.startsWith("/") && !from.startsWith("//")) {
+        if (from != null && from.startsWith("/")
+                // reject //host and /\host (browsers treat the backslash form as protocol-relative)
+                && !(from.length() > 1 && (from.charAt(1) == '/' || from.charAt(1) == '\\'))
+                && from.indexOf('\\') < 0
+                && from.chars().noneMatch(c -> c < 0x20)) {
             return from;
         }
         return ctx + "/";

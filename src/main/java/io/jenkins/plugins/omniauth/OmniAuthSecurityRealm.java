@@ -720,9 +720,16 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * Only paths starting with a single "/" are accepted as safe post-login destinations.
      */
     private static boolean isSafeRedirectUrl(String url) {
-        return url.startsWith("/")
-            && !url.startsWith("//")
-            && !url.startsWith("\\");
+        if (url == null || url.isEmpty() || url.charAt(0) != '/') return false;
+        // Reject //host and /\host — browsers normalise the backslash form to a
+        // protocol-relative URL, so /\evil.com would navigate off-site.
+        if (url.length() > 1 && (url.charAt(1) == '/' || url.charAt(1) == '\\')) return false;
+        // Reject any backslash or control char anywhere (they can confuse URL parsing).
+        for (int i = 0; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == '\\' || c < 0x20) return false;
+        }
+        return true;
     }
 
     private String buildRedirectUri(StaplerRequest req) {
