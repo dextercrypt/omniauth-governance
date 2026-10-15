@@ -133,6 +133,14 @@
                 </td>
               </tr>
             </table>
+            <!-- Branding lockup: full-colour mark + OmniAuth wordmark (Auth in brand electric blue) -->
+            <div style="margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--oau-card-border); display: flex; align-items: center; justify-content: center; gap: 18px;">
+              <img src="${rootURL}/plugin/omni-auth/images/omniauth-mark.svg"
+                   alt="" width="60" height="60" style="display: block; flex-shrink: 0;"/>
+              <span style="font-size: 2.5em; font-weight: 800; letter-spacing: -0.015em; line-height: 1;">
+                <span style="color: var(--text-color);">Omni</span><span style="color: #2563eb;">Auth</span>
+              </span>
+            </div>
           </div>
         </div>
 

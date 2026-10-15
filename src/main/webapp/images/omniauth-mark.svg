@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="geometricPrecision">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="52%" r="46%">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.22"></stop>
+      <stop offset="100%" stop-color="#2563eb" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="13" fill="#0c1628"></rect>
+  <rect x="6" y="6" width="52" height="52" rx="13" fill="url(#g)"></rect>
+  <path d="M16 51 L16 32 A16 16 0 0 1 32 16" fill="none" stroke="#5b8bf0" stroke-width="8.5" stroke-linecap="butt"></path>
+  <path d="M32 16 A16 16 0 0 1 48 32 L48 51" fill="none" stroke="#2563eb" stroke-width="8.5" stroke-linecap="butt"></path>
+  <path d="M20.5 51 L20.5 33 A11.5 11.5 0 0 1 43.5 33 L43.5 51" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"></path>
+  <circle cx="16" cy="51" r="3.2" fill="#5b8bf0"></circle>
+  <circle cx="48" cy="51" r="3.2" fill="#2563eb"></circle>
+  <circle cx="32" cy="29" r="5" fill="#ffffff"></circle>
+  <path d="M30 33 H34 L33.2 39.5 H30.8 Z" fill="#ffffff"></path>
+</svg>
