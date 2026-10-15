@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/omniauth-horizontal-dark.png" />
+    <img src="docs/assets/omniauth-horizontal-light.png" alt="OmniAuth" width="400" />
+  </picture>
+</p>
+
 # OmniAuth Plugin
 
 A Jenkins **security and access-governance platform**. OmniAuth combines flexible
