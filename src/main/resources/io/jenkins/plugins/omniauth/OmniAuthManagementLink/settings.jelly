@@ -30,8 +30,8 @@
                USER STATUS
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-            <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,#0078d4);flex-shrink:0;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,var(--blue));flex-shrink:0;">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">User Status</h3>
@@ -40,13 +40,13 @@
               <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                 <label style="flex: 1; min-width: 200px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Active threshold (days)</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 8px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                     Logins within this window are considered active. Affects the Active / Inactive status on the User Status page.
                   </div>
                   <input type="number" onwheel="this.blur()" name="activeThresholdDays" min="1" max="365"
                          value="${cfg.activeThresholdDays}"
                          class="jenkins-input" style="width: 100px;"/>
-                  <span style="margin-left: 8px; color: var(--text-color-secondary,#888); font-size: 0.85em;">days</span>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
                 </label>
               </div>
             </div>
@@ -56,8 +56,8 @@
                STALE USERS
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-            <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#e67e22;flex-shrink:0;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Stale Users</h3>
@@ -65,13 +65,13 @@
             <div style="padding: 16px 20px;">
               <label style="display: block;">
                 <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Stale threshold (days)</div>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 8px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                   Users who have not logged in for longer than this are listed as stale and eligible for cleanup.
                 </div>
                 <input type="number" onwheel="this.blur()" name="staleThresholdDays" min="1" max="3650"
                        value="${cfg.staleThresholdDays}"
                        class="jenkins-input" style="width: 100px;"/>
-                <span style="margin-left: 8px; color: var(--text-color-secondary,#888); font-size: 0.85em;">days</span>
+                <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
               </label>
             </div>
           </div>
@@ -80,8 +80,8 @@
                AUTOMATED CLEANUP
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-            <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#e74c3c;flex-shrink:0;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--error-color);flex-shrink:0;">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
               </svg>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Automated Cleanup</h3>
@@ -92,7 +92,7 @@
               <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                 <div style="flex: 1;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Enable automated cleanup</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em;">
                     Automatically delete stale users on a schedule. Respects protected users list.
                   </div>
                 </div>
@@ -112,13 +112,13 @@
               </div>
 
               <!-- Fields — greyed out when cleanup disabled -->
-              <div id="cleanupFields" style="display: flex; flex-direction: column; gap: 16px; padding-top: 4px; border-top: 1px solid var(--panel-border-color,#f0f0f0); transition: opacity 0.2s;">
+              <div id="cleanupFields" style="display: flex; flex-direction: column; gap: 16px; padding-top: 4px; border-top: 1px solid var(--oau-card-border); transition: opacity 0.2s;">
 
                 <!-- Dry run -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                   <div style="flex: 1;">
                     <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Dry-run mode</div>
-                    <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em;">
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em;">
                       When enabled, cleanup logs what it would delete but does not actually delete. Safe to enable first.
                     </div>
                   </div>
@@ -140,16 +140,16 @@
                 <!-- Cron schedule -->
                 <div>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Schedule (cron)</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Standard 5-field cron. Default: <code>0 2 * * 0</code> (02:00 every Sunday).
                   </div>
                   <input type="text" name="cleanupCron" id="cleanupCron" value="${cfg.cleanupCron}"
                          class="jenkins-input" style="width: 200px;" placeholder="0 2 * * 0"
                          oninput="validateCron(this)"/>
-                  <div id="cronError" style="margin-top: 6px; font-size: 0.78em; color: #e74c3c; display: none;">
+                  <div id="cronError" style="margin-top: 6px; font-size: 0.78em; color: var(--error-color); display: none;">
                     Invalid cron — must be 5 fields: minute hour day month weekday (e.g. <code>0 2 * * 0</code>)
                   </div>
-                  <div id="cronOk" style="margin-top: 6px; font-size: 0.78em; color: #27ae60; display: none;">
+                  <div id="cronOk" style="margin-top: 6px; font-size: 0.78em; color: var(--oau-success-fg); display: none;">
                     Valid cron expression.
                   </div>
                 </div>
@@ -157,13 +157,13 @@
                 <!-- Max deletions -->
                 <div>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Max deletions per run</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Safety cap. Cleanup stops after this many deletions even if more stale users exist.
                   </div>
                   <input type="number" onwheel="this.blur()" name="cleanupMaxDeletions" min="1" max="500"
                          value="${cfg.cleanupMaxDeletions}"
                          class="jenkins-input" style="width: 100px;"/>
-                  <span style="margin-left: 8px; color: var(--text-color-secondary,#888); font-size: 0.85em;">users</span>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">users</span>
                 </div>
 
               </div>
@@ -174,15 +174,15 @@
                ACCESS REVIEW
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-            <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#d97706;flex-shrink:0;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
                 <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Access Review</h3>
             </div>
             <div style="padding: 16px 20px;">
               <div style="margin-bottom: 16px;">
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.82em; margin-bottom: 14px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
                   Flag scoped assignments that haven't been reviewed in a while.
                   A weekly email digest is sent listing overdue grants so admins can confirm or revoke them.
                 </div>
@@ -202,13 +202,13 @@
               <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                 <label style="flex: 1; min-width: 200px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Review threshold (days)</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 8px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                     Assignments older than this (since grant or last review) are flagged.
                   </div>
                   <input type="number" onwheel="this.blur()" name="accessReviewThresholdDays" min="7" max="3650"
                          value="${cfg.accessReviewThresholdDays}"
                          class="jenkins-input" style="width: 100px;"/>
-                  <span style="margin-left: 8px; color: var(--text-color-secondary,#888); font-size: 0.85em;">days</span>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
                 </label>
               </div>
             </div>
@@ -218,8 +218,8 @@
                LOGIN PAGE BRANDING
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-            <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,#0078d4);flex-shrink:0;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,var(--blue));flex-shrink:0;">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
               </svg>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Login Page</h3>
@@ -233,7 +233,7 @@
               <!-- Login Background -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Login Background</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Background design shown behind the logo on the login page. Default: OmniAuth animation.
                 </div>
                 <select name="loginBackground" class="jenkins-input" style="width: 360px; max-width: 100%;">
@@ -246,7 +246,7 @@
               <!-- Butler Style -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Butler Style</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Centre figure on the animated panel. Default: the native Jenkins butler.
                 </div>
                 <select name="loginButler" class="jenkins-input" style="width: 360px; max-width: 100%;">
@@ -270,7 +270,7 @@
               <!-- Page Heading -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Page Heading</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Large title above the login form. Default: "Sign in to Jenkins"
                 </div>
                 <input type="text" name="loginHeading" value="${cfg.loginHeading}"
@@ -281,7 +281,7 @@
               <!-- Tab Title -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Browser Tab Title</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Text shown in the browser tab on the login page. Default: "Sign In"
                 </div>
                 <input type="text" name="loginTabTitle" value="${cfg.loginTabTitle}"
@@ -292,7 +292,7 @@
               <!-- Logo upload -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Company Logo</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 10px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
                   Shown above the sign-in form. The Jenkins butler stays on the branding panel. PNG, JPG, SVG, or GIF. Max 2 MB. Leave empty to hide.
                 </div>
 
@@ -300,32 +300,32 @@
                 <j:choose>
                   <j:when test="${it.loginLogoUploaded}">
                     <div id="oauLogoPreview" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
-                         padding: 10px 14px; background: var(--panel-header-bg,#f8f9fa);
-                         border: 1px solid var(--panel-border-color,#e0e0e0); border-radius: 6px;">
+                         padding: 10px 14px; background: var(--panel-header-bg,var(--oau-neutral-bg));
+                         border: 1px solid var(--oau-card-border); border-radius: 6px;">
                       <img id="oauLogoPreviewImg" src="${it.loginLogoPreviewUrl}" alt="Current logo"
                            style="height: 40px; width: auto; max-width: 120px; object-fit: contain;"/>
                       <div style="flex: 1;">
                         <div style="font-size: 0.85em; font-weight: 600;">Logo uploaded</div>
-                        <div style="font-size: 0.78em; color: var(--text-color-secondary,#6c757d);">Shown on the login page instead of the butler.</div>
+                        <div style="font-size: 0.78em; color: var(--text-color-secondary);">Shown on the login page instead of the butler.</div>
                       </div>
                       <button type="button" class="jenkins-button" onclick="oauRemoveLoginLogo(this)"
-                              style="color: #dc2626; border-color: #dc2626; flex-shrink: 0;">
+                              style="color: var(--error-color); border-color: var(--error-color); flex-shrink: 0;">
                         Remove
                       </button>
                     </div>
                   </j:when>
                   <j:otherwise>
                     <div id="oauLogoPreview" style="display: none; align-items: center; gap: 12px; margin-bottom: 10px;
-                         padding: 10px 14px; background: var(--panel-header-bg,#f8f9fa);
-                         border: 1px solid var(--panel-border-color,#e0e0e0); border-radius: 6px;">
+                         padding: 10px 14px; background: var(--panel-header-bg,var(--oau-neutral-bg));
+                         border: 1px solid var(--oau-card-border); border-radius: 6px;">
                       <img id="oauLogoPreviewImg" src="" alt="Current logo"
                            style="height: 40px; width: auto; max-width: 120px; object-fit: contain;"/>
                       <div style="flex: 1;">
                         <div style="font-size: 0.85em; font-weight: 600;">Logo uploaded</div>
-                        <div style="font-size: 0.78em; color: var(--text-color-secondary,#6c757d);">Shown on the login page instead of the butler.</div>
+                        <div style="font-size: 0.78em; color: var(--text-color-secondary);">Shown on the login page instead of the butler.</div>
                       </div>
                       <button type="button" class="jenkins-button" onclick="oauRemoveLoginLogo(this)"
-                              style="color: #dc2626; border-color: #dc2626; flex-shrink: 0;">
+                              style="color: var(--error-color); border-color: var(--error-color); flex-shrink: 0;">
                         Remove
                       </button>
                     </div>
@@ -340,14 +340,14 @@
                           onclick="document.getElementById('oauLoginLogoFile').click()">
                     Upload Logo
                   </button>
-                  <span id="oauLogoUploadStatus" style="font-size: 0.82em; color: var(--text-color-secondary,#888);"></span>
+                  <span id="oauLogoUploadStatus" style="font-size: 0.82em; color: var(--text-color-secondary);"></span>
                 </div>
               </div>
 
               <!-- Logo Position -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Logo Position</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Where the company logo sits on the login form. Only applies when a logo is uploaded.
                 </div>
                 <select name="loginLogoPosition" class="jenkins-input" style="width: 360px; max-width: 100%;">
@@ -361,7 +361,7 @@
               <!-- Logo Size -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Logo Size</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Height of the company logo on the login form. Only applies when a logo is uploaded.
                 </div>
                 <select name="loginLogoSize" class="jenkins-input" style="width: 360px; max-width: 100%;">
@@ -375,7 +375,7 @@
               <!-- Announcement Banner -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Announcement Banner</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Shown above the login form. Useful for maintenance windows, policy changes, or onboarding notices.
                   Leave empty to hide.
                 </div>
@@ -388,7 +388,7 @@
               <!-- Footer Contact Text -->
               <div>
                 <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Footer Contact Text</label>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Shown below the login form. Use for help desk contact details or a support link.
                   Leave empty to hide.
                 </div>
@@ -413,7 +413,7 @@
         .oau-toggle-chk  { display: none; }
         .oau-toggle-track {
           width: 42px; height: 22px; border-radius: 11px;
-          background: var(--panel-border-color, #ccc);
+          background: var(--oau-card-border);
           position: relative; transition: background 0.2s;
         }
         .oau-toggle-thumb {
@@ -421,7 +421,7 @@
           position: absolute; top: 2px; left: 2px;
           transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
         }
-        .oau-toggle-chk:checked + .oau-toggle-track { background: var(--blue, #0078d4); }
+        .oau-toggle-chk:checked + .oau-toggle-track { background: var(--blue, var(--blue)); }
         .oau-toggle-chk:checked + .oau-toggle-track .oau-toggle-thumb { left: 22px; }
       </style>
 
@@ -447,19 +447,19 @@
           .then(function(r) { return r.json(); })
           .then(function(d) {
             if (d.ok) {
-              statusEl.style.color = '#27ae60';
+              statusEl.style.color = 'var(--oau-success-fg)';
               statusEl.textContent = 'Uploaded.';
               var preview = document.getElementById('oauLogoPreview');
               var img     = document.getElementById('oauLogoPreviewImg');
               if (img) img.src = '${rootURL}/securityRealm/loginLogo?t=' + Date.now();
               if (preview) preview.style.display = 'flex';
             } else {
-              statusEl.style.color = '#e74c3c';
+              statusEl.style.color = 'var(--error-color)';
               statusEl.textContent = d.msg || 'Upload failed.';
             }
           })
           .catch(function(err) {
-            statusEl.style.color = '#e74c3c';
+            statusEl.style.color = 'var(--error-color)';
             statusEl.textContent = 'Upload failed: ' + err.message;
           });
           input.value = '';
@@ -482,7 +482,7 @@
               var preview = document.getElementById('oauLogoPreview');
               if (preview) preview.style.display = 'none';
               var statusEl = document.getElementById('oauLogoUploadStatus');
-              if (statusEl) { statusEl.style.color = '#27ae60'; statusEl.textContent = 'Logo removed.'; }
+              if (statusEl) { statusEl.style.color = 'var(--oau-success-fg)'; statusEl.textContent = 'Logo removed.'; }
             }
           })
           .catch(function() {})

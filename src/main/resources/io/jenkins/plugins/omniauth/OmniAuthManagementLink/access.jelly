@@ -23,7 +23,7 @@
           </j:when>
           <j:otherwise>
 
-            <a href="userStatus" style="color:var(--blue,#0078d4);text-decoration:none;font-size:0.9em;">&#8592; Back to User Status</a>
+            <a href="userStatus" style="color:var(--blue,var(--blue));text-decoration:none;font-size:0.9em;">&#8592; Back to User Status</a>
 
             <!-- ─── Row 1: Identity + Jenkins Permissions ─── -->
             <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap;">
@@ -36,15 +36,15 @@
                 </h3>
                 <table style="width:100%;border-collapse:collapse;">
                   <tr>
-                    <td style="color:#6c757d;padding:5px 0;width:110px;font-size:0.88em;">Username</td>
+                    <td style="color:var(--text-color-secondary);padding:5px 0;width:110px;font-size:0.88em;">Username</td>
                     <td><strong>${info.userId}</strong></td>
                   </tr>
                   <tr>
-                    <td style="color:#6c757d;padding:5px 0;font-size:0.88em;">Full Name</td>
+                    <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;">Full Name</td>
                     <td>${info.fullName}</td>
                   </tr>
                   <tr>
-                    <td style="color:#6c757d;padding:5px 0;font-size:0.88em;">Account Type</td>
+                    <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;">Account Type</td>
                     <td>
                       <j:choose>
                         <j:when test="${info.viaGroup}">
@@ -60,37 +60,37 @@
                     </td>
                   </tr>
                   <tr>
-                    <td style="color:#6c757d;padding:5px 0;font-size:0.88em;">Last Login</td>
+                    <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;">Last Login</td>
                     <td>
                       <j:choose>
-                        <j:when test="${info.lastLoginAt == null}"><em style="color:#9ca3af;">Never</em></j:when>
+                        <j:when test="${info.lastLoginAt == null}"><em style="color:var(--text-color-secondary);">Never</em></j:when>
                         <j:otherwise>${info.lastLoginAt}</j:otherwise>
                       </j:choose>
                     </td>
                   </tr>
                   <j:if test="${info.entraUser}">
                     <tr>
-                      <td style="color:#6c757d;padding:5px 0;font-size:0.88em;">Entra UPN</td>
+                      <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;">Entra UPN</td>
                       <td style="font-size:0.9em;">${info.entraUpn}</td>
                     </tr>
                     <tr>
-                      <td style="color:#6c757d;padding:5px 0;font-size:0.88em;">Object ID</td>
-                      <td style="font-size:0.78em;font-family:monospace;color:#6b7280;word-break:break-all;">${info.entraOid}</td>
+                      <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;">Object ID</td>
+                      <td style="font-size:0.78em;font-family:monospace;color:var(--text-color-secondary);word-break:break-all;">${info.entraOid}</td>
                     </tr>
                     <j:if test="${info.viaGroup}">
                       <tr>
-                        <td style="color:#6c757d;padding:5px 0;font-size:0.88em;vertical-align:top;">Entra Group</td>
+                        <td style="color:var(--text-color-secondary);padding:5px 0;font-size:0.88em;vertical-align:top;">Entra Group</td>
                         <td>
                           <j:choose>
                             <j:when test="${info.groupName != null}">
                               <span style="font-weight:600;">${info.groupName}</span><br/>
-                              <span style="font-size:0.78em;font-family:monospace;color:#6b7280;">${info.groupOid}</span>
+                              <span style="font-size:0.78em;font-family:monospace;color:var(--text-color-secondary);">${info.groupOid}</span>
                             </j:when>
                             <j:when test="${info.groupOid != null}">
-                              <span style="font-size:0.78em;font-family:monospace;color:#6b7280;">${info.groupOid}</span>
+                              <span style="font-size:0.78em;font-family:monospace;color:var(--text-color-secondary);">${info.groupOid}</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="color:#9ca3af;font-style:italic;font-size:0.85em;">Unknown</span>
+                              <span style="color:var(--text-color-secondary);font-style:italic;font-size:0.85em;">Unknown</span>
                             </j:otherwise>
                           </j:choose>
                         </td>
@@ -143,7 +143,7 @@
                     </td>
                   </tr>
                 </table>
-                <p style="font-size:0.78em;color:#9ca3af;margin-top:10px;margin-bottom:0;">
+                <p style="font-size:0.78em;color:var(--text-color-secondary);margin-top:10px;margin-bottom:0;">
                   Evaluated against root ACL using the active authorization strategy.
                 </p>
               </div>
@@ -159,7 +159,7 @@
 
               <j:choose>
                 <j:when test="${info.omniAuthGrants.isEmpty()}">
-                  <p style="color:#6c757d;font-size:0.9em;margin:0;">
+                  <p style="color:var(--text-color-secondary);font-size:0.9em;margin:0;">
                     No OmniAuth assignments found for this user or their groups.
                     Access (if any) comes from Jenkins-native configuration.
                   </p>
@@ -193,7 +193,7 @@
                           <td style="font-size:0.88em;">
                             <span style="font-weight:500;">${g.principalName}</span>
                             <j:if test="${g.principalType == 'GROUP'}">
-                              <br/><span style="font-size:0.8em;font-family:monospace;color:#9ca3af;">${g.principalId}</span>
+                              <br/><span style="font-size:0.8em;font-family:monospace;color:var(--text-color-secondary);">${g.principalId}</span>
                             </j:if>
                           </td>
                           <td>
@@ -217,7 +217,7 @@
                               </j:otherwise>
                             </j:choose>
                           </td>
-                          <td style="font-size:0.85em;color:#6c757d;">
+                          <td style="font-size:0.85em;color:var(--text-color-secondary);">
                             <j:choose>
                               <j:when test="${g.expiresAt == null}">
                                 <em>Never</em>
@@ -251,7 +251,7 @@
               </h3>
 
               <j:if test="${!info.perJobSupported}">
-                <div style="background:#fff3cd;color:#856404;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:0.88em;border-left:3px solid #ffc107;">
+                <div style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:0.88em;border-left:3px solid var(--oau-warning-border);">
                   Strategy: <strong>${info.authStrategy}</strong> —
                   per-job permissions only enforced with <strong>Project-based Matrix Authorization Strategy</strong>.
                   All jobs reflect global permissions.
@@ -260,7 +260,7 @@
 
               <j:choose>
                 <j:when test="${info.jobAccess.isEmpty()}">
-                  <p style="color:#6c757d;font-size:0.9em;">No accessible jobs found for this user.</p>
+                  <p style="color:var(--text-color-secondary);font-size:0.9em;">No accessible jobs found for this user.</p>
                 </j:when>
                 <j:otherwise>
                   <div style="overflow-x:auto;">
@@ -313,7 +313,7 @@
                       </tbody>
                     </table>
                   </div>
-                  <p style="font-size:0.78em;color:#9ca3af;margin-top:8px;margin-bottom:0;">
+                  <p style="font-size:0.78em;color:var(--text-color-secondary);margin-top:8px;margin-bottom:0;">
                     Showing up to 200 jobs. Source: <strong>OmniAuth</strong> = Access Management assignment ·
                     <strong>Direct</strong> = Jenkins project-level matrix property ·
                     <strong>Global</strong> = global authorization strategy.
@@ -327,12 +327,12 @@
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 Login History
-                <span style="font-size:0.75em;color:#9ca3af;font-weight:400;">(last 10)</span>
+                <span style="font-size:0.75em;color:var(--text-color-secondary);font-weight:400;">(last 10)</span>
               </h3>
 
               <j:choose>
                 <j:when test="${info.loginHistory.isEmpty()}">
-                  <p style="color:#6c757d;font-size:0.9em;margin:0;">No login history yet — captured from the next login onwards.</p>
+                  <p style="color:var(--text-color-secondary);font-size:0.9em;margin:0;">No login history yet — captured from the next login onwards.</p>
                 </j:when>
                 <j:otherwise>
                   <div style="overflow-x:auto;">
@@ -414,24 +414,24 @@
           display: inline-block; padding: 2px 8px; border-radius: 4px;
           font-size: 0.8em; font-weight: 500; white-space: nowrap;
         }
-        .oau-badge-blue   { background: #e8f0fe; color: #0078d4; }
-        .oau-badge-purple { background: #f5f3ff; color: #6d28d9; }
-        .oau-badge-grey   { background: #f3f4f6; color: #6b7280; }
-        .oau-badge-green  { background: #d1fae5; color: #065f46; }
-        .oau-badge-red    { background: #fee2e2; color: #991b1b; }
-        .oau-badge-orange { background: #fff7ed; color: #c2410c; }
+        .oau-badge-blue   { background: var(--oau-info-bg); color: var(--blue); }
+        .oau-badge-purple { background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; }
+        .oau-badge-grey   { background: var(--oau-neutral-bg); color: var(--text-color-secondary); }
+        .oau-badge-green  { background: var(--oau-success-bg); color: var(--oau-success-fg); }
+        .oau-badge-red    { background: var(--oau-danger-bg); color: var(--oau-danger-fg); }
+        .oau-badge-orange { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
 
         /* Permission yes/no chips */
-        .oau-perm-yes { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; font-weight: 500; }
-        .oau-perm-no  { background: #f3f4f6; color: #9ca3af; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; }
-        .oau-perm-tick { color: #16a34a; font-weight: 700; font-size: 1.1em; }
+        .oau-perm-yes { background: var(--oau-success-bg); color: var(--oau-success-fg); padding: 2px 8px; border-radius: 4px; font-size: 0.82em; font-weight: 500; }
+        .oau-perm-no  { background: var(--oau-neutral-bg); color: var(--text-color-secondary); padding: 2px 8px; border-radius: 4px; font-size: 0.82em; }
+        .oau-perm-tick { color: var(--oau-success-fg); font-weight: 700; font-size: 1.1em; }
 
         /* Info tooltip */
         .oau-info-wrap { position: relative; display: inline-flex; align-items: center; }
         .oau-info-btn {
           display: inline-flex; align-items: center; justify-content: center;
           width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary,#9ca3af); color: #fff;
+          background: var(--text-color-secondary); color: #fff;
           font-size: 9px; font-weight: 700; font-style: normal;
           cursor: default; user-select: none; flex-shrink: 0;
           font-family: serif; line-height: 1;
@@ -439,7 +439,7 @@
         .oau-info-tip {
           display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
           transform: translateX(-50%);
-          background: #1f2937; color: #f9fafb; font-size: 0.78em;
+          background: var(--text-color); color: var(--oau-neutral-bg); font-size: 0.78em;
           padding: 5px 9px; border-radius: 5px; white-space: nowrap;
           z-index: 100; pointer-events: none;
           box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -447,7 +447,7 @@
         .oau-info-tip::after {
           content: ''; position: absolute; top: 100%; left: 50%;
           transform: translateX(-50%);
-          border: 4px solid transparent; border-top-color: #1f2937;
+          border: 4px solid transparent; border-top-color: var(--text-color);
         }
         .oau-info-wrap:hover .oau-info-tip { display: block; }
       </style>

@@ -33,7 +33,7 @@
             <div style="padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
               <div style="flex: 1;">
                 <div style="font-weight: 700; font-size: 0.95em; margin-bottom: 4px;">Enable Notifications</div>
-                <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.82em;">
+                <div style="color: var(--text-color-secondary); font-size: 0.82em;">
                   Master switch. When off, no notifications are sent regardless of channel or event settings.
                 </div>
               </div>
@@ -61,7 +61,7 @@
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
               <div>
                 <div style="font-weight:700; font-size:0.95em;">Email Logo</div>
-                <div style="color:var(--text-color-secondary,#6c757d); font-size:0.82em; margin-top:2px;">
+                <div style="color:var(--text-color-secondary); font-size:0.82em; margin-top:2px;">
                   Use the official OmniAuth logo in notification emails.
                 </div>
               </div>
@@ -79,8 +79,8 @@
             <!-- Custom URL (revealed when toggled on) -->
             <j:if test="${cfg.notificationLogoUrl != null and cfg.notificationLogoUrl != ''}">
               <div id="oauCustomLogoField" style="margin-top:12px; padding-top:12px;
-                   border-top:1px solid var(--panel-border-color,#f0f0f0);">
-                <div style="font-size:0.82em; color:var(--text-color-secondary,#6c757d); margin-bottom:6px;">
+                   border-top:1px solid var(--oau-card-border);">
+                <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
                   Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
                 </div>
                 <input type="url" id="oauLogoUrlInput" name="notificationLogoUrl"
@@ -91,8 +91,8 @@
             </j:if>
             <j:if test="${cfg.notificationLogoUrl == null or cfg.notificationLogoUrl == ''}">
               <div id="oauCustomLogoField" style="display:none; margin-top:12px; padding-top:12px;
-                   border-top:1px solid var(--panel-border-color,#f0f0f0);">
-                <div style="font-size:0.82em; color:var(--text-color-secondary,#6c757d); margin-bottom:6px;">
+                   border-top:1px solid var(--oau-card-border);">
+                <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
                   Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
                 </div>
                 <input type="url" id="oauLogoUrlInput" name="notificationLogoUrl"
@@ -103,9 +103,9 @@
             </j:if>
 
             <!-- Footer note -->
-            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--panel-border-color,#f0f0f0);">
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--oau-card-border);">
               <div style="font-weight:600; font-size:0.88em; margin-bottom:4px;">Footer Note</div>
-              <div style="color:var(--text-color-secondary,#6c757d); font-size:0.82em; margin-bottom:6px;">
+              <div style="color:var(--text-color-secondary); font-size:0.82em; margin-bottom:6px;">
                 Optional line shown above the fine print in every notification email (e.g. "Contact IT: helpdesk@corp.com").
               </div>
               <input type="text" name="notificationFooterNote" value="${cfg.notificationFooterNote}"
@@ -114,11 +114,11 @@
             </div>
 
             <!-- Preview button -->
-            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--panel-border-color,#f0f0f0);">
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--oau-card-border);">
               <button type="button" class="jenkins-button" onclick="oauPreviewEmail()">
                 Preview Email
               </button>
-              <span style="margin-left:10px; color:var(--text-color-secondary,#888); font-size:0.82em;">
+              <span style="margin-left:10px; color:var(--text-color-secondary); font-size:0.82em;">
                 Shows a sample notification email with the current logo.
               </span>
             </div>
@@ -129,12 +129,12 @@
                background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
             <div style="background:#fff; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
                         width:min(780px,95vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
-              <div style="padding:14px 20px; border-bottom:1px solid #e5e7eb;
+              <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);
                           display:flex; align-items:center; gap:12px;">
                 <span style="font-weight:700; font-size:0.95em; white-space:nowrap;">Email Preview</span>
                 <select id="oauPreviewEventType" onchange="oauReloadPreview()"
                         style="flex:1; max-width:260px; font-size:0.85em; padding:4px 8px;
-                               border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer;">
+                               border:1px solid var(--oau-card-border); border-radius:6px; background:#fff; cursor:pointer;">
                   <option value="configChanged">Config Changed</option>
                   <option value="bruteForce">Brute Force Alert</option>
                   <option value="userDeleted">User Deleted</option>
@@ -151,7 +151,7 @@
                 </select>
                 <button type="button" onclick="oauClosePreview()"
                         style="background:none; border:none; font-size:1.3em; cursor:pointer; line-height:1;
-                               color:#6c757d; padding:2px 6px; border-radius:4px; margin-left:auto;"
+                               color:var(--text-color-secondary); padding:2px 6px; border-radius:4px; margin-left:auto;"
                         title="Close">&#x2715;</button>
               </div>
               <div style="flex:1; overflow:hidden; padding:0;">
@@ -168,18 +168,18 @@
           <div id="oauChannelsSection">
 
             <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-                        color: var(--text-color-secondary,#888); margin-bottom: 10px; padding-left: 4px;">
+                        color: var(--text-color-secondary); margin-bottom: 10px; padding-left: 4px;">
               Channels
             </div>
 
             <!-- SMTP -->
             <div class="jenkins-card" style="padding: 0; margin-bottom: 16px; overflow: hidden;">
-              <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color,#e0e0e0);
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                       style="color:#27ae60;flex-shrink:0;">
+                       style="color:var(--oau-success-fg);flex-shrink:0;">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                     <polyline points="22,6 12,13 2,6"/>
                   </svg>
@@ -187,13 +187,13 @@
                   <j:set var="smtpHealth" value="${it.notificationLog.lastSmtpEntry()}"/>
                   <j:choose>
                     <j:when test="${smtpHealth != null and smtpHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#16a34a; background:#dcfce7;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--oau-success-fg); background:var(--oau-success-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2713; ${smtpHealth.relativeTime}
                       </span>
                     </j:when>
                     <j:when test="${smtpHealth != null and !smtpHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#dc2626; background:#fee2e2;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--oau-danger-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2715; Failed ${smtpHealth.relativeTime}
                       </span>
@@ -217,9 +217,9 @@
 
               <div id="smtpConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
 
-                <div style="font-size: 0.82em; color: var(--text-color-secondary,#6c757d);
-                            background: var(--panel-header-bg,#f8f9fa);
-                            border: 1px solid var(--panel-border-color,#e0e0e0);
+                <div style="font-size: 0.82em; color: var(--text-color-secondary);
+                            background: var(--panel-header-bg,var(--oau-neutral-bg));
+                            border: 1px solid var(--oau-card-border);
                             border-radius: 6px; padding: 10px 14px;">
                   Works with any SMTP relay — Gmail, Outlook, SendGrid, AWS SES, or your own server.
                   Independent of Jenkins' own email configuration.
@@ -249,7 +249,7 @@
                   </label>
                   <label style="flex: 1; min-width: 200px;">
                     <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Password</div>
-                    <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.78em; margin-bottom: 4px;">
+                    <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 4px;">
                       Leave blank to keep existing.
                     </div>
                     <input type="password" name="smtpPassword" value=""
@@ -262,7 +262,7 @@
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                   <div style="flex: 1;">
                     <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Enable STARTTLS Encryption</div>
-                    <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em;">
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em;">
                       Required for port 587. Disable only for port 25 or SSL-wrapped port 465.
                     </div>
                   </div>
@@ -296,9 +296,9 @@
                 <!-- Reply-To -->
                 <label>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">
-                    Reply-To Address <span style="font-weight:400; color:var(--text-color-secondary,#888);">(Optional)</span>
+                    Reply-To Address <span style="font-weight:400; color:var(--text-color-secondary);">(Optional)</span>
                   </div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Replies go here instead of the From address. Useful for no-reply senders.
                   </div>
                   <input type="email" name="smtpReplyTo" value="${cfg.smtpReplyTo}"
@@ -308,7 +308,7 @@
                 <!-- Recipients -->
                 <label>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Notification Recipients</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Comma-separated. All enabled event emails go to these addresses.
                   </div>
                   <input type="text" name="notifyEmails" value="${cfg.notifyEmails}"
@@ -317,7 +317,7 @@
                 </label>
 
                 <!-- Test button -->
-                <div style="padding-top: 4px; border-top: 1px solid var(--panel-border-color,#f0f0f0);">
+                <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
                   <button type="button" class="jenkins-button" onclick="oauSendTestEmail(this)">
                     Send Test Email
                   </button>
@@ -325,7 +325,7 @@
                 </div>
 
                 <!-- SMTP event subscriptions -->
-                <div style="border-top: 1px solid var(--panel-border-color,#e0e0e0); padding-top: 14px;">
+                <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send via Email</div>
                   <div class="oau-event-grid">
                     <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
@@ -351,7 +351,7 @@
 
             <!-- Slack -->
             <div class="jenkins-card" style="padding: 0; margin-bottom: 16px; overflow: hidden;">
-              <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color,#e0e0e0);
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -370,13 +370,13 @@
                   <j:set var="slackHealth" value="${it.notificationLog.lastSlackEntry()}"/>
                   <j:choose>
                     <j:when test="${slackHealth != null and slackHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#16a34a; background:#dcfce7;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--oau-success-fg); background:var(--oau-success-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2713; ${slackHealth.relativeTime}
                       </span>
                     </j:when>
                     <j:when test="${slackHealth != null and !slackHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#dc2626; background:#fee2e2;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--oau-danger-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2715; Failed ${slackHealth.relativeTime}
                       </span>
@@ -400,20 +400,20 @@
               <div id="slackConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Create one at Slack → Your App → Incoming Webhooks.
                   </div>
                   <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrl}"
                          class="jenkins-input" style="width: 100%;" placeholder="https://hooks.slack.com/services/..."/>
                 </label>
-                <div style="padding-top: 4px; border-top: 1px solid var(--panel-border-color,#f0f0f0);">
+                <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
                   <button type="button" class="jenkins-button" onclick="oauTestWebhook(this,'slackWebhookUrl','sendTestSlack','slackTestResult')">
                     Send Test Message
                   </button>
                   <span id="slackTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
                 </div>
                 <!-- Slack event subscriptions -->
-                <div style="border-top: 1px solid var(--panel-border-color,#e0e0e0); padding-top: 14px;">
+                <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Slack</div>
                   <div class="oau-event-grid">
                     <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
@@ -438,7 +438,7 @@
 
             <!-- Teams -->
             <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
-              <div style="padding: 14px 20px; border-bottom: 1px solid var(--panel-border-color,#e0e0e0);
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -453,13 +453,13 @@
                   <j:set var="teamsHealth" value="${it.notificationLog.lastTeamsEntry()}"/>
                   <j:choose>
                     <j:when test="${teamsHealth != null and teamsHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#16a34a; background:#dcfce7;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--oau-success-fg); background:var(--oau-success-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2713; ${teamsHealth.relativeTime}
                       </span>
                     </j:when>
                     <j:when test="${teamsHealth != null and !teamsHealth.success}">
-                      <span style="font-size:0.72em; font-weight:500; color:#dc2626; background:#fee2e2;
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--oau-danger-bg);
                                    padding:2px 8px; border-radius:10px; white-space:nowrap;">
                         &#x2715; Failed ${teamsHealth.relativeTime}
                       </span>
@@ -483,21 +483,21 @@
               <div id="teamsConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 6px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     In Teams: channel → ... → Workflows → "Post to a channel when a webhook request is received".
                     Copy the generated webhook URL. O365 Connectors are retired and no longer work.
                   </div>
                   <input type="text" name="teamsWebhookUrl" value="${cfg.teamsWebhookUrl}"
                          class="jenkins-input" style="width: 100%;" placeholder="https://prod-xx.westus.logic.azure.com/workflows/..."/>
                 </label>
-                <div style="padding-top: 4px; border-top: 1px solid var(--panel-border-color,#f0f0f0);">
+                <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
                   <button type="button" class="jenkins-button" onclick="oauTestWebhook(this,'teamsWebhookUrl','sendTestTeams','teamsTestResult')">
                     Send Test Message
                   </button>
                   <span id="teamsTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
                 </div>
                 <!-- Teams event subscriptions -->
-                <div style="border-top: 1px solid var(--panel-border-color,#e0e0e0); padding-top: 14px;">
+                <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Microsoft Teams</div>
                   <div class="oau-event-grid">
                     <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
@@ -524,7 +524,7 @@
                  EVENT SETTINGS (brute force threshold + stale warning schedule)
                  ================================================================ -->
             <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-                        color: var(--text-color-secondary,#888); margin-bottom: 10px; padding-left: 4px;">
+                        color: var(--text-color-secondary); margin-bottom: 10px; padding-left: 4px;">
               Event Settings
             </div>
 
@@ -532,23 +532,23 @@
               <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 0;">
 
                 <!-- Brute force threshold -->
-                <div style="padding: 12px 0; border-bottom: 1px solid var(--panel-border-color,#f0f0f0);">
+                <div style="padding: 12px 0; border-bottom: 1px solid var(--oau-card-border);">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Brute Force Alert Threshold</div>
-                  <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 8px;">
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                     Send a brute force alert after this many consecutive login failures for the same user. Counter resets on successful login.
                   </div>
                   <input type="number" onwheel="this.blur()" name="bruteForceThreshold" min="1" max="100"
                          value="${cfg.bruteForceThreshold}"
                          class="jenkins-input" style="width:100px;"/>
-                  <span style="margin-left:8px; color:var(--text-color-secondary,#888); font-size:0.85em;">failures</span>
+                  <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">failures</span>
                 </div>
 
                 <!-- Brute force lockout enforcement -->
-                <div style="padding: 12px 0; border-bottom: 1px solid var(--panel-border-color,#f0f0f0);">
+                <div style="padding: 12px 0; border-bottom: 1px solid var(--oau-card-border);">
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
                     <div style="flex: 1;">
                       <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Account Lockout Enforcement</div>
-                      <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em;">
+                      <div style="color: var(--text-color-secondary); font-size: 0.8em;">
                         When the threshold is reached, lock the account for a cooldown period — a correct password
                         is rejected until it expires or an admin clears it. Protected users are never locked.
                       </div>
@@ -570,7 +570,7 @@
                     <input type="number" onwheel="this.blur()" name="bruteForceLockoutMinutes" min="1" max="1440"
                            value="${cfg.bruteForceLockoutMinutes}"
                            class="jenkins-input" style="width:100px;"/>
-                    <span style="margin-left:8px; color:var(--text-color-secondary,#888); font-size:0.85em;">minutes</span>
+                    <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">minutes</span>
                   </div>
                 </div>
 
@@ -578,7 +578,7 @@
                 <div style="padding: 12px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                   <div style="flex: 1;">
                     <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Stale User Warning Digest</div>
-                    <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.8em; margin-bottom: 10px;">
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
                       Periodic digest listing users who will become stale within the warning window.
                       E.g. threshold=90, window=14 → warns about users last seen 76–90 days ago.
                     </div>
@@ -588,11 +588,11 @@
                         <input type="number" onwheel="this.blur()" name="staleWarningWindowDays" min="1" max="365"
                                value="${cfg.staleWarningWindowDays}"
                                class="jenkins-input" style="width:100px;"/>
-                        <span style="margin-left:8px; color:var(--text-color-secondary,#888); font-size:0.85em;">days before stale</span>
+                        <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">days before stale</span>
                       </div>
                       <div>
                         <div style="font-weight: 600; font-size: 0.85em; margin-bottom: 4px;">Schedule (Cron)</div>
-                        <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.78em; margin-bottom: 6px;">
+                        <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 6px;">
                           Default: <code>0 9 * * 1</code> (Monday 09:00).
                         </div>
                         <input type="text" name="staleWarningCron" value="${cfg.staleWarningCron}"
@@ -631,7 +631,7 @@
              NOTIFICATION LOG
              ================================================================ -->
         <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-                    color: var(--text-color-secondary,#888); margin-bottom: 10px; margin-top: 28px; padding-left: 4px;">
+                    color: var(--text-color-secondary); margin-bottom: 10px; margin-top: 28px; padding-left: 4px;">
           Notification Log
         </div>
 
@@ -639,7 +639,7 @@
           <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">Notification Audit Trail</div>
-              <div style="color: var(--text-color-secondary,#6c757d); font-size: 0.82em;">
+              <div style="color: var(--text-color-secondary); font-size: 0.82em;">
                 View the last 200 notifications sent by this plugin — timestamp, event, recipients, and delivery status.
                 Persists across Jenkins restarts.
               </div>
@@ -656,7 +656,7 @@
         .oau-toggle-chk  { display: none; }
         .oau-toggle-track {
           width: 42px; height: 22px; border-radius: 11px;
-          background: var(--panel-border-color, #ccc);
+          background: var(--oau-card-border);
           position: relative; transition: background 0.2s;
         }
         .oau-toggle-thumb {
@@ -664,7 +664,7 @@
           position: absolute; top: 2px; left: 2px;
           transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
         }
-        .oau-toggle-chk:checked + .oau-toggle-track { background: var(--blue, #0078d4); }
+        .oau-toggle-chk:checked + .oau-toggle-track { background: var(--blue, var(--blue)); }
         .oau-toggle-chk:checked + .oau-toggle-track .oau-toggle-thumb { left: 22px; }
         .oau-event-grid {
           display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px;
@@ -675,7 +675,7 @@
         }
         .oau-event-label input[type="checkbox"] {
           width: 15px; height: 15px; flex-shrink: 0; cursor: pointer;
-          accent-color: var(--blue, #0078d4);
+          accent-color: var(--blue, var(--blue));
         }
         .oau-event-label[data-tooltip] { position: relative; }
         .oau-event-label[data-tooltip]:hover::after {
@@ -748,11 +748,11 @@
             .then(function(r) { return r.text(); })
             .then(function(t) {
               var d = JSON.parse(t);
-              resultEl.style.color = d.ok ? '#27ae60' : '#e74c3c';
+              resultEl.style.color = d.ok ? 'var(--oau-success-fg)' : 'var(--error-color)';
               resultEl.textContent = d.msg;
             })
             .catch(function(err) {
-              resultEl.style.color = '#e74c3c';
+              resultEl.style.color = 'var(--error-color)';
               resultEl.textContent = 'Request failed: ' + err.message;
             })
             .finally(function() { btn.disabled = false; });
@@ -895,11 +895,11 @@
             .then(function(r) { return r.text(); })
             .then(function(text) {
               var data = JSON.parse(text);
-              resultEl.style.color = data.ok ? '#27ae60' : '#e74c3c';
+              resultEl.style.color = data.ok ? 'var(--oau-success-fg)' : 'var(--error-color)';
               resultEl.textContent = data.msg;
             })
             .catch(function(err) {
-              resultEl.style.color = '#e74c3c';
+              resultEl.style.color = 'var(--error-color)';
               resultEl.textContent = 'Request failed: ' + err.message;
             })
             .finally(function() { btn.disabled = false; });

@@ -18,7 +18,7 @@
         <j:set var="prop" value="${it.currentUserBreakGlassProp}"/>
 
         <!-- ── What is this ──────────────────────────────────────────── -->
-        <div class="jenkins-alert" style="margin-bottom:20px; background:#e8f4f8; border-color:#b8d9ea; color:#1a5276;">
+        <div class="jenkins-alert" style="margin-bottom:20px; background:var(--oau-info-bg); border-color:var(--oau-info-border); color:var(--oau-info-fg);">
           <strong>Emergency Override</strong> gives enrolled administrators temporary, audited access to the
           Authorization table for maintenance and recovery scenarios — such as a plugin issue, an unexpected
           configuration state, or situations where access assignments need to be reviewed directly via the
@@ -28,14 +28,14 @@
 
         <!-- ── Device List ────────────────────────────────────────────── -->
         <div class="jenkins-card" style="padding:0; margin-bottom:20px; overflow:hidden;">
-          <div style="padding:14px 20px; border-bottom:1px solid var(--panel-border-color,#e0e0e0); display:flex; align-items:center; justify-content:space-between;">
+          <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border); display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:10px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
                 <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 3a4 4 0 0 1 4 4v4H8V7a4 4 0 0 1 4-4z"/>
               </svg>
               <h3 style="margin:0; font-size:0.95em; font-weight:600;">Your Enrolled Devices</h3>
             </div>
-            <span style="font-size:0.78em; color:var(--text-color-secondary,#888);">Max 3 devices</span>
+            <span style="font-size:0.78em; color:var(--text-color-secondary);">Max 3 devices</span>
           </div>
 
           <div style="padding:16px 20px;">
@@ -43,22 +43,22 @@
               <j:when test="${prop != null and !prop.breakGlassDevices.isEmpty()}">
                 <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
                   <thead>
-                    <tr style="border-bottom:1px solid var(--panel-border-color,#eee);">
-                      <th style="text-align:left; padding:6px 8px; font-size:0.82em; color:var(--text-color-secondary,#6c757d); font-weight:600;">Device Name</th>
-                      <th style="text-align:left; padding:6px 8px; font-size:0.82em; color:var(--text-color-secondary,#6c757d); font-weight:600;">Enrolled</th>
+                    <tr style="border-bottom:1px solid var(--oau-card-border);">
+                      <th style="text-align:left; padding:6px 8px; font-size:0.82em; color:var(--text-color-secondary); font-weight:600;">Device Name</th>
+                      <th style="text-align:left; padding:6px 8px; font-size:0.82em; color:var(--text-color-secondary); font-weight:600;">Enrolled</th>
                       <th style="padding:6px 8px;"></th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="device" items="${prop.breakGlassDevices}">
-                      <tr style="border-bottom:1px solid var(--panel-border-color,#f5f5f5);">
+                      <tr style="border-bottom:1px solid var(--oau-card-border);">
                         <td style="padding:10px 8px; vertical-align:middle;">
                           <span style="display:inline-flex; align-items:center; gap:8px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--oau-success-fg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             <strong style="font-size:0.9em;">${device.name}</strong>
                           </span>
                         </td>
-                        <td style="padding:10px 8px; font-size:0.82em; color:var(--text-color-secondary,#6c757d); vertical-align:middle;">
+                        <td style="padding:10px 8px; font-size:0.82em; color:var(--text-color-secondary); vertical-align:middle;">
                           ${device.enrolledAt.substring(0, 10)}
                         </td>
                         <td style="padding:10px 8px; text-align:right; vertical-align:middle; white-space:nowrap;">
@@ -74,14 +74,14 @@
                   <button type="button" class="jenkins-button jenkins-button--primary" onclick="showAddDevice()">+ Add Another Device</button>
                 </j:if>
                 <j:if test="${prop.breakGlassDevices.size() >= 3}">
-                  <p style="font-size:0.82em; color:var(--text-color-secondary,#888); margin:0;">Maximum of 3 devices reached. Remove a device to add a new one.</p>
+                  <p style="font-size:0.82em; color:var(--text-color-secondary); margin:0;">Maximum of 3 devices reached. Remove a device to add a new one.</p>
                 </j:if>
               </j:when>
               <j:otherwise>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                   <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="background:#f8d7da; color:#721c24; padding:4px 12px; border-radius:20px; font-size:0.85em; font-weight:600;">&#10007; No devices enrolled</span>
-                    <span style="color:var(--text-color-secondary,#6c757d); font-size:0.85em;">You cannot use Emergency Override until enrolled.</span>
+                    <span style="background:var(--oau-danger-bg); color:var(--oau-danger-fg); padding:4px 12px; border-radius:20px; font-size:0.85em; font-weight:600;">&#10007; No devices enrolled</span>
+                    <span style="color:var(--text-color-secondary); font-size:0.85em;">You cannot use Emergency Override until enrolled.</span>
                   </div>
                   <button type="button" class="jenkins-button jenkins-button--primary" onclick="showAddDevice()">+ Enroll First Device</button>
                 </div>
@@ -93,7 +93,7 @@
         <!-- ── Add Device Panel (hidden initially) ───────────────────── -->
         <div id="enroll-panel" style="display:none;">
           <div class="jenkins-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
-            <div style="padding:14px 20px; border-bottom:1px solid var(--panel-border-color,#e0e0e0);">
+            <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);">
               <h3 style="margin:0; font-size:0.95em; font-weight:600;">Add New Device</h3>
             </div>
             <div style="padding:20px;">
@@ -103,16 +103,16 @@
                 <label style="display:block; font-size:0.88em; font-weight:600; margin-bottom:4px;">Device name</label>
                 <input id="device-name" type="text" class="jenkins-input" style="width:260px;"
                        placeholder="e.g. iPhone — Google Authenticator"/>
-                <div style="font-size:0.78em; color:var(--text-color-secondary,#888); margin-top:4px;">Helps you identify this device in the list.</div>
+                <div style="font-size:0.78em; color:var(--text-color-secondary); margin-top:4px;">Helps you identify this device in the list.</div>
               </div>
 
-              <div id="step-loading" style="text-align:center; padding:24px; color:var(--text-color-secondary,#6c757d); display:none;">
+              <div id="step-loading" style="text-align:center; padding:24px; color:var(--text-color-secondary); display:none;">
                 Generating QR code…
               </div>
 
               <!-- Generate button (shown before QR is fetched) -->
               <div id="step-generate">
-                <div style="font-size:0.85em; color:var(--text-color-secondary,#6c757d); margin-bottom:12px;">
+                <div style="font-size:0.85em; color:var(--text-color-secondary); margin-bottom:12px;">
                   You can scan the same QR code into multiple apps at once — before confirming.
                   This lets you register one device across Google Authenticator, Microsoft Authenticator, or any other TOTP app simultaneously.
                 </div>
@@ -122,7 +122,7 @@
 
               <!-- QR + verify (shown after generation) -->
               <div id="step-qr" style="display:none;">
-                <ol style="margin:0 0 16px; padding-left:20px; font-size:0.88em; color:var(--text-color-secondary,#555); line-height:1.8;">
+                <ol style="margin:0 0 16px; padding-left:20px; font-size:0.88em; color:var(--text-color-secondary); line-height:1.8;">
                   <li>Open your authenticator app and tap <strong>+</strong> → <strong>Scan QR code</strong></li>
                   <li>Scan the code below (scan in all apps you want before continuing)</li>
                   <li>Enter the 6-digit code from any enrolled app to confirm</li>
@@ -130,14 +130,14 @@
                 <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
                   <div>
                     <img id="qr-img" src="" alt="TOTP QR Code"
-                         style="width:200px; height:200px; border:1px solid var(--panel-border-color,#ddd); border-radius:8px; display:block;"/>
-                    <div style="margin-top:6px; font-size:0.75em; color:var(--text-color-secondary,#888); text-align:center;">Scan with authenticator app</div>
+                         style="width:200px; height:200px; border:1px solid var(--oau-card-border); border-radius:8px; display:block;"/>
+                    <div style="margin-top:6px; font-size:0.75em; color:var(--text-color-secondary); text-align:center;">Scan with authenticator app</div>
                   </div>
                   <div style="flex:1; min-width:200px;">
                     <div style="margin-bottom:14px;">
-                      <div style="font-size:0.82em; font-weight:600; margin-bottom:4px; color:var(--text-color-secondary,#555);">Manual entry key</div>
-                      <div id="secret-display" style="font-family:monospace; font-size:0.85em; background:var(--background,#f8f9fa); border:1px solid var(--panel-border-color,#ddd); border-radius:4px; padding:8px 12px; letter-spacing:2px; word-break:break-all;"></div>
-                      <div style="font-size:0.75em; color:var(--text-color-secondary,#888); margin-top:4px;">Use this if you can't scan.</div>
+                      <div style="font-size:0.82em; font-weight:600; margin-bottom:4px; color:var(--text-color-secondary);">Manual entry key</div>
+                      <div id="secret-display" style="font-family:monospace; font-size:0.85em; background:var(--background,var(--oau-neutral-bg)); border:1px solid var(--oau-card-border); border-radius:4px; padding:8px 12px; letter-spacing:2px; word-break:break-all;"></div>
+                      <div style="font-size:0.75em; color:var(--text-color-secondary); margin-top:4px;">Use this if you can't scan.</div>
                     </div>
                     <div style="margin-bottom:14px;">
                       <label style="display:block; font-size:0.88em; font-weight:600; margin-bottom:6px;">Verify — enter 6-digit code from your app</label>
@@ -146,7 +146,7 @@
                              style="width:130px; letter-spacing:4px; font-size:1.1em; text-align:center;"
                              oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
                     </div>
-                    <div id="verify-err" style="display:none; margin-bottom:12px; padding:8px 12px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:4px; font-size:0.85em; color:#721c24;"></div>
+                    <div id="verify-err" style="display:none; margin-bottom:12px; padding:8px 12px; background:var(--oau-danger-bg); border:1px solid var(--oau-danger-border); border-radius:4px; font-size:0.85em; color:var(--oau-danger-fg);"></div>
                     <div style="display:flex; gap:8px;">
                       <button type="button" id="btn-verify" class="jenkins-button jenkins-button--primary" onclick="verifyCode()">Confirm &amp; Save</button>
                       <button type="button" class="jenkins-button" onclick="cancelEnrollment()">Cancel</button>
@@ -157,9 +157,9 @@
 
               <!-- Success -->
               <div id="step-success" style="display:none; text-align:center; padding:24px;">
-                <div style="font-size:36px; margin-bottom:10px; color:#27ae60;">&#10003;</div>
-                <div style="font-size:1em; font-weight:600; color:#155724; margin-bottom:6px;">Device enrolled successfully!</div>
-                <div style="font-size:0.85em; color:var(--text-color-secondary,#6c757d); margin-bottom:20px;">Your authenticator is linked. You can now use Emergency Override on the Security page.</div>
+                <div style="font-size:36px; margin-bottom:10px; color:var(--oau-success-fg);">&#10003;</div>
+                <div style="font-size:1em; font-weight:600; color:var(--oau-success-fg); margin-bottom:6px;">Device enrolled successfully!</div>
+                <div style="font-size:0.85em; color:var(--text-color-secondary); margin-bottom:20px;">Your authenticator is linked. You can now use Emergency Override on the Security page.</div>
                 <button type="button" class="jenkins-button jenkins-button--primary" onclick="window.location.reload()">Done</button>
               </div>
 
@@ -170,7 +170,7 @@
         <!-- ── How it works ───────────────────────────────────────────── -->
         <div class="jenkins-card" style="padding:16px;">
           <h4 style="margin:0 0 8px; font-size:0.9em;">How Emergency Override works</h4>
-          <ol style="margin:0; padding-left:20px; font-size:0.85em; color:var(--text-color-secondary,#555); line-height:1.8;">
+          <ol style="margin:0; padding-left:20px; font-size:0.85em; color:var(--text-color-secondary); line-height:1.8;">
             <li>Go to <strong>Manage Jenkins → Security</strong></li>
             <li>Click <strong>Emergency Override</strong> in the amber banner above the Authorization table</li>
             <li>Enter a reason and your current 6-digit TOTP code from any enrolled device</li>
@@ -185,19 +185,19 @@
       <div id="remove-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:#fff; border-radius:8px; padding:24px; max-width:440px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
           <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
-            <div style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:#fde8e8; display:flex; align-items:center; justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <div style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:var(--oau-danger-bg); display:flex; align-items:center; justify-content:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
               </svg>
             </div>
             <div>
-              <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:#212529;">Remove Device</h3>
-              <p id="remove-confirm-msg" style="margin:0; font-size:13px; color:#6c757d; line-height:1.5;"></p>
+              <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:var(--text-color);">Remove Device</h3>
+              <p id="remove-confirm-msg" style="margin:0; font-size:13px; color:var(--text-color-secondary); line-height:1.5;"></p>
             </div>
           </div>
           <div style="display:flex; gap:8px; justify-content:flex-end;">
-            <button type="button" id="remove-cancel-btn" style="padding:8px 16px; border:1px solid #ced4da; border-radius:4px; background:#fff; cursor:pointer; font-size:13px; color:#495057;">Cancel</button>
-            <button type="button" id="remove-confirm-btn" style="padding:8px 16px; border:none; border-radius:4px; background:#dc3545; color:#fff; cursor:pointer; font-size:13px; font-weight:600;">Remove Device</button>
+            <button type="button" id="remove-cancel-btn" style="padding:8px 16px; border:1px solid var(--oau-card-border); border-radius:4px; background:#fff; cursor:pointer; font-size:13px; color:var(--text-color-secondary);">Cancel</button>
+            <button type="button" id="remove-confirm-btn" style="padding:8px 16px; border:none; border-radius:4px; background:var(--error-color); color:#fff; cursor:pointer; font-size:13px; font-weight:600;">Remove Device</button>
           </div>
         </div>
       </div>
@@ -235,7 +235,7 @@
                 } catch(e) {
                   document.getElementById('step-generate').style.display = 'block';
                   document.getElementById('step-generate').insertAdjacentHTML('afterbegin',
-                    '<div style="color:#e74c3c;font-size:0.85em;margin-bottom:8px;">Failed to generate QR code. Try again.</div>');
+                    '<div style="color:var(--error-color);font-size:0.85em;margin-bottom:8px;">Failed to generate QR code. Try again.</div>');
                 }
               };
               xhr.onerror = function() {

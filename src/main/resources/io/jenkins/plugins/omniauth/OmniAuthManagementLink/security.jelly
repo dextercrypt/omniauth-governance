@@ -20,16 +20,16 @@
         <!-- ── Brute Force State ─────────────────────────────────── -->
         <div class="jenkins-card" style="padding:16px;margin-bottom:16px;">
           <h3 style="margin:0 0 12px;">Brute Force — Active Counters</h3>
-          <p style="color:#6c757d;font-size:0.85em;margin:0 0 12px;">
+          <p style="color:var(--text-color-secondary);font-size:0.85em;margin:0 0 12px;">
             Users with consecutive failed logins. Counters reset on successful login.
             Alert fires at <strong>${cfg.bruteForceThreshold}</strong> failures.
             <j:choose>
               <j:when test="${cfg.bruteForceLockoutEnabled}">
-                Lockout is <strong style="color:#27ae60;">enforced</strong> — a reached account is locked for
+                Lockout is <strong style="color:var(--oau-success-fg);">enforced</strong> — a reached account is locked for
                 <strong>${cfg.bruteForceLockoutMinutes} min</strong> (protected users exempt).
               </j:when>
               <j:otherwise>
-                Lockout enforcement is <strong style="color:#e67e22;">off</strong> (detection only).
+                Lockout enforcement is <strong style="color:var(--warning-color);">off</strong> (detection only).
               </j:otherwise>
             </j:choose>
             Configure in <a href="notifications">Notifications</a>.
@@ -38,7 +38,7 @@
           <j:set var="bfEntries" value="${it.bruteForceEntries}"/>
           <j:choose>
             <j:when test="${bfEntries.isEmpty()}">
-              <div style="color:#27ae60;font-size:0.88em;">✓ No users with active failure counters.</div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;">✓ No users with active failure counters.</div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table" style="width:100%;">
@@ -60,33 +60,33 @@
                       <td style="text-align:center;">
                         <j:choose>
                           <j:when test="${bf.failureCount > 0}">
-                            <strong style="color:#e74c3c;">${bf.failureCount}</strong>
+                            <strong style="color:var(--error-color);">${bf.failureCount}</strong>
                           </j:when>
                           <j:otherwise>
-                            <span style="color:#6c757d;">—</span>
+                            <span style="color:var(--text-color-secondary);">—</span>
                           </j:otherwise>
                         </j:choose>
                       </td>
                       <td>
                         <j:choose>
                           <j:when test="${bf.locked}">
-                            <span style="background:#721c24;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;">🔒 Locked · ~${bf.lockRemainingMinutes}m left</span>
+                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;">🔒 Locked · ~${bf.lockRemainingMinutes}m left</span>
                           </j:when>
                           <j:when test="${bf.failureCount >= cfg.bruteForceThreshold}">
-                            <span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
+                            <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
                           </j:when>
                           <j:when test="${bf.failureCount > 0}">
-                            <span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:4px;font-size:0.82em;">Warning</span>
+                            <span style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Warning</span>
                           </j:when>
                           <j:otherwise>
-                            <span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:4px;font-size:0.82em;">Previously alerted</span>
+                            <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Previously alerted</span>
                           </j:otherwise>
                         </j:choose>
                       </td>
                       <td>
                         <j:choose>
                           <j:when test="${bf.alerted}">
-                            <span style="font-size:0.82em;color:#6c757d;">${bf.relativeAlertedAt}</span>
+                            <span style="font-size:0.82em;color:var(--text-color-secondary);">${bf.relativeAlertedAt}</span>
                           </j:when>
                           <j:otherwise>—</j:otherwise>
                         </j:choose>
@@ -124,7 +124,7 @@
 
           <j:choose>
             <j:when test="${failedLogins.isEmpty()}">
-              <div style="color:#27ae60;font-size:0.88em;">✓ No failed logins in this window.</div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;">✓ No failed logins in this window.</div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table sortable" style="width:100%;">
@@ -157,10 +157,10 @@
                       <td>
                         <j:choose>
                           <j:when test="${f.event.method != 'Native'}">
-                            <span style="background:#e8f0fe;color:#0078d4;padding:2px 8px;border-radius:4px;font-size:0.82em;">${f.event.method}</span>
+                            <span style="background:var(--oau-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;">${f.event.method}</span>
                           </j:when>
                           <j:otherwise>
-                            <span style="background:#f0f0f0;color:#6c757d;padding:2px 8px;border-radius:4px;font-size:0.82em;">Native</span>
+                            <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;">Native</span>
                           </j:otherwise>
                         </j:choose>
                       </td>
@@ -179,7 +179,7 @@
         .oau-info-btn {
           display: inline-flex; align-items: center; justify-content: center;
           width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary,#6c757d); color: #fff;
+          background: var(--text-color-secondary); color: #fff;
           font-size: 9px; font-weight: 700; font-style: normal;
           cursor: default; user-select: none; flex-shrink: 0;
           font-family: serif; line-height: 1;

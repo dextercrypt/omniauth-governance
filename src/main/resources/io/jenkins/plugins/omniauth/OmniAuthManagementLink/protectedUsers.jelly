@@ -21,42 +21,42 @@
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
 
             <!-- Card header -->
-            <div style="padding: 16px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div style="padding: 16px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 200px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue, #0078d4); flex-shrink:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue, var(--blue)); flex-shrink:0;">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                   <h3 style="margin: 0; font-size: 1em; font-weight: 600;">Protected Users</h3>
                 </div>
-                <p style="margin: 0; color: var(--text-color-secondary, #6c757d); font-size: 0.85em; line-height: 1.5;">
+                <p style="margin: 0; color: var(--text-color-secondary); font-size: 0.85em; line-height: 1.5;">
                   Protected users are excluded from automated stale cleanup and cannot be manually deleted.
                   Enable this for service accounts, shared accounts, or any user that must be retained.
                 </p>
               </div>
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;">
-                <div id="protectedBadge" style="background: var(--blue, #0078d4); color: #fff; padding: 4px 14px; border-radius: 12px; font-size: 0.82em; font-weight: 600; white-space: nowrap;"></div>
-                <span id="changeIndicator" style="display:none; color: #e67e22; font-size: 0.78em; font-weight: 500;">&#9679; Unsaved changes</span>
+                <div id="protectedBadge" style="background: var(--blue, var(--blue)); color: #fff; padding: 4px 14px; border-radius: 12px; font-size: 0.82em; font-weight: 600; white-space: nowrap;"></div>
+                <span id="changeIndicator" style="display:none; color: var(--warning-color); font-size: 0.78em; font-weight: 500;">&#9679; Unsaved changes</span>
               </div>
             </div>
 
             <!-- Search bar -->
-            <div style="padding: 10px 20px; border-bottom: 1px solid var(--panel-border-color, #e0e0e0); background: var(--background-color, #fafafa); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-color-secondary, #888); flex-shrink:0;">
+            <div style="padding: 10px 20px; border-bottom: 1px solid var(--oau-card-border); background: var(--oau-neutral-bg); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-color-secondary); flex-shrink:0;">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
               <input type="text" id="userFilter" placeholder="Search by username or full name…"
                      class="jenkins-input" style="flex: 1; box-sizing: border-box;"
                      oninput="oauFilterUsers(this.value)"/>
               <button type="button" id="clearFilter" onclick="oauClearFilter()"
-                      style="display:none;background:none;border:none;cursor:pointer;color:var(--text-color-secondary,#888);font-size:1.1em;padding:0 4px;" title="Clear">&#x2715;</button>
+                      style="display:none;background:none;border:none;cursor:pointer;color:var(--text-color-secondary);font-size:1.1em;padding:0 4px;" title="Clear">&#x2715;</button>
             </div>
 
             <!-- Column header -->
-            <div style="display: flex; align-items: center; gap: 14px; padding: 6px 20px; background: var(--background-color, #fafafa); border-bottom: 1px solid var(--panel-border-color, #e0e0e0);">
+            <div style="display: flex; align-items: center; gap: 14px; padding: 6px 20px; background: var(--oau-neutral-bg); border-bottom: 1px solid var(--oau-card-border);">
               <div style="width:38px; flex-shrink:0;"></div>
-              <div style="flex:1; font-size:0.75em; font-weight:600; color:var(--text-color-secondary,#888); text-transform:uppercase; letter-spacing:0.04em;">User</div>
-              <div style="min-width:120px; font-size:0.75em; font-weight:600; color:var(--text-color-secondary,#888); text-transform:uppercase; letter-spacing:0.04em; text-align:right;">Protected</div>
+              <div style="flex:1; font-size:0.75em; font-weight:600; color:var(--text-color-secondary); text-transform:uppercase; letter-spacing:0.04em;">User</div>
+              <div style="min-width:120px; font-size:0.75em; font-weight:600; color:var(--text-color-secondary); text-transform:uppercase; letter-spacing:0.04em; text-align:right;">Protected</div>
             </div>
 
             <!-- User rows -->
@@ -69,24 +69,24 @@
                     <!-- Group-managed user — toggle disabled, show badge instead -->
                     <div data-uid="${u.userId}" data-name="${u.fullName}"
                          class="oau-user-row"
-                         style="display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--panel-border-color,#f0f0f0);opacity:0.7;cursor:default;">
-                      <div class="oau-avatar" style="background:#f0f0f0;color:#6c757d;">
+                         style="display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--oau-card-border);opacity:0.7;cursor:default;">
+                      <div class="oau-avatar" style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);">
                         ${u.userId.substring(0,1).toUpperCase()}
                       </div>
                       <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
                           <span style="font-weight:600;font-size:0.92em;">${u.userId}</span>
                           <j:if test="${u.fullName != u.userId}">
-                            <span style="color:var(--text-color-secondary,#6c757d);font-size:0.85em;">${u.fullName}</span>
+                            <span style="color:var(--text-color-secondary);font-size:0.85em;">${u.fullName}</span>
                           </j:if>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                          <span style="background:#e8f0fe;color:#0078d4;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Entra</span>
-                          <span style="background:#fff3cd;color:#856404;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Group managed</span>
+                          <span style="background:var(--oau-info-bg);color:var(--blue);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Entra</span>
+                          <span style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Group managed</span>
                         </div>
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
-                        <span style="font-size:0.75em;color:var(--text-color-secondary,#888);font-style:italic;">Managed by group</span>
+                        <span style="font-size:0.75em;color:var(--text-color-secondary);font-style:italic;">Managed by group</span>
                       </div>
                     </div>
                   </j:when>
@@ -95,37 +95,37 @@
                     <j:set var="isOrphanedGroup" value="${u.provisioningSource == 'VIA_ENTRA_GROUP'}"/>
                     <div data-uid="${u.userId}" data-name="${u.fullName}"
                          class="oau-user-row"
-                         style="display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--panel-border-color,#f0f0f0);cursor:not-allowed;"
+                         style="display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--oau-card-border);cursor:not-allowed;"
                          title="${isOrphanedGroup ? 'This account was removed from its Azure group and cannot be protected. Re-add the user to the group in Azure to restore access.' : 'Remove the pending deletion mark on the User Status page first, then protect this account.'}">
-                      <div class="oau-avatar" style="background:#fee2e2;color:#991b1b;">
+                      <div class="oau-avatar" style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);">
                         ${u.userId.substring(0,1).toUpperCase()}
                       </div>
                       <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
                           <span style="font-weight:600;font-size:0.92em;">${u.userId}</span>
                           <j:if test="${u.fullName != u.userId}">
-                            <span style="color:var(--text-color-secondary,#6c757d);font-size:0.85em;">${u.fullName}</span>
+                            <span style="color:var(--text-color-secondary);font-size:0.85em;">${u.fullName}</span>
                           </j:if>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                           <j:choose>
                             <j:when test="${u.userType != 'Native'}">
-                              <span style="background:#e8f0fe;color:#0078d4;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
+                              <span style="background:var(--oau-info-bg);color:var(--blue);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="background:#f0f0f0;color:#6c757d;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
+                              <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
                             </j:otherwise>
                           </j:choose>
-                          <span style="background:#fee2e2;color:#991b1b;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Pending deletion</span>
+                          <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Pending deletion</span>
                         </div>
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <j:choose>
                           <j:when test="${isOrphanedGroup}">
-                            <span style="font-size:0.75em;color:#dc2626;font-weight:600;">Provisioned via group — cannot protect</span>
+                            <span style="font-size:0.75em;color:var(--error-color);font-weight:600;">Provisioned via group — cannot protect</span>
                           </j:when>
                           <j:otherwise>
-                            <span style="font-size:0.75em;color:#dc2626;font-style:italic;">Unmark first</span>
+                            <span style="font-size:0.75em;color:var(--error-color);font-style:italic;">Unmark first</span>
                           </j:otherwise>
                         </j:choose>
                       </div>
@@ -134,55 +134,55 @@
                   <j:when test="${isProtected}">
                     <label data-uid="${u.userId}" data-name="${u.fullName}" data-protected="true"
                            class="oau-user-row oau-user-row--on"
-                           style="display:flex;align-items:center;gap:14px;padding:11px 20px;cursor:pointer;border-bottom:1px solid var(--panel-border-color,#f0f0f0);transition:background 0.12s;background:#f0f6ff;">
+                           style="display:flex;align-items:center;gap:14px;padding:11px 20px;cursor:pointer;border-bottom:1px solid var(--oau-card-border);transition:background 0.12s;background:var(--oau-info-bg);">
                       <input type="checkbox" name="protectedUsers" value="${u.userId}" checked="checked" class="oau-chk" style="display:none;"/>
-                      <div class="oau-avatar oau-avatar--entra" style="background:${u.userType == 'Entra' ? '#e8f0fe' : '#f0f0f0'};color:${u.userType == 'Entra' ? '#0078d4' : '#6c757d'};">
+                      <div class="oau-avatar oau-avatar--entra" style="background:${u.userType == 'Entra' ? 'var(--oau-info-bg)' : 'var(--oau-neutral-bg)'};color:${u.userType == 'Entra' ? 'var(--blue)' : 'var(--text-color-secondary)'};">
                         ${u.userId.substring(0,1).toUpperCase()}
                       </div>
                       <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
                           <span style="font-weight:600;font-size:0.92em;">${u.userId}</span>
                           <j:if test="${u.fullName != u.userId}">
-                            <span style="color:var(--text-color-secondary,#6c757d);font-size:0.85em;">${u.fullName}</span>
+                            <span style="color:var(--text-color-secondary);font-size:0.85em;">${u.fullName}</span>
                           </j:if>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                           <j:choose>
                             <j:when test="${u.userType != 'Native'}">
-                              <span style="background:#e8f0fe;color:#0078d4;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
+                              <span style="background:var(--oau-info-bg);color:var(--blue);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="background:#f0f0f0;color:#6c757d;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
+                              <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
                             </j:otherwise>
                           </j:choose>
                           <j:choose>
                             <j:when test="${u.status == 'Active'}">
-                              <span style="background:#d4edda;color:#155724;padding:1px 8px;border-radius:10px;font-size:0.73em;">Active</span>
+                              <span style="background:var(--oau-success-bg);color:var(--oau-success-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Active</span>
                             </j:when>
                             <j:when test="${u.status == 'Active via Jobs'}">
-                              <span style="background:#fff3cd;color:#856404;padding:1px 8px;border-radius:10px;font-size:0.73em;">Active via Jobs</span>
+                              <span style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Active via Jobs</span>
                             </j:when>
                             <j:when test="${u.status == 'Inactive'}">
-                              <span style="background:#f8d7da;color:#721c24;padding:1px 8px;border-radius:10px;font-size:0.73em;">Inactive</span>
+                              <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Inactive</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="background:#e9ecef;color:#6c757d;padding:1px 8px;border-radius:10px;font-size:0.73em;">Never Active</span>
+                              <span style="background:var(--oau-card-border);color:var(--text-color-secondary);padding:1px 8px;border-radius:10px;font-size:0.73em;">Never Active</span>
                             </j:otherwise>
                           </j:choose>
                           <j:choose>
                             <j:when test="${u.neverLoggedIn}">
-                              <span style="color:var(--text-color-secondary,#aaa);font-size:0.75em;">Never logged in</span>
+                              <span style="color:var(--text-color-secondary);font-size:0.75em;">Never logged in</span>
                             </j:when>
                             <j:otherwise>
-                              <span class="oau-reltime" data-iso="${u.lastLoginAt}" style="color:var(--text-color-secondary,#888);font-size:0.75em;" title="${u.lastLoginAt}">${u.lastLoginAt}</span>
+                              <span class="oau-reltime" data-iso="${u.lastLoginAt}" style="color:var(--text-color-secondary);font-size:0.75em;" title="${u.lastLoginAt}">${u.lastLoginAt}</span>
                             </j:otherwise>
                           </j:choose>
                         </div>
                       </div>
                       <!-- Toggle — ON -->
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
-                        <span class="oau-tlabel" style="font-size:0.78em;font-weight:600;color:#0078d4;min-width:54px;text-align:right;">Protected</span>
-                        <div class="oau-track oau-track--on" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:#0078d4;">
+                        <span class="oau-tlabel" style="font-size:0.78em;font-weight:600;color:var(--blue);min-width:54px;text-align:right;">Protected</span>
+                        <div class="oau-track oau-track--on" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--blue);">
                           <div class="oau-thumb" style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;left:22px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                         </div>
                       </div>
@@ -191,47 +191,47 @@
                   <j:otherwise>
                     <label data-uid="${u.userId}" data-name="${u.fullName}" data-protected="false"
                            class="oau-user-row"
-                           style="display:flex;align-items:center;gap:14px;padding:11px 20px;cursor:pointer;border-bottom:1px solid var(--panel-border-color,#f0f0f0);transition:background 0.12s;">
+                           style="display:flex;align-items:center;gap:14px;padding:11px 20px;cursor:pointer;border-bottom:1px solid var(--oau-card-border);transition:background 0.12s;">
                       <input type="checkbox" name="protectedUsers" value="${u.userId}" class="oau-chk" style="display:none;"/>
-                      <div class="oau-avatar" style="background:${u.userType == 'Entra' ? '#e8f0fe' : '#f0f0f0'};color:${u.userType == 'Entra' ? '#0078d4' : '#6c757d'};">
+                      <div class="oau-avatar" style="background:${u.userType == 'Entra' ? 'var(--oau-info-bg)' : 'var(--oau-neutral-bg)'};color:${u.userType == 'Entra' ? 'var(--blue)' : 'var(--text-color-secondary)'};">
                         ${u.userId.substring(0,1).toUpperCase()}
                       </div>
                       <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
                           <span style="font-weight:600;font-size:0.92em;">${u.userId}</span>
                           <j:if test="${u.fullName != u.userId}">
-                            <span style="color:var(--text-color-secondary,#6c757d);font-size:0.85em;">${u.fullName}</span>
+                            <span style="color:var(--text-color-secondary);font-size:0.85em;">${u.fullName}</span>
                           </j:if>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                           <j:choose>
                             <j:when test="${u.userType != 'Native'}">
-                              <span style="background:#e8f0fe;color:#0078d4;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
+                              <span style="background:var(--oau-info-bg);color:var(--blue);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">${u.userType}</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="background:#f0f0f0;color:#6c757d;padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
+                              <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:1px 8px;border-radius:10px;font-size:0.73em;font-weight:600;">Native</span>
                             </j:otherwise>
                           </j:choose>
                           <j:choose>
                             <j:when test="${u.status == 'Active'}">
-                              <span style="background:#d4edda;color:#155724;padding:1px 8px;border-radius:10px;font-size:0.73em;">Active</span>
+                              <span style="background:var(--oau-success-bg);color:var(--oau-success-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Active</span>
                             </j:when>
                             <j:when test="${u.status == 'Active via Jobs'}">
-                              <span style="background:#fff3cd;color:#856404;padding:1px 8px;border-radius:10px;font-size:0.73em;">Active via Jobs</span>
+                              <span style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Active via Jobs</span>
                             </j:when>
                             <j:when test="${u.status == 'Inactive'}">
-                              <span style="background:#f8d7da;color:#721c24;padding:1px 8px;border-radius:10px;font-size:0.73em;">Inactive</span>
+                              <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:1px 8px;border-radius:10px;font-size:0.73em;">Inactive</span>
                             </j:when>
                             <j:otherwise>
-                              <span style="background:#e9ecef;color:#6c757d;padding:1px 8px;border-radius:10px;font-size:0.73em;">Never Active</span>
+                              <span style="background:var(--oau-card-border);color:var(--text-color-secondary);padding:1px 8px;border-radius:10px;font-size:0.73em;">Never Active</span>
                             </j:otherwise>
                           </j:choose>
                           <j:choose>
                             <j:when test="${u.neverLoggedIn}">
-                              <span style="color:var(--text-color-secondary,#aaa);font-size:0.75em;">Never logged in</span>
+                              <span style="color:var(--text-color-secondary);font-size:0.75em;">Never logged in</span>
                             </j:when>
                             <j:otherwise>
-                              <span class="oau-reltime" data-iso="${u.lastLoginAt}" style="color:var(--text-color-secondary,#888);font-size:0.75em;" title="${u.lastLoginAt}">${u.lastLoginAt}</span>
+                              <span class="oau-reltime" data-iso="${u.lastLoginAt}" style="color:var(--text-color-secondary);font-size:0.75em;" title="${u.lastLoginAt}">${u.lastLoginAt}</span>
                             </j:otherwise>
                           </j:choose>
                         </div>
@@ -239,7 +239,7 @@
                       <!-- Toggle — OFF -->
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <span class="oau-tlabel" style="font-size:0.78em;font-weight:600;color:transparent;min-width:54px;text-align:right;">Protected</span>
-                        <div class="oau-track" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--panel-border-color,#ccc);">
+                        <div class="oau-track" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--oau-card-border);">
                           <div class="oau-thumb" style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                         </div>
                       </div>
@@ -249,7 +249,7 @@
               </j:forEach>
             </div>
 
-            <div id="noMatch" style="display:none;padding:28px;text-align:center;color:var(--text-color-secondary,#888);">
+            <div id="noMatch" style="display:none;padding:28px;text-align:center;color:var(--text-color-secondary);">
               No users match your search.
             </div>
 
@@ -269,8 +269,8 @@
           display:flex; align-items:center; justify-content:center;
           font-weight:700; font-size:0.9em; text-transform:uppercase;
         }
-        .oau-user-row:hover { background: var(--even-row-color, #f5f5f5) !important; }
-        .oau-user-row--on:hover { background: #e4effe !important; }
+        .oau-user-row:hover { background: var(--even-row-color, var(--oau-neutral-bg)) !important; }
+        .oau-user-row--on:hover { background: var(--oau-info-bg) !important; }
       </style>
 
       <script>//<![CDATA[
@@ -282,16 +282,16 @@
             var label = row.querySelector('.oau-tlabel');
             row.dataset.protected = on ? 'true' : 'false';
             if (on) {
-              row.style.background = '#f0f6ff';
+              row.style.background = 'var(--oau-info-bg)';
               row.classList.add('oau-user-row--on');
-              track.style.background = '#0078d4';
+              track.style.background = 'var(--blue)';
               thumb.style.left = '22px';
               label.textContent = 'Protected';
-              label.style.color = '#0078d4';
+              label.style.color = 'var(--blue)';
             } else {
               row.style.background = '';
               row.classList.remove('oau-user-row--on');
-              track.style.background = 'var(--panel-border-color, #ccc)';
+              track.style.background = 'var(--oau-card-border)';
               thumb.style.left = '2px';
               label.textContent = 'Protected';
               label.style.color = 'transparent';

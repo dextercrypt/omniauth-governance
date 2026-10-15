@@ -26,7 +26,7 @@
           </div>
         </j:if>
 
-        <p style="color: #6c757d; margin-bottom: 16px;">
+        <p style="color: var(--text-color-secondary); margin-bottom: 16px;">
           All currently active Jenkins sessions. Sessions are tracked from login onwards.
           Revoking a session immediately logs that user out.
         </p>
@@ -35,7 +35,7 @@
 
         <j:choose>
           <j:when test="${sessions.isEmpty()}">
-            <div style="padding: 32px; text-align: center; color: #6c757d;">
+            <div style="padding: 32px; text-align: center; color: var(--text-color-secondary);">
               No active sessions tracked yet. Sessions appear here after users log in.
             </div>
           </j:when>
@@ -61,10 +61,10 @@
                     <td>
                       <j:choose>
                         <j:when test="${s.userType != 'Native'}">
-                          <span style="background:#e8f0fe;color:#0078d4;padding:2px 8px;border-radius:4px;font-size:0.85em;">${s.userType}</span>
+                          <span style="background:var(--oau-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.85em;">${s.userType}</span>
                         </j:when>
                         <j:otherwise>
-                          <span style="background:#f0f0f0;color:#6c757d;padding:2px 8px;border-radius:4px;font-size:0.85em;">Native</span>
+                          <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.85em;">Native</span>
                         </j:otherwise>
                       </j:choose>
                     </td>
@@ -83,7 +83,7 @@
                     <td>
                       <j:choose>
                         <j:when test="${s.sessionId == request2.getAttribute('currentSessionId')}">
-                          <span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:4px;font-size:0.82em;">Current</span>
+                          <span style="background:var(--oau-success-bg);color:var(--oau-success-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Current</span>
                         </j:when>
                         <j:otherwise>
                           <button type="button"
@@ -170,7 +170,7 @@
           display: flex; align-items: center; justify-content: center;
         }
         .oau-modal {
-          background: var(--background, #fff);
+          background: var(--oau-card-bg);
           border-radius: 8px;
           box-shadow: 0 8px 32px rgba(0,0,0,0.22);
           width: 100%; max-width: 400px;
@@ -185,18 +185,18 @@
           display: flex; align-items: center; gap: 10px;
           padding: 16px 20px; font-weight: 600; font-size: 0.95em;
         }
-        .oau-modal-header--danger { background: #fdecea; color: #7f1f1f; border-bottom: 1px solid #f5c6cb; }
+        .oau-modal-header--danger { background: var(--oau-danger-bg); color: var(--oau-danger-fg); border-bottom: 1px solid var(--oau-danger-border); }
         .oau-modal-body   { padding: 20px; font-size: 0.88em; line-height: 1.6; }
         .oau-modal-footer {
           display: flex; justify-content: flex-end; gap: 8px;
-          padding: 12px 20px; border-top: 1px solid var(--panel-border-color, #e0e0e0);
-          background: var(--background-color, #fafafa);
+          padding: 12px 20px; border-top: 1px solid var(--oau-card-border);
+          background: var(--oau-neutral-bg);
         }
         .oau-info-wrap { position: relative; display: inline-flex; align-items: center; }
         .oau-info-btn {
           display: inline-flex; align-items: center; justify-content: center;
           width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary, #6c757d); color: #fff;
+          background: var(--text-color-secondary); color: #fff;
           font-size: 9px; font-weight: 700; font-style: normal;
           cursor: default; user-select: none; flex-shrink: 0;
           font-family: serif; line-height: 1;
