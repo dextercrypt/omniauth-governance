@@ -106,7 +106,7 @@ public class OmniAuthAssignment {
         try {
             return java.time.Instant.parse(expiresAt).isBefore(java.time.Instant.now());
         } catch (Exception e) {
-            return false;
+            return true; // corrupt expiry -> fail closed (treat as expired, so the grant is revoked)
         }
     }
 

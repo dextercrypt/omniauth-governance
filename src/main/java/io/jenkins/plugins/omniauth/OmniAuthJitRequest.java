@@ -176,15 +176,15 @@ public class OmniAuthJitRequest {
     public boolean isActive()  { return STATUS_ACTIVE.equals(status); }
 
     public boolean isTimedOut() {
-        if (!STATUS_PENDING.equals(status) || approvalDeadline == null) return false;
+        if (!STATUS_PENDING.equals(status) || approvalDeadline == null || approvalDeadline.isBlank()) return false;
         try { return java.time.Instant.parse(approvalDeadline).isBefore(java.time.Instant.now()); }
-        catch (Exception e) { return false; }
+        catch (Exception e) { return true; } // corrupt deadline -> fail closed (treat as timed out)
     }
 
     public boolean isExpiredActive() {
-        if (!STATUS_ACTIVE.equals(status) || expiresAt == null) return false;
+        if (!STATUS_ACTIVE.equals(status) || expiresAt == null || expiresAt.isBlank()) return false;
         try { return java.time.Instant.parse(expiresAt).isBefore(java.time.Instant.now()); }
-        catch (Exception e) { return false; }
+        catch (Exception e) { return true; } // corrupt expiry -> fail closed (treat as expired)
     }
 
     public long secondsRemaining() {

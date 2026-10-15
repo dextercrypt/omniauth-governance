@@ -35,7 +35,7 @@ public class OmniAuthAccountExpiryProperty extends UserProperty {
     public boolean isExpired() {
         if (expiresAt == null || expiresAt.isBlank()) return false;
         try { return java.time.Instant.parse(expiresAt).isBefore(java.time.Instant.now()); }
-        catch (Exception e) { return false; }
+        catch (Exception e) { return true; } // corrupt expiry -> fail closed (treat as expired)
     }
 
     /** Whole days until expiry (rounded up), or -1 if no/invalid expiry or already past. */

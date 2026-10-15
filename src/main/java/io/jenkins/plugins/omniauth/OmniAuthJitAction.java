@@ -211,6 +211,13 @@ public class OmniAuthJitAction implements RootAction {
 
         OmniAuthJitRequest jitReq = store.findById(requestId);
         if (jitReq != null) {
+            // Self-service endpoint: a user may only cancel/revoke their OWN request.
+            // (The active branch calls revoke(), which — unlike cancel() — does not enforce
+            // ownership itself, so without this check any authenticated user who learned
+            // another user's requestId could tear down that user's active grant.)
+            if (!userId.equals(jitReq.getRequesterId())) {
+                writeJson(rsp, "{\"ok\":false,\"error\":\"Not your request\"}"); return;
+            }
             OmniAuthAuditLog audit = OmniAuthAuditLog.get();
             if (jitReq.isActive()) {
                 store.revoke(requestId, userId);

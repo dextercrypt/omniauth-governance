@@ -46,7 +46,11 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
         return requests.stream()
                 .filter(r -> r.getRequesterId().equals(userId)
                         && r.getScope().equals(scope)
-                        && OmniAuthJitRequest.STATUS_ACTIVE.equals(r.getStatus()))
+                        && OmniAuthJitRequest.STATUS_ACTIVE.equals(r.getStatus())
+                        // Also honour the expiry time directly, so authorization fails closed
+                        // at check time rather than trusting the per-minute worker to flip the
+                        // status (which lags, or stalls entirely if the worker errors).
+                        && !r.isExpiredActive())
                 .findFirst().orElse(null);
     }
 
