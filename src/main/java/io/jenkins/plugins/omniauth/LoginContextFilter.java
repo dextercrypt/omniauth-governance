@@ -35,6 +35,13 @@ public class LoginContextFilter {
     /** Username → true: SecurityListener saw a fresh login on this thread. */
     static final ConcurrentHashMap<String, Boolean> FRESH_LOGINS = new ConcurrentHashMap<>();
 
+    /**
+     * IP/UA captured at the moment of a failed login (keyed by the same "__failed__&lt;user&gt;"
+     * key), so the audit/history record uses the failing request's own context rather than
+     * whichever later request happens to drain the FRESH_LOGINS entry. Value: {ip, userAgent}.
+     */
+    static final ConcurrentHashMap<String, String[]> FAILED_CONTEXT = new ConcurrentHashMap<>();
+
     @Initializer(after = InitMilestone.EXTENSIONS_AUGMENTED)
     public static void registerFilter() throws Exception {
         PluginServletFilter.addFilter(new ContextFilter());
@@ -109,14 +116,20 @@ public class LoginContextFilter {
                             .forEach(k -> {
                                 FRESH_LOGINS.remove(k);
                                 String uname = k.substring("__failed__".length());
+                                // Prefer the IP/UA captured when the login actually failed.
+                                String[] ctx = FAILED_CONTEXT.remove(k);
+                                String fIp = (ctx != null && !ctx[0].isEmpty()) ? ctx[0] : finalIp;
+                                String fUa = (ctx != null && !ctx[1].isEmpty()) ? ctx[1] : finalUa;
+                                String fBrowser = ctx != null ? LoginEvent.parseBrowser(fUa) : browser;
+                                String fOs = ctx != null ? LoginEvent.parseOs(fUa) : os;
                                 OmniAuthAuditLog audit = OmniAuthAuditLog.get();
-                                if (audit != null) audit.logLoginFailure(uname, finalIp);
+                                if (audit != null) audit.logLoginFailure(uname, fIp);
                                 User user = User.getById(uname, false);
                                 if (user != null) {
                                     OmniAuthUserProperty p = user.getProperty(OmniAuthUserProperty.class);
                                     String method = (p != null && p.hasEntraIdentity()) ? "Entra" : "Native";
                                     LoginHistoryProperty.record(user,
-                                            new LoginEvent(now, finalIp, finalUa, browser, os, method, false));
+                                            new LoginEvent(now, fIp, fUa, fBrowser, fOs, method, false));
                                 }
                             });
                 } catch (Exception ignored) {}

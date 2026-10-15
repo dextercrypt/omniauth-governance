@@ -129,6 +129,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                     .authenticate(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(currentUser, password));
         } catch (Exception e) {
             LoginContextFilter.FRESH_LOGINS.remove("__failed__" + currentUser);
+            LoginContextFilter.FAILED_CONTEXT.remove("__failed__" + currentUser);
             rsp.setContentType("application/json");
             rsp.getWriter().write("{\"error\":\"wrongPassword\"}");
             return;
@@ -3714,13 +3715,7 @@ public class OmniAuthManagementLink extends ManagementLink {
      */
     private static String resolveLastLogin(OmniAuthUserProperty entraProp,
                                            LastLoginProperty loginProp) {
-        if (entraProp != null && entraProp.getLastLoginAt() != null) {
-            return entraProp.getLastLoginAt();
-        }
-        if (loginProp != null && loginProp.getLastLoginAt() != null) {
-            return loginProp.getLastLoginAt();
-        }
-        return null;
+        return OmniAuthUserProperty.resolveLastLogin(entraProp, loginProp);
     }
 
     private static String resolveDisplayName(String sid, AuthorizationType type) {

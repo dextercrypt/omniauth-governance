@@ -214,6 +214,17 @@ public class OmniAuthUserProperty extends UserProperty {
         return false;
     }
 
+    /**
+     * The user's last-login timestamp (ISO-8601), preferring the Entra property and falling back
+     * to the native {@link LastLoginProperty}; null when neither has recorded a login. Single
+     * source of truth for the stale-user workers and the management pages.
+     */
+    public static String resolveLastLogin(OmniAuthUserProperty entraProp, LastLoginProperty loginProp) {
+        if (entraProp != null && entraProp.getLastLoginAt() != null) return entraProp.getLastLoginAt();
+        if (loginProp != null && loginProp.getLastLoginAt() != null) return loginProp.getLastLoginAt();
+        return null;
+    }
+
     @Extension
     public static class DescriptorImpl extends UserPropertyDescriptor {
 

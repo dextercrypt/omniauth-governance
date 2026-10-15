@@ -50,6 +50,19 @@ public class LastLoginListener extends SecurityListener {
 
     @Override
     protected void failedToAuthenticate(String username) {
+        // Capture the IP/UA of the request that actually failed, so the failure record isn't
+        // attributed to whichever later request drains the FRESH_LOGINS entry.
+        try {
+            org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
+            if (req != null) {
+                String forwarded = req.getHeader("X-Forwarded-For");
+                String ip = (forwarded != null && !forwarded.isBlank())
+                        ? forwarded.split(",")[0].trim() : req.getRemoteAddr();
+                String ua = req.getHeader("User-Agent");
+                LoginContextFilter.FAILED_CONTEXT.put("__failed__" + username,
+                        new String[]{ip != null ? ip : "", ua != null ? ua : ""});
+            }
+        } catch (Exception ignored) {}
         LoginContextFilter.FRESH_LOGINS.put("__failed__" + username, Boolean.TRUE);
         BruteForceTracker.recordFailure(username);
     }

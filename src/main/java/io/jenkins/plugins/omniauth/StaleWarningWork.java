@@ -90,8 +90,6 @@ public class StaleWarningWork extends AsyncPeriodicWork {
     }
 
     private static String resolveLastLogin(OmniAuthUserProperty entraProp, LastLoginProperty loginProp) {
-        if (entraProp != null && entraProp.getLastLoginAt() != null) return entraProp.getLastLoginAt();
-        if (loginProp  != null && loginProp.getLastLoginAt()  != null) return loginProp.getLastLoginAt();
-        return null;
+        return OmniAuthUserProperty.resolveLastLogin(entraProp, loginProp);
     }
 }

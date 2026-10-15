@@ -104,12 +104,24 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
     }
 
     /** Removes terminal requests older than retentionDays. Returns count purged. */
+    /**
+     * Best estimate of when a terminal request stopped being live, so retention is measured from
+     * then rather than from when it was first requested (otherwise a grant that was active for most
+     * of the retention window is purged almost immediately after it ends). Prefer the expiry time,
+     * then the approval time, falling back to the request time.
+     */
+    private static String terminalTime(OmniAuthJitRequest r) {
+        if (r.getExpiresAt() != null && !r.getExpiresAt().isBlank()) return r.getExpiresAt();
+        if (r.getApprovedAt() != null && !r.getApprovedAt().isBlank()) return r.getApprovedAt();
+        return r.getRequestedAt();
+    }
+
     public synchronized int purgeOldRecords(int retentionDays) {
         if (retentionDays <= 0) return 0;
         java.time.Instant cutoff = java.time.Instant.now()
                 .minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
         List<OmniAuthJitRequest> toRemove = requests.stream()
-                .filter(r -> isTerminalStatus(r.getStatus()) && isOlderThan(r.getRequestedAt(), cutoff))
+                .filter(r -> isTerminalStatus(r.getStatus()) && isOlderThan(terminalTime(r), cutoff))
                 .collect(Collectors.toList());
         if (toRemove.isEmpty()) return 0;
         requests.removeAll(toRemove);
