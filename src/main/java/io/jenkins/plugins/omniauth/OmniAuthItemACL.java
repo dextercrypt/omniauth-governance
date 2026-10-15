@@ -116,20 +116,42 @@ public class OmniAuthItemACL extends ACL {
             if (scope.startsWith(itemFullName + "/")) {
                 // itemFullName is an ancestor of the granted job. Jenkins delegates a
                 // WorkflowJob's own ACL check to its *direct parent* folder, so the pipeline's
-                // Build button needs the full role permissions to arrive on that immediate parent.
-                // Only the direct parent gets them — higher ancestors (grandparent … root) get
-                // navigation-only, otherwise a single job grant would leak Configure/Delete/etc.
-                // onto the whole folder chain above the job.
+                // Build button needs build-enabling permissions to arrive on that immediate parent.
+                // The direct parent gets ONLY the build-related subset (Read/Build/Cancel) that the
+                // role actually grants — never Configure/Delete/WipeOut, which would let a one-job
+                // grant reconfigure or delete the parent folder. Higher ancestors get nav-only.
                 int lastSlash = scope.lastIndexOf('/');
                 String directParent = lastSlash > 0 ? scope.substring(0, lastSlash) : "";
                 if (itemFullName.equals(directParent)) {
-                    return resolvePermissions(assignment, roleConfig, userId, scope);
+                    return delegatedParentPermissions(assignment, roleConfig, userId, scope);
                 }
                 return NAV_PERMISSIONS;
             }
         }
 
         return Collections.emptySet();
+    }
+
+    /**
+     * Permissions to delegate to the granted job's DIRECT PARENT folder — only the build-enabling
+     * subset (Read + Build + Cancel) that the role actually grants, plus Read for navigation. This
+     * keeps a pipeline's Build working (Jenkins routes that check through the parent) without
+     * leaking the role's Configure/Delete/WipeOut onto the folder. Respects the JIT gate: nav-only
+     * when the assignment is JIT and there is no active request.
+     */
+    private Set<String> delegatedParentPermissions(OmniAuthAssignment assignment,
+                                                    OmniAuthRoleConfig roleConfig,
+                                                    String userId, String scope) {
+        Set<String> full = resolvePermissions(assignment, roleConfig, userId, scope);
+        if (full.equals(NAV_PERMISSIONS)) {
+            return NAV_PERMISSIONS; // JIT inactive — see (no build on) the job only
+        }
+        Set<String> delegated = new HashSet<>(NAV_PERMISSIONS); // always Item.Read (navigation)
+        for (String p : new String[]{
+                "hudson.model.Item.Build", "hudson.model.Item.Cancel", "hudson.model.Item.Discover"}) {
+            if (full.contains(p)) delegated.add(p);
+        }
+        return delegated;
     }
 
     /** Returns full role permissions for STANDING, or nav-only vs full based on active JIT request. */

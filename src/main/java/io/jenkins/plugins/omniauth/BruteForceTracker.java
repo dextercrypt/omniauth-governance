@@ -244,8 +244,18 @@ public class BruteForceTracker {
         return cfg == null || cfg.isBruteForceLockoutEnabled();
     }
 
-    private static boolean isProtected(OmniAuthGlobalConfig cfg, String username) {
-        return cfg != null && cfg.isProtected(username);
+    private static boolean isProtected(OmniAuthGlobalConfig cfg, String canonicalKey) {
+        if (cfg == null || canonicalKey == null) return false;
+        // Direct (already-canonical) match first.
+        if (cfg.isProtected(canonicalKey)) return true;
+        // The stored protected names are compared as the admin typed them, but our key is
+        // canonicalized (e.g. lower-cased for the case-insensitive realm) — canonicalize the
+        // stored names too, so a protected "Admin" still matches a login attempt keyed "admin"
+        // and keeps its lockout immunity.
+        for (String p : cfg.getProtectedUsers()) {
+            if (canonicalKey.equals(key(p))) return true;
+        }
+        return false;
     }
 
     private static long cooldownMillis(OmniAuthGlobalConfig cfg) {

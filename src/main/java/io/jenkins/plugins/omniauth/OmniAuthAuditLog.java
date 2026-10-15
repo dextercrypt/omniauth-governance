@@ -301,8 +301,14 @@ public class OmniAuthAuditLog {
         if (addr == null || addr.isBlank()) return false;
         try {
             java.net.InetAddress a = java.net.InetAddress.getByName(addr.replaceAll("[\\[\\]]", ""));
-            return a.isLoopbackAddress() || a.isAnyLocalAddress()
-                    || a.isSiteLocalAddress() || a.isLinkLocalAddress();
+            if (a.isLoopbackAddress() || a.isAnyLocalAddress()
+                    || a.isSiteLocalAddress() || a.isLinkLocalAddress()) {
+                return true;
+            }
+            // IPv6 unique-local (fc00::/7) — isSiteLocalAddress only covers the deprecated
+            // fec0::/10, so match the modern ULA range used by real dual-stack deployments.
+            byte[] b = a.getAddress();
+            return b.length == 16 && (b[0] & 0xFE) == 0xFC;
         } catch (Exception e) {
             return false;
         }
