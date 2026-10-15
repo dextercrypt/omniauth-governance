@@ -1,0 +1,236 @@
+/*
+ * OmniAuth shared stylesheet — the single source of truth for the plugin's
+ * admin UI components (the `oau-*` family) and its semantic colour tokens.
+ *
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
+ * (injected once per page, cache-versioned by core).
+ *
+ * THEME: every colour here resolves through a Jenkins core token, so light/dark
+ * follow the active theme automatically — no hard-coded hex, no per-theme block.
+ * Core builds --alert-*-bg/text-color from --success/--warning/--error-color,
+ * which in turn alias --green/--orange/--red; the dark-theme plugin redefines
+ * those primitives, so our tokens flip with it.
+ */
+
+/* ── Semantic + structural tokens ──────────────────────────────────────────── */
+:root {
+  /* Success / healthy / ok */
+  --oau-success-bg:     var(--alert-success-bg-color);
+  --oau-success-fg:     var(--alert-success-text-color);
+  --oau-success-border: color-mix(in srgb, var(--success-color) 38%, transparent);
+  --oau-success-solid:  var(--success-color);
+
+  /* Info / idle / neutral-blue */
+  --oau-info-bg:     var(--alert-info-bg-color);
+  --oau-info-fg:     var(--alert-info-text-color);
+  --oau-info-border: color-mix(in srgb, var(--blue) 38%, transparent);
+  --oau-info-solid:  var(--blue);
+
+  /* Warning / amber */
+  --oau-warning-bg:     var(--alert-warning-bg-color);
+  --oau-warning-fg:     var(--alert-warning-text-color);
+  --oau-warning-border: color-mix(in srgb, var(--warning-color) 42%, transparent);
+  --oau-warning-solid:  var(--warning-color);
+
+  /* Danger / critical / fail */
+  --oau-danger-bg:     var(--alert-danger-bg-color);
+  --oau-danger-fg:     var(--alert-danger-text-color);
+  --oau-danger-border: color-mix(in srgb, var(--error-color) 38%, transparent);
+  --oau-danger-solid:  var(--error-color);
+
+  /* Neutral / off / inactive */
+  --oau-neutral-bg:     color-mix(in srgb, var(--text-color-secondary) 14%, transparent);
+  --oau-neutral-fg:     var(--text-color-secondary);
+  --oau-neutral-border: color-mix(in srgb, var(--text-color-secondary) 26%, transparent);
+
+  /* Structural aliases (so component rules read semantically) */
+  --oau-card-bg:     var(--card-background, var(--background));
+  --oau-card-border: var(--jenkins-border-color, var(--panel-border-color));
+  --oau-radius:      var(--card-border-radius, 8px);
+  --oau-text:        var(--text-color);
+  --oau-text-muted:  var(--text-color-secondary);
+  --oau-accent:      var(--accent-color);
+  --oau-link:        var(--link-color, var(--accent-color));
+}
+
+/* ── Pills ─────────────────────────────────────────────────────────────────── */
+.oau-pill {
+  font-size: 0.72em; font-weight: 600; padding: 2px 9px;
+  border-radius: 12px; white-space: nowrap;
+}
+.oau-pill--green { background: var(--oau-success-bg); color: var(--oau-success-fg); }
+.oau-pill--blue  { background: var(--oau-info-bg);    color: var(--oau-info-fg); }
+.oau-pill--amber { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
+.oau-pill--gray  { background: var(--oau-neutral-bg); color: var(--oau-neutral-fg); }
+.oau-pill--red   { background: var(--oau-danger-bg);  color: var(--oau-danger-fg); }
+/* Semantic aliases (preferred names for new markup) */
+.oau-pill--success { background: var(--oau-success-bg); color: var(--oau-success-fg); }
+.oau-pill--info    { background: var(--oau-info-bg);    color: var(--oau-info-fg); }
+.oau-pill--warning { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
+.oau-pill--neutral { background: var(--oau-neutral-bg); color: var(--oau-neutral-fg); }
+.oau-pill--danger  { background: var(--oau-danger-bg);  color: var(--oau-danger-fg); }
+
+/* ── Badges (square-ish label; the generic fold target for page-local *-badge) ─ */
+.oau-badge {
+  display: inline-block;
+  font-size: 0.72em; font-weight: 600; padding: 2px 8px;
+  border-radius: 6px; white-space: nowrap; line-height: 1.5;
+}
+.oau-badge--success { background: var(--oau-success-bg); color: var(--oau-success-fg); }
+.oau-badge--info    { background: var(--oau-info-bg);    color: var(--oau-info-fg); }
+.oau-badge--warning { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
+.oau-badge--neutral { background: var(--oau-neutral-bg); color: var(--oau-neutral-fg); }
+.oau-badge--danger  { background: var(--oau-danger-bg);  color: var(--oau-danger-fg); }
+
+/* ── Status banner ─────────────────────────────────────────────────────────── */
+.oau-status-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 16px; border-radius: 8px; margin: 16px 0;
+  font-size: 0.875em; border: 1px solid transparent;
+}
+.oau-status-banner--healthy  { background: var(--oau-success-bg); border-color: var(--oau-success-border); color: var(--oau-success-fg); }
+.oau-status-banner--warning  { background: var(--oau-warning-bg); border-color: var(--oau-warning-border); color: var(--oau-warning-fg); }
+.oau-status-banner--critical { background: var(--oau-danger-bg);  border-color: var(--oau-danger-border);  color: var(--oau-danger-fg); }
+.oau-status-banner--info     { background: var(--oau-info-bg);    border-color: var(--oau-info-border);    color: var(--oau-info-fg); }
+.oau-status-banner__icon { flex-shrink: 0; }
+.oau-status-banner__body { flex: 1; }
+.oau-status-banner__sep { margin: 0 4px; opacity: 0.6; }
+.oau-status-banner__action {
+  flex-shrink: 0; font-size: 0.85em; font-weight: 600;
+  text-decoration: none; opacity: 0.8;
+  color: inherit; white-space: nowrap;
+}
+.oau-status-banner__action:hover { opacity: 1; }
+.oau-status-banner__close {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  padding: 2px 0 2px 8px; opacity: 0.45; color: inherit; line-height: 1;
+  display: flex; align-items: center;
+}
+.oau-status-banner__close:hover { opacity: 1; }
+
+/* ── KPI row / cards ───────────────────────────────────────────────────────── */
+.oau-kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.oau-kpi-card {
+  flex: 1; min-width: 100px; padding: 16px 12px;
+  text-align: center; text-decoration: none; color: inherit;
+  border-radius: var(--oau-radius);
+  background: var(--oau-card-bg);
+  border: 1px solid var(--oau-card-border);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.oau-kpi-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px); text-decoration: none; color: inherit;
+}
+.oau-kpi-card__icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+}
+.oau-kpi-card__value { font-size: 1.8em; font-weight: 700; line-height: 1.1; }
+.oau-kpi-card__label { font-size: 0.78em; color: var(--oau-text-muted); margin-top: 4px; }
+.oau-kpi-card__sublabel { opacity: 0.7; }
+
+/* ── Grid ──────────────────────────────────────────────────────────────────── */
+.oau-grid-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* ── Widgets ───────────────────────────────────────────────────────────────── */
+.oau-widget { padding: 0; overflow: hidden; }
+.oau-widget__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--oau-card-border);
+}
+.oau-widget__title {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.88em; font-weight: 600; color: var(--oau-text);
+}
+.oau-widget__link {
+  font-size: 0.78em; color: var(--oau-link); text-decoration: none; white-space: nowrap;
+}
+.oau-widget__link:hover { text-decoration: underline; }
+
+/* ── Progress bars / dot ───────────────────────────────────────────────────── */
+.oau-progress-track {
+  height: 7px; background: var(--oau-neutral-bg);
+  border-radius: 4px; overflow: hidden;
+}
+.oau-progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.oau-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 3px; vertical-align: middle;
+}
+
+/* ── Notification rows ─────────────────────────────────────────────────────── */
+.oau-notif-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);
+}
+.oau-notif-badge {
+  font-size: 0.72em; font-weight: 600; padding: 2px 8px;
+  border-radius: 12px; white-space: nowrap;
+}
+.oau-notif-badge--ok   { background: var(--oau-success-bg); color: var(--oau-success-fg); }
+.oau-notif-badge--fail { background: var(--oau-danger-bg);  color: var(--oau-danger-fg); }
+.oau-notif-badge--off  { background: var(--oau-neutral-bg); color: var(--oau-neutral-fg); }
+.oau-notif-badge--idle { background: var(--oau-info-bg);    color: var(--oau-info-fg); }
+
+/* ── Audit feed ────────────────────────────────────────────────────────────── */
+.oau-audit-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--oau-card-border);
+}
+.oau-audit-row:last-child { border-bottom: none; }
+.oau-audit-icon {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.oau-audit-body { flex: 1; min-width: 0; }
+.oau-audit-desc { font-size: 0.83em; line-height: 1.4; color: var(--oau-text); }
+.oau-audit-ts   { font-size: 0.73em; color: var(--oau-text-muted); margin-top: 2px; }
+
+/* ── Config rows ───────────────────────────────────────────────────────────── */
+.oau-config-row { display: flex; align-items: center; justify-content: space-between; }
+.oau-config-label { font-size: 0.82em; color: var(--oau-text-muted); }
+
+/* ── Attention rows ────────────────────────────────────────────────────────── */
+.oau-attention-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 7px; margin-bottom: 4px;
+  text-decoration: none; font-size: 0.83em; transition: opacity 0.15s;
+  border: 1px solid transparent;
+}
+.oau-attention-row:hover { opacity: 0.85; text-decoration: none; }
+.oau-attention-row--warn   { background: var(--oau-warning-bg); color: var(--oau-warning-fg); border-color: var(--oau-warning-border); }
+.oau-attention-row--danger { background: var(--oau-danger-bg);  color: var(--oau-danger-fg);  border-color: var(--oau-danger-border); }
+.oau-attention-row--info   { background: var(--oau-info-bg);    color: var(--oau-info-fg);    border-color: var(--oau-info-border); }
+.oau-attention-row__text { flex: 1; }
+.oau-attention-row__arrow { font-size: 0.9em; opacity: 0.6; }
+
+/* ── Info button + tooltip (canonical; was duplicated in 3 pages) ──────────── */
+.oau-info-btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--oau-text-muted); color: var(--oau-card-bg);
+  font-size: 9px; font-weight: 700; font-style: normal;
+  cursor: default; user-select: none; flex-shrink: 0;
+  font-family: serif; line-height: 1;
+}
+.oau-info-tip {
+  display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--oau-text); color: var(--oau-card-bg); font-size: 0.78em;
+  padding: 4px 8px; border-radius: 4px; white-space: nowrap;
+  z-index: 100; pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.oau-info-btn:hover .oau-info-tip,
+.oau-info-wrap:hover .oau-info-tip { display: block; }
+
+/* ── Modal header (canonical; several pages roll their own) ───────────────── */
+.oau-modal-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-bottom: 1px solid var(--oau-card-border);
+  font-weight: 600; color: var(--oau-text);
+}
+.oau-modal-header--danger { color: var(--oau-danger-fg); background: var(--oau-danger-bg); }

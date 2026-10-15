@@ -1,5 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler">
+  <!-- Shared OmniAuth stylesheet (oau-* components + theme-aware tokens). -->
+  <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
   <l:tasks>
     <l:task icon="symbol-overview"
             href="${rootURL}/manage/omniauth-management/"

@@ -182,7 +182,7 @@
         <div class="oau-kpi-row">
 
           <a href="userStatus" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#e8f0fe;">
+            <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                    stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -195,29 +195,29 @@
           </a>
 
           <a href="userStatus" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#d1e7dd;">
+            <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="#146c43" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   stroke="var(--success-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#146c43;">${active}</div>
+            <div class="oau-kpi-card__value" style="color:var(--success-color);">${active}</div>
             <div class="oau-kpi-card__label">Active <span class="oau-kpi-card__sublabel">(${cfg.activeThresholdDays}d)</span></div>
           </a>
 
           <a href="staleUsers" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#${staleCount gt 0 ? 'f8d7da' : 'f0f0f0'};">
+            <div class="oau-kpi-card__icon" style="background:${staleCount gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--oau-neutral-bg)'};">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="${staleCount gt 0 ? '#c42b1c' : '#adb5bd'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   stroke="${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${staleCount gt 0 ? '#c42b1c' : '#adb5bd'};">${staleCount}</div>
+            <div class="oau-kpi-card__value" style="color:${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};">${staleCount}</div>
             <div class="oau-kpi-card__label">Stale <span class="oau-kpi-card__sublabel">(${cfg.staleThresholdDays}d)</span></div>
           </a>
 
           <a href="protectedUsers" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#e8d5fb;">
+            <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #7c3aed 15%, transparent);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                    stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -228,7 +228,7 @@
           </a>
 
           <a href="userStatus" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#dbeafe;">
+            <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #1d4ed8 15%, transparent);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                    stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
@@ -240,18 +240,18 @@
           </a>
 
           <a href="userStatus" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#f0f0f0;">
+            <div class="oau-kpi-card__icon" style="background:var(--oau-neutral-bg);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="#6c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   stroke="var(--text-color-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#6c757d;">${nativeCount}</div>
+            <div class="oau-kpi-card__value" style="color:var(--text-color-secondary);">${nativeCount}</div>
             <div class="oau-kpi-card__label">Native Users</div>
           </a>
 
           <a href="sessions" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#fce7f3;">
+            <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                    stroke="#be185d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -263,27 +263,27 @@
           </a>
 
           <a href="security" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:${failed24h gt 0 ? '#f8d7da' : '#f0f0f0'};">
+            <div class="oau-kpi-card__icon" style="background:${failed24h gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--oau-neutral-bg)'};">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="${failed24h gt 0 ? '#c42b1c' : '#adb5bd'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   stroke="${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>
                 <circle cx="12" cy="16" r="1" fill="currentColor"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${failed24h gt 0 ? '#c42b1c' : '#adb5bd'};">${failed24h}</div>
+            <div class="oau-kpi-card__value" style="color:${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};">${failed24h}</div>
             <div class="oau-kpi-card__label">Failed Logins <span class="oau-kpi-card__sublabel">(24h)</span></div>
           </a>
 
           <j:set var="pendingJit" value="${it.pendingJitCount}"/>
           <a href="jitRequests" class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:${pendingJit gt 0 ? '#fffbeb' : '#f0f0f0'};">
+            <div class="oau-kpi-card__icon" style="background:${pendingJit gt 0 ? 'var(--oau-warning-bg)' : 'var(--oau-neutral-bg)'};">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="${pendingJit gt 0 ? '#d97706' : '#adb5bd'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   stroke="${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${pendingJit gt 0 ? '#d97706' : '#adb5bd'};">${pendingJit}</div>
+            <div class="oau-kpi-card__value" style="color:${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'};">${pendingJit}</div>
             <div class="oau-kpi-card__label">Pending JIT</div>
           </a>
 
@@ -316,10 +316,10 @@
               </div>
               <j:choose>
                 <j:when test="${attentionCount gt 0}">
-                  <span style="font-size:0.72em;font-weight:700;padding:2px 8px;border-radius:12px;background:#f8d7da;color:#58151c;">${attentionCount} item<j:if test="${attentionCount != 1}">s</j:if></span>
+                  <span class="oau-pill oau-pill--red">${attentionCount} item<j:if test="${attentionCount != 1}">s</j:if></span>
                 </j:when>
                 <j:otherwise>
-                  <span style="font-size:0.72em;font-weight:700;padding:2px 8px;border-radius:12px;background:#d1e7dd;color:#0a3622;">All clear</span>
+                  <span class="oau-pill oau-pill--green">All clear</span>
                 </j:otherwise>
               </j:choose>
             </div>
@@ -327,9 +327,9 @@
 
               <j:choose>
                 <j:when test="${attentionCount eq 0}">
-                  <div style="text-align:center;padding:20px 0;color:var(--text-color-secondary,#6c757d);font-size:0.85em;">
+                  <div style="text-align:center;padding:20px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                         stroke="#146c43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;">
+                         stroke="var(--success-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                       <polyline points="9 12 11 14 15 10"/>
                     </svg>
@@ -457,30 +457,30 @@
             <j:set var="expiring14" value="${it.getExpiringGrants(14)}"/>
             <j:choose>
               <j:when test="${expiring14.isEmpty()}">
-                <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,#6c757d);font-size:0.85em;">
+                <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
                   No grants expiring in the next 14 days.
                 </div>
               </j:when>
               <j:otherwise>
                 <table style="width:100%;border-collapse:collapse;font-size:0.82em;">
                   <thead>
-                    <tr style="border-bottom:1px solid var(--panel-border-color,#e9ecef);">
-                      <th style="padding:7px 16px;text-align:left;font-weight:600;color:var(--text-color-secondary,#6c757d);font-size:0.88em;">User</th>
-                      <th style="padding:7px 8px;text-align:left;font-weight:600;color:var(--text-color-secondary,#6c757d);font-size:0.88em;">Role</th>
-                      <th style="padding:7px 16px;text-align:right;font-weight:600;color:var(--text-color-secondary,#6c757d);font-size:0.88em;">Expires</th>
+                    <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-card-border));">
+                      <th style="padding:7px 16px;text-align:left;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">User</th>
+                      <th style="padding:7px 8px;text-align:left;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">Role</th>
+                      <th style="padding:7px 16px;text-align:right;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">Expires</th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="g" items="${expiring14}" begin="0" end="5">
-                      <tr style="border-bottom:1px solid var(--panel-border-color,#f5f5f5);">
+                      <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-card-border));">
                         <td style="padding:8px 16px;font-weight:600;">${g.userId}</td>
-                        <td style="padding:8px 8px;color:var(--text-color-secondary,#6c757d);">${g.roleId}</td>
+                        <td style="padding:8px 8px;color:var(--text-color-secondary,var(--text-color-secondary));">${g.roleId}</td>
                         <td style="padding:8px 16px;text-align:right;">
                           <j:choose>
-                            <j:when test="${g.daysLeft eq 0}"><span style="color:#c42b1c;font-weight:700;">Today</span></j:when>
-                            <j:when test="${g.daysLeft eq 1}"><span style="color:#c42b1c;font-weight:600;">Tomorrow</span></j:when>
-                            <j:when test="${g.daysLeft le 3}"><span style="color:#856404;font-weight:600;">${g.daysLeft}d</span></j:when>
-                            <j:otherwise><span style="color:var(--text-color-secondary,#6c757d);">${g.daysLeft}d</span></j:otherwise>
+                            <j:when test="${g.daysLeft eq 0}"><span style="color:var(--error-color);font-weight:700;">Today</span></j:when>
+                            <j:when test="${g.daysLeft eq 1}"><span style="color:var(--error-color);font-weight:600;">Tomorrow</span></j:when>
+                            <j:when test="${g.daysLeft le 3}"><span style="color:var(--warning-color);font-weight:600;">${g.daysLeft}d</span></j:when>
+                            <j:otherwise><span style="color:var(--text-color-secondary,var(--text-color-secondary));">${g.daysLeft}d</span></j:otherwise>
                           </j:choose>
                         </td>
                       </tr>
@@ -488,7 +488,7 @@
                   </tbody>
                 </table>
                 <j:if test="${expiring14.size() gt 6}">
-                  <div style="padding:6px 16px;font-size:0.78em;color:var(--text-color-secondary,#6c757d);">+${expiring14.size() - 6} more</div>
+                  <div style="padding:6px 16px;font-size:0.78em;color:var(--text-color-secondary,var(--text-color-secondary));">+${expiring14.size() - 6} more</div>
                 </j:if>
               </j:otherwise>
             </j:choose>
@@ -512,29 +512,29 @@
 
                 <div>
                   <div style="display:flex;justify-content:space-between;font-size:0.8em;margin-bottom:5px;">
-                    <span style="color:var(--text-color-secondary,#6c757d);">SSO vs Native</span>
+                    <span style="color:var(--text-color-secondary,var(--text-color-secondary));">SSO vs Native</span>
                     <span style="font-weight:600;">${ssoCount} / ${nativeCount}</span>
                   </div>
                   <div class="oau-progress-track">
                     <div class="oau-progress-fill" style="width:${total gt 0 ? (ssoCount * 100 / total) : 0}%; background:#1d4ed8;"></div>
                   </div>
-                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,#6c757d);">
+                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));">
                     <span><span class="oau-dot" style="background:#1d4ed8;"></span> SSO</span>
-                    <span><span class="oau-dot" style="background:#adb5bd;"></span> Native</span>
+                    <span><span class="oau-dot" style="background:var(--text-color-secondary);"></span> Native</span>
                   </div>
                 </div>
 
                 <div>
                   <div style="display:flex;justify-content:space-between;font-size:0.8em;margin-bottom:5px;">
-                    <span style="color:var(--text-color-secondary,#6c757d);">Active vs Stale</span>
+                    <span style="color:var(--text-color-secondary,var(--text-color-secondary));">Active vs Stale</span>
                     <span style="font-weight:600;">${active} / ${staleCount}</span>
                   </div>
                   <div class="oau-progress-track">
-                    <div class="oau-progress-fill" style="width:${total gt 0 ? (active * 100 / total) : 0}%; background:#146c43;"></div>
+                    <div class="oau-progress-fill" style="width:${total gt 0 ? (active * 100 / total) : 0}%; background:var(--success-color);"></div>
                   </div>
-                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,#6c757d);">
-                    <span><span class="oau-dot" style="background:#146c43;"></span> Active</span>
-                    <span><span class="oau-dot" style="background:#c42b1c;"></span> Stale</span>
+                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));">
+                    <span><span class="oau-dot" style="background:var(--success-color);"></span> Active</span>
+                    <span><span class="oau-dot" style="background:var(--error-color);"></span> Stale</span>
                   </div>
                 </div>
 
@@ -559,7 +559,7 @@
                 <div class="oau-notif-row">
                   <div style="display:flex;align-items:center;gap:8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                         stroke="var(--text-color-secondary,#6c757d)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         stroke="var(--text-color-secondary,var(--text-color-secondary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                       <polyline points="22,6 12,13 2,6"/>
                     </svg>
@@ -576,7 +576,7 @@
                 <div class="oau-notif-row">
                   <div style="display:flex;align-items:center;gap:8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                         stroke="var(--text-color-secondary,#6c757d)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         stroke="var(--text-color-secondary,var(--text-color-secondary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
                     <span style="font-size:0.85em;">Slack</span>
@@ -592,7 +592,7 @@
                 <div class="oau-notif-row" style="border-bottom:none;">
                   <div style="display:flex;align-items:center;gap:8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                         stroke="var(--text-color-secondary,#6c757d)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         stroke="var(--text-color-secondary,var(--text-color-secondary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
                     </svg>
                     <span style="font-size:0.85em;">Teams</span>
@@ -633,7 +633,7 @@
               <j:set var="auditEntries" value="${it.recentAuditEntries}"/>
               <j:choose>
                 <j:when test="${auditEntries.isEmpty()}">
-                  <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,#6c757d);font-size:0.85em;">
+                  <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
                     No events recorded yet.
                   </div>
                 </j:when>
@@ -644,23 +644,23 @@
                       <!-- Icon per event type -->
                       <j:choose>
                         <j:when test="${action eq 'login_failure' or action eq 'break_glass_failed'}">
-                          <div class="oau-audit-icon" style="background:#f8d7da;">
+                          <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--error-color) 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                 stroke="#c42b1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke="var(--error-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                               <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
                             </svg>
                           </div>
                         </j:when>
                         <j:when test="${action eq 'break_glass_activate'}">
-                          <div class="oau-audit-icon" style="background:#fff3cd;">
+                          <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--warning-color) 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                 stroke="#856404" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke="var(--warning-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                             </svg>
                           </div>
                         </j:when>
                         <j:when test="${action eq 'revoke' or action eq 'user_deleted' or action eq 'role_deleted' or action eq 'expired'}">
-                          <div class="oau-audit-icon" style="background:#fce7f3;">
+                          <div class="oau-audit-icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                                  stroke="#be185d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
@@ -669,15 +669,15 @@
                           </div>
                         </j:when>
                         <j:when test="${action eq 'grant' or action eq 'user_created' or action eq 'role_created' or action eq 'break_glass_enrolled'}">
-                          <div class="oau-audit-icon" style="background:#d1e7dd;">
+                          <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                 stroke="#146c43" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke="var(--success-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
                             </svg>
                           </div>
                         </j:when>
                         <j:otherwise>
-                          <div class="oau-audit-icon" style="background:#e8f0fe;">
+                          <div class="oau-audit-icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                                  stroke="#0078d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -711,7 +711,7 @@
                         </div>
                         <div class="oau-audit-ts" data-ts="${entry.get('ts')}">
                           <j:if test="${entry.get('ip') != null and entry.get('ip') != '' and action eq 'login_success'}">
-                            <span style="font-size:0.75em;color:var(--text-color-secondary,#adb5bd);margin-right:6px;">${entry.get('ip')}</span>
+                            <span style="font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));margin-right:6px;">${entry.get('ip')}</span>
                           </j:if>
                         </div>
                       </div>
@@ -795,9 +795,9 @@
 
                 <!-- Active state -->
                 <j:if test="${bgActive}">
-                  <div style="padding:10px 12px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;margin-bottom:10px;">
-                    <div style="font-size:0.82em;font-weight:700;color:#856404;margin-bottom:2px;">Override ACTIVE</div>
-                    <div style="font-size:0.78em;color:#856404;">By: ${it.breakGlassActivatedBy}</div>
+                  <div style="padding:10px 12px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:8px;margin-bottom:10px;">
+                    <div style="font-size:0.82em;font-weight:700;color:var(--warning-color);margin-bottom:2px;">Override ACTIVE</div>
+                    <div style="font-size:0.78em;color:var(--warning-color);">By: ${it.breakGlassActivatedBy}</div>
                   </div>
                 </j:if>
 
@@ -835,150 +835,8 @@
 
       </div>
 
-      <!-- ── Styles ──────────────────────────────────────────────────────────── -->
-      <style>
-        /* Status Banner */
-        .oau-status-banner {
-          display: flex; align-items: center; gap: 12px;
-          padding: 11px 16px; border-radius: 8px; margin: 16px 0;
-          font-size: 0.875em; border: 1px solid transparent;
-        }
-        .oau-status-banner--healthy  { background: #d1e7dd; border-color: #a3cfbb; color: #0a3622; }
-        .oau-status-banner--warning  { background: #fff3cd; border-color: #ffc107; color: #664d03; }
-        .oau-status-banner--critical { background: #f8d7da; border-color: #f1aeb5; color: #58151c; }
-        .oau-status-banner--info     { background: #cfe2ff; border-color: #b6d4fe; color: #084298; }
-        .oau-status-banner__icon { flex-shrink: 0; }
-        .oau-status-banner__body { flex: 1; }
-        .oau-status-banner__sep { margin: 0 4px; opacity: 0.6; }
-        .oau-status-banner__action {
-          flex-shrink: 0; font-size: 0.85em; font-weight: 600;
-          text-decoration: none; opacity: 0.8;
-          color: inherit; white-space: nowrap;
-        }
-        .oau-status-banner__action:hover { opacity: 1; }
-        .oau-status-banner__close {
-          flex-shrink: 0; background: none; border: none; cursor: pointer;
-          padding: 2px 0 2px 8px; opacity: 0.45; color: inherit; line-height: 1;
-          display: flex; align-items: center;
-        }
-        .oau-status-banner__close:hover { opacity: 1; }
-
-        /* KPI Row */
-        .oau-kpi-row {
-          display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
-        }
-        .oau-kpi-card {
-          flex: 1; min-width: 100px; padding: 16px 12px;
-          text-align: center; text-decoration: none; color: inherit;
-          border-radius: var(--card-border-radius, 8px);
-          background: var(--background, #fff);
-          border: 1px solid var(--panel-border-color, #e0e0e0);
-          transition: box-shadow 0.15s, transform 0.15s;
-        }
-        .oau-kpi-card:hover {
-          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-          transform: translateY(-2px); text-decoration: none; color: inherit;
-        }
-        .oau-kpi-card__icon {
-          width: 40px; height: 40px; border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          margin: 0 auto 10px;
-        }
-        .oau-kpi-card__value { font-size: 1.8em; font-weight: 700; line-height: 1.1; }
-        .oau-kpi-card__label { font-size: 0.78em; color: var(--text-color-secondary, #6c757d); margin-top: 4px; }
-        .oau-kpi-card__sublabel { opacity: 0.7; }
-
-        /* Grid */
-        .oau-grid-row { display: flex; gap: 16px; flex-wrap: wrap; }
-
-        /* Widgets */
-        .oau-widget { padding: 0; overflow: hidden; }
-        .oau-widget__header {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 12px 16px; border-bottom: 1px solid var(--panel-border-color, #e9ecef);
-        }
-        .oau-widget__title {
-          display: flex; align-items: center; gap: 7px;
-          font-size: 0.88em; font-weight: 600; color: var(--text-color, #212529);
-        }
-        .oau-widget__link {
-          font-size: 0.78em; color: #0078d4; text-decoration: none; white-space: nowrap;
-        }
-        .oau-widget__link:hover { text-decoration: underline; }
-
-        /* Progress bars */
-        .oau-progress-track {
-          height: 7px; background: var(--panel-border-color, #e9ecef);
-          border-radius: 4px; overflow: hidden;
-        }
-        .oau-progress-fill {
-          height: 100%; border-radius: 4px;
-          transition: width 0.6s ease;
-        }
-        .oau-dot {
-          display: inline-block; width: 8px; height: 8px;
-          border-radius: 50%; margin-right: 3px; vertical-align: middle;
-        }
-
-        /* Notification rows */
-        .oau-notif-row {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 8px 0; border-bottom: 1px solid var(--panel-border-color, #f0f0f0);
-        }
-        .oau-notif-badge {
-          font-size: 0.72em; font-weight: 600; padding: 2px 8px;
-          border-radius: 12px; white-space: nowrap;
-        }
-        .oau-notif-badge--ok   { background: #d1e7dd; color: #0a3622; }
-        .oau-notif-badge--fail { background: #f8d7da; color: #58151c; }
-        .oau-notif-badge--off  { background: #f0f0f0; color: #6c757d; }
-        .oau-notif-badge--idle { background: #e8f0fe; color: #0e4d91; }
-
-        /* Audit feed */
-        .oau-audit-row {
-          display: flex; align-items: flex-start; gap: 10px;
-          padding: 9px 0; border-bottom: 1px solid var(--panel-border-color, #f5f5f5);
-        }
-        .oau-audit-row:last-child { border-bottom: none; }
-        .oau-audit-icon {
-          flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center; margin-top: 1px;
-        }
-        .oau-audit-body { flex: 1; min-width: 0; }
-        .oau-audit-desc { font-size: 0.83em; line-height: 1.4; color: var(--text-color, #212529); }
-        .oau-audit-ts   { font-size: 0.73em; color: var(--text-color-secondary, #adb5bd); margin-top: 2px; }
-
-        /* Config rows */
-        .oau-config-row {
-          display: flex; align-items: center; justify-content: space-between;
-        }
-        .oau-config-label { font-size: 0.82em; color: var(--text-color-secondary, #6c757d); }
-
-        /* Attention rows */
-        .oau-attention-row {
-          display: flex; align-items: center; gap: 10px;
-          padding: 9px 10px; border-radius: 7px; margin-bottom: 4px;
-          text-decoration: none; font-size: 0.83em; transition: opacity 0.15s;
-          border: 1px solid transparent;
-        }
-        .oau-attention-row:hover { opacity: 0.85; text-decoration: none; }
-        .oau-attention-row--warn   { background:#fff8e1; color:#856404; border-color:#ffe082; }
-        .oau-attention-row--danger { background:#fdecea; color:#c42b1c; border-color:#f5c6cb; }
-        .oau-attention-row--info   { background:#e8f0fe; color:#1d4ed8; border-color:#bfdbfe; }
-        .oau-attention-row__text { flex: 1; }
-        .oau-attention-row__arrow { font-size: 0.9em; opacity: 0.6; }
-
-        /* Pills */
-        .oau-pill {
-          font-size: 0.72em; font-weight: 600; padding: 2px 9px;
-          border-radius: 12px; white-space: nowrap;
-        }
-        .oau-pill--green { background: #d1e7dd; color: #0a3622; }
-        .oau-pill--blue  { background: #dbeafe; color: #1e40af; }
-        .oau-pill--amber { background: #fff3cd; color: #664d03; }
-        .oau-pill--gray  { background: #f0f0f0; color: #6c757d; }
-        .oau-pill--red   { background: #f8d7da; color: #58151c; }
-      </style>
+      <!-- Styles: the oau-* components live in the shared adjunct
+           (io.jenkins.plugins.omniauth.oau.oau), injected via sidepanel.jelly. -->
 
       <!-- ── Scripts ─────────────────────────────────────────────────────────── -->
       <script>//<![CDATA[
