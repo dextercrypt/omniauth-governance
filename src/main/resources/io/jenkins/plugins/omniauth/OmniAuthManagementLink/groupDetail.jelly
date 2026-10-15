@@ -2,6 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:layout title="OmniAuth — Group Access" norefresh="true">
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
 
       <j:set var="oid"         value="${request2.getParameter('oid')}"/>
       <j:set var="group"       value="${it.getGroupEntity()}"/>
@@ -14,12 +15,12 @@
         <div class="jenkins-app-bar__content">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,#6c757d);font-size:0.82em;text-decoration:none;">
+               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
               &#8592; OmniAuth Management
             </a>
             <span style="color:#ccc;">/</span>
             <a href="accessManagement"
-               style="color:var(--text-color-secondary,#6c757d);font-size:0.82em;text-decoration:none;">
+               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
               Access Management
             </a>
             <span style="color:#ccc;">/</span>
@@ -68,9 +69,9 @@
         </j:if>
 
         <!-- Group card -->
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;background:var(--background-color,#fff);border:1px solid var(--panel-border-color,#e0e0e0);border-radius:10px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;background:var(--background-color,#fff);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:10px;margin-bottom:20px;flex-wrap:wrap;">
           <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3em;color:#fff;flex-shrink:0;background:#1a56b0;">
+            <div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3em;color:#fff;flex-shrink:0;background:var(--oau-info-fg);">
               &#128101;
             </div>
             <div>
@@ -81,7 +82,7 @@
                 · OID: <code style="font-size:0.92em;">${group.groupOid}</code>
                 · Added by ${group.addedBy}
                 <j:if test="${!group.resolved}">
-                  <span style="margin-left:6px;font-size:.82em;font-weight:600;padding:2px 8px;border-radius:8px;background:#fef9c3;color:#854d0e;">Pending</span>
+                  <span style="margin-left:6px;font-size:.82em;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--oau-warning-bg);color:var(--warning-color);">Pending</span>
                 </j:if>
               </div>
             </div>
@@ -91,7 +92,7 @@
             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
             <input type="hidden" name="oid" value="${group.groupOid}"/>
             <button type="submit" class="jenkins-button"
-                    style="font-size:0.82em;color:#c0392b;border-color:#e8c9c7;">
+                    style="font-size:0.82em;color:var(--oau-danger-fg);border-color:var(--oau-danger-border);">
               &#128465; Remove Group
             </button>
           </form>
@@ -107,7 +108,7 @@
           </j:if>
         </div>
 
-        <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
+        <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:#888;">
@@ -123,7 +124,7 @@
             <j:otherwise>
               <table style="width:100%;border-collapse:collapse;">
                 <thead>
-                  <tr style="background:var(--background-color,#fafafa);border-bottom:2px solid var(--panel-border-color,#e0e0e0);">
+                  <tr style="background:var(--background-color,var(--oau-neutral-bg));border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
                     <th class="udx-th">Scope</th>
                     <th class="udx-th">Role</th>
                     <th class="udx-th">Permissions</th>
@@ -133,7 +134,7 @@
                 </thead>
                 <tbody>
                   <j:forEach var="a" items="${assignments}">
-                    <tr style="border-bottom:1px solid var(--panel-border-color,#f0f0f0);">
+                    <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
                       <td style="padding:12px 16px;">
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
@@ -182,7 +183,7 @@
                               <button type="submit"
                                       onclick="return confirm('Revoke ${a.roleName} on ${a.displayScope}?')"
                                       class="jenkins-button"
-                                      style="font-size:0.78em;padding:3px 10px;color:#dc3545;border-color:#dc3545;">
+                                      style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
                             </form>
@@ -198,7 +199,7 @@
         </div>
 
         <!-- Add Access panel -->
-        <div id="udxAddPanel" style="display:none;margin-top:20px;border:1px solid #bee3f8;border-radius:8px;padding:20px 22px;background:#f5faff;">
+        <div id="udxAddPanel" style="display:none;margin-top:20px;border:1px solid var(--oau-info-border);border-radius:8px;padding:20px 22px;background:var(--oau-info-bg);">
           <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Add Access</div>
           <form method="post" action="grantAssignment">
             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
@@ -222,11 +223,11 @@
                 <div style="display:inline-flex;align-items:center;gap:6px;max-width:420px;">
                   <button type="button" id="udxScopeBtn" onclick="udxModalOpen()"
                           style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;
-                                 border:1.5px solid var(--input-border,#d0d0d0);border-radius:6px;
+                                 border:1.5px solid var(--input-border,var(--oau-card-border));border-radius:6px;
                                  background:var(--input-color,#fff);cursor:pointer;font-size:0.88em;
                                  min-width:280px;flex:1;justify-content:space-between;transition:border-color 0.15s,box-shadow 0.15s;"
-                          onmouseenter="this.style.borderColor='#1a73e8';this.style.boxShadow='0 0 0 3px rgba(26,115,232,0.12)'"
-                          onmouseleave="this.style.borderColor='var(--input-border,#d0d0d0)';this.style.boxShadow='none'">
+                          onmouseenter="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(26,115,232,0.12)'"
+                          onmouseleave="this.style.borderColor='var(--input-border,var(--oau-card-border))';this.style.boxShadow='none'">
                     <span style="display:flex;align-items:center;gap:7px;flex:1;min-width:0;">
                       <span id="udxScopeIcon" style="font-size:1em;flex-shrink:0;">&#128193;</span>
                       <span id="udxScopeLbl" style="color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Select a job or folder…</span>
@@ -234,7 +235,7 @@
                     <span style="font-size:0.6em;color:#aaa;flex-shrink:0;margin-left:4px;">&#9660;</span>
                   </button>
                   <button type="button" id="udxScopeClear" onclick="udxScopeClearFn()"
-                          style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid #e0e0e0;border-radius:6px;background:#fff;cursor:pointer;font-size:0.8em;color:#999;flex-shrink:0;padding:0;"
+                          style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid var(--oau-card-border);border-radius:6px;background:#fff;cursor:pointer;font-size:0.8em;color:#999;flex-shrink:0;padding:0;"
                           title="Clear">&#x2715;</button>
                 </div>
                 <div style="font-size:0.76em;color:#666;margin-top:5px;">Parent folders automatically receive Read access.</div>
@@ -255,10 +256,10 @@
 
             <div id="udxCustomPerms" style="display:none;margin-bottom:16px;">
               <div class="udx-label" style="margin-bottom:8px;">Permissions</div>
-              <div style="border:1px solid var(--panel-border-color,#dee2e6);border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
+              <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
                 <j:forEach var="permGroup" items="${it.availablePermissions}">
-                  <details style="border-bottom:1px solid var(--panel-border-color,#f0f0f0);">
-                    <summary style="padding:8px 14px;cursor:pointer;background:var(--background-color,#fafafa);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+                  <details style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
+                    <summary style="padding:8px 14px;cursor:pointer;background:var(--background-color,var(--oau-neutral-bg));user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
                       <span class="udx-arr">&#9656;</span>
                       <span style="display:flex;flex-direction:column;gap:1px;">
                         <span style="font-size:0.83em;font-weight:600;line-height:1.2;">${permGroup.groupName}</span>
@@ -269,7 +270,7 @@
                     </summary>
                     <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                       <j:forEach var="perm" items="${permGroup.permissions}">
-                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:4px;padding:5px 10px;cursor:pointer;">
+                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
                           <input type="checkbox" name="customPermissions" value="${perm.id}"/>
                           <span style="display:flex;flex-direction:column;gap:1px;">
                             <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
@@ -286,7 +287,7 @@
             <div style="margin-bottom:16px;">
               <div class="udx-label">Expiry Date <span style="font-weight:400;color:#aaa;text-transform:none;">(optional)</span></div>
               <input type="date" name="expiresAt" id="udxExpiresAt"
-                     style="padding:7px 10px;border:1.5px solid var(--input-border,#d0d0d0);border-radius:6px;font-size:0.88em;background:var(--input-color,#fff);color:inherit;"
+                     style="padding:7px 10px;border:1.5px solid var(--input-border,var(--oau-card-border));border-radius:6px;font-size:0.88em;background:var(--input-color,#fff);color:inherit;"
                      onchange="udxUpdateExpiryHint(this.value,'udxExpiryHint')"/>
               <div id="udxExpiryHint" style="font-size:0.78em;color:#999;margin-top:4px;">Access will be automatically revoked at end of this day.</div>
             </div>
@@ -299,7 +300,7 @@
         </div>
 
         <!-- Edit Access panel -->
-        <div id="udxEditPanel" style="display:none;margin-top:20px;border:1px solid #d4edda;border-radius:8px;padding:20px 22px;background:#f6fff8;">
+        <div id="udxEditPanel" style="display:none;margin-top:20px;border:1px solid var(--oau-success-bg);border-radius:8px;padding:20px 22px;background:var(--oau-success-bg);">
           <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Edit Access</div>
           <form method="post" action="editAssignment">
             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
@@ -308,7 +309,7 @@
             <input type="hidden" name="scope" id="udxEditScope" value=""/>
             <div style="margin-bottom:14px;">
               <div class="udx-label">Scope</div>
-              <div id="udxEditScopeDisplay" style="font-size:0.9em;font-weight:600;padding:7px 12px;background:#f0f0f0;border-radius:6px;display:inline-block;color:#555;"></div>
+              <div id="udxEditScopeDisplay" style="font-size:0.9em;font-weight:600;padding:7px 12px;background:var(--oau-neutral-bg);border-radius:6px;display:inline-block;color:#555;"></div>
             </div>
             <div style="margin-bottom:16px;">
               <div class="udx-label">Role</div>
@@ -322,16 +323,16 @@
             </div>
             <div id="udxEditCustomPerms" style="display:none;margin-bottom:16px;">
               <div class="udx-label" style="margin-bottom:8px;">Permissions</div>
-              <div style="border:1px solid var(--panel-border-color,#dee2e6);border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
+              <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
                 <j:forEach var="permGroup" items="${it.availablePermissions}">
-                  <details style="border-bottom:1px solid var(--panel-border-color,#f0f0f0);">
-                    <summary style="padding:8px 14px;cursor:pointer;background:var(--background-color,#fafafa);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+                  <details style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
+                    <summary style="padding:8px 14px;cursor:pointer;background:var(--background-color,var(--oau-neutral-bg));user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
                       <span class="udx-arr">&#9656;</span>
                       <span style="font-size:0.83em;font-weight:600;">${permGroup.groupName}</span>
                     </summary>
                     <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                       <j:forEach var="perm" items="${permGroup.permissions}">
-                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:4px;padding:5px 10px;cursor:pointer;">
+                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
                           <input type="checkbox" name="customPermissions" value="${perm.id}" class="udx-edit-perm-cb"/>
                           <span style="font-size:0.82em;font-weight:500;">${perm.name}</span>
                         </label>
@@ -344,7 +345,7 @@
             <div style="margin-bottom:16px;">
               <div class="udx-label">Expiry Date <span style="font-weight:400;color:#aaa;text-transform:none;">(optional)</span></div>
               <input type="date" name="expiresAt" id="udxEditExpiresAt"
-                     style="padding:7px 10px;border:1.5px solid var(--input-border,#d0d0d0);border-radius:6px;font-size:0.88em;background:var(--input-color,#fff);color:inherit;"
+                     style="padding:7px 10px;border:1.5px solid var(--input-border,var(--oau-card-border));border-radius:6px;font-size:0.88em;background:var(--input-color,#fff);color:inherit;"
                      onchange="udxUpdateExpiryHint(this.value,'udxEditExpiryHint')"/>
               <div id="udxEditExpiryHint" style="font-size:0.78em;color:#999;margin-top:4px;">Access will be automatically revoked at end of this day.</div>
             </div>
@@ -358,7 +359,7 @@
         <!-- Members section -->
         <div style="margin-top:28px;">
           <div style="font-size:1em;font-weight:700;margin-bottom:12px;">Members with Jenkins Accounts</div>
-          <div style="border:1px solid var(--panel-border-color,#e0e0e0);border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
+          <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--background-color,#fff);">
             <j:choose>
               <j:when test="${members.isEmpty()}">
                 <div style="padding:32px;text-align:center;color:#888;font-size:0.87em;">
@@ -368,17 +369,17 @@
               <j:otherwise>
                 <table style="width:100%;border-collapse:collapse;">
                   <thead>
-                    <tr style="background:var(--background-color,#fafafa);border-bottom:2px solid var(--panel-border-color,#e0e0e0);">
+                    <tr style="background:var(--background-color,var(--oau-neutral-bg));border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
                       <th class="udx-th">User</th>
                       <th class="udx-th">Last Login</th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="m" items="${members}">
-                      <tr style="border-bottom:1px solid var(--panel-border-color,#f0f0f0);">
+                      <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
                         <td style="padding:11px 16px;">
                           <a href="checkAccess?sid=${m.userId}&amp;type=USER"
-                             style="color:#0078d4;text-decoration:none;font-weight:600;">${m.fullName}</a>
+                             style="color:var(--blue);text-decoration:none;font-weight:600;">${m.fullName}</a>
                           <span style="font-size:0.8em;color:#888;margin-left:6px;">${m.userId}</span>
                         </td>
                         <td style="padding:11px 16px;font-size:0.82em;color:#888;">
@@ -401,14 +402,14 @@
 
       <style>
         .udx-th { padding:10px 16px;text-align:left;font-size:.78em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary,#888);white-space:nowrap; }
-        .udx-role-badge { display:inline-block;padding:3px 10px;border-radius:10px;font-size:.78em;font-weight:700;background:#e8f0fe;color:#1a56b0;white-space:nowrap; }
-        .udx-label { font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:6px; }
+        .udx-role-badge { display:inline-block;padding:3px 10px;border-radius:10px;font-size:.78em;font-weight:700;background:var(--oau-info-bg);color:var(--oau-info-fg);white-space:nowrap; }
+        .udx-label { font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary);margin-bottom:6px; }
         details[open] .udx-arr { display:inline-block;transform:rotate(90deg); }
         details > summary::-webkit-details-marker { display:none; }
-        .udx-perm-label:hover { background:#e8f0fe !important;border-color:#c2d4f8 !important; }
-        .udx-perm-label:has(input:checked) { background:#dbeafe !important;border-color:#93c5fd !important;font-weight:600; }
-        .udx-expiry-badge { display:inline-block;padding:2px 8px;border-radius:8px;font-size:.78em;font-weight:600;background:#fff3cd;color:#856404;border:1px solid #ffc107;white-space:nowrap; }
-        .udx-expiry-badge.udx-expiry-soon { background:#ffe0e0;color:#dc3545;border-color:#dc3545; }
+        .udx-perm-label:hover { background:var(--oau-info-bg) !important;border-color:var(--oau-info-border) !important; }
+        .udx-perm-label:has(input:checked) { background:var(--oau-info-bg) !important;border-color:var(--oau-info-border) !important;font-weight:600; }
+        .udx-expiry-badge { display:inline-block;padding:2px 8px;border-radius:8px;font-size:.78em;font-weight:600;background:var(--oau-warning-bg);color:var(--oau-warning-fg);border:1px solid var(--oau-warning-border);white-space:nowrap; }
+        .udx-expiry-badge.udx-expiry-soon { background:var(--oau-danger-bg);color:var(--oau-danger-fg);border-color:var(--oau-danger-border); }
         @keyframes udxModalIn { 0%{opacity:0;transform:translate(var(--genie-dx,0px),var(--genie-dy,0px)) scale(0.08);filter:blur(3px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)} }
         @keyframes udxModalOut { 0%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)} 40%{filter:blur(0)} 100%{opacity:0;transform:translate(var(--genie-dx,0px),var(--genie-dy,0px)) scale(0.08);filter:blur(3px)} }
       </style>
@@ -456,7 +457,7 @@
           if (!val) { hint.textContent='Access will be automatically revoked at end of this day.'; hint.style.color='#999'; return; }
           var d = new Date(val+'T00:00:00');
           hint.textContent='Access will be revoked after '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+'.';
-          hint.style.color='#856404';
+          hint.style.color='var(--warning-color)';
         }
         function udxScopeChange(val) {
           var itemDiv=document.getElementById('udxItemInput');
@@ -515,9 +516,9 @@
           else if(e.key==='ArrowUp'){e.preventDefault();udxArrowIdx=Math.max(udxArrowIdx-1,0);udxArrowFocus(rows);}
           else if(e.key==='Enter'){if(udxArrowIdx>=0&&rows[udxArrowIdx])udxModalPick(rows[udxArrowIdx].getAttribute('data-path'));else if(udxPending)udxModalConfirm();}
         }
-        function udxArrowFocus(rows){ rows.forEach(function(r,i){var f=i===udxArrowIdx;var s=r.getAttribute('data-path')===udxPending;r.style.background=f?'#f0f4ff':(s?'#e8f0fe':'');r.style.outline=f?'2px solid #1a73e8':'none';}); if(rows[udxArrowIdx])rows[udxArrowIdx].scrollIntoView({block:'nearest'}); }
-        function udxModalPick(path){ udxPending=path;udxArrowIdx=-1;udxModalFooter();document.querySelectorAll('.udx-mrow').forEach(function(r){var s=r.getAttribute('data-path')===path;r.style.background=s?'#e8f0fe':'';r.style.fontWeight=s?'600':'';r.style.color=s?'#1a56b0':'';r.style.outline='none';r.style.borderLeftColor=s?'#1a73e8':'transparent';}); }
-        function udxModalFooter(){ var lbl=document.getElementById('udxModalLbl');var btn=document.getElementById('udxModalOk'); if(udxPending){lbl.textContent=udxPending;lbl.style.color='#1a1a1a';btn.removeAttribute('disabled');}else{lbl.textContent='Nothing selected';lbl.style.color='#aaa';btn.setAttribute('disabled','disabled');} }
+        function udxArrowFocus(rows){ rows.forEach(function(r,i){var f=i===udxArrowIdx;var s=r.getAttribute('data-path')===udxPending;r.style.background=f?'var(--oau-info-bg)':(s?'var(--oau-info-bg)':'');r.style.outline=f?'2px solid var(--blue)':'none';}); if(rows[udxArrowIdx])rows[udxArrowIdx].scrollIntoView({block:'nearest'}); }
+        function udxModalPick(path){ udxPending=path;udxArrowIdx=-1;udxModalFooter();document.querySelectorAll('.udx-mrow').forEach(function(r){var s=r.getAttribute('data-path')===path;r.style.background=s?'var(--oau-info-bg)':'';r.style.fontWeight=s?'600':'';r.style.color=s?'var(--oau-info-fg)':'';r.style.outline='none';r.style.borderLeftColor=s?'var(--blue)':'transparent';}); }
+        function udxModalFooter(){ var lbl=document.getElementById('udxModalLbl');var btn=document.getElementById('udxModalOk'); if(udxPending){lbl.textContent=udxPending;lbl.style.color='var(--text-color)';btn.removeAttribute('disabled');}else{lbl.textContent='Nothing selected';lbl.style.color='#aaa';btn.setAttribute('disabled','disabled');} }
         function udxModalFilter(q) {
           var body=document.getElementById('udxModalBody');body.innerHTML='';udxArrowIdx=-1;
           if(!q){udxModalRenderTree(udxScopeTree,body,0);return;}
@@ -526,15 +527,15 @@
           hits.forEach(function(item){
             var path=item.path;var parts=path.split('/');var name=parts[parts.length-1];var parent=parts.length>1?parts.slice(0,-1).join('/'):'';var sel=path===udxPending;
             var row=document.createElement('div');row.className='udx-mrow';row.setAttribute('data-path',path);
-            row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 24px;cursor:pointer;border-left:4px solid transparent;transition:background 0.12s;'+(sel?'background:#e8f0fe;border-left-color:#1a73e8;':'');
-            row.onmouseenter=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background='#f5f7fa';};
+            row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 24px;cursor:pointer;border-left:4px solid transparent;transition:background 0.12s;'+(sel?'background:var(--oau-info-bg);border-left-color:var(--blue);':'');
+            row.onmouseenter=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background='var(--oau-neutral-bg)';};
             row.onmouseleave=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background='';};
             var iconEl=document.createElement('span');iconEl.style.cssText='flex-shrink:0;display:inline-flex;';
-            iconEl.innerHTML=item.type==='folder'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0a500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="#4a9eed" stroke="none"><polygon points="6,3 20,12 6,21"/></svg>';
+            iconEl.innerHTML=item.type==='folder'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning-color)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--blue)" stroke="none"><polygon points="6,3 20,12 6,21"/></svg>';
             var textEl=document.createElement('div');textEl.style.cssText='display:flex;flex-direction:column;gap:2px;min-width:0;';
-            var nameEl=document.createElement('div');nameEl.style.cssText='font-size:0.93em;font-weight:'+(sel?'700':'500')+';color:'+(sel?'#1a56b0':'#1a1a1a')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+            var nameEl=document.createElement('div');nameEl.style.cssText='font-size:0.93em;font-weight:'+(sel?'700':'500')+';color:'+(sel?'var(--oau-info-fg)':'var(--text-color)')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
             var lo=name.toLowerCase().indexOf(lq);
-            if(lo>=0)nameEl.innerHTML=name.substring(0,lo)+'<mark style="background:rgba(26,115,232,0.15);color:#1a56b0;border-radius:2px;padding:0 2px;">'+name.substring(lo,lo+q.length)+'</mark>'+name.substring(lo+q.length);
+            if(lo>=0)nameEl.innerHTML=name.substring(0,lo)+'<mark style="background:rgba(26,115,232,0.15);color:var(--oau-info-fg);border-radius:2px;padding:0 2px;">'+name.substring(lo,lo+q.length)+'</mark>'+name.substring(lo+q.length);
             else nameEl.textContent=name;
             if(parent){var pe=document.createElement('div');pe.style.cssText='font-size:0.78em;color:#bbb;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';pe.textContent=parent;textEl.appendChild(nameEl);textEl.appendChild(pe);}else textEl.appendChild(nameEl);
             row.appendChild(iconEl);row.appendChild(textEl);row.onclick=function(){udxModalPick(path);};body.appendChild(row);
@@ -544,19 +545,19 @@
           Object.keys(nodeMap).sort(function(a,b){return a.toLowerCase().localeCompare(b.toLowerCase());}).forEach(function(key){
             var n=nodeMap[key];var hasKids=Object.keys(n._children).length>0;var sel=n._path===udxPending;var pad=20+depth*20;
             var row=document.createElement('div');row.className='udx-mrow';row.setAttribute('data-path',n._path);
-            row.style.cssText='display:flex;align-items:center;gap:8px;padding:10px 20px 10px '+pad+'px;cursor:pointer;font-size:0.93em;border-left:4px solid transparent;transition:background 0.12s;'+(sel?'background:#e8f0fe;font-weight:600;color:#1a56b0;border-left-color:#1a73e8;':'');
-            row.onmouseenter=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background='#f5f7fa';};
-            row.onmouseleave=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background=sel?'#e8f0fe':'';};
+            row.style.cssText='display:flex;align-items:center;gap:8px;padding:10px 20px 10px '+pad+'px;cursor:pointer;font-size:0.93em;border-left:4px solid transparent;transition:background 0.12s;'+(sel?'background:var(--oau-info-bg);font-weight:600;color:var(--oau-info-fg);border-left-color:var(--blue);':'');
+            row.onmouseenter=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background='var(--oau-neutral-bg)';};
+            row.onmouseleave=function(){if(this.getAttribute('data-path')!==udxPending)this.style.background=sel?'var(--oau-info-bg)':'';};
             if(hasKids){
               var arr=document.createElement('span');arr.style.cssText='width:18px;height:18px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.15s;color:#bbb;';arr.innerHTML='<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
               var kids=document.createElement('div');var se=udxPending&&(udxPending===n._path||udxPending.indexOf(n._path+'/')===0);kids.style.display=se?'':'none';if(se)arr.style.transform='rotate(90deg)';
               arr.onclick=function(e){e.stopPropagation();var open=kids.style.display!=='none';kids.style.display=open?'none':'';arr.style.transform=open?'':'rotate(90deg)';};
-              var icon=document.createElement('span');icon.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f0a500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>';icon.style.cssText='flex-shrink:0;display:inline-flex;';
+              var icon=document.createElement('span');icon.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning-color)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>';icon.style.cssText='flex-shrink:0;display:inline-flex;';
               var lbl=document.createElement('span');lbl.textContent=key;lbl.style.cssText='min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
               row.appendChild(arr);row.appendChild(icon);row.appendChild(lbl);row.onclick=function(){udxModalPick(n._path);};container.appendChild(row);udxModalRenderTree(n._children,kids,depth+1);container.appendChild(kids);
             }else{
               var spacer=document.createElement('span');spacer.style.cssText='width:18px;flex-shrink:0;';
-              var icon=document.createElement('span');icon.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#4a9eed" stroke="none"><polygon points="6,3 20,12 6,21"/></svg>';icon.style.cssText='flex-shrink:0;display:inline-flex;';
+              var icon=document.createElement('span');icon.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="var(--blue)" stroke="none"><polygon points="6,3 20,12 6,21"/></svg>';icon.style.cssText='flex-shrink:0;display:inline-flex;';
               var lbl=document.createElement('span');lbl.textContent=key;lbl.style.cssText='min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
               row.appendChild(spacer);row.appendChild(icon);row.appendChild(lbl);row.onclick=function(){udxModalPick(n._path);};container.appendChild(row);
             }
@@ -572,23 +573,23 @@
         <div data-modal-box="1" style="background:#fff;border-radius:14px;width:660px;max-width:94vw;
                     box-shadow:0 32px 80px rgba(0,0,0,0.24);transform-origin:50% 50%;will-change:transform,opacity;
                     display:flex;flex-direction:column;max-height:84vh;overflow:hidden;">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;border-bottom:1px solid #f0f0f0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;border-bottom:1px solid var(--oau-neutral-bg);">
             <div>
-              <div style="font-size:1.05em;font-weight:700;color:#0f0f0f;">Select Job or Folder</div>
+              <div style="font-size:1.05em;font-weight:700;color:var(--text-color);">Select Job or Folder</div>
               <div style="font-size:0.8em;color:#aaa;margin-top:3px;">Choose where to apply this access grant</div>
             </div>
             <button type="button" onclick="udxModalClose()" style="background:none;border:none;cursor:pointer;width:34px;height:34px;border-radius:8px;font-size:1.1em;color:#bbb;display:flex;align-items:center;justify-content:center;">&#x2715;</button>
           </div>
-          <div style="padding:14px 20px;border-bottom:1px solid #f5f5f5;">
+          <div style="padding:14px 20px;border-bottom:1px solid var(--oau-neutral-bg);">
             <div style="position:relative;display:flex;align-items:center;">
               <svg style="position:absolute;left:13px;pointer-events:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
               <input id="udxModalSearch" type="text" placeholder="Search jobs and folders…"
-                     style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:0.93em;outline:none;color:#222;background:#fafafa;"
+                     style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;border:1.5px solid var(--oau-card-border);border-radius:9px;font-size:0.93em;outline:none;color:#222;background:var(--oau-neutral-bg);"
                      oninput="udxModalFilter(this.value)"/>
             </div>
           </div>
           <div id="udxModalBody" style="flex:1;overflow-y:auto;padding:8px 0;min-height:260px;"/>
-          <div style="padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fafafa;border-radius:0 0 14px 14px;">
+          <div style="padding:16px 24px;border-top:1px solid var(--oau-neutral-bg);display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--oau-neutral-bg);border-radius:0 0 14px 14px;">
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#ccc;margin-bottom:4px;">Selected</div>
               <div id="udxModalLbl" style="font-size:0.86em;color:#aaa;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nothing selected</div>
