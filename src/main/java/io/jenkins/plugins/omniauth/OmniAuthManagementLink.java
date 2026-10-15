@@ -556,6 +556,10 @@ public class OmniAuthManagementLink extends ManagementLink {
             json.put("cleanupDryRun",       config.isCleanupDryRun());
             json.put("cleanupCron",         config.getCleanupCron());
             json.put("cleanupMaxDeletions", config.getCleanupMaxDeletions());
+            // Preserve Access Review settings (owned by the Settings page) — configure()
+            // reparses every field, so an omitted one would be reset to its default.
+            json.put("accessReviewEnabled",       config.isAccessReviewEnabled());
+            json.put("accessReviewThresholdDays", config.getAccessReviewThresholdDays());
             config.configure(req, json);
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
@@ -799,6 +803,10 @@ public class OmniAuthManagementLink extends ManagementLink {
             net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
             for (String u : config.getProtectedUsers()) arr.add(u);
             json.put("protectedUsers", arr);
+            // Preserve notification branding (owned by the Notifications page) — configure()
+            // reparses every field, so omitting these would wipe them to empty.
+            json.put("notificationLogoUrl",    config.getNotificationLogoUrl());
+            json.put("notificationFooterNote", config.getNotificationFooterNote());
             config.configure(req, json);
 
             // diff and notify
