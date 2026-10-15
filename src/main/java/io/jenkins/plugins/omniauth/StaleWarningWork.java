@@ -69,7 +69,13 @@ public class StaleWarningWork extends AsyncPeriodicWork {
                 String lastLoginStr = resolveLastLogin(entraProp, loginProp);
                 if (lastLoginStr == null) continue; // never logged in = already stale, handled by cleanup
 
-                Instant lastLogin = Instant.parse(lastLoginStr);
+                Instant lastLogin;
+                try {
+                    lastLogin = Instant.parse(lastLoginStr);
+                } catch (Exception e) {
+                    // One corrupt timestamp must not abort the whole scan — skip this user.
+                    continue;
+                }
                 boolean isApproaching = lastLogin.isAfter(staleAt) && !lastLogin.isAfter(warnAt);
                 if (isApproaching) approaching.add(userId);
             }

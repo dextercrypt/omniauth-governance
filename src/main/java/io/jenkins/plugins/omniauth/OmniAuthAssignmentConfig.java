@@ -90,14 +90,25 @@ public class OmniAuthAssignmentConfig extends GlobalConfiguration {
     }
 
     public synchronized int removeExpiredAssignments() {
-        int before = assignments.size();
-        assignments.removeIf(OmniAuthAssignment::isExpired);
-        int removed = before - assignments.size();
-        if (removed > 0) {
+        return removeExpiredReturning().size();
+    }
+
+    /**
+     * Removes all currently-expired assignments and returns exactly those that were removed,
+     * evaluated once under the lock — so the caller can audit precisely what it deleted
+     * (no second isExpired() pass that could diverge as time moves).
+     */
+    public synchronized java.util.List<OmniAuthAssignment> removeExpiredReturning() {
+        java.util.List<OmniAuthAssignment> expired = new java.util.ArrayList<>();
+        for (OmniAuthAssignment a : assignments) {
+            if (a.isExpired()) expired.add(a);
+        }
+        if (!expired.isEmpty()) {
+            assignments.removeAll(expired);
             save();
             OmniAuthAuthorizationStrategy.invalidateCache();
         }
-        return removed;
+        return expired;
     }
 
     public synchronized void updateAssignment(String userId, String authType, String scope, OmniAuthAssignment updated) {

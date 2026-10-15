@@ -92,7 +92,22 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                 String lastLogin = resolveLastLogin(entraProp, loginProp);
 
                 boolean isPendingDeletion = (entraProp != null && entraProp.isPendingDeletion());
-                boolean isStale = (lastLogin == null) || Instant.parse(lastLogin).isBefore(cutoff);
+                boolean isStale;
+                if (lastLogin == null) {
+                    // Never recorded a login — e.g. a freshly provisioned account still awaiting
+                    // its activation link. Do NOT auto-delete these (avoids destroying accounts
+                    // before first use); they stay visible in User Status for manual review.
+                    isStale = false;
+                } else {
+                    try {
+                        isStale = Instant.parse(lastLogin).isBefore(cutoff);
+                    } catch (Exception e) {
+                        // One corrupt timestamp must not abort the whole sweep — skip just this user.
+                        LOGGER.log(Level.WARNING, "Unparseable lastLogin '" + lastLogin
+                                + "' for " + userId + " — skipping", e);
+                        continue;
+                    }
+                }
                 if (!isStale && !isPendingDeletion) continue;
 
                 if (dryRun) {
@@ -145,6 +160,13 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
 
     static boolean fieldMatches(String field, int value) {
         if ("*".equals(field)) return true;
+        // Comma-separated list, e.g. "1,4" — match if any part matches.
+        if (field.indexOf(',') >= 0) {
+            for (String part : field.split(",")) {
+                if (fieldMatches(part.trim(), value)) return true;
+            }
+            return false;
+        }
         try { return Integer.parseInt(field) == value; }
         catch (NumberFormatException ignored) {}
         if (field.startsWith("*/")) {

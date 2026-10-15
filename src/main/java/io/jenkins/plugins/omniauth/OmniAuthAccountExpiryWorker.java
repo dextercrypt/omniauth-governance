@@ -54,9 +54,14 @@ public class OmniAuthAccountExpiryWorker extends AsyncPeriodicWork {
                     // Only mark reminded once we actually have somewhere to send — otherwise an address
                     // added later would never get a reminder. With no email we simply re-check next run.
                     if (email != null) {
-                        NotificationService.sendExpiryReminder(cfg, id, email, p.getExpiresAt(), daysLeft);
-                        try { p.setReminderSent(true); user.save(); }
-                        catch (Exception e) { LOGGER.log(Level.WARNING, "Failed to mark expiry reminder sent for " + id, e); }
+                        // Guard the send too, so one failure here can't abort the sweep for the
+                        // remaining accounts in this run.
+                        try {
+                            NotificationService.sendExpiryReminder(cfg, id, email, p.getExpiresAt(), daysLeft);
+                            p.setReminderSent(true); user.save();
+                        } catch (Exception e) {
+                            LOGGER.log(Level.WARNING, "Failed to send/mark expiry reminder for " + id, e);
+                        }
                     }
                 }
                 continue; // not expired yet — nothing more to do
