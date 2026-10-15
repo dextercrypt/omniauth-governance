@@ -2,15 +2,16 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:layout title="OmniAuth — Access Requests" norefresh="true">
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
           <div style="display:flex;align-items:center;gap:12px;">
             <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,#6c757d);font-size:0.82em;text-decoration:none;">
+               style="color:var(--text-color-secondary);font-size:0.82em;text-decoration:none;">
               &#8592; OmniAuth Management
             </a>
-            <span style="color:var(--text-color-secondary,#ccc);">/</span>
+            <span style="color:var(--text-color-secondary);">/</span>
             <h1 class="jenkins-app-bar__heading">Access Requests</h1>
           </div>
         </div>
@@ -19,51 +20,34 @@
       <style>
         .pr-wrap { padding: 4px 4px 60px; max-width: 1100px; }
 
-        /* KPI tiles — same component as the Overview page (oau-kpi-card, centered). */
+        /* KPI tiles and status pills reuse the shared oau-kpi-card / oau-pill
+           components from the adjunct — no local copy needed. */
         .pr-kpis { display:flex; gap:14px; margin: 6px 0 22px; flex-wrap:wrap; }
-        .oau-kpi-card {
-          flex:1; min-width:120px; padding:16px 12px; text-align:center;
-          border-radius: var(--card-border-radius, 8px);
-          background: var(--background, #fff);
-          border: 1px solid var(--panel-border-color, #e0e0e0);
-        }
-        .oau-kpi-card__icon { width:40px; height:40px; border-radius:10px;
-          display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
-        .oau-kpi-card__value { font-size:1.8em; font-weight:700; line-height:1.1; }
-        .oau-kpi-card__label { font-size:0.78em; color:var(--text-color-secondary,#6c757d); margin-top:4px; }
-
-        /* Status/type pills — same component as the rest of the console (oau-pill). */
-        .oau-pill { display:inline-block; font-size:0.72em; font-weight:600; padding:2px 9px; border-radius:12px; white-space:nowrap; }
-        .oau-pill--green { background:#d1e7dd; color:#0a3622; }
-        .oau-pill--blue  { background:#dbeafe; color:#1e40af; }
-        .oau-pill--amber { background:#fff3cd; color:#664d03; }
-        .oau-pill--gray  { background:#f0f0f0; color:#6c757d; }
-        .oau-pill--red   { background:#f8d7da; color:#58151c; }
 
         .pr-card { padding: 0; overflow:hidden; margin-bottom:22px; border-radius: var(--card-border-radius, 8px); }
         .pr-card__head {
           display:flex; align-items:center; gap:8px;
-          padding:14px 18px; border-bottom:1px solid var(--panel-border-color,#eee);
+          padding:14px 18px; border-bottom:1px solid var(--oau-card-border);
           font-weight:700; font-size:0.95em;
         }
         .pr-count {
-          background:#d97706; color:#fff; border-radius:11px;
+          background:var(--warning-color); color:#fff; border-radius:11px;
           font-size:0.72em; font-weight:700; padding:2px 9px;
         }
         .pr-table { width:100%; border-collapse:collapse; }
         .pr-th { text-align:left; padding:10px 16px; font-size:0.76em; font-weight:700;
-          text-transform:uppercase; letter-spacing:0.04em; color:var(--text-color-secondary,#888);
+          text-transform:uppercase; letter-spacing:0.04em; color:var(--text-color-secondary);
           background: var(--table-header-background, rgba(0,0,0,0.015)); }
         .pr-td { padding:12px 16px; font-size:0.88em; vertical-align:middle;
-          border-top:1px solid var(--panel-border-color,#f1f1f1); }
+          border-top:1px solid var(--oau-card-border); }
         .pr-row:hover .pr-td { background: var(--table-row-hover, rgba(0,0,0,0.018)); }
 
         .pr-user  { font-weight:600; }
-        .pr-sub   { font-size:0.84em; color:var(--text-color-secondary,#8a9099); margin-top:2px; }
-        .pr-reason{ max-width:260px; white-space:normal; word-break:break-word; color:var(--text-color,#333); }
-        .pr-when  { color:var(--text-color-secondary,#9aa0a6); white-space:nowrap; font-size:0.86em; }
+        .pr-sub   { font-size:0.84em; color:var(--text-color-secondary); margin-top:2px; }
+        .pr-reason{ max-width:260px; white-space:normal; word-break:break-word; color:var(--text-color); }
+        .pr-when  { color:var(--text-color-secondary); white-space:nowrap; font-size:0.86em; }
 
-        .pr-empty { padding:46px 20px; text-align:center; color:var(--text-color-secondary,#9aa0a6); }
+        .pr-empty { padding:46px 20px; text-align:center; color:var(--text-color-secondary); }
         .pr-empty svg { opacity:0.28; margin-bottom:10px; }
 
         .pr-reject { display:inline-flex; gap:6px; align-items:center; margin-left:6px; }
@@ -74,26 +58,26 @@
         .pr-settings > summary { cursor:pointer; padding:14px 18px; font-weight:700; font-size:0.95em;
           list-style:none; display:flex; align-items:center; gap:8px; }
         .pr-settings > summary::-webkit-details-marker { display:none; }
-        .pr-settings > summary::before { content:"\25B8"; color:var(--text-color-secondary,#888); transition:transform .15s; }
+        .pr-settings > summary::before { content:"\25B8"; color:var(--text-color-secondary); transition:transform .15s; }
         .pr-settings[open] > summary::before { transform:rotate(90deg); }
         .pr-set-body { padding:4px 18px 20px; }
         .pr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px 24px; }
-        .pr-field label { display:block; font-size:0.82em; color:var(--text-color-secondary,#888); margin-bottom:5px; }
+        .pr-field label { display:block; font-size:0.82em; color:var(--text-color-secondary); margin-bottom:5px; }
         .pr-field input[type=text], .pr-field input[type=number], .pr-field select {
           width:100%; padding:7px 10px; border:1px solid var(--input-border,#ccc);
           border-radius:6px; font-size:0.9em; box-sizing:border-box; }
         .pr-check { display:flex; align-items:center; gap:8px; font-size:0.9em; }
         .pr-check input { width:16px; height:16px; }
-        .pr-url { font-size:0.84em; color:var(--text-color-secondary,#888); margin-top:18px; }
-        .pr-url code { background:var(--pre-background,#f5f5f5); padding:2px 7px; border-radius:4px; }
+        .pr-url { font-size:0.84em; color:var(--text-color-secondary); margin-top:18px; }
+        .pr-url code { background:var(--pre-background,var(--oau-neutral-bg)); padding:2px 7px; border-radius:4px; }
 
         /* Grouped settings sections */
         .pr-subhead { font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-          color:var(--text-color-secondary,#888); margin:24px 0 13px; padding-bottom:7px;
-          border-bottom:1px solid var(--panel-border-color,#eee); }
+          color:var(--text-color-secondary); margin:24px 0 13px; padding-bottom:7px;
+          border-bottom:1px solid var(--oau-card-border); }
         .pr-subhead:first-child { margin-top:2px; }
         .pr-checks { display:flex; flex-wrap:wrap; gap:14px 28px; margin-bottom:16px; }
-        .pr-hint { font-size:0.8em; color:var(--text-color-secondary,#9aa0a6); margin-top:-2px; margin-bottom:2px; }
+        .pr-hint { font-size:0.8em; color:var(--text-color-secondary); margin-top:-2px; margin-bottom:2px; }
       </style>
 
       <div class="pr-wrap">
@@ -107,7 +91,7 @@
               <div style="margin-top:8px;">
                 A one-time activation link was emailed to the requester. The temporary password below is a
                 fallback to convey manually only if email delivery fails (the user must change it on first sign-in):
-                <code style="font-size:1em;background:#0b1220;color:#eaf1ff;padding:3px 9px;border-radius:5px;">${tmp}</code>
+                <code style="font-size:1em;background:var(--text-color);color:var(--oau-info-bg);padding:3px 9px;border-radius:5px;">${tmp}</code>
               </div>
             </j:if>
           </div>
@@ -137,24 +121,24 @@
         <!-- Summary tiles (oau-kpi-card, same as Overview) -->
         <div class="pr-kpis">
           <div class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#fff3cd;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#b45309"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            <div class="oau-kpi-card__icon" style="background:var(--oau-warning-bg);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-warning-fg)"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#b45309;">${it.pendingProvisioningCount}</div>
+            <div class="oau-kpi-card__value" style="color:var(--oau-warning-fg);">${it.pendingProvisioningCount}</div>
             <div class="oau-kpi-card__label">Pending</div>
           </div>
           <div class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#d1e7dd;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#0a7a43"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <div class="oau-kpi-card__icon" style="background:var(--oau-success-bg);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-success-fg)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#0a7a43;">${it.getProvisioningCountByStatus('APPROVED')}</div>
+            <div class="oau-kpi-card__value" style="color:var(--oau-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
             <div class="oau-kpi-card__label">Approved</div>
           </div>
           <div class="oau-kpi-card">
-            <div class="oau-kpi-card__icon" style="background:#f8d7da;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="#b42318"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <div class="oau-kpi-card__icon" style="background:var(--oau-danger-bg);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-danger-fg)"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#b42318;">${it.getProvisioningCountByStatus('REJECTED')}</div>
+            <div class="oau-kpi-card__value" style="color:var(--oau-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
             <div class="oau-kpi-card__label">Rejected</div>
           </div>
         </div>
