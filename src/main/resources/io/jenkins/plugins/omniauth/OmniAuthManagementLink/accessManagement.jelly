@@ -575,7 +575,7 @@
                 status.style.background = 'var(--oau-danger-bg)';
                 status.style.border = '1px solid var(--oau-danger-border)';
                 status.style.color = 'var(--oau-danger-fg)';
-                status.innerHTML = '&#10007; No Jenkins account found for <strong>' + val.trim() + '</strong>.';
+                status.innerHTML = '&#10007; No Jenkins account found for <strong>' + oamEscHtml(val.trim()) + '</strong>.';
                 createForm.style.display = '';
                 actionEl.value = 'create';
                 submitBtn.textContent = 'Create Account & Continue';
