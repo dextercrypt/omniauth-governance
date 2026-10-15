@@ -48,10 +48,10 @@ public class SlackHelper {
         String payload = buildPayload(title, body);
         try {
             NotifyRetry.run(() -> postJson(webhookUrl, payload), LOGGER, "Slack", subject);
-            NotificationLog.get().addEntry("[Slack] " + subject, webhookUrl, true, null);
+            NotificationLog.get().addEntry("[Slack] " + subject, "Slack webhook", true, null);
             LOGGER.info("OmniAuth Slack sent: " + subject);
         } catch (Exception e) {
-            NotificationLog.get().addEntry("[Slack] " + subject, webhookUrl, false, e.getMessage());
+            NotificationLog.get().addEntry("[Slack] " + subject, "Slack webhook", false, e.getMessage());
             LOGGER.log(Level.WARNING, "OmniAuth Slack failed after 3 attempts: " + subject, e);
         }
     }
@@ -231,11 +231,24 @@ public class SlackHelper {
         }
     }
 
-    // Escape for JSON string value
+    // Escape for JSON string value (handles all control chars, not just the common ones)
     private static String esc(String s) {
         if (s == null) return "\"\"";
-        return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"")
-                       .replace("\n", "\\n").replace("\r", "").replace("\t", "\\t") + "\"";
+        StringBuilder sb = new StringBuilder(s.length() + 2).append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '"':  sb.append("\\\""); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) sb.append(String.format("\\u%04x", (int) c));
+                    else sb.append(c);
+            }
+        }
+        return sb.append('"').toString();
     }
 
     // Escape Slack mrkdwn special chars

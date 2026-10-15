@@ -67,7 +67,9 @@ public class NotificationLog {
     }
 
     public synchronized List<NotificationLogEntry> getEntries() {
-        return Collections.unmodifiableList(entries);
+        // Defensive copy: callers (e.g. the log page) iterate this outside the lock while
+        // async senders append on daemon threads — a live view would risk ConcurrentModificationException.
+        return new ArrayList<>(entries);
     }
 
     public synchronized NotificationLogEntry lastForChannel(String prefix) {

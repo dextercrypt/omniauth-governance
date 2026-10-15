@@ -82,7 +82,12 @@ public class SmtpHelper {
                        String htmlBody, String plainBody) {
         if (cfg == null || !cfg.isNotificationsEnabled() || !cfg.isSmtpEnabled()) return;
         if (!cfg.isSmtpConfigured()) return;
-        if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")) {
+        // Require a single, well-formed address: reject comma/semicolon lists and any
+        // whitespace/CR/LF so a requester-supplied email field can't fan out to extra
+        // recipients or inject headers.
+        if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")
+                || toEmail.indexOf(',') >= 0 || toEmail.indexOf(';') >= 0
+                || toEmail.chars().anyMatch(c -> c == '\r' || c == '\n' || Character.isWhitespace(c))) {
             LOGGER.warning("OmniAuth SMTP sendTo: invalid recipient '" + toEmail + "' — skipping: " + subject);
             return;
         }
@@ -249,7 +254,7 @@ public class SmtpHelper {
         }) + gap(12)
         + notice("#fffbeb", "#fde68a", "#92400e",
                 (comment != null && !comment.isBlank())
-                        ? "Reason from the administrator: " + comment.trim()
+                        ? "Reason from the administrator: " + esc(comment.trim())
                         : "If you believe you still need access, contact your administrator.");
         return simpleCard(cfg, "#d97706", "#fef3c7", "#92400e", "&#10007;",
                 "Access Request &nbsp;&middot;&nbsp; Declined",

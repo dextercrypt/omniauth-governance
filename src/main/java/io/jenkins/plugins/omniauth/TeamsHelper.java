@@ -48,10 +48,10 @@ public class TeamsHelper {
         String payload = buildPayload(title, body);
         try {
             NotifyRetry.run(() -> postJson(webhookUrl, payload), LOGGER, "Teams", subject);
-            NotificationLog.get().addEntry("[Teams] " + subject, webhookUrl, true, null);
+            NotificationLog.get().addEntry("[Teams] " + subject, "Teams webhook", true, null);
             LOGGER.info("OmniAuth Teams sent: " + subject);
         } catch (Exception e) {
-            NotificationLog.get().addEntry("[Teams] " + subject, webhookUrl, false, e.getMessage());
+            NotificationLog.get().addEntry("[Teams] " + subject, "Teams webhook", false, e.getMessage());
             LOGGER.log(Level.WARNING, "OmniAuth Teams failed after 3 attempts: " + subject, e);
         }
     }
@@ -244,8 +244,21 @@ public class TeamsHelper {
 
     private static String esc(String s) {
         if (s == null) return "\"\"";
-        return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"")
-                       .replace("\n", "\\n").replace("\r", "").replace("\t", "\\t") + "\"";
+        StringBuilder sb = new StringBuilder(s.length() + 2).append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '"':  sb.append("\\\""); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) sb.append(String.format("\\u%04x", (int) c));
+                    else sb.append(c);
+            }
+        }
+        return sb.append('"').toString();
     }
 
     static void postJson(String url, String json) throws Exception {
