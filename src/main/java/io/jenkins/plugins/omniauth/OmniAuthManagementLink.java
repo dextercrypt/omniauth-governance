@@ -2481,6 +2481,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect(back + "?deleted=true");
     }
 
+    @POST
     public void doMarkForDeletion(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
@@ -2501,6 +2502,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect(back + "?marked=true");
     }
 
+    @POST
     public void doUnmarkForDeletion(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
@@ -3248,6 +3250,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
+    @POST
     public void doConfirmAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid      = req.getParameter("sid");
@@ -3380,6 +3383,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return result;
     }
 
+    @POST
     public void doGrantGroupAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid   = req.getParameter("sid");
@@ -3408,6 +3412,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("groupDetail?oid=" + enc(groupOid) + "&saved=true");
     }
 
+    @POST
     public void doRevokeGroupAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid = req.getParameter("sid");
@@ -3554,6 +3559,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     /** Removes a GROUP entity from Access Management and revokes sessions for affected members. */
+    @POST
     public void doRemoveGroup(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid = req.getParameter("oid");
