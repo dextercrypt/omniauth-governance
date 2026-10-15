@@ -59,17 +59,17 @@
                 <span class="oau-su-stat-n" style="font-size:1em;letter-spacing:0.02em;">
                   <j:choose>
                     <j:when test="${cfg.cleanupDryRun}">
-                      <span style="color:#b45309;">DRY-RUN</span>
+                      <span style="color:var(--warning-color);">DRY-RUN</span>
                     </j:when>
                     <j:otherwise>
-                      <span style="color:#166534;">LIVE</span>
+                      <span style="color:var(--oau-success-fg);">LIVE</span>
                     </j:otherwise>
                   </j:choose>
                 </span>
                 <span class="oau-su-stat-l">Auto-cleanup · <code style="font-size:0.9em;">${cfg.cleanupCron}</code></span>
               </j:when>
               <j:otherwise>
-                <span class="oau-su-stat-n" style="font-size:1em;color:#6b7280;">OFF</span>
+                <span class="oau-su-stat-n" style="font-size:1em;color:var(--text-color-secondary);">OFF</span>
                 <span class="oau-su-stat-l">Auto-cleanup disabled</span>
               </j:otherwise>
             </j:choose>
@@ -308,7 +308,7 @@
           <span class="oau-su-sh-count">(${history.size()})</span>
           <span class="oau-su-sh-rule"></span>
           <span class="oau-su-sh-sub">last 10 runs</span>
-          <svg id="oauHistoryChevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#9ca3af;transition:transform 0.2s ease;">
+          <svg id="oauHistoryChevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-color-secondary);transition:transform 0.2s ease;">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </div>
@@ -352,19 +352,19 @@
                         <td>${r.usersScanned}</td>
                         <td>
                           <j:choose>
-                            <j:when test="${r.usersAffected == 0}"><span style="color:#6c757d;">0</span></j:when>
-                            <j:otherwise><strong style="color:${r.dryRun ? '#856404' : '#991b1b'};">${r.usersAffected}</strong></j:otherwise>
+                            <j:when test="${r.usersAffected == 0}"><span style="color:var(--text-color-secondary);">0</span></j:when>
+                            <j:otherwise><strong style="color:${r.dryRun ? 'var(--warning-color)' : 'var(--oau-danger-fg)'};">${r.usersAffected}</strong></j:otherwise>
                           </j:choose>
                         </td>
                         <td>${r.skippedProtected}</td>
                         <td>
                           <j:choose>
                             <j:when test="${r.affectedUserIds.isEmpty()}">
-                              <span style="color:#9ca3af;font-size:0.85em;">—</span>
+                              <span style="color:var(--text-color-secondary);font-size:0.85em;">—</span>
                             </j:when>
                             <j:otherwise>
                               <details>
-                                <summary style="cursor:pointer;font-size:0.85em;color:var(--blue,#0078d4);">${r.usersAffected} user(s)</summary>
+                                <summary style="cursor:pointer;font-size:0.85em;color:var(--blue,var(--oau-info-fg));">${r.usersAffected} user(s)</summary>
                                 <ul style="margin:4px 0 0 16px;padding:0;font-size:0.82em;">
                                   <j:forEach var="uid" items="${r.affectedUserIds}">
                                     <li>${uid}</li>
@@ -400,9 +400,9 @@
             </div>
             <div class="oau-modal-body">
               <p style="margin:0 0 12px 0;">This will scan all users and log which ones <strong>would</strong> be deleted — but <strong>no accounts will be removed</strong>.</p>
-              <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;font-size:0.85em;color:#856404;">
+              <div style="background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--warning-color);">
                 Dry-run mode is ON. To perform live deletions, disable it in
-                <a href="settings" style="color:#856404;font-weight:600;">Settings → Automated Cleanup</a>.
+                <a href="settings" style="color:var(--warning-color);font-weight:600;">Settings → Automated Cleanup</a>.
               </div>
             </div>
             <div class="oau-modal-footer">
@@ -421,7 +421,7 @@
             </div>
             <div class="oau-modal-body">
               <p style="margin:0 0 12px 0;">This will <strong>permanently delete</strong> all stale users inactive beyond the configured threshold, plus any accounts marked for pending deletion.</p>
-              <div style="background:#f8d7da;border:1px solid #f5c6cb;border-radius:6px;padding:10px 14px;font-size:0.85em;color:#721c24;">
+              <div style="background:var(--oau-danger-bg);border:1px solid var(--oau-danger-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--oau-danger-fg);">
                 <strong>This action cannot be undone.</strong> Protected users will be skipped.
                 SSO users will be re-provisioned on their next login.
               </div>
@@ -451,11 +451,11 @@
             <p style="margin:0 0 8px 0;">
               You are about to permanently delete <strong id="oauDeleteUserId"></strong>.
             </p>
-            <div style="background:#f8d7da;border:1px solid #f5c6cb;border-radius:6px;padding:10px 14px;font-size:0.85em;color:#721c24;margin-bottom:16px;">
+            <div style="background:var(--oau-danger-bg);border:1px solid var(--oau-danger-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--oau-danger-fg);margin-bottom:16px;">
               <strong>This cannot be undone.</strong> The user's Jenkins account and all permissions will be permanently removed.
             </div>
             <label style="display:block;font-size:0.85em;font-weight:600;margin-bottom:6px;">
-              Type <code id="oauDeleteUserIdHint" style="background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:0.95em;"></code> to confirm:
+              Type <code id="oauDeleteUserIdHint" style="background:var(--oau-neutral-bg);padding:1px 5px;border-radius:3px;font-size:0.95em;"></code> to confirm:
             </label>
             <input type="text" id="oauDeleteConfirmInput"
                    class="jenkins-input"
@@ -496,26 +496,26 @@
         .oau-su-stat {
           flex: 1;
           min-width: 160px;
-          background: var(--background, #fff);
-          border: 1px solid var(--panel-border-color, #e0e0e0);
+          background: var(--oau-card-bg);
+          border: 1px solid var(--oau-card-border);
           border-radius: 8px;
           padding: 14px 18px;
           display: flex;
           flex-direction: column;
           gap: 4px;
         }
-        .oau-su-stat--danger { border-left: 4px solid #dc2626; }
-        .oau-su-stat--warn   { border-left: 4px solid #d97706; }
-        .oau-su-stat--neutral { border-left: 4px solid #9ca3af; }
+        .oau-su-stat--danger { border-left: 4px solid var(--error-color); }
+        .oau-su-stat--warn   { border-left: 4px solid var(--warning-color); }
+        .oau-su-stat--neutral { border-left: 4px solid var(--text-color-secondary); }
         .oau-su-stat-n {
           font-size: 1.75em;
           font-weight: 700;
           line-height: 1;
-          color: var(--text-color, #111);
+          color: var(--text-color);
         }
         .oau-su-stat-l {
           font-size: 0.77em;
-          color: #6b7280;
+          color: var(--text-color-secondary);
           font-weight: 500;
         }
 
@@ -532,14 +532,14 @@
         }
         .oau-su-notice svg { flex-shrink: 0; margin-top: 2px; }
         .oau-su-notice--info {
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          color: #1e40af;
+          background: var(--oau-info-bg);
+          border: 1px solid var(--oau-info-border);
+          color: var(--oau-info-fg);
         }
         .oau-su-notice--warn {
-          background: #fffbeb;
-          border: 1px solid #fde68a;
-          color: #92400e;
+          background: var(--oau-warning-bg);
+          border: 1px solid var(--oau-warning-border);
+          color: var(--oau-warning-fg);
         }
         .oau-su-notice a { color: inherit; font-weight: 600; }
 
@@ -557,17 +557,17 @@
           border-radius: 50%;
           flex-shrink: 0;
         }
-        .oau-su-section-hdr--danger .oau-su-sh-dot { background: #dc2626; }
-        .oau-su-section-hdr--warn   .oau-su-sh-dot { background: #d97706; }
-        .oau-su-section-hdr--neutral .oau-su-sh-dot { background: #9ca3af; }
-        .oau-su-sh-title { font-weight: 700; color: var(--text-color, #111); }
-        .oau-su-sh-count { color: #6b7280; font-weight: 500; }
+        .oau-su-section-hdr--danger .oau-su-sh-dot { background: var(--error-color); }
+        .oau-su-section-hdr--warn   .oau-su-sh-dot { background: var(--warning-color); }
+        .oau-su-section-hdr--neutral .oau-su-sh-dot { background: var(--text-color-secondary); }
+        .oau-su-sh-title { font-weight: 700; color: var(--text-color); }
+        .oau-su-sh-count { color: var(--text-color-secondary); font-weight: 500; }
         .oau-su-sh-rule {
           flex: 1;
           height: 1px;
-          background: var(--panel-border-color, #e0e0e0);
+          background: var(--oau-card-border);
         }
-        .oau-su-sh-sub { color: #9ca3af; font-size: 0.85em; white-space: nowrap; }
+        .oau-su-sh-sub { color: var(--text-color-secondary); font-size: 0.85em; white-space: nowrap; }
 
         /* ── Cards ───────────────────────────────────────────────── */
         .oau-su-card {
@@ -575,12 +575,12 @@
           margin-bottom: 4px;
           overflow: hidden;
         }
-        .oau-su-card--danger { border-color: #fca5a5; }
-        .oau-su-card--warn   { border-color: #fcd34d; }
+        .oau-su-card--danger { border-color: var(--oau-danger-border); }
+        .oau-su-card--warn   { border-color: var(--oau-warning-border); }
         .oau-su-card--neutral { /* default border */ }
 
         /* ── Table rows ──────────────────────────────────────────── */
-        .oau-su-row-danger { background: #fff7f7; }
+        .oau-su-row-danger { background: var(--oau-danger-bg); }
 
         /* ── Empty states ────────────────────────────────────────── */
         .oau-su-empty {
@@ -591,11 +591,11 @@
           padding: 14px 18px;
           margin-bottom: 4px;
           font-size: 0.875em;
-          color: #6b7280;
+          color: var(--text-color-secondary);
         }
-        .oau-su-empty--danger  { background: #fff7f7; border: 1px solid #fca5a5; color: #991b1b; }
-        .oau-su-empty--success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
-        .oau-su-empty--neutral { background: var(--background, #fafafa); border: 1px solid var(--panel-border-color, #e0e0e0); }
+        .oau-su-empty--danger  { background: var(--oau-danger-bg); border: 1px solid var(--oau-danger-border); color: var(--oau-danger-fg); }
+        .oau-su-empty--success { background: var(--oau-success-bg); border: 1px solid var(--oau-success-border); color: var(--oau-success-fg); }
+        .oau-su-empty--neutral { background: var(--oau-neutral-bg); border: 1px solid var(--oau-card-border); }
         .oau-su-empty a { color: inherit; font-weight: 600; }
 
         /* ── Badges ──────────────────────────────────────────────── */
@@ -609,12 +609,12 @@
           font-weight: 600;
           white-space: nowrap;
         }
-        .oau-su-badge--blue   { background: #eff6ff; color: #1d4ed8; }
-        .oau-su-badge--purple { background: #f5f3ff; color: #6d28d9; }
-        .oau-su-badge--gray   { background: #f3f4f6; color: #6b7280; }
-        .oau-su-badge--red    { background: #fee2e2; color: #991b1b; }
-        .oau-su-badge--amber  { background: #fef3c7; color: #92400e; }
-        .oau-su-badge--shield { background: #e8f0fe; color: #0078d4; border-radius: 10px; }
+        .oau-su-badge--blue   { background: var(--oau-info-bg); color: var(--oau-info-fg); }
+        .oau-su-badge--purple { background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; }
+        .oau-su-badge--gray   { background: var(--oau-neutral-bg); color: var(--text-color-secondary); }
+        .oau-su-badge--red    { background: var(--oau-danger-bg); color: var(--oau-danger-fg); }
+        .oau-su-badge--amber  { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
+        .oau-su-badge--shield { background: var(--oau-info-bg); color: var(--oau-info-fg); border-radius: 10px; }
 
         /* ── Collapsible history drawer ─────────────────────────── */
         .oau-su-drawer-toggle {
@@ -624,14 +624,14 @@
         .oau-su-drawer-toggle:hover .oau-su-sh-title { text-decoration: underline; }
 
         /* ── Misc ────────────────────────────────────────────────── */
-        .oau-su-ulink { color: var(--text-color, inherit); text-decoration: none; font-weight: 600; }
+        .oau-su-ulink { color: var(--text-color); text-decoration: none; font-weight: 600; }
         .oau-su-ulink:hover { text-decoration: underline; }
-        .oau-su-never { color: #9ca3af; font-style: italic; }
+        .oau-su-never { color: var(--text-color-secondary); font-style: italic; }
         .oau-su-protected-lbl {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          color: var(--text-color-secondary, #999);
+          color: var(--text-color-secondary);
           font-size: 0.82em;
           padding: 4px 2px;
         }
@@ -643,7 +643,7 @@
           display: flex; align-items: center; justify-content: center;
         }
         .oau-modal {
-          background: var(--background, #fff);
+          background: var(--oau-card-bg);
           border-radius: 8px;
           box-shadow: 0 8px 32px rgba(0,0,0,0.22);
           width: 100%; max-width: 440px;
@@ -658,13 +658,13 @@
           display: flex; align-items: center; gap: 10px;
           padding: 16px 20px; font-weight: 600; font-size: 0.95em;
         }
-        .oau-modal-header--warn   { background: #fff8e1; color: #7a5c00; border-bottom: 1px solid #ffe082; }
-        .oau-modal-header--danger { background: #fdecea; color: #7f1f1f; border-bottom: 1px solid #f5c6cb; }
+        .oau-modal-header--warn   { background: var(--oau-warning-bg); color: var(--oau-warning-fg); border-bottom: 1px solid var(--oau-warning-border); }
+        .oau-modal-header--danger { background: var(--oau-danger-bg); color: var(--oau-danger-fg); border-bottom: 1px solid var(--oau-danger-border); }
         .oau-modal-body   { padding: 20px; font-size: 0.88em; line-height: 1.6; }
         .oau-modal-footer {
           display: flex; justify-content: flex-end; gap: 8px;
-          padding: 12px 20px; border-top: 1px solid var(--panel-border-color, #e0e0e0);
-          background: var(--background-color, #fafafa);
+          padding: 12px 20px; border-top: 1px solid var(--oau-card-border);
+          background: var(--oau-neutral-bg);
         }
       </style>
 
