@@ -440,6 +440,12 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         SecurityContext securityContext = new SecurityContextImpl(auth);
         SecurityContextHolder.setContext(securityContext);
 
+        // Rotate the session id on this privilege change (session-fixation defence), mirroring
+        // the native path's establishSession(). The pre-auth stash (from URL, seed) survives the
+        // rotation because changeSessionId() keeps the session's attributes.
+        req.getSession(); // ensure a session exists before rotating
+        try { req.changeSessionId(); } catch (Exception ignore) { /* no session / unsupported */ }
+
         // Persist the security context into the HTTP session.
         req.getSession().setAttribute(
                 org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
