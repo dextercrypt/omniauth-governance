@@ -92,13 +92,17 @@ public class SlackHelper {
 
         StringBuilder blocks = new StringBuilder("[");
 
-        // Header
+        // Blocks use a leading-comma convention: the header is the first block (no leading comma),
+        // and every subsequent block prepends its own comma. No block emits a trailing comma —
+        // emitting both produced a "}},,{" double comma that made the whole payload invalid JSON.
+
+        // Header (first block — no leading comma)
         blocks.append("{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":")
-              .append(esc(title)).append(",\"emoji\":true}},");
+              .append(esc(title)).append(",\"emoji\":true}}");
 
         // Actor + time fields
         if (actor != null || displayTime != null) {
-            blocks.append("{\"type\":\"section\",\"fields\":[");
+            blocks.append(",{\"type\":\"section\",\"fields\":[");
             if (actor != null) {
                 blocks.append("{\"type\":\"mrkdwn\",\"text\":").append(esc("*Actioned By*\n" + actor)).append("}");
                 if (displayTime != null) blocks.append(",");
@@ -106,16 +110,16 @@ public class SlackHelper {
             if (displayTime != null) {
                 blocks.append("{\"type\":\"mrkdwn\",\"text\":").append(esc("*When*\n" + displayTime)).append("}");
             }
-            blocks.append("]},");
-            blocks.append("{\"type\":\"divider\"},");
+            blocks.append("]}");
+            blocks.append(",{\"type\":\"divider\"}");
         }
 
         // Body
         String mrkdwn = toMrkdwn(body);
         if (!mrkdwn.isEmpty()) {
             if (mrkdwn.length() > 2900) mrkdwn = mrkdwn.substring(0, 2900) + "…";
-            blocks.append("{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":")
-                  .append(esc(mrkdwn)).append("}},");
+            blocks.append(",{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":")
+                  .append(esc(mrkdwn)).append("}}");
         }
 
         // CTA button
