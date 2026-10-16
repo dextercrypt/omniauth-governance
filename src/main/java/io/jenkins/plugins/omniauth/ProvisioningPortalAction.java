@@ -226,11 +226,17 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         return s.length() <= max ? s : s.substring(0, max);
     }
 
+    /** Upper bound on a requested access duration — this is a public, unauthenticated form, so an
+     *  absurd value (e.g. 999999) must not become the account expiry if an admin approves in haste. */
+    private static final int MAX_DURATION_DAYS = 3650; // ~10 years
+
     private static int parseDays(String v, int fallback) {
-        if (v == null || v.isBlank()) return Math.max(0, fallback);
-        try { return Math.max(0, Integer.parseInt(v.trim())); }
-        catch (NumberFormatException e) { return Math.max(0, fallback); }
+        if (v == null || v.isBlank()) return clampDays(Math.max(0, fallback));
+        try { return clampDays(Math.max(0, Integer.parseInt(v.trim()))); }
+        catch (NumberFormatException e) { return clampDays(Math.max(0, fallback)); }
     }
+
+    private static int clampDays(int d) { return Math.min(d, MAX_DURATION_DAYS); }
 
     /** True if {@code email}'s domain matches one of the allowed domains, or if none are configured. */
     static boolean domainAllowed(String email, String allowedDomains) {

@@ -185,6 +185,14 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
         OmniAuthJitRequest r = findByToken(token);
         if (r == null) return ActionResult.TOKEN_NOT_FOUND;
         if (!r.isPending()) return ActionResult.ALREADY_PROCESSED;
+        // Fail closed on the approval deadline at action time, mirroring findActiveForUser's
+        // check-time expiry test — don't trust the per-minute worker to have flipped the status
+        // (it lags, or stalls if it errors). A timed-out request must not be approvable.
+        if (r.isTimedOut()) {
+            r.setStatus(OmniAuthJitRequest.STATUS_TIMED_OUT);
+            save();
+            return ActionResult.ALREADY_PROCESSED;
+        }
 
         OmniAuthJitRequest.ApprovalEntry entry = r.findEntryByToken(token);
         if (entry == null || !entry.isPending()) return ActionResult.ALREADY_PROCESSED;
@@ -221,6 +229,13 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
     public synchronized boolean approveAsApprover(String requestId, String approverId) {
         OmniAuthJitRequest r = findById(requestId);
         if (r == null || !r.isPending()) return false;
+        // Same fail-closed deadline check as processApproverAction — a request whose approval
+        // window has elapsed must not be approvable even if the worker hasn't flipped it yet.
+        if (r.isTimedOut()) {
+            r.setStatus(OmniAuthJitRequest.STATUS_TIMED_OUT);
+            save();
+            return false;
+        }
         OmniAuthJitRequest.ApprovalEntry entry = r.findPendingEntryByIdentity(approverId);
         if (entry == null) return false;
 

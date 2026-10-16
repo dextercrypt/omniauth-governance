@@ -297,7 +297,13 @@ public class OmniAuthAuditLog {
      * peer address is treated as untrusted, so its XFF header is ignored. Parses literal IPs
      * only (no DNS).
      */
-    private static boolean isTrustedProxyPeer(String addr) {
+    /**
+     * True when {@code addr} (the direct TCP peer) is a loopback/private/link-local address, i.e.
+     * a reverse proxy we can trust to have set X-Forwarded-For. Package-private so the login
+     * capture paths (LoginContextFilter / LastLoginListener) apply the same gate as the audit log,
+     * rather than trusting a client-supplied XFF header unconditionally.
+     */
+    static boolean isTrustedProxyPeer(String addr) {
         if (addr == null || addr.isBlank()) return false;
         try {
             java.net.InetAddress a = java.net.InetAddress.getByName(addr.replaceAll("[\\[\\]]", ""));

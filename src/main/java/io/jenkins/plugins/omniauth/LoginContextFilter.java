@@ -64,10 +64,15 @@ public class LoginContextFilter {
             HttpServletRequest http = (request instanceof HttpServletRequest)
                     ? (HttpServletRequest) request : null;
             if (http != null) {
+                // Only honour X-Forwarded-For when the direct peer is a trusted (loopback/private)
+                // proxy — otherwise any client could forge the IP recorded in the audit log and
+                // login history. Mirrors OmniAuthAuditLog's trusted-peer gate.
                 String forwarded = http.getHeader("X-Forwarded-For");
-                String raw = (forwarded != null && !forwarded.isEmpty())
+                String peer = http.getRemoteAddr();
+                String raw = (forwarded != null && !forwarded.isEmpty()
+                        && OmniAuthAuditLog.isTrustedProxyPeer(peer))
                         ? forwarded.split(",")[0].trim()
-                        : http.getRemoteAddr();
+                        : peer;
                 // Normalize all loopback variants to "localhost"
                 String stripped = raw.replaceAll("[\\[\\]]", ""); // remove brackets
                 ip = (stripped.equals("127.0.0.1") || stripped.equals("0:0:0:0:0:0:0:1")

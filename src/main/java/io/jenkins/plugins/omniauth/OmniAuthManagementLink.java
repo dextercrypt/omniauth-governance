@@ -957,7 +957,13 @@ public class OmniAuthManagementLink extends ManagementLink {
                                 && !cfg.getNotificationLogoUrl().trim().isEmpty())
                 ? cfg.getNotificationLogoUrl().trim()
                 : SmtpHelper.LOGO_DEFAULT;
-            html = html.replace("src='" + savedLogo + "'", "src='" + logoOverride + "'");
+            // Escape the caller-supplied logo URL — it lands inside a single-quoted src
+            // attribute in an HTML document served from the Jenkins origin, so an un-escaped
+            // value (e.g. "x' onerror='…") would be reflected XSS running as the viewing admin.
+            String safeLogo = logoOverride
+                    .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    .replace("'", "&#39;").replace("\"", "&quot;");
+            html = html.replace("src='" + savedLogo + "'", "src='" + safeLogo + "'");
         }
         if (footerNoteOverride != null) {
             // Splice the live footer note between the separator line and the fine-print div.
@@ -1133,8 +1139,11 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (req == null) return false;
             jakarta.servlet.http.HttpSession sess = req.getSession(false);
             if (sess == null) return false;
-            String expiry = (String) sess.getAttribute("omniauth.breakGlass.expiry");
-            return expiry != null && java.time.Instant.parse(expiry).isAfter(java.time.Instant.now());
+            // Stored as epoch-millis Long by doBreakGlassActivate (and read as Long by the page
+            // decorator) — reading it as String threw ClassCastException, which the catch swallowed,
+            // so this status always reported inactive even during an active override.
+            Long expiry = (Long) sess.getAttribute("omniauth.breakGlass.expiry");
+            return expiry != null && System.currentTimeMillis() < expiry;
         } catch (Exception e) { return false; }
     }
 
@@ -1152,7 +1161,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
             if (req == null) return null;
             jakarta.servlet.http.HttpSession sess = req.getSession(false);
-            return sess != null ? (String) sess.getAttribute("omniauth.breakGlass.expiry") : null;
+            Long expiry = sess != null ? (Long) sess.getAttribute("omniauth.breakGlass.expiry") : null;
+            return expiry != null ? java.time.Instant.ofEpochMilli(expiry).toString() : null;
         } catch (Exception e) { return null; }
     }
 

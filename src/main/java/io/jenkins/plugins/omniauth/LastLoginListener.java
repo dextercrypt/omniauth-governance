@@ -55,9 +55,13 @@ public class LastLoginListener extends SecurityListener {
         try {
             org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
             if (req != null) {
+                // Trust X-Forwarded-For only behind a trusted (loopback/private) proxy peer,
+                // else a client could forge the failed-login source IP. Matches the audit log gate.
                 String forwarded = req.getHeader("X-Forwarded-For");
-                String ip = (forwarded != null && !forwarded.isBlank())
-                        ? forwarded.split(",")[0].trim() : req.getRemoteAddr();
+                String peer = req.getRemoteAddr();
+                String ip = (forwarded != null && !forwarded.isBlank()
+                        && OmniAuthAuditLog.isTrustedProxyPeer(peer))
+                        ? forwarded.split(",")[0].trim() : peer;
                 String ua = req.getHeader("User-Agent");
                 LoginContextFilter.FAILED_CONTEXT.put("__failed__" + username,
                         new String[]{ip != null ? ip : "", ua != null ? ua : ""});
