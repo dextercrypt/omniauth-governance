@@ -472,8 +472,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             boolean slackWasOn    = config.isSlackEnabled();
             boolean teamsWasOn    = config.isTeamsEnabled();
             boolean smtpHadConfigChanged  = masterWasOn && smtpWasOn  && config.isSmtpConfigured()              && config.isSmtpEvent("configChanged");
-            boolean slackHadConfigChanged = masterWasOn && slackWasOn && !config.getSlackWebhookUrl().isEmpty() && config.isSlackEvent("configChanged");
-            boolean teamsHadConfigChanged = masterWasOn && teamsWasOn && !config.getTeamsWebhookUrl().isEmpty() && config.isTeamsEvent("configChanged");
+            boolean slackHadConfigChanged = masterWasOn && slackWasOn && !config.getSlackWebhookUrlPlain().isEmpty() && config.isSlackEvent("configChanged");
+            boolean teamsHadConfigChanged = masterWasOn && teamsWasOn && !config.getTeamsWebhookUrlPlain().isEmpty() && config.isTeamsEvent("configChanged");
             // Also snapshot whether the configChanged event was subscribed (independently of enabled state)
             boolean smtpHadEvent  = config.isSmtpEvent("configChanged");
             boolean slackHadEvent = config.isSlackEvent("configChanged");
@@ -489,8 +489,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             final String snapFromName  = config.getSmtpFromName() != null ? config.getSmtpFromName() : "Jenkins OmniAuth";
             final String snapReplyTo   = config.getSmtpReplyTo();
             final String snapRecipients = config.getNotifyEmails();
-            final String snapSlackUrl   = config.getSlackWebhookUrl();
-            final String snapTeamsUrl   = config.getTeamsWebhookUrl();
+            final String snapSlackUrl   = config.getSlackWebhookUrlPlain();
+            final String snapTeamsUrl   = config.getTeamsWebhookUrlPlain();
             final String snapLogoUrl    = config.getNotificationLogoUrl();
 
             net.sf.json.JSONObject json = new net.sf.json.JSONObject();
@@ -630,8 +630,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             }
             // Alert when config-change notifications are re-enabled on any channel
             boolean smtpGained  = !smtpHadConfigChanged  && config.isNotificationsEnabled() && config.isSmtpEnabled()  && config.isSmtpConfigured()              && config.isSmtpEvent("configChanged");
-            boolean slackGained = !slackHadConfigChanged && config.isNotificationsEnabled() && config.isSlackEnabled() && !config.getSlackWebhookUrl().isEmpty() && config.isSlackEvent("configChanged");
-            boolean teamsGained = !teamsHadConfigChanged && config.isNotificationsEnabled() && config.isTeamsEnabled() && !config.getTeamsWebhookUrl().isEmpty() && config.isTeamsEvent("configChanged");
+            boolean slackGained = !slackHadConfigChanged && config.isNotificationsEnabled() && config.isSlackEnabled() && !config.getSlackWebhookUrlPlain().isEmpty() && config.isSlackEvent("configChanged");
+            boolean teamsGained = !teamsHadConfigChanged && config.isNotificationsEnabled() && config.isTeamsEnabled() && !config.getTeamsWebhookUrlPlain().isEmpty() && config.isTeamsEvent("configChanged");
             if (smtpGained || slackGained || teamsGained) {
                 String changedBy = currentUserId();
                 List<String> diff = new ArrayList<>();
@@ -781,9 +781,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             json.put("smtpReplyTo",          config.getSmtpReplyTo());
             json.put("notifyEmails",         config.getNotifyEmails());
             json.put("slackEnabled",         config.isSlackEnabled());
-            json.put("slackWebhookUrl",      config.getSlackWebhookUrl());
+            json.put("slackWebhookUrl",      config.getSlackWebhookUrlPlain());
             json.put("teamsEnabled",         config.isTeamsEnabled());
-            json.put("teamsWebhookUrl",      config.getTeamsWebhookUrl());
+            json.put("teamsWebhookUrl",      config.getTeamsWebhookUrlPlain());
             json.put("bruteForceThreshold",  config.getBruteForceThreshold());
             json.put("bruteForceLockoutEnabled", config.isBruteForceLockoutEnabled());
             json.put("bruteForceLockoutMinutes", config.getBruteForceLockoutMinutes());

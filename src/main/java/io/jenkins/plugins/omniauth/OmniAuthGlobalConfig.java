@@ -6,6 +6,7 @@ import hudson.util.Secret;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
@@ -130,21 +131,37 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
         save();
     }
     public int getStaleThresholdDays()       { return staleThresholdDays; }
+    @DataBoundSetter public void setStaleThresholdDays(int v)  { this.staleThresholdDays = v; }
     public int getActiveThresholdDays()      { return activeThresholdDays; }
+    @DataBoundSetter public void setActiveThresholdDays(int v) { this.activeThresholdDays = v; }
     public boolean isCleanupEnabled()        { return cleanupEnabled; }
+    @DataBoundSetter public void setCleanupEnabled(boolean v) { this.cleanupEnabled = v; }
     public boolean isCleanupDryRun()         { return cleanupDryRun; }
+    @DataBoundSetter public void setCleanupDryRun(boolean v)  { this.cleanupDryRun = v; }
     public String getCleanupCron()           { return cleanupCron; }
+    @DataBoundSetter public void setCleanupCron(String v)     { this.cleanupCron = v; }
     public int getCleanupMaxDeletions()      { return cleanupMaxDeletions; }
+    @DataBoundSetter public void setCleanupMaxDeletions(int v) { this.cleanupMaxDeletions = v; }
     public String getCleanupNotifyEmail()    { return cleanupNotifyEmail; }
+    @DataBoundSetter public void setCleanupNotifyEmail(String v) { this.cleanupNotifyEmail = v; }
 
     // SMTP
     public String  getSmtpHost()        { return smtpHost; }
+    @DataBoundSetter public void setSmtpHost(String v)     { this.smtpHost = v; }
     public int     getSmtpPort()        { return smtpPort; }
+    @DataBoundSetter public void setSmtpPort(int v)        { this.smtpPort = v; }
     public String  getSmtpUsername()    { return smtpUsername; }
+    @DataBoundSetter public void setSmtpUsername(String v) { this.smtpUsername = v; }
     public Secret  getSmtpPassword()    { return smtpPassword; }
+    // Secret-typed setter so JCasC exports the password ENCRYPTED and can inject it via ${ENV}.
+    @DataBoundSetter
+    public void    setSmtpPassword(Secret v) { this.smtpPassword = v; }
     public boolean isSmtpTls()          { return smtpTls; }
+    @DataBoundSetter public void setSmtpTls(boolean v)        { this.smtpTls = v; }
     public String  getSmtpFromAddress() { return smtpFromAddress; }
+    @DataBoundSetter public void setSmtpFromAddress(String v) { this.smtpFromAddress = v; }
     public String  getSmtpFromName()    { return smtpFromName; }
+    @DataBoundSetter public void setSmtpFromName(String v)    { this.smtpFromName = v; }
     public String  getLoginHeading()   { return loginHeading  != null ? loginHeading.trim()  : ""; }
     public String  getLoginTabTitle()  { return loginTabTitle != null ? loginTabTitle.trim() : ""; }
     public void    setLoginHeading(String v)  { this.loginHeading  = v != null ? v.trim() : ""; }
@@ -243,11 +260,15 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     public String  getNotificationLogoUrl() {
         return notificationLogoUrl != null ? notificationLogoUrl.trim() : "";
     }
+    @DataBoundSetter public void setNotificationLogoUrl(String v)    { this.notificationLogoUrl = v; }
     public String  getNotificationFooterNote() {
         return notificationFooterNote != null ? notificationFooterNote.trim() : "";
     }
+    @DataBoundSetter public void setNotificationFooterNote(String v) { this.notificationFooterNote = v; }
     public String  getSmtpReplyTo()     { return smtpReplyTo; }
+    @DataBoundSetter public void setSmtpReplyTo(String v)  { this.smtpReplyTo = v; }
     public String  getNotifyEmails()    { return notifyEmails; }
+    @DataBoundSetter public void setNotifyEmails(String v) { this.notifyEmails = v; }
 
     public boolean isSmtpConfigured() {
         return smtpHost != null && !smtpHost.isEmpty()
@@ -258,11 +279,26 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // Notifications master + channels
     public boolean isNotificationsEnabled() { return notificationsEnabled; }
+    @DataBoundSetter public void setNotificationsEnabled(boolean v) { this.notificationsEnabled = v; }
     public boolean isSmtpEnabled()          { return smtpEnabled; }
+    @DataBoundSetter public void setSmtpEnabled(boolean v)  { this.smtpEnabled = v; }
     public boolean isSlackEnabled()         { return slackEnabled; }
-    public String  getSlackWebhookUrl()     { return slackWebhookUrl != null ? slackWebhookUrl.getPlainText() : ""; }
+    @DataBoundSetter public void setSlackEnabled(boolean v) { this.slackEnabled = v; }
     public boolean isTeamsEnabled()         { return teamsEnabled; }
-    public String  getTeamsWebhookUrl()     { return teamsWebhookUrl != null ? teamsWebhookUrl.getPlainText() : ""; }
+    @DataBoundSetter public void setTeamsEnabled(boolean v) { this.teamsEnabled = v; }
+
+    // Webhook URLs are bearer secrets. The canonical getters return Secret so JCasC exports them
+    // ENCRYPTED (never plaintext) and so a jenkins.yaml may inject them via ${ENV}; the *Plain()
+    // accessors give the raw URL to internal callers (SlackHelper/TeamsHelper) and the config form.
+    public Secret  getSlackWebhookUrl()      { return slackWebhookUrl; }
+    @DataBoundSetter
+    public void    setSlackWebhookUrl(Secret v) { this.slackWebhookUrl = v; }
+    public String  getSlackWebhookUrlPlain() { return slackWebhookUrl != null ? slackWebhookUrl.getPlainText() : ""; }
+
+    public Secret  getTeamsWebhookUrl()      { return teamsWebhookUrl; }
+    @DataBoundSetter
+    public void    setTeamsWebhookUrl(Secret v) { this.teamsWebhookUrl = v; }
+    public String  getTeamsWebhookUrlPlain() { return teamsWebhookUrl != null ? teamsWebhookUrl.getPlainText() : ""; }
 
     // JIT history retention
     public int getJitHistoryRetentionDays() { return jitHistoryRetentionDays > 0 ? jitHistoryRetentionDays : 90; }
@@ -270,6 +306,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // Brute force
     public int getBruteForceThreshold() { return bruteForceThreshold; }
+    @DataBoundSetter public void setBruteForceThreshold(int v) { this.bruteForceThreshold = v; }
     public boolean isBruteForceLockoutEnabled() { return bruteForceLockoutEnabled; }
     public void setBruteForceLockoutEnabled(boolean v) { this.bruteForceLockoutEnabled = v; }
     public int getBruteForceLockoutMinutes() { return bruteForceLockoutMinutes > 0 ? bruteForceLockoutMinutes : 15; }
@@ -277,12 +314,17 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // Stale warning
     public boolean isStaleWarningEnabled()    { return staleWarningEnabled; }
+    @DataBoundSetter public void setStaleWarningEnabled(boolean v)  { this.staleWarningEnabled = v; }
     public String  getStaleWarningCron()      { return staleWarningCron; }
+    @DataBoundSetter public void setStaleWarningCron(String v)      { this.staleWarningCron = v; }
     public int     getStaleWarningWindowDays(){ return staleWarningWindowDays; }
+    @DataBoundSetter public void setStaleWarningWindowDays(int v)   { this.staleWarningWindowDays = v; }
 
     // Access review
     public boolean isAccessReviewEnabled()       { return accessReviewEnabled; }
+    @DataBoundSetter public void setAccessReviewEnabled(boolean v)     { this.accessReviewEnabled = v; }
     public int     getAccessReviewThresholdDays() { return accessReviewThresholdDays; }
+    @DataBoundSetter public void setAccessReviewThresholdDays(int v)   { this.accessReviewThresholdDays = v; }
 
     // ── Provisioning portal (self-service access requests) ────────────────────
     // Persisted here; the portal's admin page sets these via its own save handler,
@@ -343,8 +385,11 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // Per-channel event subscriptions
     public List<String> getSmtpEvents()  { return Collections.unmodifiableList(smtpEvents); }
+    @DataBoundSetter public void setSmtpEvents(List<String> v)  { this.smtpEvents  = v != null ? new ArrayList<>(v) : new ArrayList<>(); }
     public List<String> getSlackEvents() { return Collections.unmodifiableList(slackEvents); }
+    @DataBoundSetter public void setSlackEvents(List<String> v) { this.slackEvents = v != null ? new ArrayList<>(v) : new ArrayList<>(); }
     public List<String> getTeamsEvents() { return Collections.unmodifiableList(teamsEvents); }
+    @DataBoundSetter public void setTeamsEvents(List<String> v) { this.teamsEvents = v != null ? new ArrayList<>(v) : new ArrayList<>(); }
 
     public boolean isSmtpEvent(String event)  { return smtpEvents.contains(event); }
     public boolean isSlackEvent(String event) { return slackEvents.contains(event); }

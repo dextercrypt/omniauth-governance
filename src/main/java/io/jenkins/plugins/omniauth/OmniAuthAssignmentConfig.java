@@ -136,6 +136,13 @@ public class OmniAuthAssignmentConfig extends GlobalConfiguration {
         return Collections.unmodifiableList(groups);
     }
 
+    // Data-bound so the Access-Management group registry round-trips through JCasC, consistent
+    // with assignments. (Group membership itself lives in Entra; this is the registered-group list.)
+    @org.kohsuke.stapler.DataBoundSetter
+    public void setGroups(List<OmniAuthGroupEntity> groups) {
+        this.groups = groups != null ? new CopyOnWriteArrayList<>(groups) : new CopyOnWriteArrayList<>();
+    }
+
     public synchronized void addGroup(OmniAuthGroupEntity group) {
         groups.add(group);
         save();

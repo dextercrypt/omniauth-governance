@@ -1,5 +1,8 @@
 package io.jenkins.plugins.omniauth;
 
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class OmniAuthAssignment {
 
     public OmniAuthAssignment() {}
 
+    @DataBoundConstructor
     public OmniAuthAssignment(String userId, String authType, String roleId,
                                String scope, String scopeType,
                                List<String> customPermissions,
@@ -66,12 +70,15 @@ public class OmniAuthAssignment {
     public void setGrantedBy(String grantedBy) { this.grantedBy = grantedBy; }
 
     public String getExpiresAt() { return expiresAt; }
+    @DataBoundSetter
     public void setExpiresAt(String expiresAt) { this.expiresAt = (expiresAt != null && !expiresAt.isBlank()) ? expiresAt : null; }
 
     public String getReviewedAt() { return reviewedAt; }
+    @DataBoundSetter
     public void setReviewedAt(String reviewedAt) { this.reviewedAt = (reviewedAt != null && !reviewedAt.isBlank()) ? reviewedAt : null; }
 
     public String getAccessType() { return accessType != null ? accessType : "STANDING"; }
+    @DataBoundSetter
     public void setAccessType(String v) { this.accessType = v; }
     public boolean isJit() { return "JIT".equalsIgnoreCase(accessType); }
 
@@ -84,6 +91,7 @@ public class OmniAuthAssignment {
     }
 
     public List<String> getApprovers() { return approvers != null ? approvers : new ArrayList<>(); }
+    @DataBoundSetter
     public void setApprovers(List<String> v) {
         this.approvers = v != null ? new java.util.ArrayList<>(v) : new ArrayList<>();
     }
@@ -96,9 +104,11 @@ public class OmniAuthAssignment {
     public void setApproverGroup(String v) { this.approverGroup = v; }
 
     public int getMaxDurationHours() { return maxDurationHours > 0 ? maxDurationHours : 4; }
+    @DataBoundSetter
     public void setMaxDurationHours(int v) { this.maxDurationHours = v; }
 
     public int getApprovalTimeoutHours() { return approvalTimeoutHours > 0 ? approvalTimeoutHours : 4; }
+    @DataBoundSetter
     public void setApprovalTimeoutHours(int v) { this.approvalTimeoutHours = v; }
 
     public boolean isExpired() {

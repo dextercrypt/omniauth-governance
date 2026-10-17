@@ -119,6 +119,7 @@ public class OmniAuthRoleConfig extends GlobalConfiguration {
 
         public RoleDefinition() {}
 
+        @org.kohsuke.stapler.DataBoundConstructor
         public RoleDefinition(String name, String description, List<String> permissionIds) {
             this.name = name;
             this.description = description;

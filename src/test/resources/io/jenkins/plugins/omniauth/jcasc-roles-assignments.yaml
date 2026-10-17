@@ -1,0 +1,31 @@
+unclassified:
+  omniAuthRoles:
+    roles:
+      - name: "ci-developer"
+        description: "Build and read jobs"
+        permissionIds:
+          - "hudson.model.Item.Build"
+          - "hudson.model.Item.Read"
+  omniAuthAssignments:
+    groups:
+      - groupOid: "00000000-aaaa-bbbb-cccc-111111111111"
+        label: "Platform Engineers"
+        displayName: "Platform Engineers"
+        addedBy: "admin"
+    assignments:
+      - userId: "alice@contoso.com"
+        authType: "USER"
+        roleId: "ci-developer"
+        scope: ""
+        scopeType: "GLOBAL"
+        accessType: "STANDING"
+      - userId: "release-team"
+        authType: "GROUP"
+        roleId: "ci-developer"
+        scope: "job/payments"
+        scopeType: "JOB"
+        accessType: "JIT"
+        approvers:
+          - "alice@contoso.com"
+        maxDurationHours: 8
+        approvalTimeoutHours: 2

@@ -21,7 +21,7 @@ public class TeamsHelper {
     public static void send(OmniAuthGlobalConfig cfg, String subject, String body) {
         if (cfg == null || !cfg.isNotificationsEnabled()) return;
         if (!cfg.isTeamsEnabled()) return;
-        String url = cfg.getTeamsWebhookUrl();
+        String url = cfg.getTeamsWebhookUrlPlain();
         if (url == null || url.trim().isEmpty()) return;
 
         String title = subject.startsWith(PREFIX) ? subject.substring(PREFIX.length()) : subject;

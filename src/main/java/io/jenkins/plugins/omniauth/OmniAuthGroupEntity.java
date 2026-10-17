@@ -15,6 +15,7 @@ public class OmniAuthGroupEntity {
 
     public OmniAuthGroupEntity() {}
 
+    @org.kohsuke.stapler.DataBoundConstructor
     public OmniAuthGroupEntity(String groupOid, String label, String addedAt, String addedBy) {
         this.groupOid = groupOid;
         this.label = label;
@@ -26,6 +27,9 @@ public class OmniAuthGroupEntity {
     public void setGroupOid(String groupOid) { this.groupOid = groupOid; }
 
     public String getDisplayName() { return displayName; }
+    // displayName is resolved from Graph on first member login; exposing it as a data-bound
+    // property lets a JCasC export carry the resolved name and an import seed it.
+    @org.kohsuke.stapler.DataBoundSetter
     public void setDisplayName(String displayName) { this.displayName = displayName; }
 
     public boolean isResolved() { return displayName != null && !displayName.isEmpty(); }

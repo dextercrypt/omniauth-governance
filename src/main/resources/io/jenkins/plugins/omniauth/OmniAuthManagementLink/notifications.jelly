@@ -403,7 +403,7 @@
                   <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                     Create one at Slack → Your App → Incoming Webhooks.
                   </div>
-                  <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrl}"
+                  <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrlPlain}"
                          class="jenkins-input" style="width: 100%;" placeholder="https://hooks.slack.com/services/..."/>
                 </label>
                 <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
@@ -487,7 +487,7 @@
                     In Teams: channel → ... → Workflows → "Post to a channel when a webhook request is received".
                     Copy the generated webhook URL. O365 Connectors are retired and no longer work.
                   </div>
-                  <input type="text" name="teamsWebhookUrl" value="${cfg.teamsWebhookUrl}"
+                  <input type="text" name="teamsWebhookUrl" value="${cfg.teamsWebhookUrlPlain}"
                          class="jenkins-input" style="width: 100%;" placeholder="https://prod-xx.westus.logic.azure.com/workflows/..."/>
                 </label>
                 <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">

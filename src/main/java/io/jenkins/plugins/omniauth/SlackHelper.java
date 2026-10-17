@@ -20,7 +20,7 @@ public class SlackHelper {
     public static void send(OmniAuthGlobalConfig cfg, String subject, String body) {
         if (cfg == null || !cfg.isNotificationsEnabled()) return;
         if (!cfg.isSlackEnabled()) return;
-        String url = cfg.getSlackWebhookUrl();
+        String url = cfg.getSlackWebhookUrlPlain();
         if (url == null || url.trim().isEmpty()) return;
 
         String title = subject.startsWith(PREFIX) ? subject.substring(PREFIX.length()) : subject;

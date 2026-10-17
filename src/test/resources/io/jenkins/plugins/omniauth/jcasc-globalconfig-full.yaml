@@ -1,0 +1,34 @@
+unclassified:
+  omniAuthGlobalConfig:
+    staleThresholdDays: 120
+    activeThresholdDays: 45
+    cleanupEnabled: true
+    cleanupDryRun: false
+    cleanupCron: "0 3 * * 1"
+    cleanupMaxDeletions: 25
+    cleanupNotifyEmail: "ops@contoso.com"
+    notificationsEnabled: true
+    smtpEnabled: true
+    slackEnabled: true
+    teamsEnabled: false
+    smtpHost: "smtp.contoso.com"
+    smtpPort: 2525
+    smtpUsername: "jenkins@contoso.com"
+    smtpTls: false
+    smtpFromAddress: "ci@contoso.com"
+    smtpFromName: "Contoso CI"
+    smtpReplyTo: "noreply@contoso.com"
+    notifyEmails: "admins@contoso.com"
+    bruteForceThreshold: 7
+    staleWarningEnabled: true
+    staleWarningCron: "0 6 * * *"
+    staleWarningWindowDays: 14
+    accessReviewEnabled: true
+    accessReviewThresholdDays: 60
+    notificationLogoUrl: "https://contoso.com/logo.png"
+    notificationFooterNote: "Internal use only"
+    smtpEvents:
+      - "accountLocked"
+      - "provisionRequest"
+    slackEvents:
+      - "accountLocked"

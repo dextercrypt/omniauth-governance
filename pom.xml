@@ -124,6 +124,16 @@
       <version>94.vcc3065403257</version>
     </dependency>
 
+    <!-- Configuration as Code (JCasC) — OPTIONAL: our config classes carry @Symbol so an
+         admin who installs JCasC can define OmniAuth in jenkins.yaml. optional=true means we
+         integrate when JCasC is present without forcing it on installs that don't use it. -->
+    <dependency>
+      <groupId>io.jenkins</groupId>
+      <artifactId>configuration-as-code</artifactId>
+      <version>1998.v3e50e6e9d9d3</version>
+      <optional>true</optional>
+    </dependency>
+
     <!-- TOTP for Break Glass authentication -->
     <dependency>
       <groupId>org.jboss.aerogear</groupId>
@@ -158,6 +168,14 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>5.11.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- JCasC test harness (@ConfiguredWithCode, JenkinsConfiguredWithCodeRule) for round-trip tests -->
+    <dependency>
+      <groupId>io.jenkins.configuration-as-code</groupId>
+      <artifactId>test-harness</artifactId>
+      <version>1998.v3e50e6e9d9d3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
