@@ -25,7 +25,7 @@
     <div class="jenkins-alert jenkins-alert-info">
       <b>Required Azure AD App Registration settings:</b>
       <ul>
-        <li>Redirect URI: <code>${rootURL}/omniauth/finishLogin</code></li>
+        <li>Redirect URI: <code>${descriptor.redirectUri}</code></li>
         <li>API Permissions: <code>openid</code>, <code>profile</code>, <code>email</code> (delegated)</li>
         <li>If group sync enabled: <code>GroupMember.Read.All</code> (delegated, admin consent required)</li>
       </ul>

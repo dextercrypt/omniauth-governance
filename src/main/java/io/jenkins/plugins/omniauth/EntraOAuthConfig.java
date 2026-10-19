@@ -84,6 +84,18 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
             return "Microsoft Entra (Azure AD) Configuration";
         }
 
+        /**
+         * The full redirect URI to register in Azure, built from the configured Jenkins URL — so it
+         * can be copied straight into the App Registration. Falls back to a placeholder if the
+         * Jenkins URL isn't set yet.
+         */
+        public String getRedirectUri() {
+            String root = jenkins.model.Jenkins.get().getRootUrl();
+            if (root == null) return "<set your Jenkins URL in Manage Jenkins → System>/omniauth/finishLogin";
+            if (root.endsWith("/")) root = root.substring(0, root.length() - 1);
+            return root + "/omniauth/finishLogin";
+        }
+
         public FormValidation doCheckTenantId(@QueryParameter String value) {
             if (value == null || value.trim().isEmpty()) {
                 return FormValidation.error("Tenant ID is required");
