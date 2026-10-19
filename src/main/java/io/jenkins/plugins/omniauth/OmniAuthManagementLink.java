@@ -144,6 +144,359 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.getWriter().write("{\"ok\":true}");
     }
 
+    // ── Backup & Restore (UI import/export) ──────────────────────────────────
+    // Export/import OmniAuth config (roles, assignments, groups, global settings) as a
+    // JCasC-shaped YAML file. The security realm and all secrets are out of scope by design, so an
+    // import can never change how you sign in. Import is made safe by: validate-before-apply, an
+    // automatic pre-import snapshot (Revert), and a lockout guard that un-applies any import which
+    // would strip the acting admin's access.
+
+    private static final java.util.logging.Logger BR_LOG =
+            java.util.logging.Logger.getLogger(OmniAuthManagementLink.class.getName());
+
+    public void doBackup(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        req.getView(this, "backup.jelly").forward(req, rsp);
+    }
+
+    @POST
+    public void doExportConfig(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String yaml = OmniAuthConfigBackup.export();
+        String fname = "omniauth-backup-" + java.time.format.DateTimeFormatter
+                .ofPattern("yyyyMMdd-HHmm").withZone(java.time.ZoneId.systemDefault())
+                .format(java.time.Instant.now()) + ".yaml";
+        rsp.setContentType("application/x-yaml; charset=utf-8");
+        rsp.setHeader("Content-Disposition", "attachment; filename=\"" + fname + "\"");
+        rsp.getWriter().write(yaml);
+    }
+
+    @POST
+    public void doImportConfig(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        // Decode the uploaded form as UTF-8 so non-ASCII content survives; otherwise a default
+        // Latin-1 decode can turn multi-byte chars into control chars the YAML parser rejects.
+        req.setCharacterEncoding("UTF-8");
+        String base = req.getContextPath() + "/manage/omniauth-management/backup";
+
+        OmniAuthConfigBackup.Parsed parsed;
+        try {
+            parsed = OmniAuthConfigBackup.parse(req.getParameter("config"));
+        } catch (IllegalArgumentException e) {
+            rsp.sendRedirect(base + "?error=" + enc(e.getMessage()));
+            return;
+        }
+
+        // Compute the plan (what will change) before touching anything, then snapshot + apply.
+        OmniAuthConfigBackup.Diff plan = OmniAuthConfigBackup.diff(parsed);
+        String snapshot = OmniAuthConfigBackup.export();
+        saveSnapshot(snapshot);
+        OmniAuthConfigBackup.applyParsed(parsed);
+
+        // Lockout guard: if the acting admin would lose ADMINISTER, revert and refuse.
+        if (!Jenkins.get().getACL().hasPermission2(Jenkins.getAuthentication2(), Jenkins.ADMINISTER)) {
+            OmniAuthConfigBackup.applyParsed(OmniAuthConfigBackup.parse(snapshot));
+            rsp.sendRedirect(base + "?error=" + enc(
+                    "Import refused: it would remove your own administrator access. Reverted — no changes applied."));
+            return;
+        }
+
+        recordHistory("import", plan.summary());
+        BR_LOG.info("OmniAuth config imported by " + Jenkins.getAuthentication2().getName()
+                + " (roles=" + parsed.roleCount() + ", assignments=" + parsed.assignmentCount()
+                + ", groups=" + parsed.groupCount() + ", settings=" + parsed.globalCount() + ")");
+        rsp.sendRedirect(base + "?imported=1&roles=" + parsed.roleCount()
+                + "&assignments=" + parsed.assignmentCount() + "&groups=" + parsed.groupCount());
+    }
+
+    /**
+     * Returns the import "plan" as JSON — what applying the uploaded config would add / remove /
+     * change relative to the live configuration — without applying anything. Powers the preview
+     * modal the admin confirms before a real import.
+     */
+    @POST
+    public void doPreviewImport(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        req.setCharacterEncoding("UTF-8");
+        net.sf.json.JSONObject out;
+        try {
+            OmniAuthConfigBackup.Parsed parsed = OmniAuthConfigBackup.parse(req.getParameter("config"));
+            out = planToJson(OmniAuthConfigBackup.diff(parsed));
+        } catch (IllegalArgumentException e) {
+            out = planError(e.getMessage());
+        }
+        writeJson(rsp, out);
+    }
+
+    /**
+     * Returns the "plan" for rolling back to a chosen snapshot — the same diff shown for an import,
+     * but computed against the snapshot's contents — without applying anything. Powers the preview
+     * modal before a rollback, so a restore is as auditable as an import.
+     */
+    @POST
+    public void doPreviewRevert(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        net.sf.json.JSONObject out;
+        try {
+            String chosen = req.getParameter("snapshot");
+            java.io.File snap = (chosen == null || chosen.isBlank()) ? latestSnapshot() : resolveSnapshot(chosen);
+            if (snap == null) throw new IllegalArgumentException("That restore point is no longer available.");
+            String yaml = java.nio.file.Files.readString(snap.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+            out = planToJson(OmniAuthConfigBackup.diff(OmniAuthConfigBackup.parse(yaml)));
+        } catch (IllegalArgumentException e) {
+            out = planError(e.getMessage());
+        }
+        writeJson(rsp, out);
+    }
+
+    /** Serialises a {@link OmniAuthConfigBackup.Diff} to the plan JSON the preview modal renders. */
+    private static net.sf.json.JSONObject planToJson(OmniAuthConfigBackup.Diff d) {
+        net.sf.json.JSONObject out = new net.sf.json.JSONObject();
+        out.put("ok", true);
+        out.put("empty", d.isEmpty());
+        out.put("total", d.totalChanges());
+        out.put("summary", d.summary());
+        out.put("roles", changeGroupJson(d.rolesAdded, d.rolesRemoved, d.rolesChanged));
+        out.put("groups", changeGroupJson(d.groupsAdded, d.groupsRemoved, d.groupsChanged));
+        out.put("assignments", changeGroupJson(d.assignmentsAdded, d.assignmentsRemoved, d.assignmentsChanged));
+        net.sf.json.JSONArray settings = new net.sf.json.JSONArray();
+        for (OmniAuthConfigBackup.SettingChange c : d.settingsChanged) {
+            net.sf.json.JSONObject s = new net.sf.json.JSONObject();
+            s.put("key", c.key);
+            s.put("from", truncate(c.from, 120));
+            s.put("to", truncate(c.to, 120));
+            settings.add(s);
+        }
+        out.put("settings", settings);
+        return out;
+    }
+
+    private static net.sf.json.JSONObject planError(String message) {
+        net.sf.json.JSONObject out = new net.sf.json.JSONObject();
+        out.put("ok", false);
+        out.put("error", message);
+        return out;
+    }
+
+    private static void writeJson(StaplerResponse rsp, net.sf.json.JSONObject out) throws Exception {
+        rsp.setContentType("application/json; charset=utf-8");
+        rsp.getWriter().write(out.toString());
+    }
+
+    private static net.sf.json.JSONObject changeGroupJson(List<String> added, List<String> removed,
+                                                          List<OmniAuthConfigBackup.ItemChange> changed) {
+        net.sf.json.JSONObject o = new net.sf.json.JSONObject();
+        o.put("added", net.sf.json.JSONArray.fromObject(added));
+        o.put("removed", net.sf.json.JSONArray.fromObject(removed));
+        net.sf.json.JSONArray ch = new net.sf.json.JSONArray();
+        for (OmniAuthConfigBackup.ItemChange c : changed) {
+            net.sf.json.JSONObject co = new net.sf.json.JSONObject();
+            co.put("name", c.name);
+            net.sf.json.JSONArray lines = new net.sf.json.JSONArray();
+            for (OmniAuthConfigBackup.ChangeLine cl : c.lines) {
+                net.sf.json.JSONObject lo = new net.sf.json.JSONObject();
+                lo.put("label", cl.label);
+                net.sf.json.JSONArray segs = new net.sf.json.JSONArray();
+                for (OmniAuthConfigBackup.Seg sg : cl.segs) {
+                    net.sf.json.JSONObject so = new net.sf.json.JSONObject();
+                    so.put("text", sg.text);
+                    so.put("tone", sg.tone);
+                    segs.add(so);
+                }
+                lo.put("segs", segs);
+                lines.add(lo);
+            }
+            co.put("lines", lines);
+            ch.add(co);
+        }
+        o.put("changed", ch);
+        return o;
+    }
+
+    private static String truncate(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max) + "…";
+    }
+
+    @POST
+    public void doRevertImport(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String base = req.getContextPath() + "/manage/omniauth-management/backup";
+
+        // A specific snapshot may be chosen from the history list; default to the most recent.
+        String chosen = req.getParameter("snapshot");
+        java.io.File snap = (chosen == null || chosen.isBlank()) ? latestSnapshot() : resolveSnapshot(chosen);
+        if (snap == null) { rsp.sendRedirect(base + "?error=" + enc("That restore point is no longer available.")); return; }
+
+        String yaml = java.nio.file.Files.readString(snap.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+        OmniAuthConfigBackup.Parsed parsed;
+        try {
+            parsed = OmniAuthConfigBackup.parse(yaml);
+        } catch (IllegalArgumentException e) {
+            rsp.sendRedirect(base + "?error=" + enc("That restore point could not be read: " + e.getMessage()));
+            return;
+        }
+        OmniAuthConfigBackup.applyParsed(parsed);
+        recordHistory("revert", "restored point " + displayTimeOf(snap));
+        BR_LOG.info("OmniAuth config reverted to snapshot " + snap.getName() + " by "
+                + Jenkins.getAuthentication2().getName());
+        rsp.sendRedirect(base + "?reverted=1");
+    }
+
+    /** True when at least one restore point exists (controls the Revert card in the UI). */
+    public boolean isRevertAvailable() { return latestSnapshot() != null; }
+
+    /** Resolves a snapshot by file name, rejecting anything outside the snapshot directory. */
+    private static java.io.File resolveSnapshot(String name) {
+        if (!name.matches("pre-import-\\d{8}-\\d{6}\\.yaml")) return null;
+        java.io.File f = new java.io.File(snapshotDir(), name);
+        return f.isFile() ? f : null;
+    }
+
+    private static java.io.File snapshotDir() {
+        java.io.File d = new java.io.File(Jenkins.get().getRootDir(), "omniauth-backups");
+        if (!d.exists()) d.mkdirs();
+        return d;
+    }
+
+    private void saveSnapshot(String yaml) throws Exception {
+        java.io.File dir = snapshotDir();
+        String name = "pre-import-" + java.time.format.DateTimeFormatter
+                .ofPattern("yyyyMMdd-HHmmss").withZone(java.time.ZoneId.systemDefault())
+                .format(java.time.Instant.now()) + ".yaml";
+        java.nio.file.Files.writeString(new java.io.File(dir, name).toPath(), yaml,
+                java.nio.charset.StandardCharsets.UTF_8);
+        java.io.File[] files = dir.listFiles((d, n) -> n.startsWith("pre-import-") && n.endsWith(".yaml"));
+        if (files != null && files.length > 5) {
+            java.util.Arrays.sort(files, java.util.Comparator.comparing(java.io.File::getName));
+            for (int i = 0; i < files.length - 5; i++) files[i].delete();
+        }
+    }
+
+    private static java.io.File latestSnapshot() {
+        java.io.File[] files = snapshotDir().listFiles((d, n) -> n.startsWith("pre-import-") && n.endsWith(".yaml"));
+        if (files == null || files.length == 0) return null;
+        java.util.Arrays.sort(files, java.util.Comparator.comparing(java.io.File::getName));
+        return files[files.length - 1];
+    }
+
+    /** A restore point, as shown in the Revert list: its file name, a readable time, and what it holds. */
+    public static final class SnapshotInfo {
+        private final String fileName, displayTime;
+        private final int roles, assignments, groups;
+        SnapshotInfo(String fileName, String displayTime, int roles, int assignments, int groups) {
+            this.fileName = fileName; this.displayTime = displayTime;
+            this.roles = roles; this.assignments = assignments; this.groups = groups;
+        }
+        public String getFileName()    { return fileName; }
+        public String getDisplayTime() { return displayTime; }
+        public int getRoles()          { return roles; }
+        public int getAssignments()    { return assignments; }
+        public int getGroups()         { return groups; }
+    }
+
+    /** The restore points (pre-import snapshots), newest first, for the Revert history list. */
+    public List<SnapshotInfo> getSnapshots() {
+        java.io.File[] files = snapshotDir().listFiles((d, n) -> n.startsWith("pre-import-") && n.endsWith(".yaml"));
+        List<SnapshotInfo> out = new ArrayList<>();
+        if (files == null) return out;
+        java.util.Arrays.sort(files, java.util.Comparator.comparing(java.io.File::getName).reversed());
+        for (java.io.File f : files) {
+            int roles = 0, assignments = 0, groups = 0;
+            try {
+                String yaml = java.nio.file.Files.readString(f.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+                OmniAuthConfigBackup.Parsed p = OmniAuthConfigBackup.parse(yaml);
+                roles = p.roleCount(); assignments = p.assignmentCount(); groups = p.groupCount();
+            } catch (Exception ignored) {
+                // a snapshot that can't be parsed still appears, just without counts
+            }
+            out.add(new SnapshotInfo(f.getName(), displayTimeOf(f), roles, assignments, groups));
+        }
+        return out;
+    }
+
+    /** Parses the timestamp out of a {@code pre-import-yyyyMMdd-HHmmss.yaml} name into a readable string. */
+    private static String displayTimeOf(java.io.File snap) {
+        String n = snap.getName();
+        try {
+            java.time.LocalDateTime t = java.time.LocalDateTime.parse(
+                    n.substring("pre-import-".length(), n.length() - ".yaml".length()),
+                    java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+            return t.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        } catch (Exception e) {
+            return n;
+        }
+    }
+
+    // ── Import history (what changed, when, by whom) ──────────────────────────
+
+    private static final int HISTORY_KEEP = 20;  // retained on disk
+    private static final int HISTORY_SHOW = 5;    // surfaced in the UI
+
+    /** One entry in the import-history log shown below the Revert card. */
+    public static final class HistoryEntry {
+        private final String displayTime, user, action, summary;
+        HistoryEntry(String displayTime, String user, String action, String summary) {
+            this.displayTime = displayTime; this.user = user; this.action = action; this.summary = summary;
+        }
+        public String getDisplayTime() { return displayTime; }
+        public String getUser()        { return user; }
+        public String getAction()      { return action; }
+        public String getSummary()     { return summary; }
+    }
+
+    private static java.io.File historyFile() {
+        return new java.io.File(snapshotDir(), "import-history.json");
+    }
+
+    /** Appends an event to the import-history log (newest first), capped at {@link #HISTORY_KEEP}. */
+    private static void recordHistory(String action, String summary) {
+        try {
+            net.sf.json.JSONArray arr = readHistoryArray();
+            net.sf.json.JSONObject e = new net.sf.json.JSONObject();
+            e.put("time", System.currentTimeMillis());
+            e.put("user", Jenkins.getAuthentication2().getName());
+            e.put("action", action);
+            e.put("summary", summary == null ? "" : summary);
+            arr.add(0, e);
+            while (arr.size() > HISTORY_KEEP) arr.remove(arr.size() - 1);
+            java.nio.file.Files.writeString(historyFile().toPath(), arr.toString(),
+                    java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            BR_LOG.log(Level.WARNING, "Could not record OmniAuth import-history event", ex);
+        }
+    }
+
+    private static net.sf.json.JSONArray readHistoryArray() {
+        java.io.File f = historyFile();
+        if (!f.isFile()) return new net.sf.json.JSONArray();
+        try {
+            String json = java.nio.file.Files.readString(f.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+            if (json.isBlank()) return new net.sf.json.JSONArray();
+            return net.sf.json.JSONArray.fromObject(json);
+        } catch (Exception ex) {
+            return new net.sf.json.JSONArray();
+        }
+    }
+
+    /** The most recent import/revert events (newest first) for the history table under Revert. */
+    public List<HistoryEntry> getImportHistory() {
+        net.sf.json.JSONArray arr = readHistoryArray();
+        List<HistoryEntry> out = new ArrayList<>();
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss").withZone(java.time.ZoneId.systemDefault());
+        for (int i = 0; i < arr.size() && out.size() < HISTORY_SHOW; i++) {
+            net.sf.json.JSONObject e = arr.getJSONObject(i);
+            String when = fmt.format(java.time.Instant.ofEpochMilli(e.optLong("time")));
+            out.add(new HistoryEntry(when, e.optString("user", "unknown"),
+                    e.optString("action", ""), e.optString("summary", "")));
+        }
+        return out;
+    }
+
+    /** True when there is at least one history event to show. */
+    public boolean isHistoryAvailable() { return !getImportHistory().isEmpty(); }
+
     public void doSettings(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "settings.jelly").forward(req, rsp);

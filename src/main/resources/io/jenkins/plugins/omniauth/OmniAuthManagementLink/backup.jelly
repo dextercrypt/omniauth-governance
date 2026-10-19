@@ -1,0 +1,418 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+
+  <l:layout title="OmniAuth — Backup &amp; Restore" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+
+      <div class="jenkins-app-bar">
+        <div class="jenkins-app-bar__content">
+          <h1 class="jenkins-app-bar__heading">Backup &amp; Restore</h1>
+        </div>
+      </div>
+
+      <div style="padding: 16px 24px; max-width: 860px;">
+
+        <!-- Status messages -->
+        <j:if test="${request2.getParameter('imported') == '1'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
+            Configuration imported — ${request2.getParameter('roles')} role(s),
+            ${request2.getParameter('assignments')} assignment(s),
+            ${request2.getParameter('groups')} group(s). If you imported from another controller,
+            re-enter your secrets (Entra client secret, SMTP password, Slack/Teams webhooks) on the
+            relevant pages.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('reverted') == '1'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
+            Restored to the chosen point.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') != null}">
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom: 20px;">
+            ${request2.getParameter('error')}
+          </div>
+        </j:if>
+
+        <!-- What this does -->
+        <div class="jenkins-card" style="padding: 16px 20px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px 0; color: var(--text-color-secondary); font-size: 0.9em;">
+            Back up and restore OmniAuth <strong>roles, assignments, Access-Management groups, and
+            global settings</strong> as a portable YAML file — useful for replicating access
+            configuration onto another controller.
+          </p>
+          <p style="margin: 0; color: var(--text-color-secondary); font-size: 0.85em;">
+            The sign-in / security realm and all secrets are <strong>not</strong> included, so an
+            import never changes how you log in. After restoring onto a different controller,
+            re-enter secrets on their pages.
+          </p>
+        </div>
+
+        <!-- Export -->
+        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
+            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Export</h3>
+          </div>
+          <div style="padding: 16px 20px;">
+            <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
+              Download the current configuration as a YAML file.
+            </p>
+            <form method="post" action="exportConfig">
+              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+              <button type="submit" class="jenkins-button jenkins-button--primary">
+                Export configuration
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Import -->
+        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
+            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Import / Restore</h3>
+          </div>
+          <div style="padding: 16px 20px;">
+            <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
+              Choose a backup file (or paste its contents), then review the plan. Importing
+              <strong>replaces</strong> the current roles, assignments, groups and settings. A restore
+              point is saved first, so you can roll back.
+            </p>
+            <form method="post" action="importConfig" id="bkImportForm">
+              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+              <input type="file" id="bkFile" accept=".yaml,.yml,.txt"
+                     class="jenkins-input" style="margin-bottom: 12px; display: block;"/>
+              <textarea name="config" id="bkConfig" rows="8"
+                        placeholder="Backup file contents appear here (or paste them)."
+                        class="jenkins-input" style="width: 100%; font-family: monospace; font-size: 0.8em;"></textarea>
+              <div style="margin-top: 12px;">
+                <button type="button" id="bkPreviewBtn" class="jenkins-button jenkins-button--primary">
+                  Review changes &amp; import
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Revert / restore points -->
+        <j:if test="${it.revertAvailable}">
+          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
+              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Restore points</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+              <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
+                A snapshot is saved automatically before each import. Roll back to any of the last five.
+              </p>
+              <table class="jenkins-table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>Taken</th>
+                    <th>Contents</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="s" items="${it.snapshots}">
+                    <tr>
+                      <td>${s.displayTime}</td>
+                      <td style="color: var(--text-color-secondary);">
+                        ${s.roles} role(s), ${s.assignments} assignment(s), ${s.groups} group(s)
+                      </td>
+                      <td style="text-align: right;">
+                        <form method="post" action="revertImport" class="bkRevertForm"
+                              style="display: inline;" data-when="${s.displayTime}">
+                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                          <input type="hidden" name="snapshot" value="${s.fileName}"/>
+                          <button type="submit" class="jenkins-button">Roll back to this</button>
+                        </form>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </j:if>
+
+        <!-- Import history -->
+        <j:if test="${it.historyAvailable}">
+          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
+              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Recent activity</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+              <table class="jenkins-table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Who</th>
+                    <th>Action</th>
+                    <th>What changed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="h" items="${it.importHistory}">
+                    <tr>
+                      <td style="white-space: nowrap;">${h.displayTime}</td>
+                      <td>${h.user}</td>
+                      <td style="text-transform: capitalize;">${h.action}</td>
+                      <td style="color: var(--text-color-secondary);">${h.summary}</td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </j:if>
+
+      </div>
+
+      <!-- Plan modal -->
+      <div id="bkPlanOverlay" style="display: none; position: fixed; inset: 0; z-index: 1000;
+           background: rgba(0,0,0,0.5); align-items: flex-start; justify-content: center;">
+        <div class="jenkins-card" style="margin-top: 7vh; width: 92%; max-width: 680px; max-height: 80vh;
+             display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid var(--oau-card-border);">
+            <h2 id="bkPlanTitle" style="margin: 0; font-size: 1.05em;">Import plan</h2>
+            <p id="bkPlanSubtitle" style="margin: 6px 0 0 0; color: var(--text-color-secondary); font-size: 0.85em;">
+              These changes will be applied to the live configuration. A restore point is saved first.
+            </p>
+          </div>
+          <div id="bkPlanBody" style="padding: 16px 20px; overflow-y: auto; flex: 1 1 auto;"></div>
+          <div style="padding: 14px 20px; border-top: 1px solid var(--oau-card-border);
+               display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" id="bkPlanCancel" class="jenkins-button">Cancel</button>
+            <button type="button" id="bkPlanApply" class="jenkins-button jenkins-button--primary">
+              Apply import
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script type="text/javascript"><![CDATA[
+        (function () {
+          // Read the crumb from the page head (Jenkins renders it there) — reliable, unlike
+          // interpolating an EL expression into inline script.
+          var head = document.head;
+          var CRUMB_FIELD = (head && head.getAttribute('data-crumb-header')) || 'Jenkins-Crumb';
+          var CRUMB = (head && head.getAttribute('data-crumb-value')) || '';
+
+          var fileInput = document.getElementById('bkFile');
+          var configArea = document.getElementById('bkConfig');
+          var importForm = document.getElementById('bkImportForm');
+          var previewBtn = document.getElementById('bkPreviewBtn');
+          var overlay = document.getElementById('bkPlanOverlay');
+          var planBody = document.getElementById('bkPlanBody');
+          var applyBtn = document.getElementById('bkPlanApply');
+          var cancelBtn = document.getElementById('bkPlanCancel');
+
+          // Load a chosen file into the textarea.
+          if (fileInput && configArea) {
+            fileInput.addEventListener('change', function () {
+              var f = fileInput.files && fileInput.files[0];
+              if (!f) { return; }
+              var reader = new FileReader();
+              reader.onload = function (e) { configArea.value = e.target.result; };
+              reader.readAsText(f);
+            });
+          }
+
+          function el(tag, cls, text) {
+            var e = document.createElement(tag);
+            if (cls) e.className = cls;
+            if (text !== undefined) e.textContent = text;
+            return e;
+          }
+
+          var ADD = 'var(--success-color, #1f883d)';
+          var REM = 'var(--error-color, #cf222e)';
+          var CHG = 'var(--warning-color, #9a6700)';
+
+          function mkLine(text, color) {
+            var li = el('li', null, text);
+            li.style.color = color;
+            li.style.fontFamily = 'monospace';
+            li.style.fontSize = '0.85em';
+            li.style.listStyle = 'none';
+            li.style.marginBottom = '2px';
+            return li;
+          }
+
+          function changeList(title, grp) {
+            var total = grp.added.length + grp.removed.length + grp.changed.length;
+            if (total === 0) return null;
+            var wrap = el('div');
+            wrap.style.marginBottom = '14px';
+            var h = el('div', null, title);
+            h.style.fontWeight = '600';
+            h.style.marginBottom = '6px';
+            wrap.appendChild(h);
+            var ul = el('ul');
+            ul.style.margin = '0';
+            ul.style.paddingLeft = '4px';
+            ul.style.listStyle = 'none';
+            grp.added.forEach(function (name)   { ul.appendChild(mkLine('+ ' + name, ADD)); });
+            grp.removed.forEach(function (name) { ul.appendChild(mkLine('- ' + name, REM)); });
+            grp.changed.forEach(function (item) {
+              var li = mkLine('~ ' + item.name, CHG);
+              if (item.lines && item.lines.length) {
+                var sub = el('ul');
+                sub.style.margin = '2px 0 4px 0';
+                sub.style.paddingLeft = '18px';
+                sub.style.listStyle = 'none';
+                item.lines.forEach(function (l) {
+                  var sli = el('li');
+                  sli.style.fontFamily = 'monospace';
+                  sli.style.fontSize = '0.8em';
+                  sli.style.marginBottom = '2px';
+                  var lab = el('span', null, l.label + ': ');
+                  lab.style.color = 'var(--text-color-secondary)';
+                  sli.appendChild(lab);
+                  (l.segs || []).forEach(function (sg) {
+                    var sp = el('span', null, sg.text);
+                    sp.style.color = (sg.tone === 'add') ? ADD
+                                   : (sg.tone === 'remove') ? REM
+                                   : 'var(--text-color-secondary)';
+                    if (sg.tone === 'add' || sg.tone === 'remove') sp.style.fontWeight = '600';
+                    sli.appendChild(sp);
+                  });
+                  sub.appendChild(sli);
+                });
+                li.appendChild(sub);
+              }
+              ul.appendChild(li);
+            });
+            wrap.appendChild(ul);
+            return wrap;
+          }
+
+          function renderPlan(data) {
+            planBody.innerHTML = '';
+            if (data.empty) {
+              planBody.appendChild(el('p', null,
+                'No changes — the live configuration already matches.'));
+              return;
+            }
+            var summary = el('p', null, 'Summary: ' + data.summary);
+            summary.style.marginTop = '0';
+            summary.style.color = 'var(--text-color-secondary)';
+            planBody.appendChild(summary);
+
+            [['Roles', data.roles], ['Groups', data.groups], ['Assignments', data.assignments]]
+              .forEach(function (pair) {
+                var node = changeList(pair[0], pair[1]);
+                if (node) planBody.appendChild(node);
+              });
+
+            if (data.settings && data.settings.length) {
+              var wrap = el('div');
+              var h = el('div', null, 'Settings');
+              h.style.fontWeight = '600';
+              h.style.marginBottom = '6px';
+              wrap.appendChild(h);
+              data.settings.forEach(function (s) {
+                var li = el('div', null, s.key + ': ' + (s.from || '(empty)') + ' → ' + (s.to || '(empty)'));
+                li.style.fontFamily = 'monospace';
+                li.style.fontSize = '0.85em';
+                li.style.color = 'var(--warning-color, #9a6700)';
+                li.style.marginBottom = '2px';
+                wrap.appendChild(li);
+              });
+              planBody.appendChild(wrap);
+            }
+          }
+
+          function showOverlay() { overlay.style.display = 'flex'; }
+          function hideOverlay() { overlay.style.display = 'none'; }
+
+          var titleEl = document.getElementById('bkPlanTitle');
+          var subtitleEl = document.getElementById('bkPlanSubtitle');
+          var pendingApply = null;
+
+          // Open the plan modal with a rendered diff and a specific apply action.
+          function openPlan(data, opts) {
+            if (titleEl) titleEl.textContent = opts.title;
+            if (subtitleEl) subtitleEl.textContent = opts.subtitle;
+            if (applyBtn) applyBtn.textContent = opts.applyLabel;
+            renderPlan(data);
+            pendingApply = opts.onApply;
+            showOverlay();
+          }
+
+          // POST to a preview endpoint (crumb as header + body), parse the plan JSON, hand it back.
+          function fetchPlan(url, params, onReady, onDone) {
+            var body = new URLSearchParams();
+            body.append(CRUMB_FIELD, CRUMB);
+            Object.keys(params).forEach(function (k) { body.append(k, params[k]); });
+            var headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'};
+            headers[CRUMB_FIELD] = CRUMB;
+            fetch(url, {method: 'POST', credentials: 'same-origin', headers: headers, body: body.toString()})
+              .then(function (r) { return r.text().then(function (t) { return {status: r.status, text: t}; }); })
+              .then(function (res) {
+                if (onDone) onDone();
+                var data;
+                try { data = JSON.parse(res.text); }
+                catch (e) {
+                  alert('Could not compute the plan (server returned HTTP ' + res.status
+                        + '). Try reloading the page and trying again.');
+                  return;
+                }
+                if (!data.ok) { alert('Could not read that configuration: ' + (data.error || 'unknown error')); return; }
+                onReady(data);
+              }).catch(function (err) {
+                if (onDone) onDone();
+                alert('Could not compute the plan: ' + err);
+              });
+          }
+
+          if (previewBtn) {
+            previewBtn.addEventListener('click', function () {
+              if (!configArea.value.trim()) {
+                alert('Choose a backup file or paste its contents first.');
+                return;
+              }
+              previewBtn.disabled = true;
+              fetchPlan('previewImport', {config: configArea.value}, function (data) {
+                openPlan(data, {
+                  title: 'Import plan',
+                  subtitle: 'These changes will be applied to the live configuration. A restore point is saved first.',
+                  applyLabel: 'Apply import',
+                  onApply: function () { importForm.submit(); }
+                });
+              }, function () { previewBtn.disabled = false; });
+            });
+          }
+
+          if (applyBtn) applyBtn.addEventListener('click', function () { if (pendingApply) pendingApply(); });
+          if (cancelBtn) cancelBtn.addEventListener('click', hideOverlay);
+          if (overlay) overlay.addEventListener('click', function (e) { if (e.target === overlay) hideOverlay(); });
+
+          // Each roll-back previews the restore point first (same modal), then applies on confirm.
+          // form.submit() bypasses this submit handler, so Apply won't re-trigger the preview.
+          var revertForms = document.querySelectorAll('.bkRevertForm');
+          Array.prototype.forEach.call(revertForms, function (form) {
+            var btn = form.querySelector('button[type=submit]');
+            form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              var when = form.getAttribute('data-when') || 'this point';
+              var snap = form.querySelector('input[name=snapshot]');
+              if (btn) btn.disabled = true;
+              fetchPlan('previewRevert', {snapshot: snap ? snap.value : ''}, function (data) {
+                openPlan(data, {
+                  title: 'Rollback plan',
+                  subtitle: 'Roll back to the restore point from ' + when
+                            + '. These changes will be applied; a new restore point is saved first.',
+                  applyLabel: 'Apply rollback',
+                  onApply: function () { form.submit(); }
+                });
+              }, function () { if (btn) btn.disabled = false; });
+            });
+          });
+        })();
+      ]]></script>
+
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

@@ -45,6 +45,9 @@
     <l:task icon="symbol-document-text"
             href="${rootURL}/manage/omniauth-management/auditLog"
             title="Audit Log"/>
+    <l:task icon="symbol-archive-outline plugin-ionicons-api"
+            href="${rootURL}/manage/omniauth-management/backup"
+            title="Backup &amp; Restore"/>
     <l:task icon="symbol-information-circle"
             href="${rootURL}/manage/omniauth-management/about"
             title="Info"/>
