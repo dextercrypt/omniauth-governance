@@ -117,26 +117,52 @@ public class OmniAuthManagementLink extends ManagementLink {
         return log != null ? log.readRecent(200) : Collections.emptyList();
     }
 
+    /** Audit-log storage usage (events, size, oldest event) for the Settings → Audit Log card. */
+    public OmniAuthAuditLog.StorageInfo getAuditStorage() {
+        OmniAuthAuditLog log = OmniAuthAuditLog.get();
+        return log != null ? log.getStorageInfo() : new OmniAuthAuditLog.StorageInfo(0, 0, "", 0);
+    }
+
+    /**
+     * True when the current admin signs in through SSO (Entra) and so has no local password to
+     * re-enter. Sensitive-action confirmations fall back to a typed phrase for these users —
+     * {@code manager2.authenticate} can never succeed for an account with no password hash.
+     */
+    public boolean isCurrentUserSso() {
+        User u = User.current();
+        return u != null && isEntraIdentity(u.getProperty(OmniAuthUserProperty.class));
+    }
+
     @POST
     public void doPurgeAuditLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        String password = req.getParameter("confirmPassword");
         String currentUser = Jenkins.getAuthentication2().getName();
 
-        // Verify password via security realm
-        try {
-            Jenkins.get().getSecurityRealm().getSecurityComponents().manager2
-                    .authenticate(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(currentUser, password));
-        } catch (Exception e) {
-            LoginContextFilter.FRESH_LOGINS.remove("__failed__" + currentUser);
-            LoginContextFilter.FAILED_CONTEXT.remove("__failed__" + currentUser);
-            rsp.setContentType("application/json");
-            rsp.getWriter().write("{\"error\":\"wrongPassword\"}");
-            return;
+        if (isCurrentUserSso()) {
+            // SSO admins have no local password; confirm with a typed phrase instead.
+            String phrase = req.getParameter("confirmPhrase");
+            if (phrase == null || !phrase.trim().equalsIgnoreCase("DELETE")) {
+                rsp.setContentType("application/json");
+                rsp.getWriter().write("{\"error\":\"wrongPhrase\"}");
+                return;
+            }
+        } else {
+            // Native accounts re-enter their password.
+            String password = req.getParameter("confirmPassword");
+            try {
+                Jenkins.get().getSecurityRealm().getSecurityComponents().manager2
+                        .authenticate(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(currentUser, password));
+            } catch (Exception e) {
+                LoginContextFilter.FRESH_LOGINS.remove("__failed__" + currentUser);
+                LoginContextFilter.FAILED_CONTEXT.remove("__failed__" + currentUser);
+                rsp.setContentType("application/json");
+                rsp.getWriter().write("{\"error\":\"wrongPassword\"}");
+                return;
+            }
+            // Suppress the login event that manager2.authenticate() fires — this is a password
+            // verification, not a real login, so it should not appear in the audit log
+            LoginContextFilter.FRESH_LOGINS.remove(currentUser);
         }
-        // Suppress the login event that manager2.authenticate() fires — this is a password
-        // verification, not a real login, so it should not appear in the audit log
-        LoginContextFilter.FRESH_LOGINS.remove(currentUser);
 
         OmniAuthAuditLog log = OmniAuthAuditLog.get();
         if (log != null) {
@@ -1118,6 +1144,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             String oldCron           = config.getCleanupCron();
             int    oldMaxDel         = config.getCleanupMaxDeletions();
             int    oldBft            = config.getBruteForceThreshold();
+            int    oldAuditRet       = config.getAuditRetentionDays();
 
             net.sf.json.JSONObject json = new net.sf.json.JSONObject();
             // thresholds
@@ -1125,6 +1152,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             String active = req.getParameter("activeThresholdDays");
             if (stale  != null) json.put("staleThresholdDays",  stale.trim());
             if (active != null) json.put("activeThresholdDays", active.trim());
+            // audit log retention (days; 0 = keep forever)
+            String auditRet = req.getParameter("auditRetentionDays");
+            if (auditRet != null) json.put("auditRetentionDays", auditRet.trim());
             // cleanup
             boolean cleanupEnabled = req.getParameter("cleanupEnabled") != null;
             json.put("cleanupEnabled", cleanupEnabled);
@@ -1222,6 +1252,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (!config.getCleanupCron().equals(oldCron))            diff.add("cleanupCron: "         + oldCron    + " → " + config.getCleanupCron());
             if (config.getCleanupMaxDeletions() != oldMaxDel)        diff.add("cleanupMaxDeletions: " + oldMaxDel  + " → " + config.getCleanupMaxDeletions());
             if (config.getBruteForceThreshold() != oldBft)           diff.add("bruteForceThreshold: " + oldBft     + " → " + config.getBruteForceThreshold());
+            if (config.getAuditRetentionDays()  != oldAuditRet)      diff.add("auditRetentionDays: "  + oldAuditRet + " → " + config.getAuditRetentionDays());
             if (!diff.isEmpty()) {
                 NotificationService.sendConfigChanged(config, currentUserId(), java.time.Instant.now().toString(), diff);
                 OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Settings", String.join("; ", diff));
@@ -2232,6 +2263,72 @@ public class OmniAuthManagementLink extends ManagementLink {
         public String getUserId()   { return userId; }
         public String getFullName() { return fullName; }
         public LoginEvent getEvent(){ return event; }
+    }
+
+    // ── Overview dashboard: login-activity chart + live metrics ─────────────────
+
+    /** One day's login tally for the Overview activity chart (successes split SSO vs native). */
+    public static class DayActivity {
+        private final String label;
+        private final int ssoSuccess;
+        private final int nativeSuccess;
+        private final int failure;
+        DayActivity(String label, int ssoSuccess, int nativeSuccess, int failure) {
+            this.label = label; this.ssoSuccess = ssoSuccess;
+            this.nativeSuccess = nativeSuccess; this.failure = failure;
+        }
+        public String getLabel()       { return label; }
+        public int getSsoSuccess()     { return ssoSuccess; }
+        public int getNativeSuccess()  { return nativeSuccess; }
+        public int getSuccess()        { return ssoSuccess + nativeSuccess; }
+        public int getFailure()        { return failure; }
+    }
+
+    /** Full 14-day activity series plus the max value, so the Jelly can scale bars in one pass. */
+    public static class LoginActivity {
+        private final List<DayActivity> days;
+        private final int max;
+        LoginActivity(List<DayActivity> days, int max) { this.days = days; this.max = max; }
+        public List<DayActivity> getDays() { return days; }
+        public int getMax() { return max; }           // never 0 (floored at 1) so bar math is safe
+    }
+
+    /** Builds the 14-day login-activity series (oldest-first) from the audit log in a single pass. */
+    public LoginActivity getLoginActivity() {
+        final int days = 14;
+        OmniAuthAuditLog log = OmniAuthAuditLog.get();
+        int[][] series = (log != null) ? log.getLoginSeriesByDay(days) : new int[days][3];
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneOffset.UTC);
+        List<DayActivity> list = new ArrayList<>(days);
+        int max = 1;
+        for (int i = 0; i < days; i++) {
+            java.time.LocalDate d = today.minusDays(days - 1 - i);
+            int sso = series[i][0], nat = series[i][1], fail = series[i][2];
+            list.add(new DayActivity(d.toString(), sso, nat, fail));
+            // Scale against the taller of the (stacked) success total and the failure count.
+            max = Math.max(max, Math.max(sso + nat, fail));
+        }
+        return new LoginActivity(list, max);
+    }
+
+    /**
+     * Live metrics for the Overview page's auto-refresh. Returns the volatile KPI counts as JSON so
+     * the dashboard can update in place every few seconds without a full reload. Read-only.
+     */
+    public void doOverviewMetrics(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        net.sf.json.JSONObject out = new net.sf.json.JSONObject();
+        out.put("total",       getTotalUserCount());
+        out.put("active",      getActiveUserCount());
+        out.put("stale",       getStaleUserCount());
+        out.put("protected",   getProtectedUserCount());
+        out.put("sso",         getEntraUserCount());
+        out.put("native",      getLegacyUserCount());
+        out.put("sessions",    getActiveSessionCount());
+        out.put("failed24h",   getFailedLoginsLast24h());
+        out.put("pendingJit",  getPendingJitCount());
+        out.put("ts",          java.time.Instant.now().toString());
+        writeJson(rsp, out);
     }
 
     public int getTotalUserCount()     { return (int) User.getAll().stream().filter(u -> !isInternalUser(u)).count(); }

@@ -77,6 +77,41 @@
           </div>
 
           <!-- ================================================================
+               AUDIT LOG RETENTION
+               ================================================================ -->
+          <j:set var="auditStore" value="${it.auditStorage}"/>
+          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,#0078d4);flex-shrink:0;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Audit Log Retention</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+              <label style="display: block;">
+                <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Retention period (days)</div>
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                  Audit events older than this are automatically pruned by a daily job. Set to
+                  <strong>0</strong> to keep events forever. Audit entries are tiny (~110 bytes each),
+                  so even years of history stays small.
+                </div>
+                <input type="number" onwheel="this.blur()" name="auditRetentionDays" min="0" max="3650"
+                       value="${cfg.auditRetentionDays}"
+                       class="jenkins-input" style="width: 100px;"/>
+                <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days (0 = forever)</span>
+              </label>
+              <!-- Live storage readout -->
+              <div style="margin-top: 14px; padding: 10px 14px; background: var(--oau-neutral-bg); border-radius: 6px; font-size: 0.82em; color: var(--text-color-secondary); display: flex; gap: 18px; flex-wrap: wrap;">
+                <span><strong style="color: var(--text-color);">${auditStore.events}</strong> events stored</span>
+                <span><strong style="color: var(--text-color);">${auditStore.humanSize}</strong> on disk</span>
+                <j:if test="${auditStore.oldest != ''}">
+                  <span>oldest: <span class="oau-ts-abbr" data-ts="${auditStore.oldest}">${auditStore.oldest}</span></span>
+                </j:if>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
                AUTOMATED CLEANUP
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
@@ -426,6 +461,18 @@
       </style>
 
       <script>//<![CDATA[
+        // Localize the "oldest audit event" timestamp on the retention card.
+        document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.oau-ts-abbr[data-ts]').forEach(function(el) {
+            var ts = el.getAttribute('data-ts');
+            if (!ts) return;
+            try {
+              el.textContent = new Date(ts).toLocaleDateString(undefined,
+                { year:'numeric', month:'short', day:'numeric' });
+            } catch(e) {}
+          });
+        });
+
         function oauUploadLoginLogo(input) {
           if (!input.files || !input.files[0]) return;
           var statusEl = document.getElementById('oauLogoUploadStatus');

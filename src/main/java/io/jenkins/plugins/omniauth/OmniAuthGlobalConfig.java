@@ -25,6 +25,9 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     private int staleThresholdDays  = 90;
     private int activeThresholdDays = 30;
 
+    // ── Audit log retention (days; 0 = keep forever) ──────────────────────────
+    private int auditRetentionDays = 365;
+
     // ── Automated cleanup ─────────────────────────────────────────────────────
     private boolean cleanupEnabled      = false;
     private boolean cleanupDryRun       = true;
@@ -134,6 +137,8 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     @DataBoundSetter public void setStaleThresholdDays(int v)  { this.staleThresholdDays = v; }
     public int getActiveThresholdDays()      { return activeThresholdDays; }
     @DataBoundSetter public void setActiveThresholdDays(int v) { this.activeThresholdDays = v; }
+    public int getAuditRetentionDays()       { return auditRetentionDays; }
+    @DataBoundSetter public void setAuditRetentionDays(int v) { this.auditRetentionDays = Math.max(0, v); }
     public boolean isCleanupEnabled()        { return cleanupEnabled; }
     @DataBoundSetter public void setCleanupEnabled(boolean v) { this.cleanupEnabled = v; }
     public boolean isCleanupDryRun()         { return cleanupDryRun; }
@@ -434,6 +439,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
         staleThresholdDays  = jsonInt(json, "staleThresholdDays",  90);
         activeThresholdDays = jsonInt(json, "activeThresholdDays", 30);
+        auditRetentionDays  = Math.max(0, jsonInt(json, "auditRetentionDays", 365));
         cleanupEnabled      = json.optBoolean("cleanupEnabled",  false);
         cleanupDryRun       = !cleanupEnabled || json.optBoolean("cleanupDryRun", true);
         cleanupCron         = jsonStr(json, "cleanupCron",         "0 2 * * 0");

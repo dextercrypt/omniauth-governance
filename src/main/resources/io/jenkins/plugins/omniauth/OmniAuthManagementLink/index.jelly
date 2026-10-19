@@ -26,16 +26,19 @@
         <div class="jenkins-app-bar__content">
           <h1 class="jenkins-app-bar__heading">Overview</h1>
         </div>
-        <div class="jenkins-app-bar__controls">
-          <button type="button" class="jenkins-button" onclick="window.location.reload();"
+        <div class="jenkins-app-bar__controls" style="display:inline-flex;align-items:center;gap:12px;">
+          <span class="oau-live-status" id="oauLiveStatus">
+            <span class="oau-live-dot" id="oauLiveDot"></span>
+            <span id="oauLiveText">Live</span>
+          </span>
+          <button type="button" class="jenkins-button" id="oauLiveToggle" onclick="oauToggleLive()"
+                  title="Pause or resume live updates"
                   style="display:inline-flex;align-items:center;gap:6px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-              <path d="M8 16H3v5"/>
+            <svg id="oauLiveIcon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>
             </svg>
-            Refresh
+            <span id="oauLiveBtnText">Pause</span>
           </button>
         </div>
       </div>
@@ -190,7 +193,7 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#0078d4;">${total}</div>
+            <div class="oau-kpi-card__value" data-kpi="total" style="color:#0078d4;">${total}</div>
             <div class="oau-kpi-card__label">Total Users</div>
           </a>
 
@@ -201,7 +204,7 @@
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:var(--success-color);">${active}</div>
+            <div class="oau-kpi-card__value" data-kpi="active" style="color:var(--success-color);">${active}</div>
             <div class="oau-kpi-card__label">Active <span class="oau-kpi-card__sublabel">(${cfg.activeThresholdDays}d)</span></div>
           </a>
 
@@ -212,7 +215,7 @@
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};">${staleCount}</div>
+            <div class="oau-kpi-card__value" style="color:${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="stale">${staleCount}</div>
             <div class="oau-kpi-card__label">Stale <span class="oau-kpi-card__sublabel">(${cfg.staleThresholdDays}d)</span></div>
           </a>
 
@@ -223,7 +226,7 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#7c3aed;">${it.protectedUserCount}</div>
+            <div class="oau-kpi-card__value" data-kpi="protected" style="color:#7c3aed;">${it.protectedUserCount}</div>
             <div class="oau-kpi-card__label">Protected</div>
           </a>
 
@@ -235,7 +238,7 @@
                 <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#1d4ed8;">${ssoCount}</div>
+            <div class="oau-kpi-card__value" data-kpi="sso" style="color:#1d4ed8;">${ssoCount}</div>
             <div class="oau-kpi-card__label">SSO Users</div>
           </a>
 
@@ -246,7 +249,7 @@
                 <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:var(--text-color-secondary);">${nativeCount}</div>
+            <div class="oau-kpi-card__value" data-kpi="native" style="color:var(--text-color-secondary);">${nativeCount}</div>
             <div class="oau-kpi-card__label">Native Users</div>
           </a>
 
@@ -258,7 +261,7 @@
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:#be185d;">${it.activeSessionCount}</div>
+            <div class="oau-kpi-card__value" data-kpi="sessions" style="color:#be185d;">${it.activeSessionCount}</div>
             <div class="oau-kpi-card__label">Live Sessions</div>
           </a>
 
@@ -271,7 +274,7 @@
                 <circle cx="12" cy="16" r="1" fill="currentColor"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};">${failed24h}</div>
+            <div class="oau-kpi-card__value" style="color:${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="failed24h">${failed24h}</div>
             <div class="oau-kpi-card__label">Failed Logins <span class="oau-kpi-card__sublabel">(24h)</span></div>
           </a>
 
@@ -283,10 +286,53 @@
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
             </div>
-            <div class="oau-kpi-card__value" style="color:${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'};">${pendingJit}</div>
+            <div class="oau-kpi-card__value" style="color:${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'};" data-kpi="pendingJit">${pendingJit}</div>
             <div class="oau-kpi-card__label">Pending JIT</div>
           </a>
 
+        </div>
+
+        <!-- ── Login Activity chart (14-day, SVG/CSS, no deps) ──────────────── -->
+        <j:set var="act" value="${it.loginActivity}"/>
+        <div class="jenkins-card oau-widget oau-chart-card" style="margin-bottom:16px;">
+          <div class="oau-widget__header">
+            <div class="oau-widget__title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+              </svg>
+              Login Activity
+              <span style="font-weight:400;color:var(--text-color-secondary);font-size:0.85em;margin-left:4px;">· last 14 days</span>
+            </div>
+            <div class="oau-chart-legend">
+              <span><span class="oau-dot" style="background:#1d4ed8;"></span> SSO</span>
+              <span><span class="oau-dot" style="background:var(--success-color);"></span> Native</span>
+              <span><span class="oau-dot" style="background:var(--error-color);"></span> Failed</span>
+            </div>
+          </div>
+          <div class="oau-chart-plot">
+            <j:forEach var="d" items="${act.days}" varStatus="st">
+              <!-- Click a day to open the Audit Log filtered to that date. -->
+              <a class="oau-chart-col" href="auditLog?from=${d.label}&amp;to=${d.label}"
+                 title="${d.label} — ${d.ssoSuccess} SSO, ${d.nativeSuccess} native, ${d.failure} failed">
+                <div class="oau-chart-bars">
+                  <!-- Success bar: native (green) base, SSO (blue) stacked on top -->
+                  <div class="oau-chart-stack">
+                    <div class="oau-chart-seg oau-chart-seg--sso"
+                         style="--h:${act.max gt 0 ? (d.ssoSuccess * 100 / act.max) : 0}%; animation-delay:${st.index * 35}ms;"></div>
+                    <div class="oau-chart-seg oau-chart-seg--native"
+                         style="--h:${act.max gt 0 ? (d.nativeSuccess * 100 / act.max) : 0}%; animation-delay:${st.index * 35}ms;"></div>
+                  </div>
+                  <div class="oau-chart-bar oau-chart-bar--fail"
+                       style="--h:${act.max gt 0 ? (d.failure * 100 / act.max) : 0}%; animation-delay:${st.index * 35 + 15}ms;"></div>
+                </div>
+              </a>
+            </j:forEach>
+          </div>
+          <div class="oau-chart-xaxis">
+            <span>${act.days.get(0).label}</span>
+            <span style="font-weight:600;color:var(--text-color);">Today</span>
+          </div>
         </div>
 
         <!-- ── Row 2: Needs Attention + Expiring Access + User Composition + Notifications ── -->
@@ -510,17 +556,30 @@
               </div>
               <div style="padding:0 16px 16px; display:flex; flex-direction:column; gap:12px;">
 
-                <div>
-                  <div style="display:flex;justify-content:space-between;font-size:0.8em;margin-bottom:5px;">
-                    <span style="color:var(--text-color-secondary,var(--text-color-secondary));">SSO vs Native</span>
-                    <span style="font-weight:600;">${ssoCount} / ${nativeCount}</span>
-                  </div>
-                  <div class="oau-progress-track">
-                    <div class="oau-progress-fill" style="width:${total gt 0 ? (ssoCount * 100 / total) : 0}%; background:#1d4ed8;"></div>
-                  </div>
-                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));">
-                    <span><span class="oau-dot" style="background:#1d4ed8;"></span> SSO</span>
-                    <span><span class="oau-dot" style="background:var(--text-color-secondary);"></span> Native</span>
+                <!-- SSO vs Native — SVG donut (circumference 2πr with r=40 ≈ 251) -->
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <svg width="104" height="104" viewBox="0 0 120 120" style="flex-shrink:0;">
+                    <circle cx="60" cy="60" r="40" fill="none" stroke="var(--oau-neutral-bg)" stroke-width="14"/>
+                    <circle class="oau-donut-arc" cx="60" cy="60" r="40" fill="none" stroke="#1d4ed8" stroke-width="14"
+                            stroke-linecap="round" transform="rotate(-90 60 60)"
+                            stroke-dasharray="${total gt 0 ? (ssoCount * 251 / total) : 0} 251"/>
+                    <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text-color)">${total}</text>
+                    <text x="60" y="73" text-anchor="middle" font-size="9" letter-spacing="0.5" fill="var(--text-color-secondary)">USERS</text>
+                  </svg>
+                  <div style="display:flex; flex-direction:column; gap:8px; font-size:0.82em;">
+                    <div style="display:flex; align-items:center; gap:7px;">
+                      <span class="oau-dot" style="background:#1d4ed8;"></span>
+                      <span style="color:var(--text-color-secondary);">SSO</span>
+                      <strong style="margin-left:auto;">${ssoCount}</strong>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:7px;">
+                      <span class="oau-dot" style="background:var(--text-color-secondary);"></span>
+                      <span style="color:var(--text-color-secondary);">Native</span>
+                      <strong style="margin-left:auto;">${nativeCount}</strong>
+                    </div>
+                    <div style="font-size:0.85em; color:var(--text-color-secondary); margin-top:2px;">
+                      ${total gt 0 ? (ssoCount * 100 / total) : 0}% single sign-on
+                    </div>
                   </div>
                 </div>
 
@@ -773,12 +832,15 @@
                 </div>
                 <div class="oau-config-row">
                   <span class="oau-config-label">PKCE + Nonce</span>
-                  <span class="oau-pill oau-pill--green">Enabled</span>
+                  <!-- Always enforced on the OAuth flow — not a toggle. -->
+                  <span class="oau-pill oau-pill--blue" title="Always enforced on the SSO flow — cannot be disabled">Always on</span>
                 </div>
                 <div class="oau-config-row">
                   <span class="oau-config-label">Group Sync</span>
+                  <!-- Group sync is a property of the Entra (SSO) config, not the global config. -->
                   <j:choose>
-                    <j:when test="${cfg.enableGroupSync}"><span class="oau-pill oau-pill--green">On</span></j:when>
+                    <j:when test="${!it.ssoConfigured}"><span class="oau-pill oau-pill--gray" title="No SSO provider configured">N/A</span></j:when>
+                    <j:when test="${it.entraConfig.enableGroupSync}"><span class="oau-pill oau-pill--green">On</span></j:when>
                     <j:otherwise><span class="oau-pill oau-pill--gray">Off</span></j:otherwise>
                   </j:choose>
                 </div>
@@ -917,6 +979,147 @@
           });
         })();
 
+      //]]></script>
+
+      <!-- ── Dashboard: live metrics, count-up, chart & donut polish ──────────── -->
+      <style>
+        /* KPI hover lift + live-update tick */
+        .oau-kpi-card { transition: transform .15s ease, box-shadow .15s ease; }
+        .oau-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
+        .oau-kpi-card__value { transition: color .2s ease; }
+        @keyframes oauTick { 0%{ transform: scale(1);} 35%{ transform: scale(1.14);} 100%{ transform: scale(1);} }
+        .oau-kpi-card__value.oau-ticked { animation: oauTick .45s ease; }
+
+        /* Live status indicator */
+        .oau-live-status { display:inline-flex; align-items:center; gap:7px; font-size:0.82em;
+                           color: var(--text-color-secondary); white-space:nowrap; }
+        .oau-live-dot { width:8px; height:8px; border-radius:50%; background: var(--success-color);
+                        box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 70%, transparent);
+                        animation: oauPulse 2s infinite; }
+        @keyframes oauPulse {
+          0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 60%, transparent); }
+          70%  { box-shadow: 0 0 0 7px color-mix(in srgb, var(--success-color) 0%, transparent); }
+          100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 0%, transparent); }
+        }
+        .oau-live-status--paused { color: var(--text-color-secondary); }
+        .oau-live-status--paused .oau-live-dot { background: var(--text-color-secondary); animation: none; box-shadow:none; }
+
+        /* Login activity chart */
+        .oau-chart-legend { display:inline-flex; gap:14px; font-size:0.78em; color: var(--text-color-secondary); }
+        .oau-chart-legend .oau-dot { margin-right:4px; }
+        .oau-chart-plot { display:flex; align-items:flex-end; gap:6px; height:120px; padding:14px 16px 6px; }
+        .oau-chart-col  { flex:1; display:flex; align-items:flex-end; justify-content:center; height:100%;
+                          border-radius:5px; transition: background .15s ease; text-decoration:none; cursor:pointer; }
+        .oau-chart-col:hover { background: var(--oau-neutral-bg); }
+        .oau-chart-bars { display:flex; align-items:flex-end; justify-content:center; gap:3px; height:100%; width:100%; }
+        /* Stacked success bar (native base + SSO on top) */
+        .oau-chart-stack { display:flex; flex-direction:column; justify-content:flex-end;
+                           width:7px; max-width:40%; height:100%; }
+        .oau-chart-seg { width:100%; height:0; min-height:0; animation: oauBarRise .55s cubic-bezier(.3,.8,.4,1) forwards; }
+        .oau-chart-seg--sso    { background:#1d4ed8; border-radius:3px 3px 0 0; }
+        .oau-chart-seg--native { background: var(--success-color); }
+        .oau-chart-bar  { position:relative; width:7px; max-width:40%; min-height:0; height:0; border-radius:3px 3px 0 0;
+                          animation: oauBarRise .55s cubic-bezier(.3,.8,.4,1) forwards; }
+        .oau-chart-bar--fail { background: var(--error-color); }
+        @keyframes oauBarRise { from { height:0; } to { height: var(--h); } }
+        .oau-chart-xaxis { display:flex; justify-content:space-between; padding:2px 16px 14px;
+                           font-size:0.72em; color: var(--text-color-secondary); }
+
+        /* Composition donut draw-in */
+        .oau-donut-arc { animation: oauDonut .9s cubic-bezier(.4,.9,.3,1) forwards; }
+        @keyframes oauDonut { from { stroke-dasharray: 0 251; } }
+
+        @media (prefers-reduced-motion: reduce) {
+          .oau-chart-bar, .oau-chart-seg, .oau-donut-arc, .oau-live-dot, .oau-kpi-card__value.oau-ticked { animation: none !important; }
+          .oau-chart-bar, .oau-chart-seg { height: var(--h); }
+        }
+      </style>
+
+      <script>//<![CDATA[
+        // ---- KPI count-up (0 -> value on load; old -> new on live update) ----
+        function oauAnimateValue(el, to) {
+          var from = parseInt(el.getAttribute('data-cur') || '0', 10) || 0;
+          to = (typeof to === 'number') ? to : (parseInt((el.textContent || '').replace(/[^0-9-]/g,''), 10) || 0);
+          if (from === to) { el.textContent = to; el.setAttribute('data-cur', to); return; }
+          var start = null, dur = 650;
+          function step(t) {
+            if (!start) start = t;
+            var p = Math.min(1, (t - start) / dur);
+            var eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(from + (to - from) * eased);
+            if (p < 1) requestAnimationFrame(step);
+            else { el.textContent = to; el.setAttribute('data-cur', to); }
+          }
+          requestAnimationFrame(step);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.oau-kpi-card__value[data-kpi]').forEach(function(el) {
+            var target = parseInt((el.textContent || '').replace(/[^0-9-]/g,''), 10) || 0;
+            el.setAttribute('data-cur', '0');
+            oauAnimateValue(el, target);
+          });
+          oauStartLive();
+        });
+
+        // ---- Live auto-refresh of volatile KPIs ----
+        var OAU_LIVE = true, OAU_TIMER = null, OAU_INTERVAL = 15000, OAU_LAST = Date.now();
+        function oauRenderAgo() {
+          var el = document.getElementById('oauLiveText');
+          if (!el) return;
+          if (!OAU_LIVE) { el.textContent = 'Paused'; return; }
+          var s = Math.max(0, Math.floor((Date.now() - OAU_LAST) / 1000));
+          el.textContent = 'Live · ' + (s < 2 ? 'just now' : s + 's ago');
+        }
+        function oauFetchMetrics() {
+          if (!OAU_LIVE) return;
+          fetch('overviewMetrics', { headers: { 'Accept':'application/json' } })
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(d){
+              if (!d) return;
+              OAU_LAST = Date.now();
+              document.querySelectorAll('.oau-kpi-card__value[data-kpi]').forEach(function(el) {
+                var k = el.getAttribute('data-kpi');
+                if (!(k in d)) return;
+                var cur = parseInt(el.getAttribute('data-cur') || '0', 10) || 0;
+                if (cur !== d[k]) {
+                  oauAnimateValue(el, d[k]);
+                  el.classList.remove('oau-ticked'); void el.offsetWidth; el.classList.add('oau-ticked');
+                }
+              });
+              oauRenderAgo();
+            })
+            .catch(function(){ /* transient — keep last values */ });
+        }
+        function oauStartLive() {
+          oauRenderAgo();
+          if (OAU_TIMER) clearInterval(OAU_TIMER);
+          OAU_TIMER = setInterval(function(){ oauFetchMetrics(); oauRenderAgo(); }, OAU_INTERVAL);
+          // first refresh shortly after load so "live" feels immediate
+          setTimeout(oauFetchMetrics, 3000);
+        }
+        function oauToggleLive() {
+          OAU_LIVE = !OAU_LIVE;
+          var status = document.getElementById('oauLiveStatus');
+          var icon = document.getElementById('oauLiveIcon');
+          var btn = document.getElementById('oauLiveBtnText');
+          if (OAU_LIVE) {
+            status.classList.remove('oau-live-status--paused');
+            btn.textContent = 'Pause';
+            icon.innerHTML = '<rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect>';
+            OAU_LAST = Date.now(); oauFetchMetrics();
+          } else {
+            status.classList.add('oau-live-status--paused');
+            btn.textContent = 'Resume';
+            icon.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"></polygon>';
+          }
+          oauRenderAgo();
+        }
+        // Pause polling when the tab is hidden; resume on return.
+        document.addEventListener('visibilitychange', function() {
+          if (document.hidden) { if (OAU_TIMER) { clearInterval(OAU_TIMER); OAU_TIMER = null; } }
+          else if (OAU_LIVE && !OAU_TIMER) { oauStartLive(); }
+        });
       //]]></script>
 
     </l:main-panel>

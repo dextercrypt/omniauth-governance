@@ -245,6 +245,13 @@
               });
             } catch(e) {}
           });
+          // Pre-fill filters from URL params (e.g. arriving from the dashboard chart: ?from&to&action)
+          try {
+            var qp = new URLSearchParams(window.location.search);
+            if (qp.get('from'))   document.getElementById('alxDateFrom').value   = qp.get('from');
+            if (qp.get('to'))     document.getElementById('alxDateTo').value     = qp.get('to');
+            if (qp.get('action')) document.getElementById('alxActionFilter').value = qp.get('action');
+          } catch(e) {}
           alxFilter();
         });
 
@@ -254,8 +261,11 @@
           var ip      = document.getElementById('alxIpFilter').value.toLowerCase();
           var fromVal = document.getElementById('alxDateFrom').value;
           var toVal   = document.getElementById('alxDateTo').value;
-          var fromTs  = fromVal ? new Date(fromVal).getTime() : null;
-          var toTs    = toVal   ? new Date(toVal + 'T23:59:59').getTime() : null;
+          // Parse both bounds as UTC day edges so they line up with the event timestamps (stored UTC)
+          // and with the dashboard chart (bucketed UTC). Parsing 'to' as local time dropped same-day
+          // events logged after the local end-of-day in timezones ahead of UTC.
+          var fromTs  = fromVal ? new Date(fromVal + 'T00:00:00Z').getTime() : null;
+          var toTs    = toVal   ? new Date(toVal + 'T23:59:59Z').getTime() : null;
           var rows    = document.querySelectorAll('.alx-row');
           var shown   = 0;
           rows.forEach(function(row) {
@@ -305,22 +315,43 @@
           </div>
         </div>
 
-        <div style="font-size:0.87em;color:#555;margin-bottom:20px;line-height:1.5;">
-          All audit log files will be permanently deleted. Enter your password to confirm.
-        </div>
-
-        <div style="margin-bottom:18px;">
-          <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;
-                      letter-spacing:0.05em;color:#888;margin-bottom:6px;">Your Password</div>
-          <input type="password" id="alxPurgePwd"
-                 class="jenkins-input" style="width:100%;box-sizing:border-box;"
-                 placeholder="Enter your password…"
-                 oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
-                          document.getElementById('alxPurgeErr').style.display='none';"
-                 onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
-          <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
-               font-weight:600;">&#10005; Incorrect password. Try again.</div>
-        </div>
+        <j:choose>
+          <!-- SSO/Entra admins have no local password — confirm with a typed phrase instead. -->
+          <j:when test="${it.currentUserSso}">
+            <div style="font-size:0.87em;color:#555;margin-bottom:20px;line-height:1.5;">
+              All audit log files will be permanently deleted. Type <strong>DELETE</strong> to confirm.
+            </div>
+            <div style="margin-bottom:18px;">
+              <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;
+                          letter-spacing:0.05em;color:#888;margin-bottom:6px;">Confirmation</div>
+              <input type="text" id="alxPurgePwd" autocomplete="off"
+                     class="jenkins-input" style="width:100%;box-sizing:border-box;"
+                     placeholder="Type DELETE"
+                     oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
+                              document.getElementById('alxPurgeErr').style.display='none';"
+                     onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
+              <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
+                   font-weight:600;">&#10005; Type DELETE exactly to confirm.</div>
+            </div>
+          </j:when>
+          <j:otherwise>
+            <div style="font-size:0.87em;color:#555;margin-bottom:20px;line-height:1.5;">
+              All audit log files will be permanently deleted. Enter your password to confirm.
+            </div>
+            <div style="margin-bottom:18px;">
+              <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;
+                          letter-spacing:0.05em;color:#888;margin-bottom:6px;">Your Password</div>
+              <input type="password" id="alxPurgePwd"
+                     class="jenkins-input" style="width:100%;box-sizing:border-box;"
+                     placeholder="Enter your password…"
+                     oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
+                              document.getElementById('alxPurgeErr').style.display='none';"
+                     onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
+              <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
+                   font-weight:600;">&#10005; Incorrect password. Try again.</div>
+            </div>
+          </j:otherwise>
+        </j:choose>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
           <button type="button" onclick="alxPurgeClose()"
                   class="jenkins-button" style="font-size:0.88em;">Cancel</button>
@@ -343,6 +374,8 @@
     </style>
 
     <script>//<![CDATA[
+      // Current admin signs in via SSO (no local password) → confirm purge with a typed phrase.
+      var ALX_PURGE_SSO = ${it.currentUserSso};
       function alxPurgeOpen() {
         var modal = document.getElementById('alxPurgeModal');
         modal.style.display = 'flex';
@@ -368,7 +401,8 @@
         btn.textContent = 'Verifying…';
 
         var body = new URLSearchParams();
-        body.append('confirmPassword', pwd);
+        // SSO admins confirm with a typed phrase; native users with their password.
+        body.append(ALX_PURGE_SSO ? 'confirmPhrase' : 'confirmPassword', pwd);
         var head = document.head;
         body.append(head.dataset.crumbHeader || 'Jenkins-Crumb', head.dataset.crumbValue || '');
 

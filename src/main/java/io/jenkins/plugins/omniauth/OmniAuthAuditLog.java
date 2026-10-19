@@ -22,7 +22,9 @@ import java.util.logging.Logger;
 public class OmniAuthAuditLog {
 
     private static final Logger LOGGER = Logger.getLogger(OmniAuthAuditLog.class.getName());
-    private static final int MAX_MONTHS = 12;
+    // Runaway guard: even with "keep forever" retention, never retain more than this many month-files.
+    private static final int HARD_MAX_MONTHS = 120;
+    private static final int DEFAULT_RETENTION_DAYS = 365;
     private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
 
     public static OmniAuthAuditLog get() {
@@ -299,12 +301,57 @@ public class OmniAuthAuditLog {
     // -------------------------------------------------------------------------
 
     public int[] getFailureCountsByDay(int days) {
+        return countsByDay("login_failure", days);
+    }
+
+    /** Daily counts of successful logins over the last {@code days} days, oldest-first. */
+    public int[] getLoginCountsByDay(int days) {
+        return countsByDay("login_success", days);
+    }
+
+    /**
+     * Per-day login series over the last {@code days} days, oldest-first. Each row is
+     * {@code [ssoSuccess, nativeSuccess, failure]} — successes split by the recorded authType
+     * ("Entra" ⇒ SSO, anything else ⇒ native), so the dashboard can show the SSO/native mix.
+     */
+    public int[][] getLoginSeriesByDay(int days) {
+        int[][] out = new int[days][3];
+        try {
+            java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneOffset.UTC);
+            for (Map<String, String> e : readRecent(5000)) {
+                String action = e.get("action");
+                boolean success = "login_success".equals(action);
+                boolean failure = "login_failure".equals(action);
+                if (!success && !failure) continue;
+                String ts = e.get("ts");
+                if (ts == null) continue;
+                try {
+                    java.time.LocalDate d = java.time.Instant.parse(ts)
+                            .atZone(java.time.ZoneOffset.UTC).toLocalDate();
+                    long ago = java.time.temporal.ChronoUnit.DAYS.between(d, today);
+                    if (ago < 0 || ago >= days) continue;
+                    int idx = (int) (days - 1 - ago);
+                    if (failure) {
+                        out[idx][2]++;
+                    } else if ("Entra".equalsIgnoreCase(e.get("authType"))) {
+                        out[idx][0]++;
+                    } else {
+                        out[idx][1]++;
+                    }
+                } catch (Exception ignored) {}
+            }
+        } catch (Exception ignored) {}
+        return out;
+    }
+
+    /** Buckets events of one action into per-day counts (index 0 = oldest, last = today), UTC. */
+    private int[] countsByDay(String action, int days) {
         int[] counts = new int[days];
         try {
             java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneOffset.UTC);
             List<Map<String, String>> entries = readRecent(5000);
             for (Map<String, String> entry : entries) {
-                if (!"login_failure".equals(entry.get("action"))) continue;
+                if (!action.equals(entry.get("action"))) continue;
                 String ts = entry.get("ts");
                 if (ts == null) continue;
                 try {
@@ -319,39 +366,36 @@ public class OmniAuthAuditLog {
     }
 
     public synchronized List<Map<String, String>> readRecent(int maxLines) {
-        List<String> lines = new ArrayList<>();
         File logsDir = logsDir();
         if (logsDir == null) return Collections.emptyList();
 
-        // Collect files sorted newest first
         File[] files = logsDir.listFiles((d, n) -> n.startsWith("omniauth-audit-") && n.endsWith(".json"));
         if (files == null) return Collections.emptyList();
         List<File> sorted = new ArrayList<>();
         for (File f : files) sorted.add(f);
-        sorted.sort((a, b) -> b.getName().compareTo(a.getName())); // newest first
+        sorted.sort((a, b) -> b.getName().compareTo(a.getName())); // newest month first
 
+        // Accumulate the newest maxLines events, newest-first. Walk months newest→oldest and, within
+        // each month's file, lines newest→oldest, appending until the cap is reached.
+        List<Map<String, String>> result = new ArrayList<>();
         for (File f : sorted) {
-            if (lines.size() >= maxLines * 2) break; // read extra, then trim
+            if (result.size() >= maxLines) break;
+            List<String> fileLines = new ArrayList<>();
             try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-                List<String> fileLines = new ArrayList<>();
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (!line.isBlank()) fileLines.add(line);
                 }
-                // Prepend (newer files first, newer lines within file first)
-                Collections.reverse(fileLines);
-                lines.addAll(0, fileLines); // actually we want newest first overall
             } catch (Exception ex) {
                 LOGGER.log(Level.WARNING, "Failed to read audit log: " + f.getName(), ex);
+                continue;
             }
-        }
-
-        // lines is now newest-first across all files; trim to maxLines
-        List<Map<String, String>> result = new ArrayList<>();
-        int limit = Math.min(maxLines, lines.size());
-        for (int i = 0; i < limit; i++) {
-            Map<String, String> parsed = parseLine(lines.get(i));
-            if (parsed != null) result.add(parsed);
+            Collections.reverse(fileLines); // newest line first within the file
+            for (String line : fileLines) {
+                if (result.size() >= maxLines) break;
+                Map<String, String> parsed = parseLine(line);
+                if (parsed != null) result.add(parsed);
+            }
         }
         return result;
     }
@@ -463,18 +507,147 @@ public class OmniAuthAuditLog {
         }
     }
 
+    /** Configured retention in days (0 = keep forever); falls back to the default if config is unavailable. */
+    private int configuredRetentionDays() {
+        try {
+            OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get();
+            return c != null ? c.getAuditRetentionDays() : DEFAULT_RETENTION_DAYS;
+        } catch (Exception e) {
+            return DEFAULT_RETENTION_DAYS;
+        }
+    }
+
+    /**
+     * Cheap write-path cleanup: deletes whole month-files entirely older than the retention window
+     * (month-granular, filename-based — no file reads). The boundary month is kept; its stale lines
+     * are trimmed precisely by {@link #pruneOlderThan} on the daily retention worker. A hard ceiling
+     * guards against runaway growth even when retention is "keep forever".
+     */
     private void cleanupOldFiles() {
         File dir = logsDir();
         if (dir == null) return;
         File[] files = dir.listFiles((d, n) -> n.startsWith("omniauth-audit-") && n.endsWith(".json"));
-        if (files == null || files.length <= MAX_MONTHS) return;
+        if (files == null) return;
         List<File> sorted = new ArrayList<>();
         for (File f : files) sorted.add(f);
-        sorted.sort((a, b) -> a.getName().compareTo(b.getName())); // oldest first
-        while (sorted.size() > MAX_MONTHS) {
+        sorted.sort((a, b) -> a.getName().compareTo(b.getName())); // oldest first (names are zero-padded)
+
+        int days = configuredRetentionDays();
+        if (days > 0) {
+            // Zero-padded YYYY-MM names compare lexically in chronological order.
+            String cutoffName = "omniauth-audit-" + YearMonth.from(
+                    java.time.LocalDate.now(java.time.ZoneOffset.UTC).minusDays(days)).format(MONTH_FMT) + ".json";
+            java.util.Iterator<File> it = sorted.iterator();
+            while (it.hasNext()) {
+                File f = it.next();
+                if (f.getName().compareTo(cutoffName) < 0) { f.delete(); it.remove(); }
+            }
+        }
+        while (sorted.size() > HARD_MAX_MONTHS) {
             sorted.get(0).delete();
             sorted.remove(0);
         }
+    }
+
+    /**
+     * Precisely prunes every event older than {@code retentionDays} (0 = keep forever): whole files
+     * that end up empty are deleted, the boundary file is rewritten keeping only recent lines.
+     * Returns the number of events removed. Run from the daily retention worker.
+     */
+    public synchronized int pruneOlderThan(int retentionDays) {
+        if (retentionDays <= 0) return 0;
+        File dir = logsDir();
+        if (dir == null) return 0;
+        File[] files = dir.listFiles((d, n) -> n.startsWith("omniauth-audit-") && n.endsWith(".json"));
+        if (files == null) return 0;
+        java.time.Instant cutoff = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
+        int removed = 0;
+        for (File f : files) {
+            List<String> keep = new ArrayList<>();
+            int fileRemoved = 0;
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.isBlank()) continue;
+                    String ts = parseLine(line) != null ? parseLine(line).get("ts") : null;
+                    boolean old = false;
+                    if (ts != null) {
+                        try { old = java.time.Instant.parse(ts).isBefore(cutoff); } catch (Exception ignored) {}
+                    }
+                    if (old) fileRemoved++;
+                    else keep.add(line);
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.WARNING, "Audit retention: failed to read " + f.getName(), ex);
+                continue;
+            }
+            if (fileRemoved == 0) continue;
+            if (keep.isEmpty()) {
+                if (f.delete()) removed += fileRemoved;
+            } else {
+                try (PrintWriter pw = new PrintWriter(new FileWriter(f, false))) {
+                    for (String l : keep) pw.println(l);
+                    removed += fileRemoved;
+                } catch (Exception ex) {
+                    LOGGER.log(Level.WARNING, "Audit retention: failed to rewrite " + f.getName(), ex);
+                }
+            }
+        }
+        return removed;
+    }
+
+    /** Snapshot of audit-log storage for the Settings page. */
+    public static class StorageInfo {
+        private final long events;
+        private final long bytes;
+        private final String oldest; // ISO ts of the earliest retained event, or "" if none
+        private final int files;
+        StorageInfo(long events, long bytes, String oldest, int files) {
+            this.events = events; this.bytes = bytes; this.oldest = oldest; this.files = files;
+        }
+        public long getEvents()   { return events; }
+        public long getBytes()    { return bytes; }
+        public String getOldest() { return oldest; }
+        public int getFiles()     { return files; }
+        /** Human-readable size, e.g. "87 KB" / "1.2 MB". */
+        public String getHumanSize() {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return String.format("%.0f KB", bytes / 1024.0);
+            return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
+        }
+    }
+
+    /** Computes current audit-log storage usage (events, bytes, oldest event, file count). */
+    public synchronized StorageInfo getStorageInfo() {
+        File dir = logsDir();
+        if (dir == null) return new StorageInfo(0, 0, "", 0);
+        File[] files = dir.listFiles((d, n) -> n.startsWith("omniauth-audit-") && n.endsWith(".json"));
+        if (files == null || files.length == 0) return new StorageInfo(0, 0, "", 0);
+        List<File> sorted = new ArrayList<>();
+        for (File f : files) sorted.add(f);
+        sorted.sort((a, b) -> a.getName().compareTo(b.getName())); // oldest first
+        long events = 0, bytes = 0;
+        for (File f : sorted) {
+            bytes += f.length();
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                String line;
+                while ((line = br.readLine()) != null) if (!line.isBlank()) events++;
+            } catch (Exception ignored) {}
+        }
+        // Oldest event = first non-blank line of the earliest file.
+        String oldest = "";
+        for (File f : sorted) {
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.isBlank()) continue;
+                    Map<String, String> p = parseLine(line);
+                    if (p != null && p.get("ts") != null) { oldest = p.get("ts"); break; }
+                }
+            } catch (Exception ignored) {}
+            if (!oldest.isEmpty()) break;
+        }
+        return new StorageInfo(events, bytes, oldest, sorted.size());
     }
 
     private String toJson(Map<String, String> fields) {
