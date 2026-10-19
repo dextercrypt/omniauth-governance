@@ -32,21 +32,51 @@
             </a>
           </div>
           <div style="padding: 16px 20px;">
+
+            <!-- Sign-in methods: Native is always available on the OmniAuth realm; SSO only when a
+                 provider is configured. Reflects actual state, not a fixed label. -->
+            <j:if test="${it.omniAuthRealm}">
+              <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--oau-card-border); font-size: 0.88em;">
+                <span style="color: var(--text-color-secondary); width: 140px; flex-shrink: 0;">Sign-in methods</span>
+                <span>
+                  <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;margin-right:6px;">Native</span>
+                  <j:choose>
+                    <j:when test="${it.ssoConfigured}">
+                      <span style="background:var(--oau-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;">SSO</span>
+                    </j:when>
+                    <j:otherwise>
+                      <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO — not configured</span>
+                    </j:otherwise>
+                  </j:choose>
+                </span>
+              </div>
+            </j:if>
+
             <j:choose>
               <j:when test="${entra == null}">
-                <div class="jenkins-alert jenkins-alert-warning" style="margin: 0;">
-                  Security realm is not set to OmniAuth. Entra configuration is unavailable.
-                </div>
+                <j:choose>
+                  <j:when test="${it.omniAuthRealm}">
+                    <div class="jenkins-alert jenkins-alert-info" style="margin: 0;">
+                      No SSO provider configured — native sign-in only. Configure Microsoft Entra in
+                      Configure Global Security to enable SSO.
+                    </div>
+                  </j:when>
+                  <j:otherwise>
+                    <div class="jenkins-alert jenkins-alert-warning" style="margin: 0;">
+                      Security realm is not set to OmniAuth. Entra configuration is unavailable.
+                    </div>
+                  </j:otherwise>
+                </j:choose>
               </j:when>
               <j:otherwise>
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
                   <tr>
                     <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; vertical-align: top; border-bottom: 1px solid var(--oau-card-border);">Tenant ID</td>
-                    <td style="font-family: monospace; padding: 8px 0; word-break: break-all; border-bottom: 1px solid var(--oau-card-border);">${entra.tenantId}</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--oau-card-border);">${entra.tenantId}</td>
                   </tr>
                   <tr>
                     <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--oau-card-border);">Client ID</td>
-                    <td style="font-family: monospace; padding: 8px 0; word-break: break-all; border-bottom: 1px solid var(--oau-card-border);">${entra.clientId}</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--oau-card-border);">${entra.clientId}</td>
                   </tr>
                   <tr>
                     <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--oau-card-border);">Client Secret</td>
@@ -57,7 +87,7 @@
                   </tr>
                   <tr>
                     <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--oau-card-border);">Redirect URI</td>
-                    <td style="font-family: monospace; padding: 8px 0; word-break: break-all; border-bottom: 1px solid var(--oau-card-border);">${it.entraRedirectUri}</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--oau-card-border);">${it.entraRedirectUri}</td>
                   </tr>
                   <tr>
                     <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--oau-card-border);">Group Sync</td>
@@ -112,24 +142,24 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
               <tr>
                 <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; border-bottom: 1px solid var(--oau-card-border);">Name</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">OmniAuth — Dual Auth Plugin</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">OmniAuth — Authentication &amp; Access Governance</td>
               </tr>
               <tr>
-                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">Auth Methods</td>
+                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">Version</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">${it.pluginVersion}</td>
+              </tr>
+              <tr>
+                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">Made by</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">
-                  <span style="background:var(--oau-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;margin-right:6px;">Entra SSO</span>
-                  <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;">Native</span>
+                  <a href="https://github.com/dextercrypt" target="_blank" rel="noopener noreferrer"
+                     style="color: var(--blue); font-weight: 600; text-decoration: none;">@dextercrypt</a>
                 </td>
               </tr>
               <tr>
-                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--oau-card-border);">Login URL</td>
-                <td style="font-family: monospace; padding: 8px 0; font-size: 0.85em; border-bottom: 1px solid var(--oau-card-border);">${rootURL}/login</td>
-              </tr>
-              <tr>
-                <td style="color: var(--text-color-secondary); padding: 8px 0;">Made by</td>
+                <td style="color: var(--text-color-secondary); padding: 8px 0;">Report an issue</td>
                 <td style="padding: 8px 0;">
-                  <a href="https://github.com/dextercrypt" target="_blank" rel="noopener noreferrer"
-                     style="color: var(--blue); font-weight: 600; text-decoration: none;">@dextercrypt</a>
+                  <a href="https://github.com/dextercrypt/jenkins-omni-auth-plugin/issues" target="_blank" rel="noopener noreferrer"
+                     style="color: var(--blue); text-decoration: none;">GitHub Issues &#8599;</a>
                 </td>
               </tr>
             </table>

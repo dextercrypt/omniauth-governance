@@ -507,6 +507,26 @@ public class OmniAuthManagementLink extends ManagementLink {
         req.getView(this, "about.jelly").forward(req, rsp);
     }
 
+    /** True when OmniAuth is the active security realm (native sign-in is then always available). */
+    public boolean isOmniAuthRealm() {
+        return Jenkins.get().getSecurityRealm() instanceof OmniAuthSecurityRealm;
+    }
+
+    /** True when an SSO provider (Entra) is configured — i.e. SSO sign-in is actually available. */
+    public boolean isSsoConfigured() {
+        return getEntraConfig() != null;
+    }
+
+    /** This plugin's version, read live from its wrapper (build qualifier stripped). For the Info page. */
+    public String getPluginVersion() {
+        hudson.PluginWrapper w = Jenkins.get().getPluginManager().getPlugin("omni-auth");
+        if (w == null) return "unknown";
+        String v = w.getVersion();
+        if (v == null) return "unknown";
+        int sp = v.indexOf(' ');            // strip " (private-… )" dev build suffix
+        return sp > 0 ? v.substring(0, sp) : v;
+    }
+
     public void doNotifications(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "notifications.jelly").forward(req, rsp);

@@ -275,7 +275,7 @@
                   <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
                   <button type="submit" name="Submit"
                       class="jenkins-button jenkins-button--primary">
-                    ${%signIn}
+                    Sign in
                   </button>
                 </form>
 
