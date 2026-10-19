@@ -743,7 +743,10 @@
 
                 <div class="oau-config-row">
                   <span class="oau-config-label">Authentication</span>
-                  <span class="oau-pill oau-pill--blue">Dual Auth</span>
+                  <j:choose>
+                    <j:when test="${it.ssoConfigured}"><span class="oau-pill oau-pill--blue">Native + SSO</span></j:when>
+                    <j:otherwise><span class="oau-pill oau-pill--gray">Native</span></j:otherwise>
+                  </j:choose>
                 </div>
                 <div class="oau-config-row">
                   <span class="oau-config-label">PKCE + Nonce</span>

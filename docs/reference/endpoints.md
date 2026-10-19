@@ -11,7 +11,7 @@ reached through the console UI rather than directly.
 
 | Endpoint | Purpose |
 |---|---|
-| `securityRealm/login` | The custom dual login page. |
+| `securityRealm/login` | The custom login page (native + SSO). |
 | `omniauth/nativeLogin` | Native username/password form POST target. |
 | `securityRealm/commenceLogin` | Start the Entra OAuth2 flow. |
 | `securityRealm/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |

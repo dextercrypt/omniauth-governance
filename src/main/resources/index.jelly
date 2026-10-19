@@ -1,5 +1,7 @@
 <?jelly escape-by-default='true'?>
 <div>
-  Provides dual authentication: native Jenkins username/password login
-  and Microsoft Entra (Azure AD) OAuth2/OIDC login, both available simultaneously.
+  OmniAuth — authentication and access governance for Jenkins. Combines native
+  username/password accounts with Single Sign-On (currently Microsoft Entra / Azure AD),
+  and adds role- and matrix-based authorization, scoped and just-in-time access,
+  group sync, self-service provisioning, and audit logging.
 </div>

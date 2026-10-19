@@ -17,7 +17,7 @@
   <packaging>hpi</packaging>
 
   <name>Omni Auth Plugin</name>
-  <description>Jenkins plugin supporting both native username/password and Microsoft Entra (Azure AD) authentication</description>
+  <description>Authentication and access governance for Jenkins: native accounts plus Single Sign-On (Microsoft Entra / Azure AD), role- and matrix-based authorization, scoped and just-in-time access, group sync, provisioning, and audit</description>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
   <licenses>
