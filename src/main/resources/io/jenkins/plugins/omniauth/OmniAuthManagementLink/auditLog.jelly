@@ -34,6 +34,29 @@
             <option value="login_failure">Login Failure</option>
             <option value="user_created">User Created</option>
             <option value="user_deleted">User Deleted</option>
+            <option value="user_marked_deletion">Marked for Deletion</option>
+            <option value="user_unmarked_deletion">Deletion Cleared</option>
+            <option value="password_changed">Password Changed</option>
+            <option value="permission_granted">Permission Granted</option>
+            <option value="permission_revoked">Permission Revoked</option>
+            <option value="session_revoked">Session Revoked</option>
+            <option value="bruteforce_cleared">Lockout Cleared</option>
+            <option value="config_changed">Config Changed</option>
+            <option value="config_exported">Config Exported</option>
+            <option value="config_imported">Config Imported</option>
+            <option value="config_reverted">Config Reverted</option>
+            <option value="audit_purged">Audit Purged</option>
+            <option value="provisioning_requested">Access Requested</option>
+            <option value="provisioning_rejected">Access Rejected</option>
+            <option value="activation_resent">Activation Resent</option>
+            <option value="jit_requested">JIT Requested</option>
+            <option value="jit_approved">JIT Approved</option>
+            <option value="jit_denied">JIT Denied</option>
+            <option value="jit_expired">JIT Expired</option>
+            <option value="jit_timed_out">JIT Timed Out</option>
+            <option value="jit_revoked">JIT Revoked</option>
+            <option value="jit_cancelled">JIT Cancelled</option>
+            <option value="review_confirmed">Review Confirmed</option>
           </select>
           <input id="alxIpFilter" type="text" placeholder="Filter by IP…"
                  class="jenkins-input" style="max-width:160px;font-size:0.88em;"
@@ -83,7 +106,7 @@
                         data-action="${ev.get('action')}"
                         data-ip="${ev.get('ip')}"
                         data-ts="${ev.get('ts')}"
-                        data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')}"
+                        data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')} ${ev.get('area')} ${ev.get('detail')}"
                         style="border-bottom:1px solid var(--oau-card-border);">
                       <td style="padding:10px 16px;font-size:0.8em;color:#999;white-space:nowrap;">
                         <span class="alx-ts" data-ts="${ev.get('ts')}">${ev.get('ts')}</span>
@@ -126,6 +149,18 @@
                         <j:if test="${ev.get('authType') != null and ev.get('authType') != ''}">
                           via&#160;<strong>${ev.get('authType')}</strong>
                         </j:if>
+                        <j:if test="${ev.get('area') != null and ev.get('area') != ''}">
+                          <span class="alx-role" style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);">${ev.get('area')}</span>
+                        </j:if>
+                        <j:if test="${ev.get('detail') != null and ev.get('detail') != ''}">
+                          &#8201;<span style="color:#666;">${ev.get('detail')}</span>
+                        </j:if>
+                        <j:if test="${ev.get('count') != null and ev.get('count') != ''}">
+                          &#8201;<span style="color:#666;">${ev.get('count')} file(s) deleted</span>
+                        </j:if>
+                        <j:if test="${ev.get('reason') != null and ev.get('reason') != ''}">
+                          &#8201;<span style="color:#888;font-style:italic;">&#8220;${ev.get('reason')}&#8221;</span>
+                        </j:if>
                       </td>
                       <td style="padding:10px 16px;font-size:0.82em;font-family:monospace;color:#666;">
                         <j:if test="${ev.get('ip') != null and ev.get('ip') != ''}">
@@ -166,6 +201,29 @@
         .alx-badge-login_failure { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
         .alx-badge-user_created  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
         .alx-badge-user_deleted  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-permission_granted { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+        .alx-badge-permission_revoked { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-session_revoked    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-bruteforce_cleared { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-audit_purged       { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
+        .alx-badge-config_changed     { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-config_exported    { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
+        .alx-badge-config_imported    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-config_reverted    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-user_marked_deletion   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-user_unmarked_deletion { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-password_changed   { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-provisioning_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+        .alx-badge-provisioning_rejected  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-activation_resent  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+        .alx-badge-jit_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+        .alx-badge-jit_approved  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+        .alx-badge-jit_denied    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-jit_expired   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-jit_timed_out { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+        .alx-badge-jit_revoked   { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+        .alx-badge-jit_cancelled { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
+        .alx-badge-review_confirmed { background:var(--oau-success-bg);color:var(--oau-success-fg); }
         .alx-role {
           display:inline-block;padding:1px 7px;background:var(--oau-info-bg);color:var(--oau-info-fg);
           border-radius:8px;font-size:0.88em;font-weight:600;

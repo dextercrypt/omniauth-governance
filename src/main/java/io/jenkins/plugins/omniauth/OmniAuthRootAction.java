@@ -274,6 +274,7 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
         }
         user.save();
         clearPending(req);
+        OmniAuthAuditLog.get().logPasswordChanged(username);
 
         // Fail-closed: send them to sign in with the new password (no auto-login).
         rsp.sendRedirect(ctx + "/securityRealm/login?passwordSet=1");

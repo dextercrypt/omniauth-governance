@@ -155,6 +155,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             store.addRequestIfUnderCap(r, c.getProvisioningMaxPendingPerUser());
             LOGGER.info("Provisioning: native access request submitted for '" + username + "'");
             NotificationService.sendProvisioningRequested(c, r);
+            OmniAuthAuditLog.get().logProvisioningRequested(username, "native");
         }
 
         rsp.sendRedirect(ctx + "/request-access/?submitted=1");
@@ -210,6 +211,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             store.addRequestIfUnderCap(r, c.getProvisioningMaxPendingPerUser());
             LOGGER.info("Provisioning: Entra access request submitted for '" + userId + "'");
             NotificationService.sendProvisioningRequested(c, r);
+            OmniAuthAuditLog.get().logProvisioningRequested(userId, "entra");
         }
         rsp.sendRedirect(ctx + "/request-access/?submitted=1");
     }

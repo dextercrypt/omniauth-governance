@@ -29,9 +29,17 @@ public class OmniAuthJitExpiryWorker extends AsyncPeriodicWork {
         if (!transitioned.isEmpty()) {
             LOGGER.info("OmniAuth JIT: transitioned " + transitioned.size() + " request(s) to EXPIRED/TIMED_OUT");
             OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
             for (OmniAuthJitRequest req : transitioned) {
-                if (OmniAuthJitRequest.STATUS_TIMED_OUT.equals(req.getStatus()) && req.getApprovedCount() > 0) {
-                    NotificationService.sendJitTimedOutPartial(cfg, req);
+                if (OmniAuthJitRequest.STATUS_TIMED_OUT.equals(req.getStatus())) {
+                    // Pending request that was never approved in time.
+                    if (audit != null) audit.logJitTimedOut(req.getRequesterId(), req.getScope());
+                    if (req.getApprovedCount() > 0) {
+                        NotificationService.sendJitTimedOutPartial(cfg, req);
+                    }
+                } else if (OmniAuthJitRequest.STATUS_EXPIRED.equals(req.getStatus())) {
+                    // Active grant whose window elapsed.
+                    if (audit != null) audit.logJitExpired(req.getRequesterId(), req.getScope());
                 }
             }
         }

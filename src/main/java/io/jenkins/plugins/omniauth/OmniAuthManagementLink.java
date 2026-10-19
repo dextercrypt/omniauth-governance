@@ -139,7 +139,12 @@ public class OmniAuthManagementLink extends ManagementLink {
         LoginContextFilter.FRESH_LOGINS.remove(currentUser);
 
         OmniAuthAuditLog log = OmniAuthAuditLog.get();
-        if (log != null) log.purgeAll();
+        if (log != null) {
+            int deleted = log.purgeAll();
+            // Record the purge AFTER deletion so the entry survives in a fresh log file —
+            // destruction of the audit trail must itself leave a trace.
+            log.logAuditPurged(currentUser, deleted);
+        }
         rsp.setContentType("application/json");
         rsp.getWriter().write("{\"ok\":true}");
     }
@@ -169,6 +174,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.setContentType("application/x-yaml; charset=utf-8");
         rsp.setHeader("Content-Disposition", "attachment; filename=\"" + fname + "\"");
         rsp.getWriter().write(yaml);
+        OmniAuthAuditLog.get().logConfigExported(Jenkins.getAuthentication2().getName());
     }
 
     @POST
@@ -205,6 +211,9 @@ public class OmniAuthManagementLink extends ManagementLink {
         BR_LOG.info("OmniAuth config imported by " + Jenkins.getAuthentication2().getName()
                 + " (roles=" + parsed.roleCount() + ", assignments=" + parsed.assignmentCount()
                 + ", groups=" + parsed.groupCount() + ", settings=" + parsed.globalCount() + ")");
+        OmniAuthAuditLog.get().logConfigImported(Jenkins.getAuthentication2().getName(),
+                "roles=" + parsed.roleCount() + ", assignments=" + parsed.assignmentCount()
+                + ", groups=" + parsed.groupCount() + ", settings=" + parsed.globalCount());
         rsp.sendRedirect(base + "?imported=1&roles=" + parsed.roleCount()
                 + "&assignments=" + parsed.assignmentCount() + "&groups=" + parsed.groupCount());
     }
@@ -340,6 +349,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         recordHistory("revert", "restored point " + displayTimeOf(snap));
         BR_LOG.info("OmniAuth config reverted to snapshot " + snap.getName() + " by "
                 + Jenkins.getAuthentication2().getName());
+        OmniAuthAuditLog.get().logConfigReverted(Jenkins.getAuthentication2().getName(),
+                "restored point " + displayTimeOf(snap));
         rsp.sendRedirect(base + "?reverted=1");
     }
 
@@ -732,6 +743,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (prop.getBreakGlassEnrollSkips() < 3) {
                 prop.setBreakGlassEnrollSkips(prop.getBreakGlassEnrollSkips() + 1);
                 current.save();
+                OmniAuthAuditLog.get().logConfigChanged(current.getId(), "Break Glass",
+                        "enrollment reminder skipped (" + prop.getBreakGlassEnrollSkips() + "/3)");
             }
         }
         req.getSession().setAttribute("omniauth.totp.reminderDoneThisSession", Boolean.TRUE);
@@ -755,7 +768,10 @@ public class OmniAuthManagementLink extends ManagementLink {
     public void doClearBruteForce(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
-        if (userId != null && !userId.isEmpty()) BruteForceTracker.clear(userId);
+        if (userId != null && !userId.isEmpty()) {
+            BruteForceTracker.clear(userId);
+            OmniAuthAuditLog.get().logBruteForceCleared(Jenkins.getAuthentication2().getName(), userId);
+        }
         rsp.sendRedirect("security");
     }
 
@@ -769,7 +785,13 @@ public class OmniAuthManagementLink extends ManagementLink {
             rsp.sendRedirect("sessions?error=self");
             return;
         }
+        // Resolve the affected user before revoking so the audit entry names them, not the opaque id.
+        String targetUser = sessionId;
+        for (ActiveSessionManager.ActiveSession s : ActiveSessionManager.getAll()) {
+            if (sessionId.equals(s.getSessionId())) { targetUser = s.getUserId(); break; }
+        }
         ActiveSessionManager.revoke(sessionId);
+        OmniAuthAuditLog.get().logSessionRevoked(Jenkins.getAuthentication2().getName(), targetUser);
         rsp.sendRedirect("sessions?revoked=true");
     }
 
@@ -831,6 +853,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     public void doClearNotificationLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         NotificationLog.get().clear();
+        OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Notification log", "cleared");
         rsp.sendRedirect("notificationLog?cleared=true");
     }
 
@@ -1042,6 +1065,8 @@ public class OmniAuthManagementLink extends ManagementLink {
                 }
             }
         }
+        OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Notifications",
+                "notification channels / brute-force settings saved");
         rsp.sendRedirect("notifications?saved=true");
     }
 
@@ -1070,6 +1095,12 @@ public class OmniAuthManagementLink extends ManagementLink {
             removed.removeAll(newProtected);
 
             NotificationService.sendProtectedListChanged(config, currentUserId(), added, removed);
+            if (!added.isEmpty() || !removed.isEmpty()) {
+                StringBuilder d = new StringBuilder();
+                if (!added.isEmpty())   d.append("added ").append(added);
+                if (!removed.isEmpty()) d.append(d.length() > 0 ? "; " : "").append("removed ").append(removed);
+                OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Protected users", d.toString());
+            }
         }
         rsp.sendRedirect("protectedUsers");
     }
@@ -1193,6 +1224,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (config.getBruteForceThreshold() != oldBft)           diff.add("bruteForceThreshold: " + oldBft     + " → " + config.getBruteForceThreshold());
             if (!diff.isEmpty()) {
                 NotificationService.sendConfigChanged(config, currentUserId(), java.time.Instant.now().toString(), diff);
+                OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Settings", String.join("; ", diff));
             }
         }
         rsp.sendRedirect("settings?saved=true");
@@ -1443,6 +1475,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             writeJson(rsp, "{\"ok\":false,\"msg\":\"Failed to save file: " + escapeJson(e.getMessage()) + "\"}");
             return;
         }
+        OmniAuthAuditLog.get().logConfigChanged(Jenkins.getAuthentication2().getName(),
+                "Login branding", "login logo uploaded (" + ext + ")");
         writeJson(rsp, "{\"ok\":true,\"msg\":\"Logo uploaded.\"}");
     }
 
@@ -1452,6 +1486,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         java.io.File dir = new java.io.File(Jenkins.get().getRootDir(), "omniauth-branding");
         java.io.File[] files = dir.listFiles(f -> f.getName().startsWith("login-logo."));
         if (files != null) for (java.io.File f : files) f.delete();
+        OmniAuthAuditLog.get().logConfigChanged(Jenkins.getAuthentication2().getName(),
+                "Login branding", "login logo removed");
         writeJson(rsp, "{\"ok\":true}");
     }
 
@@ -1743,6 +1779,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             rsp.sendRedirect("provisioning?error=notFound"); return;
         }
         if (r != null) NotificationService.sendProvisioningRejected(OmniAuthGlobalConfig.get(), r, comment);
+        OmniAuthAuditLog.get().logProvisioningRejected(Jenkins.getAuthentication2().getName(),
+                r != null ? r.getUserId() : requestId);
         rsp.sendRedirect("provisioning?rejected=true");
     }
 
@@ -1771,6 +1809,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             NotificationService.sendProvisioningApprovedNative(cfg, r, link,
                     cfg != null ? cfg.getActivationLinkTtlHours() : 72);
         }
+        OmniAuthAuditLog.get().logActivationResent(Jenkins.getAuthentication2().getName(), r.getUserId());
         rsp.sendRedirect("provisioning?resent=" + enc(r.getUserId()));
     }
 
@@ -1779,6 +1818,8 @@ public class OmniAuthManagementLink extends ManagementLink {
     public void doResetProvisioningBreaker(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         ProvisioningBreaker.reset();
+        OmniAuthAuditLog.get().logConfigChanged(Jenkins.getAuthentication2().getName(),
+                "Provisioning", "intake circuit breaker reset");
         rsp.sendRedirect("provisioning?breakerReset=true");
     }
 
@@ -1801,6 +1842,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             c.setProvisioningExpiryReminderDays(parseIntOr(req.getParameter("provisioningExpiryReminderDays"), 7));
             c.setActivationLinkTtlHours(parseIntOr(req.getParameter("activationLinkTtlHours"), 72));
             c.save();
+            OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Provisioning",
+                    "provisioning intake settings saved");
         }
         rsp.sendRedirect("provisioning?settingsSaved=true");
     }
@@ -2877,6 +2920,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                     user.addProperty(prop);
                     user.save();
                     LOGGER.info("User marked for deletion by " + currentUserId() + ": " + userId);
+                    OmniAuthAuditLog.get().logUserMarkedForDeletion(currentUserId(), userId);
                 }
             }
         }
@@ -2898,6 +2942,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                     user.addProperty(prop);
                     user.save();
                     LOGGER.info("Pending deletion cleared by " + currentUserId() + ": " + userId);
+                    OmniAuthAuditLog.get().logUserUnmarkedForDeletion(currentUserId(), userId);
                 }
             }
         }
@@ -3045,6 +3090,10 @@ public class OmniAuthManagementLink extends ManagementLink {
 
         Jenkins.get().setAuthorizationStrategy(rebuilt);
         Jenkins.get().save();
+        OmniAuthAuditLog.get().logPermissionGranted(
+                Jenkins.getAuthentication2().getName(), sid, "global",
+                (targetType == AuthorizationType.GROUP ? "group " : "")
+                        + "global role → " + roleName);
         rsp.sendRedirect("accessManagement?saved=true&sid=" + java.net.URLEncoder.encode(sid, "UTF-8"));
     }
 
@@ -3080,6 +3129,10 @@ public class OmniAuthManagementLink extends ManagementLink {
 
         Jenkins.get().setAuthorizationStrategy(rebuilt);
         Jenkins.get().save();
+        OmniAuthAuditLog.get().logPermissionRevoked(
+                Jenkins.getAuthentication2().getName(), sid, "global",
+                (targetType == AuthorizationType.GROUP ? "group " : "")
+                        + "all global permissions");
         rsp.sendRedirect("accessManagement?removed=true");
     }
 
@@ -3242,6 +3295,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             parent = ((hudson.model.AbstractItem) parentJob).getParent();
         }
 
+        OmniAuthAuditLog.get().logPermissionGranted(
+                Jenkins.getAuthentication2().getName(), sid, jobName,
+                (atype == AuthorizationType.GROUP ? "group " : "") + "scoped role → " + scopedRole);
         rsp.sendRedirect("accessManagement?saved=true&sid=" +
                 java.net.URLEncoder.encode(sid, "UTF-8"));
     }
@@ -3284,6 +3340,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             job.save();
         }
 
+        OmniAuthAuditLog.get().logPermissionRevoked(
+                Jenkins.getAuthentication2().getName(), sid, jobName,
+                (atype == AuthorizationType.GROUP ? "group " : "") + "scoped permissions");
         rsp.sendRedirect("accessManagement?saved=true&sid=" +
                 java.net.URLEncoder.encode(sid, "UTF-8"));
     }
@@ -5034,6 +5093,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             }
             applyItemPermissions(item, sid, atype, permIds);
             autoGrantParentRead(item, sid, atype);
+            OmniAuthAuditLog.get().logPermissionGranted(
+                    Jenkins.getAuthentication2().getName(), sid, path, "item role → " + role);
         }
         rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=" + enc(type) + "&saved=true");
     }
@@ -5060,6 +5121,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (item != null) {
                 applyItemPermissions(item, sid, atype, Collections.emptySet());
                 cleanupParentRead(item, sid, atype);
+                OmniAuthAuditLog.get().logPermissionRevoked(
+                        Jenkins.getAuthentication2().getName(), sid, path, "item permissions");
             }
             rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=" + enc(type) + "&saved=true");
         }
@@ -5097,6 +5160,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
         Jenkins.get().setAuthorizationStrategy(rebuilt);
         Jenkins.get().save();
+        String actor = Jenkins.getAuthentication2().getName();
+        if (removing) {
+            OmniAuthAuditLog.get().logPermissionRevoked(actor, sid, "global (root)", "all root permissions");
+        } else {
+            OmniAuthAuditLog.get().logPermissionGranted(actor, sid, "global (root)",
+                    "root permissions (" + permIds.size() + ")");
+        }
         rsp.sendRedirect(detailUrl(sid, atype, "saved=true"));
     }
 

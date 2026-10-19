@@ -123,6 +123,9 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                         user.delete();
                         LOGGER.info("Deleted stale user: " + userId);
                         affected.add(userId);
+                        OmniAuthAuditLog.get().logUserDeleted(
+                                "system (cleanup: " + (isPendingDeletion ? "pending-deletion" : "stale") + ")",
+                                userId);
                     } catch (Exception e) {
                         LOGGER.log(Level.WARNING, "Failed to delete user: " + userId, e);
                     }

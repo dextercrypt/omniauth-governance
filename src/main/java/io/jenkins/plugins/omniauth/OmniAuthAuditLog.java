@@ -180,6 +180,120 @@ public class OmniAuthAuditLog {
         write(e);
     }
 
+    // --- Matrix / permission mutations (parallel to the assignment grant/revoke path) ---
+
+    public void logPermissionGranted(String by, String user, String scope, String detail) {
+        Map<String, String> e = event("permission_granted");
+        e.put("by", by); e.put("user", user); e.put("scope", scopeLabel(scope));
+        if (detail != null && !detail.isBlank()) e.put("detail", detail);
+        write(e);
+    }
+
+    public void logPermissionRevoked(String by, String user, String scope, String detail) {
+        Map<String, String> e = event("permission_revoked");
+        e.put("by", by); e.put("user", user); e.put("scope", scopeLabel(scope));
+        if (detail != null && !detail.isBlank()) e.put("detail", detail);
+        write(e);
+    }
+
+    // --- Security-response actions ---
+
+    public void logSessionRevoked(String by, String user) {
+        Map<String, String> e = event("session_revoked");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    public void logBruteForceCleared(String by, String user) {
+        Map<String, String> e = event("bruteforce_cleared");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    public void logAuditPurged(String by, int count) {
+        Map<String, String> e = event("audit_purged");
+        e.put("by", by); e.put("count", String.valueOf(count));
+        write(e);
+    }
+
+    // --- Configuration changes ---
+
+    public void logConfigChanged(String by, String area, String detail) {
+        Map<String, String> e = event("config_changed");
+        e.put("by", by); e.put("area", area);
+        if (detail != null && !detail.isBlank()) e.put("detail", detail);
+        write(e);
+    }
+
+    public void logConfigExported(String by) {
+        Map<String, String> e = event("config_exported");
+        e.put("by", by);
+        write(e);
+    }
+
+    public void logConfigImported(String by, String detail) {
+        Map<String, String> e = event("config_imported");
+        e.put("by", by);
+        if (detail != null && !detail.isBlank()) e.put("detail", detail);
+        write(e);
+    }
+
+    public void logConfigReverted(String by, String detail) {
+        Map<String, String> e = event("config_reverted");
+        e.put("by", by);
+        if (detail != null && !detail.isBlank()) e.put("detail", detail);
+        write(e);
+    }
+
+    // --- User lifecycle (pending deletion) ---
+
+    public void logUserMarkedForDeletion(String by, String user) {
+        Map<String, String> e = event("user_marked_deletion");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    public void logUserUnmarkedForDeletion(String by, String user) {
+        Map<String, String> e = event("user_unmarked_deletion");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    public void logPasswordChanged(String user) {
+        Map<String, String> e = event("password_changed");
+        e.put("user", user);
+        write(e);
+    }
+
+    // --- Provisioning lifecycle ---
+
+    public void logProvisioningRequested(String user, String authType) {
+        Map<String, String> e = event("provisioning_requested");
+        e.put("user", user);
+        if (authType != null && !authType.isBlank()) e.put("authType", authType);
+        write(e);
+    }
+
+    public void logProvisioningRejected(String by, String user) {
+        Map<String, String> e = event("provisioning_rejected");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    public void logActivationResent(String by, String user) {
+        Map<String, String> e = event("activation_resent");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
+    // --- JIT request that timed out before approval (distinct from an active grant expiring) ---
+
+    public void logJitTimedOut(String requesterId, String scope) {
+        Map<String, String> e = event("jit_timed_out");
+        e.put("user", requesterId); e.put("scope", scopeLabel(scope));
+        write(e);
+    }
+
     // -------------------------------------------------------------------------
     // Read for UI — returns last maxLines events across current + previous month
     // -------------------------------------------------------------------------

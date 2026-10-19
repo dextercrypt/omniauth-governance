@@ -659,7 +659,7 @@
                             </svg>
                           </div>
                         </j:when>
-                        <j:when test="${action eq 'revoke' or action eq 'user_deleted' or action eq 'role_deleted' or action eq 'expired'}">
+                        <j:when test="${action eq 'revoke' or action eq 'user_deleted' or action eq 'role_deleted' or action eq 'expired' or action eq 'permission_revoked' or action eq 'session_revoked' or action eq 'provisioning_rejected' or action eq 'jit_denied' or action eq 'jit_revoked' or action eq 'audit_purged'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                                  stroke="#be185d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -668,7 +668,7 @@
                             </svg>
                           </div>
                         </j:when>
-                        <j:when test="${action eq 'grant' or action eq 'user_created' or action eq 'role_created' or action eq 'break_glass_enrolled'}">
+                        <j:when test="${action eq 'grant' or action eq 'user_created' or action eq 'role_created' or action eq 'break_glass_enrolled' or action eq 'permission_granted' or action eq 'jit_approved' or action eq 'review_confirmed'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                                  stroke="var(--success-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -706,6 +706,29 @@
                             <j:when test="${action eq 'role_created'}">Role created: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'role_edited'}">Role edited: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'role_deleted'}">Role deleted: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'permission_granted'}"><strong>${entry.get('by')}</strong> granted permissions to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'permission_revoked'}"><strong>${entry.get('by')}</strong> revoked permissions for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'session_revoked'}"><strong>${entry.get('by')}</strong> force-revoked the session of <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'bruteforce_cleared'}"><strong>${entry.get('by')}</strong> cleared the lockout for <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'audit_purged'}">Audit log purged by <strong>${entry.get('by')}</strong> (${entry.get('count')} file(s))</j:when>
+                            <j:when test="${action eq 'config_changed'}"><strong>${entry.get('by')}</strong> changed <em>${entry.get('area')}</em><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'config_exported'}">Configuration exported by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'config_imported'}">Configuration imported by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> (${entry.get('detail')})</j:if></j:when>
+                            <j:when test="${action eq 'config_reverted'}">Configuration reverted by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'user_marked_deletion'}"><strong>${entry.get('user')}</strong> marked for deletion by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'user_unmarked_deletion'}">Pending deletion cleared for <strong>${entry.get('user')}</strong> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'password_changed'}">Password set by <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'provisioning_requested'}">Access requested by <strong>${entry.get('user')}</strong><j:if test="${entry.get('authType') != null and entry.get('authType') != ''}"> (${entry.get('authType')})</j:if></j:when>
+                            <j:when test="${action eq 'provisioning_rejected'}"><strong>${entry.get('by')}</strong> rejected the access request from <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'activation_resent'}"><strong>${entry.get('by')}</strong> resent the activation link to <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'jit_requested'}">JIT access requested by <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_approved'}"><strong>${entry.get('by')}</strong> approved JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_denied'}"><strong>${entry.get('by')}</strong> denied JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_expired'}">JIT access expired for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_timed_out'}">JIT request timed out for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_revoked'}"><strong>${entry.get('by')}</strong> revoked JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_cancelled'}">JIT request cancelled by <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'review_confirmed'}"><strong>${entry.get('by')}</strong> confirmed access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
                             <j:otherwise>${action}</j:otherwise>
                           </j:choose>
                         </div>
