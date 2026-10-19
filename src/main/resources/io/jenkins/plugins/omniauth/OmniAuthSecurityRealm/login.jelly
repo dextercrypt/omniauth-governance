@@ -277,11 +277,6 @@
                       class="jenkins-button jenkins-button--primary">
                     ${%signIn}
                   </button>
-                  <j:if test="${it.allowsSignup()}">
-                    <div class="app-sign-in-register__switcher">
-                      <a href="signup">${%or register}</a>
-                    </div>
-                  </j:if>
                 </form>
 
                 <!-- ============================================================

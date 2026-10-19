@@ -76,12 +76,26 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
 
     @DataBoundConstructor
     public OmniAuthSecurityRealm(boolean allowsSignup, EntraOAuthConfig entraConfig) {
-        super(allowsSignup, false, null);   // enableCaptcha=false, captchaSupport=null
+        // allowsSignup is accepted for binding compatibility but always forced OFF: self-signup is
+        // replaced by the governed provisioning portal. This holds for the UI, JCasC, and any
+        // previously-persisted config that had it enabled.
+        super(false, false, null);          // allowsSignup=false, enableCaptcha=false, captchaSupport=null
         this.entraConfig = entraConfig;
     }
 
     public EntraOAuthConfig getEntraConfig() {
         return entraConfig;
+    }
+
+    /**
+     * Self-signup is disabled (onboarding goes through the OmniAuth provisioning portal). Anyone
+     * who reaches the inherited {@code /securityRealm/signup} URL directly — e.g. an old bookmark —
+     * is redirected to the login page instead of being shown a sign-up form that could not succeed.
+     * Account creation itself is already blocked by {@code allowsSignup == false}; this just avoids a
+     * misleading dead-end page.
+     */
+    public HttpResponse doSignup(StaplerRequest req) {
+        return HttpResponses.redirectTo(req.getContextPath() + "/securityRealm/login");
     }
 
     /**
@@ -756,7 +770,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
 
         @Override
         public String getDisplayName() {
-            return "Jenkins' own user database + Microsoft Entra (Omni Auth)";
+            return "OmniAuth — Jenkins' own user database + Single Sign-On";
         }
 
         @Override
@@ -770,7 +784,9 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             boolean oldAllowsSignup = (j.getSecurityRealm() instanceof OmniAuthSecurityRealm)
                     && ((OmniAuthSecurityRealm) j.getSecurityRealm()).getAllowsSignup();
 
-            boolean allowsSignup = formData.optBoolean("allowsSignup", false);
+            // Self-signup is intentionally disabled: onboarding is governed through the OmniAuth
+            // provisioning portal (request + approval + audit), not an open /signup page.
+            boolean allowsSignup = false;
 
             EntraOAuthConfig entraConfig = null;
             JSONObject entraData = formData.optJSONObject("entraConfig");

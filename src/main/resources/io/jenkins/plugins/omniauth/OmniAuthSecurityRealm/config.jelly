@@ -1,13 +1,34 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
 
-  <!-- Native Jenkins user database — same config as HudsonPrivateSecurityRealm -->
-  <f:entry title="${%Allow users to sign up}" field="allowsSignup">
-    <f:checkbox/>
+  <!-- Native Jenkins user database is always on (this realm extends HudsonPrivateSecurityRealm).
+       Self-signup is deliberately NOT offered: onboarding is governed through the OmniAuth
+       provisioning portal (request + approval + audit), so the parent's "Allow users to sign up"
+       option is omitted here and forced off in the descriptor. -->
+
+  <!-- Single sign-on provider. Microsoft Entra is the provider available today; the others are
+       shown (disabled) so the provider slot is explicit and the roadmap is honest. The selector is
+       presentational for now — selecting a provider reveals its settings below. -->
+  <f:entry title="${%Single sign-on provider}">
+    <div class="jenkins-select">
+      <select class="jenkins-select__input">
+        <optgroup label="${%Available}">
+          <option value="entra" selected="selected">Microsoft Entra ID (Azure AD)</option>
+        </optgroup>
+        <optgroup label="${%Planned}">
+          <option value="okta" disabled="disabled">Okta</option>
+          <option value="google" disabled="disabled">Google Workspace</option>
+          <option value="oidc" disabled="disabled">Generic OIDC</option>
+          <option value="saml" disabled="disabled">SAML 2.0</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="jenkins-form-description" style="margin-top: 6px;">
+      Choose a provider to configure it. More providers are planned — Microsoft Entra is available today.
+    </div>
   </f:entry>
 
-  <!-- Microsoft Entra / Azure AD section -->
-  <f:separator/>
+  <!-- Selected provider's settings -->
   <f:section title="Microsoft Entra (Azure AD)">
     <f:block>
       <p>Users can sign in with their Microsoft organizational account.
