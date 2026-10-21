@@ -93,6 +93,17 @@ public class OmniAuthAuditLog {
         write(e);
     }
 
+    /**
+     * An Entra identity authenticated successfully with Microsoft but was rejected because its
+     * email domain is not on the SSO allowed-domains list. Distinct from a plain login_failure so
+     * a domain policy block is traceable (the user proved who they are; policy turned them away).
+     */
+    public void logLoginDeniedDomain(String username, String domain, String ip) {
+        Map<String, String> e = event("login_denied_domain");
+        e.put("user", username); e.put("detail", "domain: " + domain); e.put("ip", normalizeIp(ip));
+        write(e);
+    }
+
     public void logUserCreated(String by, String user) {
         Map<String, String> e = event("user_created");
         e.put("by", by); e.put("user", user);

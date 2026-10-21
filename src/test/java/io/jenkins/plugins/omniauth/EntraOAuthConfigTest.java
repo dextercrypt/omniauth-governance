@@ -126,4 +126,44 @@ public class EntraOAuthConfigTest {
         assertNotNull("@DataBoundSetter must remain for form binding",
                 m.getAnnotation(DataBoundSetter.class));
     }
+
+    // ── allowedDomains (SSO login domain gate) ────────────────────────────────
+
+    @Test
+    public void allowedDomains_defaultsEmpty_andRoundTripsTrimmed() throws Exception {
+        EntraOAuthConfig c = newConfig();
+        assertEquals("defaults to empty (allow all)", "", c.getAllowedDomains());
+        c.setAllowedDomains("  example.com, example.org  ");
+        assertEquals("value is trimmed", "example.com, example.org", c.getAllowedDomains());
+        c.setAllowedDomains(null);
+        assertEquals("null normalises to empty", "", c.getAllowedDomains());
+
+        Method m = EntraOAuthConfig.class.getDeclaredMethod("setAllowedDomains", String.class);
+        assertNotNull("@DataBoundSetter must remain for form binding",
+                m.getAnnotation(DataBoundSetter.class));
+    }
+
+    @Test
+    public void allowedDomains_enforcedByTheSharedDomainGate() {
+        // The login gate reuses ProvisioningPortalAction.domainAllowed with this field: empty = all,
+        // otherwise only listed domains pass.
+        assertTrue("empty list allows any domain",
+                ProvisioningPortalAction.domainAllowed("anyone@anywhere.com", ""));
+        assertTrue("listed domain passes",
+                ProvisioningPortalAction.domainAllowed("alice@example.com", "example.com"));
+        assertFalse("unlisted domain is rejected",
+                ProvisioningPortalAction.domainAllowed("mallory@evil.com", "example.com"));
+    }
+
+    // ── doTestConnection: required-field guard (no network) ───────────────────
+
+    @Test
+    public void doTestConnection_missingFields_isError() {
+        EntraOAuthConfig.DescriptorImpl d = descriptor();
+        assertEquals("blank secret must short-circuit before any network call",
+                FormValidation.Kind.ERROR,
+                d.doTestConnection("tenant-123", "client-abc", Secret.fromString("")).kind);
+        assertEquals(FormValidation.Kind.ERROR,
+                d.doTestConnection("", "client-abc", Secret.fromString("s")).kind);
+    }
 }

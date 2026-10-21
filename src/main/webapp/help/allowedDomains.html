@@ -1,0 +1,13 @@
+<div>
+  Restricts which email domains may sign in through SSO. Enter one or more domains separated by
+  commas or spaces, for example <code>example.com</code> or <code>example.com, example.org</code>.
+  A leading <code>@</code> is optional.
+  <br/><br/>
+  After Microsoft verifies the user's identity, their email / UPN domain is checked against this
+  list. A user whose domain is not listed is rejected <em>even if</em> they are individually
+  provisioned or a member of an allowed group — a defence against guest or cross-tenant accounts
+  gaining access through group membership.
+  <br/><br/>
+  <b>Leave blank to allow any domain</b> (the default). This gate is separate from the provisioning
+  portal's allowed-domains setting, which controls who may <em>request</em> access.
+</div>

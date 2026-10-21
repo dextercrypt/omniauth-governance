@@ -441,6 +441,21 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=notProvisioned");
         }
 
+        // Domain gate: even a pre-provisioned user or allowed-group member must present a
+        // Microsoft-verified email/UPN in an allowed domain (defence against e.g. a guest or
+        // cross-tenant account slipping in through group membership). Empty list = allow all.
+        String emailForDomain = (email != null && !email.isEmpty()) ? email
+                : (upn != null ? upn : "");
+        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, entraConfig.getAllowedDomains())) {
+            String displayId = upn != null ? upn : oid;
+            int at = emailForDomain.lastIndexOf('@');
+            String domain = at >= 0 ? emailForDomain.substring(at + 1) : "(none)";
+            LOGGER.log(Level.WARNING, "Rejected SSO login — domain not allowed: {0}", displayId);
+            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+            if (audit != null) audit.logLoginDeniedDomain(displayId, domain, req.getRemoteAddr());
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=domainNotAllowed");
+        }
+
         // Provision / update Jenkins user
         User jenkinsUser = getOrCreateEntraUser(oid, upn, name, groups);
 

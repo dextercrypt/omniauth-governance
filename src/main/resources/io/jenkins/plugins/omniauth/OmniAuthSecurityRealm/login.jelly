@@ -209,6 +209,9 @@
                         <j:when test="${request2.getParameter('error') == 'notProvisioned'}">
                           Your Jenkins account hasn't been set up yet. Contact your administrator.
                         </j:when>
+                        <j:when test="${request2.getParameter('error') == 'domainNotAllowed'}">
+                          Your email domain is not permitted to sign in here. Contact your administrator.
+                        </j:when>
                         <j:when test="${request2.getParameter('error') == 'locked'}">
                           Too many failed sign-in attempts. Please wait a few minutes and try again.
                         </j:when>
