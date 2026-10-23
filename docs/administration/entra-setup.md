@@ -23,12 +23,12 @@ registrations → New registration**:
 **Redirect URI:**
 
 ```
-https://<jenkins-host>/<prefix>/securityRealm/finishLogin
+https://<jenkins-host>/<prefix>/omniauth/finishLogin
 ```
 
 Examples:
-- Root context: `https://jenkins.example.com/securityRealm/finishLogin`
-- With prefix: `https://ci.example.com/jenkins/securityRealm/finishLogin`
+- Root context: `https://jenkins.example.com/omniauth/finishLogin`
+- With prefix: `https://ci.example.com/jenkins/omniauth/finishLogin`
 
 > The redirect URI must match **exactly** (scheme, host, port, path). Register additional
 > URIs if you have multiple hostnames (e.g. internal vs. external).
@@ -81,6 +81,27 @@ configuration:
 | **Client ID** | Application (client) ID |
 | **Client Secret** | Secret value from step 3 |
 | **Enable Group Sync** | On, if you completed the `GroupMember.Read.All` grant |
+| **Allowed email domains** | Optional comma/space-separated allowlist of email domains; empty = allow any |
+
+### Test Connection
+
+Before the first sign-in, click **Test Connection** to validate the tenant ID, client ID and
+client secret without saving. It performs a **real** MSAL client-credentials token grant for
+the Graph `.default` scope against your tenant and reports a green success or a red error
+inline. The button is admin-only and POST-only. Note it exercises **app-only** (client-credentials)
+authentication, whereas interactive sign-in uses **delegated** permissions — so a passing test
+confirms the credentials and app registration, and sign-in additionally depends on the delegated
+permissions and consent from [step 4](#api-permissions).
+
+### Allowed email domains
+
+**Allowed email domains** is an optional allowlist (`allowedDomains` on the Entra config,
+`@DataBoundSetter`, round-trips through JCasC). Leave it empty to allow any domain. When set, it
+is enforced at `finishLogin` **after** the pre-provisioning check: a Microsoft-verified identity
+whose email domain is not on the list is rejected (redirected to `loginError?error=domainNotAllowed`,
+audit event `login_denied_domain`). This is **distinct** from the
+[provisioning portal](provisioning-portal.md)'s own domain allowlist, which gates who may
+*request* access rather than who may *sign in*.
 
 **Save**, then test SSO in a private browser window (see
 [Quick start → test both login paths](../getting-started/quick-start.md)).
@@ -89,7 +110,7 @@ configuration:
 
 | Symptom | Likely cause |
 |---|---|
-| `AADSTS50011` redirect mismatch | Redirect URI in Entra ≠ `.../securityRealm/finishLogin` (check prefix/host/scheme) |
+| `AADSTS50011` redirect mismatch | Redirect URI in Entra ≠ `.../omniauth/finishLogin` (check prefix/host/scheme) |
 | Login loops back to the login page | Session/seed issue behind a reverse proxy — verify external URL and cookies |
 | Groups not appearing | `GroupMember.Read.All` not admin-consented, or Group Sync disabled |
 | `AADSTS7000215` invalid secret | Client secret expired or mistyped |

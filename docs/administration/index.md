@@ -63,6 +63,8 @@ Several features run on a schedule via Jenkins `AsyncPeriodicWork`:
 | `AccessReviewWork` | Drive access-review cycles and digests |
 | `StaleWarningWork` | Warn owners before stale-account cleanup |
 | `StaleUserCleanupWork` | Remove/cleanup inactive accounts |
+| `OmniAuthAccountExpiryWorker` | Enforce time-limited provisioned accounts and send pre-expiry reminders (every 6h) |
+| `OmniAuthAuditRetentionWork` | Prune audit-log entries past the retention window (daily) |
 
 See the [Configuration reference](../reference/configuration-reference.md) for the settings
 that control each worker.

@@ -63,6 +63,27 @@ Key settings (see the [Configuration reference](../reference/configuration-refer
 Last-login data used to determine staleness is tracked per user (`LastLoginProperty` /
 login history), updated by a login listener on each sign-in.
 
+### Cleanup exemptions
+
+Beyond [protected users](#protected-users), `StaleUserCleanupWork` skips two further classes of
+account regardless of inactivity:
+
+- **Group-owned accounts.** An account whose access comes from an active Azure AD group
+  membership (`isViaGroup` and the group still resolves via `hasGroup`) is never cleaned up —
+  its lifecycle is owned by the directory group, not by inactivity.
+- **Accounts awaiting activation.** A provisioned native account that has never logged in and is
+  still awaiting its one-time activation link is not auto-deleted, so cleanup cannot destroy an
+  account before the user has had the chance to activate it.
+
+## Mark for deletion
+
+An administrator can explicitly flag an account for removal independently of staleness. From a
+user's detail page, **Mark for deletion** (`doMarkForDeletion`) sets
+`OmniAuthUserProperty.pendingDeletion` and records the audit event `user_marked_deletion`;
+**Unmark** (`doUnmarkForDeletion`) clears it. `StaleUserCleanupWork` deletes any account flagged
+pending-deletion on its next run **regardless of staleness** — so this is the way to retire an
+account promptly without waiting for the stale threshold.
+
 ## Offboarding checklist
 
 1. Revoke [access assignments](access-management.md) (or let expiry handle it).

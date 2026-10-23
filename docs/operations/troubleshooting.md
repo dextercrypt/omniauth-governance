@@ -20,9 +20,10 @@ If no one can sign in (bad authorization change, SSO outage, lost admin password
 
 | Symptom | Cause / fix |
 |---|---|
-| `AADSTS50011` (redirect mismatch) | The Entra redirect URI must be exactly `https://<host>/<prefix>/securityRealm/finishLogin`. Check scheme, host, port, and prefix. |
-| `AADSTS7000215` (invalid client secret) | Secret expired or mistyped — create a new one in Entra and update the plugin. |
+| `AADSTS50011` (redirect mismatch) | The Entra redirect URI must be exactly `https://<host>/<prefix>/omniauth/finishLogin`. Check scheme, host, port, and prefix. |
+| `AADSTS7000215` (invalid client secret) / `AADSTS700016` (wrong client/tenant) | Secret expired or mistyped, or wrong tenant/client — use the **Test Connection** button on the Entra config card (it performs a real client-credentials token grant) to confirm tenant + client + secret before anything else, then create a new secret in Entra and update the plugin if needed. |
 | Login redirects back to the login page (loop) | Session/seed not persisted — verify the Jenkins **external URL**, reverse-proxy headers, and cookie settings. |
+| SSO succeeds but redirects to `loginError?error=domainNotAllowed` | The user's email domain is not in **Allowed email domains** on the Entra config; the login is rejected and audited as `login_denied_domain`. Add the domain to the allowlist (empty = allow all). This is a rejected login, distinct from the row below where login *succeeds* but no access is granted. |
 | SSO succeeds but user has no permissions | No [access assignment](../administration/access-management.md) for that email — pre-provision or grant access. |
 | Groups missing | `GroupMember.Read.All` not admin-consented, or **Group Sync** disabled. |
 

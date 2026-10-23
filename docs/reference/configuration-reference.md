@@ -18,6 +18,7 @@ differ slightly.
 | `clientId` | String | Application (client) ID. |
 | `clientSecret` | Secret (encrypted) | Client secret value. |
 | `enableGroupSync` | boolean | Fetch Azure AD groups via MS Graph after login. |
+| `allowedDomains` | String | Comma/space-separated email-domain allowlist for SSO sign-in; empty = allow all. |
 
 See [Entra setup](../administration/entra-setup.md).
 
@@ -56,13 +57,45 @@ See [Access review](../administration/access-review.md).
 
 See [JIT access](../administration/jit-access.md).
 
-## Brute-force tracking
+## Audit log
 
 | Field | Type | Description |
 |---|---|---|
-| `bruteForceThreshold` | int | Failed-login count that triggers tracking/alerting. |
+| `auditRetentionDays` | int | Days of audit history retained before pruning (default 365); clamps to >= 0; 0 = keep forever. |
 
-> Tracking/alerting only — no hard account lockout. See [Security model](../security/security-model.md).
+## Provisioning portal
+
+Self-service access requests. These gate whether and how users may request an account.
+
+| Field | Type | Description |
+|---|---|---|
+| `provisioningEnabled` | boolean | Master switch for the self-service provisioning portal (default off). |
+| `provisioningAllowEntra` | boolean | Allow Entra/SSO users to request access (default on). |
+| `provisioningAllowNative` | boolean | Allow native (username/password) access requests (default off). |
+| `provisioningAllowedDomains` | String | Comma/space-separated email-domain allowlist for who may **request** access; empty = any. Distinct from Entra's `allowedDomains`, which gates SSO **sign-in**. |
+| `provisioningDefaultDurationDays` | int | Default lifetime of a provisioned account in days (default 0 = no expiry). |
+| `provisioningExpiryAction` | String | Action at expiry: `DISABLE` or `DELETE` (default `DISABLE`). |
+| `provisioningExpiryReminderDays` | int | Email the account this many days before expiry (default 7; 0 = off). |
+| `activationLinkTtlHours` | int | Lifetime of a native approval's one-time activation link, in hours (default 72). |
+| `provisioningMaxPendingPerUser` | int | Entra: maximum pending requests per requester (default 1). |
+| `provisioningBreakerMax` | int | Native: maximum requests within the window before the breaker trips (default 100). |
+| `provisioningBreakerWindowMin` | int | Native: rolling breaker window in minutes (default 10). |
+| `provisioningBreakerCooldownMin` | int | Native: pause duration in minutes once the breaker trips (default 30). |
+
+See [Provisioning portal](../administration/provisioning-portal.md).
+
+## Brute-force lockout
+
+| Field | Type | Description |
+|---|---|---|
+| `bruteForceThreshold` | int | Failed-login count that triggers lockout (default 5). |
+| `bruteForceLockoutEnabled` | boolean | Enforce account lockout once the threshold is reached (default on). |
+| `bruteForceLockoutMinutes` | int | Lockout duration in minutes (default 15). |
+
+> Lockout is enforced: once a user exceeds `bruteForceThreshold` failed logins within the
+> 15-minute window, the authentication layer throws `LockedException` before the password
+> check, across all login channels. Protected users are exempt. See
+> [Security model](../security/security-model.md).
 
 ## Notifications
 
@@ -95,7 +128,7 @@ See [JIT access](../administration/jit-access.md).
 | Field | Type | Description |
 |---|---|---|
 | `slackEnabled` | boolean | Enable Slack channel. |
-| `slackWebhookUrl` | String | Incoming webhook URL. |
+| `slackWebhookUrl` | Secret (encrypted) | Incoming webhook URL. |
 | `slackEvents` | List<String> | Event types routed to Slack. |
 
 **Microsoft Teams**
@@ -103,7 +136,7 @@ See [JIT access](../administration/jit-access.md).
 | Field | Type | Description |
 |---|---|---|
 | `teamsEnabled` | boolean | Enable Teams channel. |
-| `teamsWebhookUrl` | String | Incoming webhook URL. |
+| `teamsWebhookUrl` | Secret (encrypted) | Incoming webhook URL. |
 | `teamsEvents` | List<String> | Event types routed to Teams. |
 
 See [Notifications](../administration/notifications.md).

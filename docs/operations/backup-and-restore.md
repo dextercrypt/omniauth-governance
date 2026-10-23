@@ -16,12 +16,30 @@ can back them up granularly or migrate them.
 | Access assignments | `io.jenkins.plugins.omniauth.OmniAuthAssignmentConfig.xml` |
 | Role definitions | `io.jenkins.plugins.omniauth.OmniAuthRoleConfig.xml` |
 | JIT requests/history | `io.jenkins.plugins.omniauth.OmniAuthJitRequestStore.xml` |
+| Provisioning requests | `io.jenkins.plugins.omniauth.ProvisioningRequestConfig.xml` |
 | Per-user properties (OID/UPN, last login, force-password, break-glass) | `users/<user>/config.xml` |
-| Audit log | plugin data under `JENKINS_HOME` |
+| Audit log | newline-delimited JSON monthly files `omniauth-audit-YYYY-MM.json` under `JENKINS_HOME/logs` |
 | The plugin artifact | `plugins/omni-auth.jpi` |
 
 > Exact filenames follow the `GlobalConfiguration` class names. Verify against your instance;
 > confirm the precise audit-log path on a live system when finalizing your backup scope.
+
+## In-product Backup & Restore UI
+
+Beyond raw file copying, OmniAuth ships an **in-product Backup & Restore** console under
+**Manage Jenkins → OmniAuth**, with **Export**, **Import**, and **Revert** actions,
+restore-point history, and a colour-coded, Terraform-style plan modal shown before both
+import and rollback so you can review the exact field-level changes first. See the
+[Backup & restore design](../developer/backup-restore-design.md) for the details.
+
+- **Covers:** roles, scoped access assignments, groups, and settings — exported as
+  JCasC-shaped YAML.
+- **Does NOT cover:** the security realm and secrets (no client secret / SMTP password).
+- **Known scope gap:** the global permission matrix is **not** captured, so a bare native
+  user holding only matrix grants shows "no changes" in the plan.
+
+Use the UI for governance-data snapshots and reviewable restores; use the file/`JENKINS_HOME`
+procedures below for a complete instance backup including the realm and secrets.
 
 ## Secrets
 
@@ -55,8 +73,11 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 ## Disaster recovery tips
 
-- Keep at least one **native admin** credential outside the SSO dependency.
-- Enroll [Break Glass](../administration/break-glass.md) so recovery doesn't depend on Entra.
+- Keep at least one **native admin** credential outside the SSO dependency — this, not Break
+  Glass, is your real recovery path if Entra is unavailable (Break Glass requires you to
+  already be signed in as admin; see [Break Glass](../administration/break-glass.md)).
+- Know the host-level recovery steps (disable security / edit `config.xml`) in case the
+  authorization strategy itself is misconfigured.
 - Test your restore on a scratch instance periodically.
 
 ---

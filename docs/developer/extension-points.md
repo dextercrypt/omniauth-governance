@@ -12,13 +12,13 @@ predictable and its surfaces familiar to plugin developers.
 | `SecurityRealm` (`HudsonPrivateSecurityRealm`) | `OmniAuthSecurityRealm` | Authentication (native + Entra). |
 | `AuthorizationStrategy` (`ProjectMatrixAuthorizationStrategy`) | `OmniAuthAuthorizationStrategy` | Authorization decisions. |
 | `ACL` | `OmniAuthItemACL` | Per-item permission checks. |
-| `GlobalConfiguration` | `OmniAuthGlobalConfig`, `OmniAuthAssignmentConfig`, `OmniAuthRoleConfig`, `OmniAuthJitRequestStore` | Persisted configuration/state. |
+| `GlobalConfiguration` | `OmniAuthGlobalConfig`, `OmniAuthAssignmentConfig`, `OmniAuthRoleConfig`, `OmniAuthJitRequestStore`, `ProvisioningRequestConfig` | Persisted configuration/state. |
 | `ManagementLink` | `OmniAuthManagementLink` | The admin console page. |
 | `RootAction` / `UnprotectedRootAction` | `OmniAuthJitAction`, `OmniAuthRootAction` | User-facing and pre-auth endpoints. |
 | `UserProperty` | `OmniAuthUserProperty`, `OmniAuthForcePasswordProperty`, `LastLoginProperty`, `LoginHistoryProperty` | Per-user data. |
 | `SecurityListener` | `LastLoginListener` | React to authentication events. |
 | `SaveableListener` | `AdminChangeListener` | React to configuration saves. |
-| `AsyncPeriodicWork` | `OmniAuthExpiryWorker`, `OmniAuthJitExpiryWorker`, `AccessReviewWork`, `StaleWarningWork`, `StaleUserCleanupWork` | Scheduled background jobs. |
+| `AsyncPeriodicWork` | `OmniAuthExpiryWorker`, `OmniAuthJitExpiryWorker`, `AccessReviewWork`, `StaleWarningWork`, `StaleUserCleanupWork`, `OmniAuthAccountExpiryWorker`, `OmniAuthAuditRetentionWork` | Scheduled background jobs. |
 | `CrumbExclusion` | `NativeLoginCrumbExclusion` | CSRF handling for native login post. |
 | `PageDecorator` | `OmniAuthPageDecorator` | Inject assets/behavior into pages. |
 | `Descriptor` / `AbstractDescribableImpl` | `EntraOAuthConfig` | Configurable sub-object. |
@@ -28,7 +28,7 @@ predictable and its surfaces familiar to plugin developers.
 The descriptors carry `@Symbol` annotations for Configuration as Code — see
 [Configuration as Code](../operations/configuration-as-code.md):
 `omniAuth`, `entraConfig`, `omniAuthAuthorization`, `omniAuthAssignments`, `omniAuthRoles`,
-`omniAuthJitRequests`.
+`omniAuthJitRequests`, `omniAuthProvisioningRequests`.
 
 ## Where to extend
 

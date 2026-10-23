@@ -22,12 +22,12 @@ restart. See [Installation](installation.md) for alternatives.
 
 ## 3. (Optional) Wire up OAuth/OIDC SSO
 
-SSO uses a pluggable provider framework; **Microsoft Entra is the provider integrated
-today**. You'll need a **Tenant ID**, **Client ID**, and **Client Secret** from an Entra OAuth2/OIDC
-app registration whose redirect URI is:
+SSO today uses **Microsoft Entra (Azure AD)** (other providers are listed as *planned*). You'll
+need a **Tenant ID**, **Client ID**, and **Client Secret** from an Entra OAuth2/OIDC app
+registration whose redirect URI is:
 
 ```
-https://<jenkins-host>/<prefix>/securityRealm/finishLogin
+https://<jenkins-host>/<prefix>/omniauth/finishLogin
 ```
 
 Full walkthrough: [Microsoft Entra setup](../administration/entra-setup.md).

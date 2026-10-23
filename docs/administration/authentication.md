@@ -68,8 +68,10 @@ Browser                     Jenkins                         Identity provider (E
   │◄── 302 to dashboard ───────│                                  │
 ```
 
-Endpoints: `commenceLogin` (start) and `finishLogin` (callback). The callback must match the
-redirect URI registered with the provider — for Entra, see [Entra setup](entra-setup.md).
+Endpoints: `/<prefix>/omniauth/commenceLogin` (start) and `/<prefix>/omniauth/finishLogin`
+(callback), both served by `OmniAuthRootAction` (they are **not** under `securityRealm/`). The
+callback must match the redirect URI registered with the provider — for Entra, see
+[Entra setup](entra-setup.md).
 
 ### Identity model
 
@@ -87,19 +89,21 @@ they apply the moment that user first signs in via SSO.
 - **PKCE** — a per-login code verifier/challenge protects the code exchange.
 - **State** — CSRF protection across the redirect.
 - **Nonce** — bound into the ID token and validated on return to prevent replay.
+- **Allowed email domains** — an optional Entra sign-in gate: a Microsoft-verified identity
+  whose email domain is outside the configured allowlist is rejected after the pre-provisioning
+  check (see [Entra setup → Allowed email domains](entra-setup.md)).
 
 See [Security model](../security/security-model.md) for the full posture.
 
 ### Provider framework {#provider-framework}
 
-The SSO button and token handling are driven by a provider preset (`SsoProvider`) rather than
-being hard-wired to one vendor:
+The SSO button and labels are driven by a provider preset (`SsoProvider`):
 
-- **Microsoft Entra** is the preset **implemented and supported today**.
-- The login page and token layer are parameterized by provider, so additional OAuth2/OIDC
-  providers (e.g. Okta, Auth0, generic OIDC) can be added without reworking the login flow.
-- Multi-provider selection (offering more than one provider at once) is planned; today a
-  single provider — Entra — is configured.
+- **Microsoft Entra** is the only preset **implemented and supported today**. The sign-in path
+  itself is Entra-coupled (MSAL4J / Microsoft Graph) — there is a provider *selector* in the
+  realm UI, not yet a provider-agnostic abstraction.
+- Other providers (Okta, Auth0, generic OIDC) appear in the selector as *planned* — on the
+  roadmap, not yet available. Don't assume vendor-neutral SSO today.
 
 For developers: see [Extension points → add an SSO provider](../developer/extension-points.md#where-to-extend).
 

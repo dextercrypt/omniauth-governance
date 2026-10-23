@@ -8,8 +8,8 @@ just-in-time elevation, access reviews, session control, emergency break-glass a
 audit logging, and multi-channel notifications. The value isn't only how users sign in; it's
 everything around it that keeps Jenkins access **secure and easy to manage**.
 
-Single sign-on is built on a **pluggable provider framework**. **Microsoft Entra (Azure AD)
-is the provider integrated today; more OAuth2/OIDC providers are planned.**
+Single sign-on today uses **Microsoft Entra (Azure AD)**; the realm's provider selector lists
+other OAuth2 / OIDC providers as *planned* (roadmap, not yet available).
 
 This documentation set is organized for administrators, security teams, operators, and
 developers.
@@ -37,13 +37,14 @@ developers.
 
 ### Administration
 - [Administration overview](administration/index.md)
+- [Overview dashboard](administration/dashboard.md) — live posture, attention items, login activity
 - [Authentication](administration/authentication.md) — native + OAuth/OIDC SSO + group sync
 - [Microsoft Entra setup](administration/entra-setup.md) — app registration, redirect URIs, permissions
 - [Access management](administration/access-management.md) — roles, permissions, scoped & time-limited grants
 - [Access review & certification](administration/access-review.md)
 - [Just-in-Time (JIT) access](administration/jit-access.md)
 - [Sessions & session revocation](administration/sessions.md)
-- [Break Glass emergency access](administration/break-glass.md)
+- [Break Glass](administration/break-glass.md) — TOTP step-up for sensitive admin actions
 - [Notifications](administration/notifications.md) — email, Slack, Teams
 - [User lifecycle](administration/user-lifecycle.md) — provisioning, stale cleanup, force password change
 - [Provisioning portal](administration/provisioning-portal.md) — self-service access requests + approval
@@ -62,6 +63,7 @@ developers.
 - [Architecture](developer/architecture.md)
 - [Extension points](developer/extension-points.md)
 - [Building & contributing](developer/contributing.md)
+- [Releasing & versioning](developer/releasing.md)
 
 ### Reference
 - [Configuration reference](reference/configuration-reference.md)

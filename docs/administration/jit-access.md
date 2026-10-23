@@ -14,28 +14,50 @@ It is exposed to users via the JIT action and managed by admins at
 
 ## User flow
 
-1. A user opens the Just-in-Time access request page.
-2. They select the access they need (role/scope) and a **duration**, and provide a reason.
-3. The request enters the **pending** queue and admins are notified.
+JIT access is requested **per job/folder**, not from a central role picker. A user asks for
+elevation against a **specific job or folder** that is covered by a scoped JIT assignment:
+
+1. On a job/folder that has a covering scoped JIT assignment
+   (`findCoveringJitAssignment` walks up the item hierarchy), the user requests elevation and
+   provides a **reason** and a **duration**.
+2. The requested duration is **clamped to the assignment's `maxDurationHours`** cap.
+3. The request enters the **pending** queue and the assignment's approvers are notified.
+
+> **JIT is scoped-only.** It applies to a specific job/folder scope, never to global access.
+> There is no central "request page" where users pick an arbitrary role or scope — the eligible
+> scope is whatever a scoped JIT assignment already covers.
 
 ## Admin flow
 
-At **Manage Jenkins → OmniAuth → JIT requests**:
+A JIT assignment requires **at least two approvers**, and approval is **AND-logic**: the grant
+activates only when **every** approver has approved (`isFullyApproved` uses `allMatch`). A single
+approval does not activate access.
+
+Approvers can act two ways:
+
+- **Tokenized email links** — each approver receives a unique per-entry link
+  `…/omniauth-jit/action?token=<token>` (served by a `RootAction`, so it bypasses the
+  `ADMINISTER` management gate — no Jenkins login required to decide).
+- **In-product** — at **Manage Jenkins → OmniAuth → JIT requests**, admins approve or deny via
+  `doApproveJit` / `doDenyJit`.
 
 | Action | Result |
 |---|---|
-| **Approve** | The elevated access becomes active for the requested window; audited. |
+| **Approve** | Records this approver's decision; once **all** approvers have approved, the elevated access becomes active for the (clamped) window; audited. |
 | **Deny** | The request is rejected (with optional reason); the requester is notified. |
 | **Revoke** | An active JIT grant is ended early. |
 
-Suggested approvers can be surfaced to streamline routing.
-
 ## Expiry and cleanup
 
-- Approved grants carry an expiry; when it passes, `OmniAuthJitExpiryWorker` removes the
-  elevated access automatically.
-- JIT history is retained for a configurable number of days (see the
-  [Configuration reference](../reference/configuration-reference.md)) for later audit.
+`OmniAuthJitExpiryWorker` drives two separate timeouts:
+
+- **Approval timeout.** A pending request not fully approved before its `approvalDeadline`
+  transitions to **`TIMED_OUT`** (audit `logJitTimedOut`) — it never activates.
+- **Grant expiry.** An active grant past its duration transitions to **`EXPIRED`** (audit
+  `logJitExpired`) and the elevated access is removed automatically.
+
+JIT history is retained for a configurable number of days (see the
+[Configuration reference](../reference/configuration-reference.md)) for later audit.
 
 ## Design considerations
 

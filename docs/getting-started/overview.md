@@ -20,16 +20,17 @@ compatible with native Jenkins accounts.
 > everything around authentication — how access is granted, scoped, reviewed, revoked, and
 > audited, and how easy that is to manage from one console.
 
-## Authentication is pluggable
+## Authentication: native + SSO
 
-SSO is built on a **provider framework** rather than being hard-wired to one vendor:
+Two sign-in paths share one login page:
 
 - **Native login** always works (bcrypt, API tokens, CLI) — ideal for service accounts and
   break-glass admins.
-- **OAuth2 / OIDC single sign-on** is provided through a pluggable provider preset.
-- **Microsoft Entra (Azure AD) is the provider integrated today.** Additional OAuth2/OIDC
-  providers (e.g. Okta, Auth0, generic OIDC) are planned; the login page and token layer are
-  already parameterized by provider to make that straightforward.
+- **OAuth2 / OIDC single sign-on**, today via **Microsoft Entra (Azure AD)**, always hardened
+  with PKCE and ID-token nonce.
+- The realm's provider selector lists other providers (Okta, Auth0, generic OIDC) as
+  *planned* — on the roadmap, not yet available. The sign-in path is Entra-coupled today
+  (MSAL4J / Microsoft Graph).
 
 ## Who it's for
 
@@ -48,11 +49,11 @@ SSO is built on a **provider framework** rather than being hard-wired to one ven
   permission model honest.
 - **Standing privilege.** Just-in-Time (JIT) access grants elevated roles only for a bounded
   window, with approval and auto-expiry.
-- **Emergency lockout.** Break Glass provides MFA-protected recovery when SSO or admin access
-  is unavailable.
+- **Unconfirmed high-risk actions.** Break Glass requires an already-authenticated admin to
+  pass a TOTP step-up before sensitive operations (it is a confirmation, not a lockout-recovery
+  path — keep a native admin for true outages).
 - **Blind spots.** An audit log, active-session view, and multi-channel notifications give
   visibility into access and login events.
-- **Vendor lock-in on identity.** A provider framework means SSO isn't tied to a single IdP.
 
 ## Capability summary
 
@@ -60,10 +61,11 @@ SSO is built on a **provider framework** rather than being hard-wired to one ven
   per-user and per-group grants, global or job/folder scope, expiry, JIT access, access
   review/certification, conflict detection, and a full audit log.
 - **Security & account safety** — session revocation, fail-closed force-password-change,
-  break-glass (TOTP), brute-force tracking, and stale-user cleanup.
-- **Authentication** — native + OAuth2/OIDC SSO (PKCE + nonce), pluggable provider framework
-  with Microsoft Entra integrated today, identity anchored on a stable directory id, and
-  optional group synchronization.
+  break-glass (TOTP step-up), enforced brute-force lockout, SSO domain allowlist, and
+  stale-user cleanup.
+- **Authentication** — native + OAuth2/OIDC SSO (PKCE + nonce), currently Microsoft Entra
+  (others planned), identity anchored on a stable directory id, and optional group
+  synchronization.
 - **Notifications** — email (SMTP), Slack, and Microsoft Teams with per-event routing.
 - **Experience** — a configurable, themeable login page.
 
@@ -74,9 +76,10 @@ See the [administration overview](../administration/index.md) for details on eac
 - It is **not** a SAML integration. SSO is wired via OAuth2/OIDC.
 - It does **not** replace an identity provider's own MFA — MFA is enforced by the IdP during
   SSO.
-- SSO is **not** limited by design to one vendor, but today **only Microsoft Entra is
-  implemented**; other providers are planned.
-- Brute-force protection currently **tracks and alerts**; it does not hard-lock accounts.
+- SSO is **Microsoft Entra today** — the provider selector lists others as *planned*, but the
+  sign-in path is Entra-coupled (MSAL4J / Microsoft Graph). Don't assume vendor-neutral SSO.
+- Brute-force protection **enforces a lockout**: past the failure threshold a native account is
+  locked for a cooldown window (protected users exempt).
 
 ---
 _Next: [Requirements](requirements.md) · [Installation](installation.md)_

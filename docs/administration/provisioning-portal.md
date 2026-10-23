@@ -68,6 +68,9 @@ background worker (every 6 hours) then enforces it per the **expiry action** set
   stale-user cleanup removes it later.
 - **Delete** — removes the account outright.
 
+The same worker also emails the account a **pre-expiry reminder** a configurable number of days
+before expiry (`provisioningExpiryReminderDays`, default 7; 0 disables it).
+
 [Protected users](user-lifecycle.md#protected-users) are always skipped.
 
 ## Native circuit breaker

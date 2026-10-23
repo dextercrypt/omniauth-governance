@@ -15,7 +15,7 @@
 | Class | Role |
 |---|---|
 | `OmniAuthSecurityRealm` | The security realm; extends `HudsonPrivateSecurityRealm` so native login is inherited. Adds Entra OAuth2 endpoints (`commenceLogin`/`finishLogin`) and the native login post handler. |
-| `EntraOAuthConfig` | Describable holding `tenantId`, `clientId`, `clientSecret` (encrypted `Secret`), and `enableGroupSync`. |
+| `EntraOAuthConfig` | Describable holding `tenantId`, `clientId`, `clientSecret` (encrypted `Secret`), `enableGroupSync`, and `allowedDomains` (email-domain allowlist; `@DataBoundSetter`, round-trips via JCasC). |
 | `EntraUserDetails` | Spring Security `UserDetails` for an Entra-authenticated user. |
 | `EntraAuthenticationToken` | The `Authentication` token placed in the security context. |
 | `EntraGroupDetails` | `GrantedAuthority` for each Azure AD group. |
@@ -70,6 +70,8 @@
 | `AccessReviewWork` | Access-review cycles and digest. |
 | `StaleWarningWork` | Warn before stale-account cleanup. |
 | `StaleUserCleanupWork` | Clean up inactive accounts. |
+| `OmniAuthAccountExpiryWorker` | Enforce provisioning time-limited accounts; runs every 6h and also sends pre-expiry reminders. |
+| `OmniAuthAuditRetentionWork` | Daily audit-log pruning per the retention setting. |
 
 ## Persistence
 
@@ -80,6 +82,7 @@ mechanisms (see [Backup & restore](../operations/backup-and-restore.md)):
 - Assignments → `OmniAuthAssignmentConfig`
 - Roles → `OmniAuthRoleConfig`
 - JIT requests → `OmniAuthJitRequestStore`
+- Provisioning requests → `ProvisioningRequestConfig`
 - Per-user → user `config.xml` properties
 
 ## SSO login flow (detailed)

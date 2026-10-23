@@ -20,6 +20,12 @@ in YAML.
 | `omniAuthAssignments` | Access assignments store | `OmniAuthAssignmentConfig` |
 | `omniAuthRoles` | Role definitions | `OmniAuthRoleConfig` |
 | `omniAuthJitRequests` | JIT request store | `OmniAuthJitRequestStore` |
+| `omniAuthProvisioningRequests` | Provisioning request store | `ProvisioningRequestConfig` |
+
+> `OmniAuthGlobalConfig` (global settings: brute-force lockout, notifications, branding,
+> audit retention) has **no** `@Symbol` — it is a plain `GlobalConfiguration`, so it
+> round-trips under its global-configuration descriptor rather than a named symbol. Its
+> settings are still JCasC-definable.
 
 ## Example (illustrative)
 
@@ -36,6 +42,7 @@ jenkins:
         clientId: "${ENTRA_CLIENT_ID}"
         clientSecret: "${ENTRA_CLIENT_SECRET}"
         enableGroupSync: true
+        allowedDomains: "example.com, example.org"
   authorizationStrategy:
     omniAuthAuthorization:
       # matrix-style permission entries, per the strategy's schema
@@ -72,6 +79,8 @@ Secrets are stored encrypted in Jenkins once applied.
 - Assignments, roles, and JIT requests are also persisted as XML in `JENKINS_HOME`; JCasC is
   the declarative front door, while those files are the runtime store — see
   [Backup & restore](backup-and-restore.md).
+- Global settings on `OmniAuthGlobalConfig` round-trip under the global-configuration section,
+  including `auditRetentionDays` (audit-log retention in days).
 - Validate changes on a non-production instance before applying to production.
 
 ---

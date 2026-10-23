@@ -14,8 +14,14 @@ reached through the console UI rather than directly.
 | `securityRealm/login` | The custom login page (native + SSO). |
 | `omniauth/nativeLogin` | Native username/password form POST target. |
 | `securityRealm/commenceLogin` | Start the Entra OAuth2 flow. |
-| `securityRealm/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
+| `omniauth/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
 | `omniauth/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
+| `descriptorByName/io.jenkins.plugins.omniauth.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
+
+> **Login error codes.** Failed or rejected sign-ins redirect to `loginError?error=<code>`:
+> `locked` (brute-force lockout), `activation` (account not yet activated), `entra` (Entra/SSO
+> error), `notProvisioned` (user not pre-provisioned), `domainNotAllowed` (email domain not in
+> the sign-in allowlist), `session` (session/state problem).
 
 ## Native account / password
 
@@ -23,6 +29,7 @@ reached through the console UI rather than directly.
 |---|---|
 | `doChangePassword` | Change password. |
 | `doSubmitPasswordChange` / `doCheckNativeUser` | Force-password-change submission and checks. |
+| `omniauth/activate` (`doActivate`) | Native account activation link (one-time). |
 
 ## Break Glass
 
@@ -58,6 +65,8 @@ reached through the console UI rather than directly.
 | Endpoint | Purpose |
 |---|---|
 | `doRequest` | Submit a JIT request. |
+| `doStatus` | JIT request status for the current user. |
+| `doCancel` | Cancel a pending JIT request. |
 | `doJitRequests` | JIT requests queue (admin). |
 | `doApproveJit` / `doDenyJit` / `doRevokeActiveJit` | Approve / deny / revoke JIT. |
 | `doSuggestApprovers` | Approver suggestions. |
@@ -88,6 +97,34 @@ reached through the console UI rather than directly.
 | `doSendTestEmail` / `doSendTestSlack` / `doSendTestTeams` | Channel test sends. |
 | `doNotificationLog` / `doClearNotificationLog` | Notification delivery log. |
 
+## Provisioning (admin queue)
+
+| Endpoint | Purpose |
+|---|---|
+| `doProvisioning` | Provisioning request queue. |
+| `doApproveProvisioning` / `doRejectProvisioning` | Approve / reject a request. |
+| `doResendActivation` | Resend a native account's activation link. |
+| `doResetProvisioningBreaker` | Reset the native request rate-limit breaker. |
+| `doSaveProvisioningSettings` | Save provisioning-portal settings. |
+
+## Provisioning portal (self-service)
+
+Served under `request-access` (`ProvisioningPortalAction`).
+
+| Endpoint | Purpose |
+|---|---|
+| `doSubmitNative` | Submit a native (username/password) access request. |
+| `doSubmitEntraReason` | Submit an Entra/SSO access request with a reason. |
+
+## Backup & restore
+
+| Endpoint | Purpose |
+|---|---|
+| `doBackup` | Download a configuration backup. |
+| `doExportConfig` / `doImportConfig` | Export / import roles, scoped assignments, groups and settings. |
+| `doPreviewImport` / `doPreviewRevert` | Preview an import or a rollback before applying. |
+| `doRevertImport` | Roll back to a prior restore point. |
+
 ## Audit, security & settings
 
 | Endpoint | Purpose |
@@ -97,6 +134,7 @@ reached through the console UI rather than directly.
 | `doClearBruteForce` | Reset brute-force counters. |
 | `doSettings` / `doSaveSettings` | Plugin settings (incl. branding). |
 | `doUploadLoginLogo` / `doRemoveLoginLogo` | Manage the login logo. |
+| `doOverviewMetrics` | JSON KPI metrics for dashboard polling (admin-gated). |
 | `doAbout` | About/info page. |
 
 > This reference is generated from the plugin's `do*` handlers. Exact HTTP method

@@ -13,8 +13,8 @@ full suite of features for keeping Jenkins access **secure and easy to manage**:
 management, just-in-time elevation, access reviews, session control, emergency break-glass
 access, audit logging, and notifications.
 
-Single sign-on is built on a **pluggable provider framework**. **Microsoft Entra (Azure AD)
-is the provider integrated today; more OAuth2/OIDC providers are planned.**
+Single sign-on today uses **Microsoft Entra (Azure AD)**. The realm's provider selector lists
+other OAuth2 / OIDC providers as *planned* — they are on the roadmap, not yet available.
 
 - **Artifact:** `io.jenkins.plugins:omni-auth` (packaging `hpi`)
 - **Jenkins:** 2.541.2+ · **Java:** 21 · **Parent POM:** `org.jenkins-ci.plugins:plugin:4.80`
@@ -31,8 +31,8 @@ management layer around Jenkins access:
   human users, service accounts, and break-glass admins all have an appropriate path.
 - **Least-privilege by design.** Scoped, time-limited, reviewable grants — with just-in-time
   elevation instead of standing privilege.
-- **Operable and safe.** Session revocation, fail-closed password resets, MFA-protected
-  break-glass recovery, and stale-account cleanup.
+- **Operable and safe.** Session revocation, fail-closed password resets, a TOTP-gated
+  break-glass step-up for sensitive actions, and stale-account cleanup.
 - **Accountable.** A full audit trail plus real-time notifications to email, Slack, and Teams.
 - **Easy to manage.** A single console (**Manage Jenkins → OmniAuth**) for everything above.
 
@@ -48,23 +48,30 @@ management layer around Jenkins access:
   auto-expire — no standing privilege.
 - **Access review / certification**: a keep/revoke queue on a schedule, with a weekly digest.
 - **Conflict detection** when scoped restrictions collide with global admin.
-- Full **audit log** of every access change, with purge controls.
+- Full **audit log** of every state-changing and security action, with configurable
+  **retention** and purge controls.
 
 ### Security & account safety
 - **Session control**: active-session view and force logout / revocation.
 - **Force password change** (fail-closed): no session on any path — form, BASIC, API token,
   CLI — until a new password is set.
-- **Break Glass** emergency access protected by a TOTP second factor (QR enrollment).
-- **Brute-force tracking** with a configurable threshold and alerting.
+- **Break Glass**: a TOTP (6-digit) step-up that an already-authenticated admin activates for
+  a 15-minute window before sensitive actions — multi-device enrollment (up to 3). *It is not
+  a lost-password or lockout recovery path.*
+- **Brute-force lockout** (enforced): past a configurable threshold an account is locked for a
+  cooldown window — protected users exempt — with alerting.
 - **Stale-user** warning and cleanup workers (dry-run supported), with protected-user exemptions.
 
 ### Authentication
 - Native username/password (bcrypt), inherited from Jenkins core — full API-token and CLI
   compatibility.
-- OAuth2 / OIDC **single sign-on** via a pluggable provider framework, hardened with **PKCE**
+- OAuth2 / OIDC **single sign-on** (currently Microsoft Entra), always hardened with **PKCE**
   and **ID-token nonce** validation.
-- **Microsoft Entra** is the currently integrated provider; identity is anchored to the
-  stable directory object id and users are keyed by email for pre-provisioning.
+- **Microsoft Entra**: identity is anchored to the stable directory object id and users are
+  keyed by email for pre-provisioning. A **Test Connection** button validates the tenant,
+  client ID and secret against Microsoft before saving.
+- **Allowed email domains**: restrict SSO sign-in to listed domains — a Microsoft-verified
+  identity outside the list is rejected even if pre-provisioned or in an allowed group.
 - Optional **group synchronization** from the identity provider, surfaced as authorities for
   [group-based access](docs/administration/access-management.md).
 
@@ -111,8 +118,11 @@ Core descriptors expose `@Symbol` names for JCasC:
 | `omniAuthAssignments` | Access assignments store |
 | `omniAuthRoles` | Role definitions |
 | `omniAuthJitRequests` | JIT request store |
+| `omniAuthProvisioningRequests` | Provisioning request store |
 
-See [Configuration as Code](docs/operations/configuration-as-code.md).
+See [Configuration as Code](docs/operations/configuration-as-code.md). Global settings
+(brute-force lockout, cleanup, notifications, branding, **audit retention**) round-trip under
+the global-configuration descriptor; the Entra block includes **`allowedDomains`**.
 
 ## Building from source
 
