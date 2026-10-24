@@ -13,6 +13,24 @@ All notable changes to OmniAuth are documented here. This project aims to follow
 Most recent notable changes (newest first):
 
 ### Added
+- **SOS Mode**: a host-filesystem-triggered fail-safe for a true admin lockout (all admins SSO-only
+  with Entra down, or a misconfigured authorization strategy). Dropping an `omniauth-sos.request`
+  file in `JENKINS_HOME` arms a 30-minute recovery window — live-checked, no restart — and opens a
+  dark-until-armed endpoint at `/sos/recover`. An admin enters one of their single-use **SOS recovery
+  codes** (no username — the matching code identifies them); they are re-granted global Administer
+  and signed in. Codes are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal
+  them. Enrollment is mandatory and keyed on *usable* codes (a blocking one-time interstitial on
+  admin login that re-fires if an admin runs out, plus low/depleted warnings and a dashboard
+  attention item). SOS **only arms when OmniAuth is the active Security Realm** — an idle or
+  abandoned install (different realm) stays completely dark, so it cannot be a backdoor; genuine
+  lockouts (IdP unreachable, authorization strategy misconfigured) still arm because OmniAuth is
+  still the configured realm. Admin is restored into any matrix-based authorization strategy
+  (OmniAuth's or the stock Matrix / Project-Matrix strategies); for a non-matrix strategy the user
+  is signed in and told plainly that admin must be repaired via `config.xml`. A site-wide banner
+  announces an active window with one-click Deactivate (also in Settings); the window auto-closes
+  after 30 minutes or 5 failed attempts. Audit events: `sos_armed`, `sos_recovery_success`,
+  `sos_recovery_failed`, `sos_deactivated`, `sos_expired`, `sos_locked`. Can be disabled via
+  `sosEnabled`. Distinct from Break Glass (in-session TOTP step-up, not recovery).
 - **Entra SSO domain allowlist** (`allowedDomains`): restrict sign-in to listed email domains;
   a Microsoft-verified identity outside the list is rejected even if pre-provisioned or in an
   allowed group (audit event `login_denied_domain`).

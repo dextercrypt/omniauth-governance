@@ -146,6 +146,42 @@ public class OmniAuthAuditLog {
         write(e);
     }
 
+    // --- SOS Mode (lockout recovery) ---
+
+    /** SOS Mode armed: a fresh trigger file opened the recovery window. No HTTP identity (filesystem-driven). */
+    public void logSosArmed() {
+        write(event("sos_armed"));
+    }
+
+    /** A recovery code matched: {@code account} regained admin access via /sos/recover (IP auto-captured). */
+    public void logSosRecoverySuccess(String account) {
+        Map<String, String> e = event("sos_recovery_success");
+        e.put("account", account);
+        write(e);
+    }
+
+    /** A submitted recovery code did not match any admin (IP auto-captured; no identity to record). */
+    public void logSosRecoveryFailed() {
+        write(event("sos_recovery_failed"));
+    }
+
+    /** An administrator manually deactivated SOS Mode (from the banner or Settings). */
+    public void logSosDeactivated(String by) {
+        Map<String, String> e = event("sos_deactivated");
+        e.put("by", by);
+        write(e);
+    }
+
+    /** SOS Mode auto-disarmed because its 30-minute window elapsed. */
+    public void logSosExpired() {
+        write(event("sos_expired"));
+    }
+
+    /** SOS Mode auto-disarmed after too many failed recovery attempts. */
+    public void logSosLocked() {
+        write(event("sos_locked"));
+    }
+
     public void logJitRequested(String requesterId, String scope, String reason, int durationHours) {
         Map<String, String> e = event("jit_requested");
         e.put("user", requesterId); e.put("scope", scopeLabel(scope));

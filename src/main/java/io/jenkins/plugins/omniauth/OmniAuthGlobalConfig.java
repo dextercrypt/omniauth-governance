@@ -61,6 +61,11 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     /** How long a locked account stays locked, in minutes. */
     private int bruteForceLockoutMinutes = 15;
 
+    // ── SOS Mode (lockout recovery) ───────────────────────────────────────────
+    /** When true (default), a {@code JENKINS_HOME/omniauth-sos.request} trigger file arms SOS Mode
+     *  and opens {@code /sos/recover}. See {@link OmniAuthSos}. */
+    private boolean sosEnabled = true;
+
     // ── Stale warning ─────────────────────────────────────────────────────────
     private boolean staleWarningEnabled    = false;
     private String  staleWarningCron       = "0 9 * * 1";
@@ -316,6 +321,8 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     public void setBruteForceLockoutEnabled(boolean v) { this.bruteForceLockoutEnabled = v; }
     public int getBruteForceLockoutMinutes() { return bruteForceLockoutMinutes > 0 ? bruteForceLockoutMinutes : 15; }
     public void setBruteForceLockoutMinutes(int v) { this.bruteForceLockoutMinutes = v > 0 ? v : 15; }
+    public boolean isSosEnabled() { return sosEnabled; }
+    @DataBoundSetter public void setSosEnabled(boolean v) { this.sosEnabled = v; }
 
     // Stale warning
     public boolean isStaleWarningEnabled()    { return staleWarningEnabled; }
@@ -486,6 +493,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
         bruteForceThreshold = jsonInt(json, "bruteForceThreshold", 5);
         bruteForceLockoutEnabled = json.optBoolean("bruteForceLockoutEnabled", true);
         bruteForceLockoutMinutes = jsonInt(json, "bruteForceLockoutMinutes", 15);
+        sosEnabled = json.optBoolean("sosEnabled", true);
 
         // Stale warning
         staleWarningEnabled    = json.optBoolean("staleWarningEnabled", false);

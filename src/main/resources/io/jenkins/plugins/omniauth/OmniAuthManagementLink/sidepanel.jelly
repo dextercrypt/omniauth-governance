@@ -34,8 +34,8 @@
             href="${rootURL}/manage/omniauth-management/security"
             title="Security"/>
     <l:task icon="symbol-shield-checkmark plugin-ionicons-api"
-            href="${rootURL}/manage/omniauth-management/breakGlass"
-            title="Break Glass"/>
+            href="${rootURL}/manage/omniauth-management/emergencyAccess"
+            title="Emergency Access"/>
     <l:task icon="symbol-settings"
             href="${rootURL}/manage/omniauth-management/settings"
             title="Settings"/>

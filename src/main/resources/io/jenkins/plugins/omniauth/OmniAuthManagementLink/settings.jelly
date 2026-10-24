@@ -250,6 +250,66 @@
           </div>
 
           <!-- ================================================================
+               SOS MODE (lockout recovery)
+               ================================================================ -->
+          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
+                <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">SOS Mode (lockout recovery)</h3>
+            </div>
+            <div style="padding: 16px 20px;">
+              <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
+                A host-level fail-safe for a true admin lockout (all admins SSO-only with the identity
+                provider down, or a misconfigured authorization strategy). An operator drops an empty file
+                <code>omniauth-sos.request</code> in <code>JENKINS_HOME</code> — no restart needed — which
+                arms SOS Mode and opens <code>/sos/recover</code> for 30 minutes. There an admin enters one
+                of their <a href="emergencyAccess">SOS recovery codes</a> to regain access; the window then
+                auto-closes (or after 5 failed attempts). Only salted hashes of the codes are stored, so a
+                copy of <code>JENKINS_HOME</code> cannot reveal them. Distinct from Break Glass (in-session
+                TOTP step-up). Disabling this is a policy control only — anyone with filesystem access can
+                still recover via host-level <code>config.xml</code>.
+              </div>
+
+              <j:if test="${it.sosArmed}">
+                <div class="jenkins-alert" style="margin-bottom:14px; background:var(--oau-error-bg,#fdecea); border-color:var(--oau-error-border,#f5c2c0); color:var(--oau-error-fg,#8a1c17); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                  <span><strong>SOS Mode is currently active</strong> — recovery is open and auto-closes in about ${it.sosMinutesRemaining} minute(s).</span>
+                  <button type="button" class="jenkins-button" onclick="sosDeactivateNow(this)">Deactivate now</button>
+                </div>
+              </j:if>
+
+              <label class="oau-toggle-wrap" style="gap: 10px;">
+                <j:choose>
+                  <j:when test="${cfg.sosEnabled}">
+                    <input type="checkbox" name="sosEnabled" id="sosEnabled" class="oau-toggle-chk" checked="checked"/>
+                  </j:when>
+                  <j:otherwise>
+                    <input type="checkbox" name="sosEnabled" id="sosEnabled" class="oau-toggle-chk"/>
+                  </j:otherwise>
+                </j:choose>
+                <span class="oau-toggle-track"><span class="oau-toggle-thumb"></span></span>
+                <span style="font-size: 0.88em; font-weight: 500;">Honour the SOS trigger file (arm recovery when present)</span>
+              </label>
+
+              <script>//<![CDATA[
+                function sosDeactivateNow(btn){
+                  btn.disabled = true; btn.textContent = 'Deactivating...';
+                  var base = window.location.pathname.split('/manage/')[0];
+                  fetch(base + '/crumbIssuer/api/json')
+                    .then(function(r){return r.json();})
+                    .then(function(cd){
+                      var h = {'Content-Type':'application/x-www-form-urlencoded'}; h[cd.crumbRequestField]=cd.crumb;
+                      return fetch(base + '/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:''});
+                    })
+                    .then(function(){ window.location.reload(); })
+                    .catch(function(){ btn.disabled=false; btn.textContent='Deactivate now'; });
+                }
+              //]]></script>
+            </div>
+          </div>
+
+          <!-- ================================================================
                LOGIN PAGE BRANDING
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">

@@ -1,0 +1,218 @@
+<?jelly escape-by-default='true'?>
+<!--
+  SOS Recovery Codes section. Rendered as a section of the unified "Emergency Access" page
+  (emergencyAccess.jelly) via st:include — NOT a standalone layout. All element IDs here are
+  sos-* and do not collide with the Break Glass section.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+
+  <div style="display:flex; align-items:center; gap:8px; margin:4px 0 12px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+      <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>
+    </svg>
+    <h2 style="margin:0; font-size:1.05em; font-weight:600;">SOS Recovery Codes</h2>
+  </div>
+  <p style="margin:0 0 16px; font-size:0.85em; color:var(--text-color-secondary); line-height:1.6;">
+    Used when you are <strong>locked out</strong> — SSO is down or the authorization strategy is broken, so
+    no admin can sign in. An operator drops a trigger file on the host to arm <code>/sos/recover</code>, where
+    one of these single-use codes regains admin access. Only salted hashes are stored, so a copy of
+    <code>JENKINS_HOME</code> cannot reveal them.
+  </p>
+
+  <!-- ── Mandatory enrollment gate ──────────────────────────────── -->
+  <j:if test="${it.sosEnrollMode}">
+    <div id="sos-enroll-banner" class="jenkins-alert" style="margin-bottom:16px; background:var(--oau-warning-bg); border-color:var(--oau-warning-border); color:var(--oau-warning-fg);">
+      <strong>Action required.</strong> Every administrator must hold usable SOS recovery codes before continuing.
+      Generate a fresh set below and store them somewhere safe.
+    </div>
+  </j:if>
+
+  <!-- ── Depleted: all codes used (not already in the mandatory gate) ──── -->
+  <j:if test="${it.sosNoCodesLeft and !it.sosEnrollMode}">
+    <div class="jenkins-alert" style="margin-bottom:16px; background:var(--oau-danger-bg,#fdecea); border-color:var(--oau-danger-border,#f5c2c0); color:var(--oau-danger-fg,#8a1c17);">
+      <strong>No usable recovery codes left.</strong> Every code in your set has been used, so you can no
+      longer recover through SOS. Regenerate now to stay protected.
+    </div>
+  </j:if>
+
+  <!-- ── Running low ───────────────────────────────────────────────── -->
+  <j:if test="${it.sosLowOnCodes}">
+    <div class="jenkins-alert" style="margin-bottom:16px; background:var(--oau-warning-bg); border-color:var(--oau-warning-border); color:var(--oau-warning-fg);">
+      <strong>Running low.</strong> Only ${it.sosUnusedCount} recovery code<j:if test="${it.sosUnusedCount != 1}">s</j:if>
+      left. Regenerate soon so you always have codes on hand.
+    </div>
+  </j:if>
+
+  <!-- ── Status card ────────────────────────────────────────────── -->
+  <div class="jenkins-card" style="padding:0; margin-bottom:20px; overflow:hidden;">
+    <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border); display:flex; align-items:center; justify-content:space-between;">
+      <h3 style="margin:0; font-size:0.95em; font-weight:600;">Your recovery codes</h3>
+      <j:choose>
+        <j:when test="${it.sosEnrolled}">
+          <span style="font-size:0.82em; color:var(--text-color-secondary);">
+            ${it.sosUnusedCount} of ${it.sosTotalCount} unused
+          </span>
+        </j:when>
+        <j:otherwise>
+          <span style="font-size:0.82em; color:var(--oau-warning-fg); font-weight:600;">Not generated</span>
+        </j:otherwise>
+      </j:choose>
+    </div>
+    <div style="padding:16px 20px;">
+      <j:choose>
+        <j:when test="${it.sosEnrolled}">
+          <div style="margin:0 0 14px; font-size:0.9em; color:var(--text-color-secondary); line-height:1.6;">
+            You have <strong>${it.sosUnusedCount}</strong> unused recovery code<j:if test="${it.sosUnusedCount != 1}">s</j:if>
+            from the set generated on ${it.sosGeneratedDate}. Regenerating replaces the whole set and
+            immediately invalidates the old codes.
+          </div>
+          <button type="button" class="jenkins-button" onclick="sosGenerate(true)">Regenerate codes</button>
+        </j:when>
+        <j:otherwise>
+          <div style="margin:0 0 14px; font-size:0.9em; color:var(--text-color-secondary); line-height:1.6;">
+            You have not generated any SOS recovery codes yet.
+          </div>
+          <button type="button" class="jenkins-button jenkins-button--primary" onclick="sosGenerate(false)">Generate codes</button>
+        </j:otherwise>
+      </j:choose>
+    </div>
+  </div>
+
+  <!-- ── Codes display (shown after generation) ─────────────────── -->
+  <div id="sos-codes-panel" class="jenkins-card" style="display:none; padding:0; margin-bottom:20px; overflow:hidden;">
+    <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);">
+      <h3 style="margin:0; font-size:0.95em; font-weight:600;">Save these codes now</h3>
+    </div>
+    <div style="padding:16px 20px;">
+      <div class="jenkins-alert" style="margin:0 0 16px; background:var(--oau-warning-bg); border-color:var(--oau-warning-border); color:var(--oau-warning-fg);">
+        These codes are shown <strong>once</strong>. They will not be displayed again. Copy or download
+        them before you continue.
+      </div>
+      <div id="sos-codes-list" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-family:monospace; font-size:1em; margin-bottom:16px;"></div>
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <button type="button" class="jenkins-button" onclick="sosCopy()">Copy all</button>
+        <button type="button" class="jenkins-button" onclick="sosDownload()">Download .txt</button>
+      </div>
+      <label style="display:flex; align-items:center; gap:8px; font-size:0.9em; margin-bottom:16px; cursor:pointer;">
+        <input type="checkbox" id="sos-saved-ack" onchange="document.getElementById('sos-continue-btn').disabled = !this.checked;"/>
+        I have saved these recovery codes somewhere safe.
+      </label>
+      <button type="button" id="sos-continue-btn" class="jenkins-button jenkins-button--primary" disabled="disabled" onclick="sosContinue()">
+        <j:choose>
+          <j:when test="${it.sosEnrollMode}">Continue</j:when>
+          <j:otherwise>Done</j:otherwise>
+        </j:choose>
+      </button>
+    </div>
+  </div>
+
+  <!-- Regenerate confirmation modal (styled — mirrors the Break Glass Remove Device modal) -->
+  <div id="sos-regen-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:24px; max-width:440px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+      <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
+        <div style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:var(--oau-danger-bg); display:flex; align-items:center; justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/>
+          </svg>
+        </div>
+        <div>
+          <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:var(--text-color);">Regenerate recovery codes?</h3>
+          <p style="margin:0; font-size:13px; color:var(--text-color-secondary); line-height:1.5;">
+            This generates a fresh set of 10 codes and <strong>immediately invalidates your current ones</strong> —
+            any unused codes stop working. The new codes are shown once; save them before you leave the page.
+          </p>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button type="button" id="sos-regen-cancel" style="padding:8px 16px; border:1px solid var(--oau-card-border); border-radius:4px; background:#fff; cursor:pointer; font-size:13px; color:var(--text-color-secondary);">Cancel</button>
+        <button type="button" id="sos-regen-confirm" style="padding:8px 16px; border:none; border-radius:4px; background:var(--error-color); color:#fff; cursor:pointer; font-size:13px; font-weight:600;">Regenerate codes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>//<![CDATA[
+    var sosEnrollMode = ]]><j:choose><j:when test="${it.sosEnrollMode}">true</j:when><j:otherwise>false</j:otherwise></j:choose><![CDATA[;
+    var sosCodes = [];
+
+    function sosGenerate(isRegen) {
+      // Destructive regenerate → styled confirm modal; first-time generate → straight through.
+      if (isRegen) { document.getElementById('sos-regen-modal').style.display = 'flex'; return; }
+      sosDoGenerate();
+    }
+
+    document.getElementById('sos-regen-cancel').addEventListener('click', function() {
+      document.getElementById('sos-regen-modal').style.display = 'none';
+    });
+    document.getElementById('sos-regen-confirm').addEventListener('click', function() {
+      document.getElementById('sos-regen-modal').style.display = 'none';
+      sosDoGenerate();
+    });
+
+    function sosDoGenerate() {
+      var base = window.location.pathname.split('/manage/')[0];
+      fetch(base + '/crumbIssuer/api/json')
+        .then(function(r){ return r.json(); })
+        .then(function(cd){
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', base + '/manage/omniauth-management/sosGenerateCodes', true);
+          xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          xhr.setRequestHeader(cd.crumbRequestField, cd.crumb);
+          xhr.onload = function() {
+            try {
+              var r = JSON.parse(xhr.responseText);
+              if (r.success) {
+                sosCodes = r.codes;
+                renderCodes();
+              } else {
+                alert(r.error || 'Could not generate codes.');
+              }
+            } catch (e) { alert('Server error.'); }
+          };
+          xhr.onerror = function(){ alert('Network error.'); };
+          xhr.send('');
+        })
+        .catch(function(){ alert('Could not fetch security token.'); });
+    }
+
+    function renderCodes() {
+      var list = document.getElementById('sos-codes-list');
+      list.innerHTML = '';
+      sosCodes.forEach(function(c){
+        var d = document.createElement('div');
+        d.style.cssText = 'padding:8px 10px;border:1px solid var(--oau-card-border);border-radius:6px;background:var(--oau-code-bg,rgba(127,127,127,0.08));text-align:center;letter-spacing:1px;';
+        d.textContent = c;
+        list.appendChild(d);
+      });
+      var ack = document.getElementById('sos-saved-ack');
+      ack.checked = false;
+      document.getElementById('sos-continue-btn').disabled = true;
+      var panel = document.getElementById('sos-codes-panel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({behavior:'smooth'});
+    }
+
+    function sosCopy() {
+      navigator.clipboard.writeText(sosCodes.join('\n')).then(function(){}, function(){});
+    }
+
+    function sosDownload() {
+      var blob = new Blob([sosCodes.join('\n') + '\n'], {type:'text/plain'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'omniauth-sos-recovery-codes.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function sosContinue() {
+      var base = window.location.pathname.split('/manage/')[0];
+      if (sosEnrollMode) {
+        window.location.href = base + '/';
+      } else {
+        window.location.reload();
+      }
+    }
+  //]]></script>
+
+</j:jelly>

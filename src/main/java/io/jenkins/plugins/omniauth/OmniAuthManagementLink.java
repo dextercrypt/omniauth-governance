@@ -586,9 +586,16 @@ public class OmniAuthManagementLink extends ManagementLink {
         return current.getProperty(OmniAuthUserProperty.class);
     }
 
+    /** Unified Emergency Access page: Break Glass (TOTP) + SOS recovery codes in one place. */
+    public void doEmergencyAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
+    }
+
+    /** Back-compat alias — the Break Glass enrollment now lives on the unified Emergency Access page. */
     public void doBreakGlass(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "breakglass.jelly").forward(req, rsp);
+        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     @POST
@@ -790,6 +797,111 @@ public class OmniAuthManagementLink extends ManagementLink {
     public boolean isBreakGlassEnrollmentForced() { return getCurrentUserEnrollSkips() >= 3; }
     public int getBreakGlassSkipsAfterThis() { return Math.max(0, 2 - getCurrentUserEnrollSkips()); }
 
+    // ── SOS Mode (lockout recovery) ────────────────────────────────────────────
+
+    /** Back-compat alias — SOS recovery codes now live on the unified Emergency Access page. */
+    public void doSosRecoveryCodes(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
+    }
+
+    /** Generate a fresh set of SOS recovery codes for the current admin; returns the raw codes once. */
+    @POST
+    public void doSosGenerateCodes(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        rsp.setContentType("application/json;charset=UTF-8");
+        User current = User.current();
+        if (current == null) {
+            rsp.getWriter().write("{\"success\":false,\"error\":\"Not authenticated.\"}");
+            return;
+        }
+        OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+        boolean regenerate = prop != null && prop.isEnrolled();
+        if (prop == null) {
+            prop = new OmniAuthRecoveryCodesProperty();
+            current.addProperty(prop);
+        }
+        java.util.List<String> codes = prop.regenerate();
+        current.save();
+        OmniAuthAuditLog.get().logConfigChanged(current.getId(), "SOS Recovery Codes",
+                regenerate ? "recovery codes regenerated" : "recovery codes generated");
+
+        net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
+        for (String c : codes) arr.add(c);
+        net.sf.json.JSONObject out = new net.sf.json.JSONObject();
+        out.put("success", true);
+        out.put("codes", arr);
+        rsp.getWriter().write(out.toString());
+    }
+
+    /** Deactivate an armed SOS window (from the site-wide banner or the Settings page). */
+    @POST
+    public void doSosDeactivate(StaplerRequest req, StaplerResponse rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        rsp.setContentType("application/json;charset=UTF-8");
+        User current = User.current();
+        OmniAuthSos.deactivate(current != null ? current.getId() : "unknown");
+        rsp.getWriter().write("{\"success\":true}");
+    }
+
+    /** True once the current admin has generated SOS recovery codes. */
+    public boolean isSosEnrolled() {
+        User current = User.current();
+        if (current == null) return false;
+        OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+        return prop != null && prop.isEnrolled();
+    }
+
+    /** Unused SOS recovery codes remaining for the current admin. */
+    public int getSosUnusedCount() {
+        User current = User.current();
+        if (current == null) return 0;
+        OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+        return prop != null ? prop.getUnusedCount() : 0;
+    }
+
+    public int getSosTotalCount() {
+        User current = User.current();
+        if (current == null) return 0;
+        OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+        return prop != null ? prop.getTotalCount() : 0;
+    }
+
+    public String getSosGeneratedAt() {
+        User current = User.current();
+        if (current == null) return null;
+        OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+        return prop != null ? prop.getGeneratedAt() : null;
+    }
+
+    /** Friendly date (yyyy-MM-dd, matching the Break Glass device list) of the current code set, or "". */
+    public String getSosGeneratedDate() {
+        String iso = getSosGeneratedAt();
+        if (iso == null || iso.length() < 10) return "";
+        return iso.substring(0, 10);
+    }
+
+    /** True when the SOS enrollment gate sent the admin here because they have no usable codes. */
+    public boolean isSosEnrollMode() {
+        StaplerRequest req = org.kohsuke.stapler.Stapler.getCurrentRequest();
+        return req != null && req.getParameter("enroll") != null && getSosUnusedCount() == 0;
+    }
+
+    /** Enrolled but every code has been used up — strong "regenerate now" state. */
+    public boolean isSosNoCodesLeft() { return isSosEnrolled() && getSosUnusedCount() == 0; }
+
+    /** Enrolled and running low (1–2 unused) — soft "regenerate soon" nudge. */
+    public boolean isSosLowOnCodes() {
+        int n = getSosUnusedCount();
+        return isSosEnrolled() && n > 0 && n <= SOS_LOW_THRESHOLD;
+    }
+
+    /** Below this many unused codes, warn the admin to regenerate. */
+    public static final int SOS_LOW_THRESHOLD = 2;
+
+    public boolean isSosArmed() { return OmniAuthSos.isArmed(); }
+    public long getSosMinutesRemaining() { return OmniAuthSos.minutesRemaining(); }
+
     @POST
     public void doClearBruteForce(StaplerRequest req, StaplerResponse rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -983,6 +1095,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             // reparses every field, so an omitted one would be reset to its default.
             json.put("accessReviewEnabled",       config.isAccessReviewEnabled());
             json.put("accessReviewThresholdDays", config.getAccessReviewThresholdDays());
+            // Preserve Emergency Recovery toggle (owned by the Settings page) for the same reason.
+            json.put("sosEnabled",  config.isSosEnabled());
             config.configure(req, json);
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
@@ -1145,6 +1259,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             int    oldMaxDel         = config.getCleanupMaxDeletions();
             int    oldBft            = config.getBruteForceThreshold();
             int    oldAuditRet       = config.getAuditRetentionDays();
+            boolean oldSosEnabled = config.isSosEnabled();
 
             net.sf.json.JSONObject json = new net.sf.json.JSONObject();
             // thresholds
@@ -1182,6 +1297,8 @@ public class OmniAuthManagementLink extends ManagementLink {
             String swWin  = req.getParameter("staleWarningWindowDays");
             if (swCron != null) json.put("staleWarningCron",       swCron.trim());
             if (swWin  != null) json.put("staleWarningWindowDays", swWin.trim());
+            // emergency recovery
+            json.put("sosEnabled", req.getParameter("sosEnabled") != null);
             // access review
             json.put("accessReviewEnabled", req.getParameter("accessReviewEnabled") != null);
             String arDays = req.getParameter("accessReviewThresholdDays");
@@ -1253,6 +1370,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (config.getCleanupMaxDeletions() != oldMaxDel)        diff.add("cleanupMaxDeletions: " + oldMaxDel  + " → " + config.getCleanupMaxDeletions());
             if (config.getBruteForceThreshold() != oldBft)           diff.add("bruteForceThreshold: " + oldBft     + " → " + config.getBruteForceThreshold());
             if (config.getAuditRetentionDays()  != oldAuditRet)      diff.add("auditRetentionDays: "  + oldAuditRet + " → " + config.getAuditRetentionDays());
+            if (config.isSosEnabled() != oldSosEnabled) diff.add("sosEnabled: " + oldSosEnabled + " → " + config.isSosEnabled());
             if (!diff.isEmpty()) {
                 NotificationService.sendConfigChanged(config, currentUserId(), java.time.Instant.now().toString(), diff);
                 OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Settings", String.join("; ", diff));
@@ -2075,6 +2193,28 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (user == null) continue;
             OmniAuthUserProperty prop = user.getProperty(OmniAuthUserProperty.class);
             if (prop == null || !prop.isBreakGlassTotpEnrolled()) count++;
+        }
+        return count;
+    }
+
+    /** Admins with a global ADMIN assignment who hold no <em>usable</em> SOS recovery codes. */
+    public int getSosUnprotectedAdminCount() {
+        OmniAuthAssignmentConfig ac = OmniAuthAssignmentConfig.get();
+        if (ac == null) return 0;
+        java.util.Set<String> adminUserIds = new java.util.HashSet<>();
+        for (OmniAuthAssignment a : ac.getAssignments()) {
+            if ("USER".equals(a.getAuthType())
+                    && (a.getScope() == null || a.getScope().isEmpty())
+                    && "ADMIN".equalsIgnoreCase(a.getRoleId())) {
+                adminUserIds.add(a.getUserId());
+            }
+        }
+        int count = 0;
+        for (String uid : adminUserIds) {
+            User user = User.getById(uid, false);
+            if (user == null) continue;
+            OmniAuthRecoveryCodesProperty prop = user.getProperty(OmniAuthRecoveryCodesProperty.class);
+            if (prop == null || prop.getUnusedCount() == 0) count++;
         }
         return count;
     }

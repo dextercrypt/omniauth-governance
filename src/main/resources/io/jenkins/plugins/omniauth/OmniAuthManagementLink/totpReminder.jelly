@@ -177,7 +177,7 @@
 
               <!-- CTAs -->
               <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <a href="breakGlass"
+                <a href="emergencyAccess"
                    style="display:inline-flex; align-items:center; gap:8px; padding:9px 20px; border:none; border-radius:6px; background:var(--blue); color:#fff; font-size:0.88em; font-weight:600; text-decoration:none; cursor:pointer;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 3a4 4 0 0 1 4 4v4H8V7a4 4 0 0 1 4-4z"/></svg>
                   Enroll Now

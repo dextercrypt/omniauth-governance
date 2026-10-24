@@ -73,9 +73,14 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 ## Disaster recovery tips
 
-- Keep at least one **native admin** credential outside the SSO dependency — this, not Break
-  Glass, is your real recovery path if Entra is unavailable (Break Glass requires you to
-  already be signed in as admin; see [Break Glass](../administration/break-glass.md)).
+- Keep at least one **native admin** credential outside the SSO dependency — your first line of
+  defence if Entra is unavailable (Break Glass is *not* a recovery path; it requires you to
+  already be signed in as admin).
+- Have each admin generate **SOS recovery codes** (Manage Jenkins → OmniAuth → Emergency Access)
+  while things are healthy — enrollment is mandatory, but confirm it. If no admin can sign in at
+  all, use **SOS Mode**: drop an `omniauth-sos.request` file in `JENKINS_HOME` (no restart) and
+  enter a recovery code at `/sos/recover` to regain admin for a 30-minute window. See [Break Glass
+  → If you are actually locked out](../administration/break-glass.md).
 - Know the host-level recovery steps (disable security / edit `config.xml`) in case the
   authorization strategy itself is misconfigured.
 - Test your restore on a scratch instance periodically.

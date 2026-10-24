@@ -341,6 +341,7 @@
           <!-- Needs Attention -->
           <j:set var="pendingDel"       value="${it.pendingDeletionCount}"/>
           <j:set var="unenrolledAdmin"  value="${it.unenrolledAdminCount}"/>
+          <j:set var="sosUnprotected"   value="${it.sosUnprotectedAdminCount}"/>
           <j:set var="expiringGrants"   value="${it.getExpiringGrants(7)}"/>
           <j:set var="orphanedAccounts" value="${it.orphanedGroupAccountCount}"/>
           <j:set var="failingChannels"  value="${it.failingNotificationChannels}"/>
@@ -348,7 +349,7 @@
           <!-- Cleanup active = stale/pending are informational only, not action items -->
           <j:set var="cleanupActive"    value="${cfg.cleanupEnabled and !cfg.cleanupDryRun}"/>
           <!-- Action count: stale/pending only count when cleanup is NOT active -->
-          <j:set var="attentionCount"   value="${(!cleanupActive and staleCount gt 0 ? 1 : 0) + (!cleanupActive and pendingDel gt 0 ? 1 : 0) + (unenrolledAdmin gt 0 ? 1 : 0) + (expiringGrants.size() gt 0 ? 1 : 0) + (orphanedAccounts gt 0 ? 1 : 0) + (failingChannels.size() gt 0 ? 1 : 0) + (noProtected ? 1 : 0)}"/>
+          <j:set var="attentionCount"   value="${(!cleanupActive and staleCount gt 0 ? 1 : 0) + (!cleanupActive and pendingDel gt 0 ? 1 : 0) + (unenrolledAdmin gt 0 ? 1 : 0) + (sosUnprotected gt 0 ? 1 : 0) + (expiringGrants.size() gt 0 ? 1 : 0) + (orphanedAccounts gt 0 ? 1 : 0) + (failingChannels.size() gt 0 ? 1 : 0) + (noProtected ? 1 : 0)}"/>
 
           <div class="jenkins-card oau-widget" style="flex:1.4; min-width:240px;">
             <div class="oau-widget__header">
@@ -460,13 +461,24 @@
                   </j:if>
 
                   <j:if test="${unenrolledAdmin gt 0}">
-                    <a href="breakGlass" class="oau-attention-row oau-attention-row--warn">
+                    <a href="emergencyAccess" class="oau-attention-row oau-attention-row--warn">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="5" y="11" width="14" height="10" rx="2"/>
                         <path d="M12 3a4 4 0 0 1 4 4v4H8V7a4 4 0 0 1 4-4z"/>
                       </svg>
                       <span class="oau-attention-row__text"><strong>${unenrolledAdmin}</strong> admin<j:if test="${unenrolledAdmin != 1}">s</j:if> without Break Glass TOTP</span>
+                      <span class="oau-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <j:if test="${sosUnprotected gt 0}">
+                    <a href="emergencyAccess" class="oau-attention-row oau-attention-row--warn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>
+                      </svg>
+                      <span class="oau-attention-row__text"><strong>${sosUnprotected}</strong> admin<j:if test="${sosUnprotected != 1}">s</j:if> without usable SOS recovery codes</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
                   </j:if>

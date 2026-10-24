@@ -1,0 +1,38 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+
+  <l:layout title="OmniAuth — Emergency Access" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+
+      <div class="jenkins-app-bar">
+        <div class="jenkins-app-bar__content">
+          <h1 class="jenkins-app-bar__heading">Emergency Access</h1>
+        </div>
+      </div>
+
+      <div style="padding: 16px 24px; max-width: 680px;">
+
+        <!-- ── What this page covers ─────────────────────────────────── -->
+        <div class="jenkins-alert" style="margin-bottom:24px; background:var(--oau-info-bg); border-color:var(--oau-info-border); color:var(--oau-info-fg);">
+          Two complementary safeguards, set up here in one place:
+          <strong>Break Glass</strong> is for when you are <em>already signed in</em> and need temporary,
+          audited access to the Authorization table (TOTP step-up). <strong>SOS recovery codes</strong> are
+          for when you are <em>locked out</em> entirely and need a way back in. They are separate mechanisms
+          with different second factors — enroll both.
+        </div>
+
+        <st:include page="breakGlassSection.jelly"/>
+
+        <div style="height:1px; background:var(--oau-card-border); margin:28px 0;"></div>
+
+        <st:include page="sosCodesSection.jelly"/>
+
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

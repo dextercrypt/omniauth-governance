@@ -43,6 +43,14 @@ Events are written with a fixed `action` discriminator. The full vocabulary:
 - `break_glass_enrolled`, `break_glass_unenrolled`
 - `break_glass_activate`, `break_glass_deactivate`, `break_glass_failed`
 
+**SOS Mode (lockout recovery)**
+- `sos_armed` (trigger file opened the recovery window — filesystem-driven, no HTTP identity)
+- `sos_recovery_success` (a recovery code matched; records the resolved admin and IP)
+- `sos_recovery_failed` (a submitted code matched no admin; records IP only)
+- `sos_deactivated` (an admin closed the window from the banner or Settings), `sos_expired`
+  (30-minute window elapsed), `sos_locked` (disarmed after 5 failed attempts). Recovery codes
+  themselves are never logged.
+
 **Configuration**
 - `config_changed` (settings / notifications / protected users / provisioning / branding / …)
 - `config_exported`, `config_imported`, `config_reverted`

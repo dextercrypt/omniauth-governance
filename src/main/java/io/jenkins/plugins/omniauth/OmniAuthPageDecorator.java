@@ -228,7 +228,7 @@ public class OmniAuthPageDecorator {
         "document.body.appendChild(m);" +
         "document.getElementById('omniauth-bg-cancel').onclick=function(){m.style.display='none';};" +
         "var enrollEl=document.getElementById('omniauth-bg-enroll-link');" +
-        "if(enrollEl){var base=window.location.pathname.split('/manage/')[0];enrollEl.href=base+'/manage/omniauth-management/breakGlass';}" +
+        "if(enrollEl){var base=window.location.pathname.split('/manage/')[0];enrollEl.href=base+'/manage/omniauth-management/emergencyAccess';}" +
         "function run(){" +
         "if(document.getElementById('omniauth-migration-confirm'))return;" +
         "var ck=document.querySelector('input[type=\"checkbox\"][name*=\"hudson.model\"],input[type=\"checkbox\"][name*=\"jenkins.model\"],input[type=\"checkbox\"][name*=\"hudson.plugins\"]');" +
@@ -443,7 +443,9 @@ public class OmniAuthPageDecorator {
     public static void registerFilter() throws Exception {
         PluginServletFilter.addFilter(new MatrixDisableFilter());
         PluginServletFilter.addFilter(new TotpReminderFilter());
+        PluginServletFilter.addFilter(new SosEnrollGateFilter());
         PluginServletFilter.addFilter(new JitBannerFilter());
+        PluginServletFilter.addFilter(new SosBannerFilter());
         PluginServletFilter.addFilter(new ApproverActionFilter());
     }
 
@@ -663,6 +665,7 @@ public class OmniAuthPageDecorator {
 
         private static boolean isExcluded(String path) {
             return path.contains("/totpReminder")   ||
+                   path.contains("/emergencyAccess") ||
                    path.contains("/breakGlass")     ||
                    path.contains("/crumbIssuer")    ||
                    path.contains("/api/")           ||
@@ -1008,6 +1011,191 @@ public class OmniAuthPageDecorator {
             if (s == null) return "";
             return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                     .replace("\"", "&quot;").replace("'", "&#39;");
+        }
+    }
+
+    // ── Mandatory SOS recovery-code enrollment gate ─────────────────────────────
+    // Blocks an admin with no SOS recovery codes until they generate a set. Unlike the TOTP
+    // reminder this is not skippable: codes are generated on-screen instantly, so enforcing it
+    // cannot lock anyone out. Redirects to the SOS Recovery Codes page in enroll mode.
+
+    private static class SosEnrollGateFilter implements Filter {
+
+        @Override public void init(FilterConfig c) {}
+        @Override public void destroy() {}
+
+        @Override
+        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+                throws IOException, ServletException {
+
+            if (!(req instanceof HttpServletRequest)) { chain.doFilter(req, res); return; }
+            HttpServletRequest  httpReq = (HttpServletRequest)  req;
+            HttpServletResponse httpRes = (HttpServletResponse) res;
+
+            if (!"GET".equalsIgnoreCase(httpReq.getMethod()))                   { chain.doFilter(req, res); return; }
+            if ("XMLHttpRequest".equals(httpReq.getHeader("X-Requested-With"))) { chain.doFilter(req, res); return; }
+            if (isExcluded(httpReq.getRequestURI()))                            { chain.doFilter(req, res); return; }
+
+            try {
+                Jenkins jenkins = Jenkins.getInstanceOrNull();
+                if (jenkins == null)                                               { chain.doFilter(req, res); return; }
+                if (!(jenkins.getSecurityRealm() instanceof OmniAuthSecurityRealm)) { chain.doFilter(req, res); return; }
+                if (!(jenkins.getAuthorizationStrategy() instanceof OmniAuthAuthorizationStrategy)) { chain.doFilter(req, res); return; }
+                if (!jenkins.hasPermission(Jenkins.ADMINISTER))                    { chain.doFilter(req, res); return; }
+
+                hudson.model.User current = hudson.model.User.current();
+                if (current == null)                                               { chain.doFilter(req, res); return; }
+                // Gate on USABLE codes: an admin who has burned through every code must regenerate.
+                OmniAuthRecoveryCodesProperty prop = current.getProperty(OmniAuthRecoveryCodesProperty.class);
+                if (prop != null && prop.getUnusedCount() > 0)                     { chain.doFilter(req, res); return; }
+
+                httpRes.sendRedirect(httpReq.getContextPath()
+                        + "/manage/omniauth-management/emergencyAccess?enroll=1");
+            } catch (Exception ignored) {
+                chain.doFilter(req, res);
+            }
+        }
+
+        private static boolean isExcluded(String path) {
+            return path.contains("/emergencyAccess") ||
+                   path.contains("/sosRecoveryCodes") ||
+                   path.contains("/sosGenerateCodes")  ||
+                   path.contains("/totpReminder")      ||
+                   path.contains("/breakGlass")        ||
+                   path.contains("/crumbIssuer")       ||
+                   path.contains("/api/")              ||
+                   path.contains("/adjuncts/")         ||
+                   path.contains("/static/")           ||
+                   path.contains("/plugin/")           ||
+                   path.contains("/images/")           ||
+                   path.contains("/login")             ||
+                   path.contains("/logout")            ||
+                   path.contains("/securityRealm")     ||
+                   path.contains("/sos/")              ||
+                   path.endsWith(".js")                ||
+                   path.endsWith(".css")               ||
+                   path.endsWith(".ico")               ||
+                   path.endsWith(".png")               ||
+                   path.endsWith(".gif")               ||
+                   path.endsWith(".woff2")             ||
+                   path.endsWith(".ttf");
+        }
+    }
+
+    // ── Site-wide "SOS Mode active" banner ───────────────────────────────────────
+    // Injected on every HTML page while SOS is armed, so an active recovery window is impossible
+    // to miss. Carries a one-click Deactivate (admin-only; POSTs to the management endpoint).
+
+    private static class SosBannerFilter implements Filter {
+
+        @Override public void init(FilterConfig c) {}
+        @Override public void destroy() {}
+
+        @Override
+        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+                throws IOException, ServletException {
+
+            if (!(req instanceof HttpServletRequest)) { chain.doFilter(req, res); return; }
+            HttpServletRequest  httpReq = (HttpServletRequest)  req;
+            HttpServletResponse httpRes = (HttpServletResponse) res;
+
+            String path = httpReq.getRequestURI();
+            // Show the banner only to admins — the only ones who can Deactivate, and the ones it's
+            // meant for. This also keeps it off the public login page (no anonymous "SOS active"
+            // broadcast, and no Deactivate button that an unauthenticated visitor can't use).
+            if (!"GET".equalsIgnoreCase(httpReq.getMethod()) || isBannerExcluded(path)
+                    || !OmniAuthSos.isArmed() || !currentUserIsAdmin()) {
+                chain.doFilter(req, res);
+                return;
+            }
+
+            HttpServletRequest noGzipReq = new HttpServletRequestWrapper(httpReq) {
+                @Override public String getHeader(String name) {
+                    if ("Accept-Encoding".equalsIgnoreCase(name)) return null;
+                    return super.getHeader(name);
+                }
+                @Override public Enumeration<String> getHeaders(String name) {
+                    if ("Accept-Encoding".equalsIgnoreCase(name)) return Collections.emptyEnumeration();
+                    return super.getHeaders(name);
+                }
+            };
+
+            StreamCapture capture = new StreamCapture(httpRes);
+            chain.doFilter(noGzipReq, capture);
+
+            String contentType = capture.getContentType();
+            byte[] body = capture.toByteArray();
+            if (contentType != null && contentType.contains("text/html")) {
+                String charset = StandardCharsets.UTF_8.name();
+                if (contentType.contains("charset=")) {
+                    charset = contentType.replaceAll(".*charset=([^;]+).*", "$1").trim();
+                }
+                String html = new String(body, charset);
+                if (html.contains("</body>")) {
+                    String script = buildSosBannerScript(httpReq.getContextPath(), OmniAuthSos.minutesRemaining());
+                    html = html.replace("</body>", script + "</body>");
+                    body = html.getBytes(charset);
+                }
+            }
+            httpRes.setContentLength(body.length);
+            httpRes.getOutputStream().write(body);
+        }
+
+        private static boolean currentUserIsAdmin() {
+            try {
+                Jenkins j = Jenkins.getInstanceOrNull();
+                return j != null && j.hasPermission(Jenkins.ADMINISTER);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static boolean isBannerExcluded(String path) {
+            return path.contains("/sos/")        ||
+                   path.contains("/crumbIssuer")  ||
+                   path.contains("/api/")         ||
+                   path.contains("/adjuncts/")    ||
+                   path.contains("/static/")      ||
+                   path.contains("/plugin/")      ||
+                   path.contains("/images/")      ||
+                   path.endsWith(".js")           ||
+                   path.endsWith(".css")          ||
+                   path.endsWith(".ico")          ||
+                   path.endsWith(".png")          ||
+                   path.endsWith(".gif")          ||
+                   path.endsWith(".woff2")        ||
+                   path.endsWith(".ttf");
+        }
+
+        private static String buildSosBannerScript(String ctx, long mins) {
+            String ctxJs = ctx.replace("\\", "\\\\").replace("'", "\\'");
+            return "<script>(function(){try{" +
+                "if(document.getElementById('oau-sos-banner'))return;" +
+                "var ctx='" + ctxJs + "';var mins=" + mins + ";" +
+                "var bar=document.createElement('div');bar.id='oau-sos-banner';" +
+                "bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;"
+                + "padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;"
+                + "font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:13px;"
+                + "box-shadow:0 2px 8px rgba(0,0,0,0.3);';" +
+                "bar.innerHTML='<span style=\"display:inline-flex;align-items:center;gap:8px;\">" +
+                  "<strong>&#9888; SOS Mode active</strong>" +
+                  "<span style=\"opacity:.9;\">Emergency recovery is open at <code style=\\'background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px;\\'>/sos/recover</code>"
+                  + " &middot; auto-closes in '+mins+' min</span></span>" +
+                  "<button type=\"button\" id=\"oau-sos-deact\" style=\"white-space:nowrap;padding:5px 14px;border:1px solid #fff;"
+                  + "border-radius:5px;background:#fff;color:#b91c1c;font-size:12px;font-weight:700;cursor:pointer;\">Deactivate now</button>';" +
+                "function place(){document.body.insertBefore(bar,document.body.firstChild);" +
+                  "document.body.style.paddingTop=(bar.offsetHeight||40)+'px';}" +
+                "if(document.body){place();}else{document.addEventListener('DOMContentLoaded',place);}" +
+                "var btn=bar.querySelector('#oau-sos-deact');" +
+                "btn.onclick=function(){btn.disabled=true;btn.textContent='Deactivating...';" +
+                  "fetch(ctx+'/crumbIssuer/api/json',{credentials:'same-origin'})" +
+                  ".then(function(r){return r.json();})" +
+                  ".then(function(cd){var h={'Content-Type':'application/x-www-form-urlencoded'};h[cd.crumbRequestField]=cd.crumb;" +
+                    "return fetch(ctx+'/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:'',credentials:'same-origin'});})" +
+                  ".then(function(r){if(r.ok){window.location.reload();}else{btn.disabled=false;btn.textContent='Deactivate now';alert('You must be an administrator to deactivate SOS Mode.');}})" +
+                  ".catch(function(){btn.disabled=false;btn.textContent='Deactivate now';alert('Could not deactivate — network error.');});" +
+                "};" +
+                "}catch(e){}})();</script>";
         }
     }
 
