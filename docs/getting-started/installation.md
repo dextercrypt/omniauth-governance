@@ -17,25 +17,25 @@
 
 ### Option A — deploy the `.hpi` (recommended for pre-release builds)
 
-1. Build or obtain `omni-auth.hpi` (see [Building & contributing](../developer/contributing.md)).
+1. Build or obtain `omniauth-governance.hpi` (see [Building & contributing](../developer/contributing.md)).
 2. In Jenkins: **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin**.
-3. Upload `omni-auth.hpi`.
+3. Upload `omniauth-governance.hpi`.
 4. Restart Jenkins when prompted.
 
 ### Option B — side-load into `$JENKINS_HOME/plugins`
 
 1. Copy the built artifact into the plugins directory as a `.jpi`:
    ```bash
-   cp target/omni-auth.hpi "$JENKINS_HOME/plugins/omni-auth.jpi"
+   cp target/omniauth-governance.hpi "$JENKINS_HOME/plugins/omniauth-governance.jpi"
    ```
 2. Remove any stale exploded directory or `.hpi` for the same plugin so Jenkins
    re-expands the fresh build:
    ```bash
-   rm -rf "$JENKINS_HOME/plugins/omni-auth" "$JENKINS_HOME/plugins/omni-auth.hpi"
+   rm -rf "$JENKINS_HOME/plugins/omniauth-governance" "$JENKINS_HOME/plugins/omniauth-governance.hpi"
    ```
 3. Restart Jenkins.
 
-> **Note:** A leftover `omni-auth.hpi` next to `omni-auth.jpi` can shadow your new build.
+> **Note:** A leftover `omniauth-governance.hpi` next to `omniauth-governance.jpi` can shadow your new build.
 > Keep exactly one, and prefer `.jpi` for side-loading.
 
 ## Activate

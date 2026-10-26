@@ -7,7 +7,7 @@ read [Installation](installation.md) and [Security model](../security/security-m
 
 ## 1. Install the plugin
 
-Deploy `omni-auth.hpi` (**Manage Jenkins → Plugins → Advanced → Deploy Plugin**) and
+Deploy `omniauth-governance.hpi` (**Manage Jenkins → Plugins → Advanced → Deploy Plugin**) and
 restart. See [Installation](installation.md) for alternatives.
 
 ## 2. Enable the security realm

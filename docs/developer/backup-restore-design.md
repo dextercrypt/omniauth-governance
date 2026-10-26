@@ -15,7 +15,7 @@
 > Files: `OmniAuthConfigBackup.java` (serializer), `doExportConfig`/`doImportConfig`/`doRevertImport`
 > in `OmniAuthManagementLink`, `backup.jelly` + sidebar link, `OmniAuthConfigBackupTest`.
 
-- **Group id / artifact:** `io.jenkins.plugins:omni-auth`
+- **Group id / artifact:** `io.jenkins.plugins:omniauth-governance`
 - **Java package:** `io.jenkins.plugins.omniauth`
 - **Depends on JCasC?** No. Reuses the JCasC *file shape*, not the JCasC *plugin*. See [JCasC support](#relationship-to-jcasc).
 

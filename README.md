@@ -139,7 +139,7 @@ Relies on Matrix Authorization Strategy, CloudBees Folder (folder-scoped grants)
 
 ## Getting started
 
-1. **Install** — deploy `target/omni-auth.hpi` via **Manage Jenkins → Plugins → Advanced → Deploy
+1. **Install** — deploy `target/omniauth-governance.hpi` via **Manage Jenkins → Plugins → Advanced → Deploy
    Plugin**, then restart.
 2. **Enable** — **Manage Jenkins → Security → Security Realm → OmniAuth**, and select the **OmniAuth
    Authorization Strategy** to unlock access management.
@@ -170,7 +170,7 @@ under the global-configuration descriptor; the Entra block includes `allowedDoma
 
 ```bash
 export JAVA_HOME=/path/to/jdk-21
-mvn package -DskipTests   # produces target/omni-auth.hpi
+mvn package -DskipTests   # produces target/omniauth-governance.hpi
 ```
 
 ### Running for development

@@ -12,11 +12,11 @@
   </parent>
 
   <groupId>io.jenkins.plugins</groupId>
-  <artifactId>omni-auth</artifactId>
+  <artifactId>omniauth-governance</artifactId>
   <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
-  <name>Omni Auth Plugin</name>
+  <name>OmniAuth</name>
   <description>Authentication and access governance for Jenkins: native accounts plus Single Sign-On (Microsoft Entra / Azure AD), role- and matrix-based authorization, scoped and just-in-time access, group sync, provisioning, and audit</description>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 

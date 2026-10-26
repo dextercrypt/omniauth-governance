@@ -12,7 +12,7 @@
 
 ```bash
 export JAVA_HOME=/path/to/jdk-21
-mvn package -DskipTests   # → target/omni-auth.hpi
+mvn package -DskipTests   # → target/omniauth-governance.hpi
 ```
 
 Run the tests with a normal `mvn test` / `mvn verify`.
@@ -44,8 +44,8 @@ JENKINS_HOME=./work \
 ### Deploying a fresh build into the running home
 
 ```bash
-cp target/omni-auth.hpi "$JENKINS_HOME/plugins/omni-auth.jpi"
-rm -rf "$JENKINS_HOME/plugins/omni-auth" "$JENKINS_HOME/plugins/omni-auth.hpi"
+cp target/omniauth-governance.hpi "$JENKINS_HOME/plugins/omniauth-governance.jpi"
+rm -rf "$JENKINS_HOME/plugins/omniauth-governance" "$JENKINS_HOME/plugins/omniauth-governance.hpi"
 # then restart Jenkins
 ```
 

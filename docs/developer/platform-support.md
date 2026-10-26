@@ -157,8 +157,8 @@ export JAVA_HOME=/path/to/jdk-25
 mvn -o clean package -DskipTests
 
 # deploy into a CLEAN work dir (stale .hpi shadows the .jpi)
-cp target/omni-auth.hpi work/plugins/omni-auth.jpi
-rm -f work/plugins/omni-auth.hpi && rm -rf work/plugins/omni-auth
+cp target/omniauth-governance.hpi work/plugins/omniauth-governance.jpi
+rm -f work/plugins/omniauth-governance.hpi && rm -rf work/plugins/omniauth-governance
 
 # run the LATEST LTS war on the new JDK
 JENKINS_HOME=$PWD/work java -jar jenkins-war-<latest-LTS>.war --httpPort=9090 --prefix=/jenkins

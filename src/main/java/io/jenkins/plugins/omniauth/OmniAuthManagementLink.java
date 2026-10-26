@@ -66,7 +66,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ManagementLink metadata
     // -------------------------------------------------------------------------
 
-    @Override public String getIconFileName()    { return "/plugin/omni-auth/images/icon.svg"; }
+    @Override public String getIconFileName()    { return "/plugin/omniauth-governance/images/icon.svg"; }
     @Override public String getDisplayName()     { return "OmniAuth Management"; }
     @Override public String getDescription()     { return "Manage users, review access, monitor security, and clean up stale accounts."; }
     @Override public String getUrlName()         { return "omniauth-management"; }
@@ -556,7 +556,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** This plugin's version, read live from its wrapper (build qualifier stripped). For the Info page. */
     public String getPluginVersion() {
-        hudson.PluginWrapper w = Jenkins.get().getPluginManager().getPlugin("omni-auth");
+        hudson.PluginWrapper w = Jenkins.get().getPluginManager().getPlugin("omniauth-governance");
         if (w == null) return "unknown";
         String v = w.getVersion();
         if (v == null) return "unknown";

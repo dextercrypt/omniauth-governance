@@ -52,7 +52,7 @@ Delivery retries on failure; persistent failures appear in the notification log.
 | Symptom | Fix |
 |---|---|
 | Maven build fails in the license/spotless plugins | These are intentionally skipped in `pom.xml` (`license.skip`, `spotless.check.skip`); ensure you build the project's own POM. |
-| New build doesn't take effect | A stale `omni-auth.hpi` next to `omni-auth.jpi`, or a leftover exploded `plugins/omni-auth/` dir, can shadow the new build. Remove them and restart. See [Installation](../getting-started/installation.md). |
+| New build doesn't take effect | A stale `omniauth-governance.hpi` next to `omniauth-governance.jpi`, or a leftover exploded `plugins/omniauth-governance/` dir, can shadow the new build. Remove them and restart. See [Installation](../getting-started/installation.md). |
 | Plugin won't load | Check the Jenkins version (2.541.2+) and Java 21; review the controller log for missing dependency plugins. |
 
 ## Where to look

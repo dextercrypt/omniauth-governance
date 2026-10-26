@@ -3,7 +3,7 @@
 > How OmniAuth is put together: the security realm, authorization strategy, stores,
 > background workers, and login flow.
 
-- **Group id / artifact:** `io.jenkins.plugins:omni-auth`
+- **Group id / artifact:** `io.jenkins.plugins:omniauth-governance`
 - **Java package:** `io.jenkins.plugins.omniauth`
 - **Parent POM:** `org.jenkins-ci.plugins:plugin:4.80`
 - **Target platform:** Jenkins 2.541.2+, Java 21 (Jakarta servlet API)

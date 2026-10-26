@@ -30,7 +30,7 @@ There is **no Jenkins CD pipeline** for this plugin; releases are cut manually.
 
 1. Ensure `main` is green (`mvn test`) and the [CHANGELOG](../CHANGELOG.md) reflects what's shipping.
 2. Set the release version in `pom.xml` (drop `-SNAPSHOT`, or use a `-beta.N` suffix).
-3. Build the artifact: `mvn package -DskipTests` → `target/omni-auth.hpi`.
+3. Build the artifact: `mvn package -DskipTests` → `target/omniauth-governance.hpi`.
 4. Tag the commit (e.g. `git tag v1.0.0-beta.1`) and push the tag.
 5. Attach the `.hpi` to the release.
 6. Bump `pom.xml` back to the next `-SNAPSHOT` for ongoing development.

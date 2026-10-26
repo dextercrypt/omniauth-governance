@@ -5,7 +5,7 @@
 ## What it is
 
 OmniAuth is a Jenkins **security and access-governance platform**, delivered as a single
-plugin (`io.jenkins.plugins:omni-auth`). It provides **flexible authentication** — native
+plugin (`io.jenkins.plugins:omniauth-governance`). It provides **flexible authentication** — native
 username/password **and** OAuth2 / OIDC single sign-on — and, more importantly, the layer of
 **security and management features** around Jenkins access that most teams end up building by
 hand: least-privilege access management, just-in-time elevation, access reviews, session

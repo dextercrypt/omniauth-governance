@@ -19,7 +19,7 @@ can back them up granularly or migrate them.
 | Provisioning requests | `io.jenkins.plugins.omniauth.ProvisioningRequestConfig.xml` |
 | Per-user properties (OID/UPN, last login, force-password, break-glass) | `users/<user>/config.xml` |
 | Audit log | newline-delimited JSON monthly files `omniauth-audit-YYYY-MM.json` under `JENKINS_HOME/logs` |
-| The plugin artifact | `plugins/omni-auth.jpi` |
+| The plugin artifact | `plugins/omniauth-governance.jpi` |
 
 > Exact filenames follow the `GlobalConfiguration` class names. Verify against your instance;
 > confirm the precise audit-log path on a live system when finalizing your backup scope.
@@ -55,7 +55,7 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 ## Restore procedure
 
-1. Install the same (or newer) Jenkins and the `omni-auth` plugin version.
+1. Install the same (or newer) Jenkins and the `omniauth-governance` plugin version.
 2. Restore the config files, `users/`, plugin data, and `secrets/` into `JENKINS_HOME`.
 3. Start Jenkins and verify:
    - You can sign in (native and/or SSO).
