@@ -144,9 +144,9 @@
                   <option value="accessReview">Access Review Digest</option>
                   <option value="protectedListChanged">Protected List Changed</option>
                   <option value="graphApiFailure">Graph API Failure</option>
-                  <option value="jitRequest">⚡ JIT Request (to approver)</option>
-                  <option value="jitApproved">⚡ JIT Approved (to requester)</option>
-                  <option value="jitDenied">⚡ JIT Denied (to requester)</option>
+                  <option value="jitRequest">JIT Request (to approver)</option>
+                  <option value="jitApproved">JIT Approved (to requester)</option>
+                  <option value="jitDenied">JIT Denied (to requester)</option>
                   <option value="smtpTest">SMTP Test Email</option>
                 </select>
                 <button type="button" onclick="oauClosePreview()"

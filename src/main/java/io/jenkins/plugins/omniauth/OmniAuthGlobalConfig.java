@@ -232,7 +232,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
         if (!ROTATION_MODES.contains(raw)) {
             return raw; // explicit fixed pick (incl. native) is always respected — festive lock never overrides it
         }
-        // Festive lock: Dec 21 → Jan 1, rotation modes always show Santa 🎅
+        // Festive lock: Dec 21 → Jan 1, rotation modes always show Santa
         if (isFestiveWindow(java.time.LocalDate.now())) {
             return "santaclaus";
         }

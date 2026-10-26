@@ -72,7 +72,7 @@
         <!-- Group-managed notice -->
         <j:if test="${header != null and header.groupManaged}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:8px;font-size:0.88em;color:var(--warning-color);display:flex;align-items:flex-start;gap:10px;">
-            <span style="font-size:1.1em;flex-shrink:0;">&#9888;</span>
+            <span style="flex-shrink:0;display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
             <span>
               <strong>Group-provisioned user.</strong>
               Access is controlled by the Azure AD group assignment — individual grants are not permitted.
@@ -84,7 +84,7 @@
         <!-- Pre-provisioned banner -->
         <j:if test="${isPreProvisioned}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-success-bg);border:1px solid var(--oau-success-border);border-radius:8px;font-size:0.88em;color:var(--oau-success-fg);">
-            &#9989; <strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
           </div>
         </j:if>
 
@@ -122,7 +122,7 @@
                 </button>
               </div>
               <div style="font-size:0.78em;color:var(--error-color);margin-bottom:18px;">
-                &#9888; This password will not be shown again. Copy it now.
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>This password will not be shown again. Copy it now.
               </div>
               <button type="button" onclick="document.getElementById('tmpPwdOverlay').style.display='none'"
                       class="jenkins-button jenkins-button--primary" style="width:100%;font-size:0.88em;">
@@ -189,7 +189,7 @@
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:#888;">
-                <div style="font-size:2em;margin-bottom:8px;opacity:0.3;">&#128275;</div>
+                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
                 <div style="font-size:0.9em;">No access assigned to this user yet.</div>
                 <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
                   <button type="button" onclick="udxShowAdd()"
@@ -217,9 +217,9 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
                             <j:choose>
-                              <j:when test="${a.global}">&#127760;</j:when>
-                              <j:when test="${a.scopeType == 'folder'}">&#128193;</j:when>
-                              <j:otherwise>&#9881;</j:otherwise>
+                              <j:when test="${a.global}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></j:when>
+                              <j:when test="${a.scopeType == 'folder'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></j:when>
+                              <j:otherwise><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></j:otherwise>
                             </j:choose>
                           </span>
                           <div>
@@ -362,7 +362,7 @@
                       <div style="display:flex;align-items:center;gap:8px;max-width:480px;">
                         <button type="button" id="udxScopeBtn" class="udx-scopebtn" onclick="udxModalOpen()">
                           <span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-                            <span id="udxScopeIcon" style="font-size:1em;flex-shrink:0;">📁</span>
+                            <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
                             <span id="udxScopeLbl" class="udx-scopebtn__ph">Select a job or folder…</span>
                           </span>
                           <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.5;"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
@@ -1305,6 +1305,9 @@
         var udxScopeTree  = null;
         var udxPending    = null;
         var udxArrowIdx   = -1;
+        // House-style inline SVG icons for the scope picker (replace emoji; currentColor = theme-aware).
+        var UDX_IC_FOLDER = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>';
+        var UDX_IC_JOB    = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>';
 
         function udxBuildTree(items) {
           var root = {};
@@ -1389,7 +1392,7 @@
           var icon = document.getElementById('udxScopeIcon');
           lbl.textContent  = udxPending;
           lbl.style.color  = 'inherit';
-          icon.textContent = (selItem && selItem.type === 'folder') ? '📁' : '⚙';
+          icon.innerHTML = (selItem && selItem.type === 'folder') ? UDX_IC_FOLDER : UDX_IC_JOB;
           document.getElementById('udxScopeClear').style.display = 'inline-flex';
           udxModalClose();
           udxUpdateSummary();
@@ -1401,7 +1404,7 @@
           var icon = document.getElementById('udxScopeIcon');
           lbl.textContent  = 'Select a job or folder…';
           lbl.style.color  = '';
-          icon.textContent = '📁';
+          icon.innerHTML = UDX_IC_FOLDER;
           document.getElementById('udxScopeClear').style.display = 'none';
           udxPending = null;
           udxUpdateSummary();

@@ -38,7 +38,7 @@
           <j:set var="bfEntries" value="${it.bruteForceEntries}"/>
           <j:choose>
             <j:when test="${bfEntries.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;">✓ No users with active failure counters.</div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg><span>No users with active failure counters.</span></div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table" style="width:100%;">
@@ -70,7 +70,7 @@
                       <td>
                         <j:choose>
                           <j:when test="${bf.locked}">
-                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;">🔒 Locked · ~${bf.lockRemainingMinutes}m left</span>
+                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Locked · ~${bf.lockRemainingMinutes}m left</span>
                           </j:when>
                           <j:when test="${bf.failureCount >= cfg.bruteForceThreshold}">
                             <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
@@ -124,7 +124,7 @@
 
           <j:choose>
             <j:when test="${failedLogins.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;">✓ No failed logins in this window.</div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg><span>No failed logins in this window.</span></div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table sortable" style="width:100%;">

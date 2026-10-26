@@ -91,7 +91,7 @@ public class OmniAuthPageDecorator {
         "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
         "var b=document.createElement('div');" +
         "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;gap:8px;';" +
-        "b.innerHTML='<span style=\"font-size:16px\">⚠</span><span><strong>Managed by OmniAuth</strong> — Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → OmniAuth → Access Management</strong>.</span>';" +
+        "b.innerHTML='<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> — Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → OmniAuth → Access Management</strong>.</span>';" +
         "w.insertBefore(b,c);}" +
         "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}" +
         "}catch(e){}" +
@@ -196,7 +196,7 @@ public class OmniAuthPageDecorator {
         "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
         "var b=document.createElement('div');" +
         "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"font-size:16px\">&#9888;</span><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
+        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
             "<button type=\"button\" id=\"omniauth-bg-open\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:#fff;color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;\">Emergency Override</button>';" +
         "w.insertBefore(b,c);" +
         "document.getElementById('omniauth-bg-open').onclick=function(){m.style.display='flex';};" +
@@ -216,7 +216,7 @@ public class OmniAuthPageDecorator {
         "m.innerHTML='<div style=\\\"background:#fff;border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);\\\">" +
             "<h3 style=\\\"margin:0 0 20px;font-size:16px;color:#212529;\\\">Emergency Override</h3>" +
             "<div style=\\\"text-align:center;padding:4px 0 16px;\\\">" +
-              "<div style=\\\"font-size:36px;margin-bottom:12px;\\\">&#128274;</div>" +
+              "<div style=\\\"margin-bottom:12px;display:flex;justify-content:center;\\\"><svg width=\\\"36\\\" height=\\\"36\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"1.5\\\" stroke-linecap=\\\"round\\\" stroke-linejoin=\\\"round\\\"><rect width=\\\"18\\\" height=\\\"11\\\" x=\\\"3\\\" y=\\\"11\\\" rx=\\\"2\\\" ry=\\\"2\\\"/><path d=\\\"M7 11V7a5 5 0 0 1 10 0v4\\\"/></svg></div>" +
               "<div style=\\\"font-size:14px;font-weight:600;color:#495057;margin-bottom:8px;\\\">No Authenticator Device Enrolled</div>" +
               "<div style=\\\"font-size:13px;color:#6c757d;margin-bottom:20px;\\\">Enroll a TOTP device on the Break Glass page before you can activate Emergency Override.</div>" +
               "<div style=\\\"display:flex;gap:8px;justify-content:center;\\\">" +
@@ -248,7 +248,7 @@ public class OmniAuthPageDecorator {
         "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
         "var b=document.createElement('div');" +
         "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"font-size:16px\">&#9888;</span><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
+        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
             "<button type=\"button\" id=\"omniauth-bg-open\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:#fff;color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;\">Emergency Override</button>';" +
         "w.insertBefore(b,c);" +
         "document.getElementById('omniauth-bg-open').onclick=function(){m.style.display='flex';};" +
@@ -571,7 +571,7 @@ public class OmniAuthPageDecorator {
                 "w.appendChild(c);" +
                 "var b=document.createElement('div');" +
                 "b.style.cssText='padding:10px 14px;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;margin-bottom:6px;font-size:13px;color:#856404;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-                "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"font-size:16px\">&#128275;</span><span><strong>Emergency Override Active</strong> &mdash; Authorization table is unlocked. Expires in <strong id=\"omniauth-timer\">--:--</strong>.</span></div>" +
+                "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 9.9-1\"/></svg><span><strong>Emergency Override Active</strong> &mdash; Authorization table is unlocked. Expires in <strong id=\"omniauth-timer\">--:--</strong>.</span></div>" +
                     "<button type=\"button\" id=\"omniauth-bg-end\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #856404;border-radius:4px;background:#fff;color:#856404;cursor:pointer;font-size:12px;font-weight:600;\">End Override Now</button>';" +
                 "w.insertBefore(b,c);" +
                 "function tick(){" +
@@ -1178,7 +1178,7 @@ public class OmniAuthPageDecorator {
                 + "font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:13px;"
                 + "box-shadow:0 2px 8px rgba(0,0,0,0.3);';" +
                 "bar.innerHTML='<span style=\"display:inline-flex;align-items:center;gap:8px;\">" +
-                  "<strong>&#9888; SOS Mode active</strong>" +
+                  "<strong style=\"display:inline-flex;align-items:center;gap:6px;\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg>SOS Mode active</strong>" +
                   "<span style=\"opacity:.9;\">Emergency recovery is open at <code style=\\'background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px;\\'>/sos/recover</code>"
                   + " &middot; auto-closes in '+mins+' min</span></span>" +
                   "<button type=\"button\" id=\"oau-sos-deact\" style=\"white-space:nowrap;padding:5px 14px;border:1px solid #fff;"
