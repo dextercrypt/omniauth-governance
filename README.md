@@ -75,7 +75,7 @@ single plugin instead of a sprawling platform.
 
 <p align="center">
   <img src="docs/assets/screenshots/login.png" alt="Branded sign-in page" width="72%" /><br/>
-  <sub><b>Branded sign-in</b> — native accounts and SSO on one page</sub>
+  <sub><b>Branded sign-in</b> — your heading, animated background and a pick of Jenkins butlers; native + SSO on one page</sub>
 </p>
 
 ---
@@ -120,7 +120,9 @@ single plugin instead of a sprawling platform.
 
 ### 📣 Notifications & experience
 - **Email (SMTP), Slack, and Microsoft Teams** with per-event routing, retry, test actions, preview.
-- Configurable, themeable **login page** branding.
+- **Make the login page yours** — custom heading, announcement banner, footer and logo, an animated
+  reactor background, and a whole cast of **Jenkins butler mascots** to choose from (Ninja, Santa,
+  Superhero, Cowboy, Nerd…) — or set **🎲 Butler of the Day** and let it surprise your team.
 - A single console — **Manage Jenkins → OmniAuth** — for all of the above.
 
 > Full documentation lives in [`docs/`](docs/README.md).
