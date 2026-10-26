@@ -42,9 +42,9 @@ single plugin instead of a sprawling platform.
 | Hope you don't get locked out | …**break-glass** step-up *and* **SOS** lockout recovery |
 | Partial logging | …a **full audit trail** with retention, plus email/Slack/Teams alerts |
 
-> Single sign-on today uses **Microsoft Entra (Azure AD)**. The realm lists other OAuth2/OIDC
-> providers as *planned* — on the roadmap, not yet shipped. This is honest by design: OmniAuth
-> doesn't claim breadth it doesn't have; its edge is **depth of governance**, not number of IdPs.
+> **Enterprise SSO with Microsoft Entra (Azure AD) today**, with more OAuth2/OIDC providers on the
+> roadmap. The governance layer sits above authentication, so its full depth applies to every user —
+> native or SSO — however they sign in.
 
 ---
 
