@@ -34,6 +34,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <st:include it="${simpleDecorator}" page="simple-head.jelly" />
         <style>
+          /* Dark base for the whole page so no light background shows through the grid gaps
+             that Jenkins 2.580.1 introduced around the branding panel (2.541.2 was full-bleed). */
+          body.app-sign-in-register { background: #0a1226; }
+
           /* ===== Dark login — right side, SOFT glow (maps design .right-panel) ===== */
           .app-sign-in-register__content {
             position: relative;
