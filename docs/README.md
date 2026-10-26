@@ -64,6 +64,7 @@ developers.
 - [Extension points](developer/extension-points.md)
 - [Building & contributing](developer/contributing.md)
 - [Releasing & versioning](developer/releasing.md)
+- [Platform support & upgrade policy](developer/platform-support.md) — Jenkins/Java baseline + forward upgrade playbook
 
 ### Reference
 - [Configuration reference](reference/configuration-reference.md)
