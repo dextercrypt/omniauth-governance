@@ -139,8 +139,8 @@ Relies on Matrix Authorization Strategy, CloudBees Folder (folder-scoped grants)
 
 ## Getting started
 
-1. **Install** — deploy `target/omniauth-governance.hpi` via **Manage Jenkins → Plugins → Advanced → Deploy
-   Plugin**, then restart.
+1. **Install** — from **Manage Jenkins → Plugins → Available**, search for **OmniAuth** and install it,
+   then restart.
 2. **Enable** — **Manage Jenkins → Security → Security Realm → OmniAuth**, and select the **OmniAuth
    Authorization Strategy** to unlock access management.
 3. **Connect SSO (optional)** — for Microsoft Entra, follow [Entra setup](docs/administration/entra-setup.md).

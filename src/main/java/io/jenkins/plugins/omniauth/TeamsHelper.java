@@ -262,7 +262,8 @@ public class TeamsHelper {
     }
 
     static void postJson(String url, String json) throws Exception {
-        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+        // ProxyConfiguration.newHttpClientBuilder() honours the Jenkins-configured HTTP proxy.
+        java.net.http.HttpClient client = hudson.ProxyConfiguration.newHttpClientBuilder().build();
         java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
                 .header("Content-Type", "application/json")

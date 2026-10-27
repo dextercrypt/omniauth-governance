@@ -46,7 +46,7 @@
     <!-- Third-party libraries we intentionally bundle (not provided by core or
          another plugin): MSAL4J + its transitive OAuth/JOSE/JSON deps, Nimbus,
          and ZXing for Break Glass QR codes. -->
-    <hpi.bundledArtifacts>accessors-smart,aerogear-otp-java,asm,content-type,core,jai-imageio-core,javase,jcip-annotations,jcommander,json-smart,lang-tag,msal4j,nimbus-jose-jwt,oauth2-oidc-sdk</hpi.bundledArtifacts>
+    <hpi.bundledArtifacts>accessors-smart,aerogear-otp-java,asm,content-type,core,jai-imageio-core,javase,jcommander,json-smart,lang-tag,msal4j,nimbus-jose-jwt,oauth2-oidc-sdk</hpi.bundledArtifacts>
     <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     <ban-deprecated-stapler.skip>false</ban-deprecated-stapler.skip>
@@ -89,6 +89,12 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
         </exclusion>
+        <!-- jcip-annotations (pulled transitively via oauth2-oidc-sdk) is provided
+             by Jenkins core; don't bundle a second copy. -->
+        <exclusion>
+          <groupId>com.github.stephenc.jcip</groupId>
+          <artifactId>jcip-annotations</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -106,7 +112,10 @@
       <artifactId>jackson2-api</artifactId>
     </dependency>
 
-    <!-- Jakarta Servlet API — Jenkins 2.541.2 migrated from javax to jakarta -->
+    <!-- Jakarta Servlet API — pinned to the servlet 6.x line that matches the Jenkins
+         2.555.x runtime. NOT removed despite the hosting checker's hint: dropping it lets
+         an old transitive (servlet 5.0.0) win, which mismatches the runtime and breaks the
+         build. provided scope means it is compile-only; core supplies it at runtime. -->
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
@@ -120,15 +129,12 @@
       <artifactId>jakarta-mail-api</artifactId>
     </dependency>
 
-    <!-- Spring Security - provided by Jenkins core, do NOT bundle -->
+    <!-- Spring Security - provided by Jenkins core, do NOT bundle.
+         spring-security-web is also provided by core and pulled in transitively,
+         so only spring-security-core is declared here. -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -180,17 +186,8 @@
       <version>3.5.3</version>
     </dependency>
 
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.jenkins-ci.main</groupId>
-      <artifactId>jenkins-test-harness</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
+    <!-- Test dependencies. jenkins-test-harness (and the junit it brings) are
+         supplied by the parent pom, so they are not declared here. -->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>

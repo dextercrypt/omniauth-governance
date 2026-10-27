@@ -2,6 +2,7 @@ package io.jenkins.plugins.omniauth.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hudson.ProxyConfiguration;
 import io.jenkins.plugins.omniauth.EntraGroupDetails;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ import java.util.logging.Logger;
 
 /**
  * Calls the Microsoft Graph API to retrieve group memberships for the authenticated user.
- * Uses Java 11's built-in HttpClient to avoid external HTTP library dependencies.
+ * Uses the JDK's built-in HttpClient (via {@link hudson.ProxyConfiguration#newHttpClientBuilder()}
+ * so outbound calls honour the Jenkins-configured HTTP proxy) to avoid external HTTP libraries.
  *
  * Requires the access token to have 'GroupMember.Read.All' delegated permission
  * with admin consent granted in the Azure AD app registration.
@@ -30,7 +32,7 @@ public class GraphApiHelper {
 
     // HttpClient is thread-safe and owns a connection pool + selector thread; share one
     // instance across logins rather than constructing (and leaking until GC) one per login.
-    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+    private static final HttpClient HTTP_CLIENT = ProxyConfiguration.newHttpClientBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
