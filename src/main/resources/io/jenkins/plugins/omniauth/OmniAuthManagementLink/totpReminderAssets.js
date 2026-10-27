@@ -116,3 +116,30 @@ document.addEventListener('keydown', function(e) {
   var vc = document.getElementById('verify-code');
   if (e.key === 'Enter' && vc && document.activeElement === vc) verifyCode();
 });
+
+// ── Wire control handlers (replaces inline on* attributes for CSP) ────
+(function () {
+  function init() {
+    document.querySelectorAll('.js-oau-skip-reminder').forEach(function(el) {
+      el.addEventListener('click', skipReminder);
+    });
+
+    var genBtn = document.getElementById('btn-generate-qr');
+    if (genBtn) genBtn.addEventListener('click', generateQr);
+
+    var verifyInput = document.getElementById('verify-code');
+    if (verifyInput) {
+      verifyInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    }
+
+    var verifyBtn = document.getElementById('btn-verify');
+    if (verifyBtn) verifyBtn.addEventListener('click', verifyCode);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

@@ -188,7 +188,70 @@ function editRoleFromBtn(btn) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────
+function oamWireEvents() {
+  // Tabs
+  var tabUsers = document.getElementById('tabBtnUsers');
+  if (tabUsers) tabUsers.addEventListener('click', function() { switchTab('users'); });
+  var tabRoles = document.getElementById('tabBtnRoles');
+  if (tabRoles) tabRoles.addEventListener('click', function() { switchTab('roles'); });
+
+  // User search
+  var search = document.getElementById('oamSearch');
+  if (search) search.addEventListener('input', function() { filterUsers(this.value); });
+
+  // Add User buttons (header + empty state)
+  document.querySelectorAll('.js-oau-add-user').forEach(function(el) {
+    el.addEventListener('click', function() { openAddUserDrawer(); });
+  });
+
+  // User rows (navigate to detail)
+  document.querySelectorAll('.user-row').forEach(function(el) {
+    el.addEventListener('click', function() { gotoDetail(this); });
+  });
+  // Manage buttons inside each row
+  document.querySelectorAll('.js-oau-manage').forEach(function(el) {
+    el.addEventListener('click', function(event) {
+      event.stopPropagation();
+      gotoDetail(this.closest('tr'));
+    });
+  });
+
+  // Create Role buttons (header + empty state)
+  document.querySelectorAll('.js-oau-create-role').forEach(function(el) {
+    el.addEventListener('click', function() { showRoleForm(null, null, null); });
+  });
+  // Role form cancel
+  var roleCancel = document.getElementById('oauRoleCancel');
+  if (roleCancel) roleCancel.addEventListener('click', function() { hideRoleForm(); });
+  // Edit role buttons
+  document.querySelectorAll('.js-oau-edit-role').forEach(function(el) {
+    el.addEventListener('click', function() { editRoleFromBtn(this); });
+  });
+  // Delete role confirm guards
+  document.querySelectorAll('.js-oau-confirm').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      if (!confirm(this.dataset.confirm)) e.preventDefault();
+    });
+  });
+
+  // Add User drawer: close triggers (backdrop, X, Cancel)
+  document.querySelectorAll('.js-oau-close-drawer').forEach(function(el) {
+    el.addEventListener('click', function() { closeAddUserDrawer(); });
+  });
+  // User-type radios
+  document.querySelectorAll('input[name="userType"]').forEach(function(el) {
+    el.addEventListener('change', function() { auTypeChange(this.value); });
+  });
+  // Username / email field
+  var auSid = document.getElementById('auSid');
+  if (auSid) {
+    auSid.addEventListener('input', function() { auOnInput(this.value); });
+    auSid.addEventListener('blur', function() { auCheckUser(this.value); });
+  }
+}
+
 function oamInit() {
+  oamWireEvents();
   var badge = document.getElementById('userCountBadge');
   if (badge) badge.textContent = document.querySelectorAll('.user-row').length;
   var params = new URLSearchParams(window.location.search);

@@ -74,7 +74,7 @@
                     Open your authenticator app (Google Authenticator, Microsoft Authenticator, Authy, or any TOTP app)
                     and scan the QR code you'll generate below.
                   </div>
-                  <button type="button" class="jenkins-button jenkins-button--primary" onclick="generateQr()">
+                  <button type="button" class="jenkins-button jenkins-button--primary" id="btn-generate-qr">
                     Generate QR Code
                   </button>
                 </div>
@@ -106,11 +106,10 @@
                         </label>
                         <input id="verify-code" type="text" inputmode="numeric" maxlength="6" autocomplete="off"
                                placeholder="123456" class="jenkins-input"
-                               style="width:140px; letter-spacing:4px; font-size:1.1em; text-align:center;"
-                               oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+                               style="width:140px; letter-spacing:4px; font-size:1.1em; text-align:center;"/>
                       </div>
                       <div id="verify-err" style="display:none; margin-bottom:12px; padding:8px 12px; background:var(--oau-danger-bg); border:1px solid var(--oau-danger-border); border-radius:6px; font-size:0.85em; color:var(--oau-danger-fg);"></div>
-                      <button type="button" id="btn-verify" class="jenkins-button jenkins-button--primary" onclick="verifyCode()">
+                      <button type="button" id="btn-verify" class="jenkins-button jenkins-button--primary">
                         Confirm &amp; Save
                       </button>
                     </div>
@@ -185,13 +184,13 @@
                 </a>
                 <j:choose>
                   <j:when test="${skips eq 2}">
-                    <button type="button" onclick="skipReminder()"
+                    <button type="button" class="js-oau-skip-reminder"
                             style="padding:9px 20px; border:1px solid var(--oau-warning-border); border-radius:6px; background:#fff; color:var(--oau-warning-fg); font-size:0.88em; font-weight:600; cursor:pointer;">
                       Last reminder — Dismiss
                     </button>
                   </j:when>
                   <j:otherwise>
-                    <button type="button" onclick="skipReminder()"
+                    <button type="button" class="js-oau-skip-reminder"
                             style="padding:9px 20px; border:1px solid var(--oau-card-border); border-radius:6px; background:#fff; color:var(--text-color-secondary); font-size:0.88em; cursor:pointer;">
                       Remind me later (${afterThis} more after this)
                     </button>

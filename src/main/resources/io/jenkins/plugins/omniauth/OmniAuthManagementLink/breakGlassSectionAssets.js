@@ -116,6 +116,39 @@ function removeDevice(deviceId, deviceName) {
 
 (function () {
   function init() {
+    // ── Remove-device buttons (per-row) ─────────────────────────────────
+    document.querySelectorAll('.js-oau-remove-device').forEach(function(el) {
+      el.addEventListener('click', function() {
+        removeDevice(this.dataset.deviceId, this.dataset.deviceName);
+      });
+    });
+
+    // ── Add/enroll device buttons ───────────────────────────────────────
+    document.querySelectorAll('.js-oau-add-device').forEach(function(el) {
+      el.addEventListener('click', showAddDevice);
+    });
+
+    // ── Enrollment panel controls ───────────────────────────────────────
+    var genBtn = document.getElementById('btn-generate-qr');
+    if (genBtn) genBtn.addEventListener('click', generateQr);
+
+    document.querySelectorAll('.js-oau-cancel-enroll').forEach(function(el) {
+      el.addEventListener('click', cancelEnrollment);
+    });
+
+    var verifyInput = document.getElementById('verify-code');
+    if (verifyInput) {
+      verifyInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    }
+
+    var verifyBtn = document.getElementById('btn-verify');
+    if (verifyBtn) verifyBtn.addEventListener('click', verifyCode);
+
+    var doneBtn = document.getElementById('btn-enroll-done');
+    if (doneBtn) doneBtn.addEventListener('click', function() { window.location.reload(); });
+
     document.getElementById('remove-cancel-btn').addEventListener('click', function() {
       document.getElementById('remove-confirm-modal').style.display = 'none';
       pendingRemoveId = null;

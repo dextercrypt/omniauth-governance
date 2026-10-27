@@ -34,6 +34,20 @@ function validateForm() {
 
 (function () {
   function init() {
+    // ── Password strength + submit guard (replaces inline on* for CSP) ──
+    var newPw = document.getElementById('newPassword');
+    if (newPw) {
+      newPw.addEventListener('input', function () {
+        checkStrength(this.value);
+      });
+    }
+    var cpForm = document.getElementById('oauChangePasswordForm');
+    if (cpForm) {
+      cpForm.addEventListener('submit', function (e) {
+        if (validateForm() === false) e.preventDefault();
+      });
+    }
+
     document.getElementById('confirmPassword').addEventListener('input', function () {
       var msg = document.getElementById('matchMsg');
       var p1  = document.getElementById('newPassword').value;

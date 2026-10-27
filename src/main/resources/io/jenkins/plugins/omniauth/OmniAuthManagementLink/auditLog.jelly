@@ -19,10 +19,8 @@
         <!-- Filter bar -->
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
           <input id="alxSearch" type="text" placeholder="Filter by user, action, scope…"
-                 class="jenkins-input" style="max-width:260px;font-size:0.88em;"
-                 oninput="alxFilter()"/>
-          <select id="alxActionFilter" class="jenkins-input" style="max-width:180px;font-size:0.88em;"
-                  onchange="alxFilter()">
+                 class="jenkins-input" style="max-width:260px;font-size:0.88em;"/>
+          <select id="alxActionFilter" class="jenkins-input" style="max-width:180px;font-size:0.88em;">
             <option value="">All actions</option>
             <option value="grant">Grant</option>
             <option value="revoke">Revoke</option>
@@ -60,11 +58,10 @@
             <option value="review_confirmed">Review Confirmed</option>
           </select>
           <input id="alxIpFilter" type="text" placeholder="Filter by IP…"
-                 class="jenkins-input" style="max-width:160px;font-size:0.88em;"
-                 oninput="alxFilter()"/>
+                 class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <span id="alxCount" style="font-size:0.8em;color:#999;margin-left:4px;"></span>
           <div style="margin-left:auto;">
-            <button type="button" onclick="alxPurgeOpen()"
+            <button type="button" id="oauPurgeOpen"
                     class="jenkins-button"
                     style="font-size:0.82em;color:var(--error-color);border-color:var(--error-color);">
               Purge All Logs
@@ -74,10 +71,10 @@
         <!-- Date range row -->
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
           <label style="font-size:0.8em;color:#888;white-space:nowrap;">From</label>
-          <input id="alxDateFrom" type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;" oninput="alxFilter()"/>
+          <input id="alxDateFrom" type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <label style="font-size:0.8em;color:#888;white-space:nowrap;">To</label>
-          <input id="alxDateTo"   type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;" oninput="alxFilter()"/>
-          <button type="button" onclick="alxClearFilters()"
+          <input id="alxDateTo"   type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
+          <button type="button" id="oauClearFilters"
                   class="jenkins-button" style="font-size:0.8em;">Clear filters</button>
         </div>
 
@@ -182,7 +179,7 @@
       </div>
 
     <!-- Purge confirmation modal -->
-    <div id="alxPurgeModal" data-sso="${it.currentUserSso}" onclick="if(event.target===this)alxPurgeClose()"
+    <div id="alxPurgeModal" data-sso="${it.currentUserSso}"
          style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,20,30,0.55);
                 backdrop-filter:blur(3px);align-items:center;justify-content:center;">
       <div id="alxPurgeBox" style="background:#fff;border-radius:14px;width:420px;max-width:92vw;
@@ -211,10 +208,7 @@
                           letter-spacing:0.05em;color:#888;margin-bottom:6px;">Confirmation</div>
               <input type="text" id="alxPurgePwd" autocomplete="off"
                      class="jenkins-input" style="width:100%;box-sizing:border-box;"
-                     placeholder="Type DELETE"
-                     oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
-                              document.getElementById('alxPurgeErr').style.display='none';"
-                     onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
+                     placeholder="Type DELETE"/>
               <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
                    font-weight:600;">&#10005; Type DELETE exactly to confirm.</div>
             </div>
@@ -228,19 +222,16 @@
                           letter-spacing:0.05em;color:#888;margin-bottom:6px;">Your Password</div>
               <input type="password" id="alxPurgePwd"
                      class="jenkins-input" style="width:100%;box-sizing:border-box;"
-                     placeholder="Enter your password…"
-                     oninput="document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
-                              document.getElementById('alxPurgeErr').style.display='none';"
-                     onkeydown="if(event.key==='Enter' &amp;&amp; this.value.length > 0) alxPurgeSubmit()"/>
+                     placeholder="Enter your password…"/>
               <div id="alxPurgeErr" style="display:none;font-size:0.82em;color:var(--error-color);margin-top:7px;
                    font-weight:600;">&#10005; Incorrect password. Try again.</div>
             </div>
           </j:otherwise>
         </j:choose>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button type="button" onclick="alxPurgeClose()"
+          <button type="button" id="oauPurgeCancel"
                   class="jenkins-button" style="font-size:0.88em;">Cancel</button>
-          <button type="button" id="alxPurgeBtn" onclick="alxPurgeSubmit()"
+          <button type="button" id="alxPurgeBtn"
                   class="jenkins-button" disabled="disabled"
                   style="font-size:0.88em;background:var(--error-color);color:#fff;border-color:var(--error-color);">
             Delete All Logs

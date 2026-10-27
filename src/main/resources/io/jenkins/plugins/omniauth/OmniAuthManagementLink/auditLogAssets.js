@@ -28,8 +28,53 @@ document.addEventListener('DOMContentLoaded', function() {
     if (qp.get('to'))     document.getElementById('alxDateTo').value     = qp.get('to');
     if (qp.get('action')) document.getElementById('alxActionFilter').value = qp.get('action');
   } catch(e) {}
+  alxWireEvents();
   alxFilter();
 });
+
+function alxWireEvents() {
+  // Filter inputs
+  var search = document.getElementById('alxSearch');
+  if (search) search.addEventListener('input', alxFilter);
+  var actionFilter = document.getElementById('alxActionFilter');
+  if (actionFilter) actionFilter.addEventListener('change', alxFilter);
+  var ipFilter = document.getElementById('alxIpFilter');
+  if (ipFilter) ipFilter.addEventListener('input', alxFilter);
+  var dateFrom = document.getElementById('alxDateFrom');
+  if (dateFrom) dateFrom.addEventListener('input', alxFilter);
+  var dateTo = document.getElementById('alxDateTo');
+  if (dateTo) dateTo.addEventListener('input', alxFilter);
+  var clearBtn = document.getElementById('oauClearFilters');
+  if (clearBtn) clearBtn.addEventListener('click', alxClearFilters);
+
+  // Purge modal open/close/submit
+  var purgeOpen = document.getElementById('oauPurgeOpen');
+  if (purgeOpen) purgeOpen.addEventListener('click', alxPurgeOpen);
+  var purgeCancel = document.getElementById('oauPurgeCancel');
+  if (purgeCancel) purgeCancel.addEventListener('click', alxPurgeClose);
+  var purgeBtn = document.getElementById('alxPurgeBtn');
+  if (purgeBtn) purgeBtn.addEventListener('click', alxPurgeSubmit);
+
+  // Backdrop click closes modal (only when clicking the backdrop itself)
+  var modal = document.getElementById('alxPurgeModal');
+  if (modal) {
+    modal.addEventListener('click', function(event) {
+      if (event.target === this) alxPurgeClose();
+    });
+  }
+
+  // Confirmation field: enable/disable the delete button, clear error, Enter to submit
+  var pwd = document.getElementById('alxPurgePwd');
+  if (pwd) {
+    pwd.addEventListener('input', function() {
+      document.getElementById('alxPurgeBtn').disabled = this.value.length === 0;
+      document.getElementById('alxPurgeErr').style.display = 'none';
+    });
+    pwd.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && this.value.length > 0) alxPurgeSubmit();
+    });
+  }
+}
 
 function alxFilter() {
   var q       = document.getElementById('alxSearch').value.toLowerCase();

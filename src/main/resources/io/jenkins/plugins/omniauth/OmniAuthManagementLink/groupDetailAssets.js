@@ -150,10 +150,77 @@ function udxModalRenderTree(nodeMap,container,depth) {
   });
 }
 
+// Wire all former inline on* handlers (CSP compliance). Runs once at DOM ready.
+function udxWireGroupDetail() {
+  // + Add Access buttons (section header + empty-state)
+  document.querySelectorAll('.js-udx-add').forEach(function(el) {
+    el.addEventListener('click', function() { udxShowAdd(); });
+  });
+  // Remove-group form — confirm guards submit
+  var removeForm = document.getElementById('udxRemoveGroupForm');
+  if (removeForm) removeForm.addEventListener('submit', function(e) {
+    if (!confirm(this.dataset.confirm)) e.preventDefault();
+  });
+  // Per-row Edit buttons
+  document.querySelectorAll('.js-udx-edit').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var perms = [];
+      try { perms = JSON.parse(this.dataset.perms); } catch (err) { perms = []; }
+      udxShowEdit(this.dataset.scope, this.dataset.scopeDisplay, this.dataset.role, perms, this.dataset.expires);
+    });
+  });
+  // Per-row Revoke buttons — confirm guards submit
+  document.querySelectorAll('.js-udx-revoke').forEach(function(el) {
+    el.addEventListener('click', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
+  });
+  // Scope-type radios
+  document.querySelectorAll('.js-udx-scope-radio').forEach(function(el) {
+    el.addEventListener('change', function() { udxScopeChange(this.value); });
+  });
+  var scopeBtn = document.getElementById('udxScopeBtn');
+  if (scopeBtn) {
+    scopeBtn.addEventListener('click', function() { udxModalOpen(); });
+    scopeBtn.addEventListener('mouseenter', function() {
+      this.style.borderColor = 'var(--blue)';
+      this.style.boxShadow = '0 0 0 3px rgba(26,115,232,0.12)';
+    });
+    scopeBtn.addEventListener('mouseleave', function() {
+      this.style.borderColor = 'var(--input-border,var(--oau-card-border))';
+      this.style.boxShadow = 'none';
+    });
+  }
+  var scopeClear = document.getElementById('udxScopeClear');
+  if (scopeClear) scopeClear.addEventListener('click', function() { udxScopeClearFn(); });
+  var roleSelect = document.getElementById('udxRoleSelect');
+  if (roleSelect) roleSelect.addEventListener('change', function() { udxRoleChange(this.value); });
+  var expiresAt = document.getElementById('udxExpiresAt');
+  if (expiresAt) expiresAt.addEventListener('change', function() { udxUpdateExpiryHint(this.value, 'udxExpiryHint'); });
+  var addCancel = document.getElementById('udxAddCancel');
+  if (addCancel) addCancel.addEventListener('click', function() { udxHideAdd(); });
+  var editRoleSelect = document.getElementById('udxEditRoleSelect');
+  if (editRoleSelect) editRoleSelect.addEventListener('change', function() { udxEditRoleChange(this.value); });
+  var editExpiresAt = document.getElementById('udxEditExpiresAt');
+  if (editExpiresAt) editExpiresAt.addEventListener('change', function() { udxUpdateExpiryHint(this.value, 'udxEditExpiryHint'); });
+  var editCancel = document.getElementById('udxEditCancel');
+  if (editCancel) editCancel.addEventListener('click', function() { udxHideEdit(); });
+  var modal = document.getElementById('udxScopeModal');
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === this) udxModalClose(); });
+  var modalCloseX = document.getElementById('udxModalCloseX');
+  if (modalCloseX) modalCloseX.addEventListener('click', function() { udxModalClose(); });
+  var modalSearch = document.getElementById('udxModalSearch');
+  if (modalSearch) modalSearch.addEventListener('input', function() { udxModalFilter(this.value); });
+  var modalCancel = document.getElementById('udxModalCancel');
+  if (modalCancel) modalCancel.addEventListener('click', function() { udxModalClose(); });
+  var modalOk = document.getElementById('udxModalOk');
+  if (modalOk) modalOk.addEventListener('click', function() { udxModalConfirm(); });
+}
+
 function udxInitGroupDetail() {
   // Dynamic scope list is served as a JSON island in the page (no EL in this cached adjunct).
   var dataEl = document.getElementById('udxScopeData');
   if (dataEl) { try { udxScopeItems = JSON.parse(dataEl.textContent); } catch (e) { udxScopeItems = []; } }
+
+  udxWireGroupDetail();
 
   document.querySelectorAll('.udx-expiry-badge').forEach(function(el) {
     var iso=el.getAttribute('data-expires'); if(!iso) return;

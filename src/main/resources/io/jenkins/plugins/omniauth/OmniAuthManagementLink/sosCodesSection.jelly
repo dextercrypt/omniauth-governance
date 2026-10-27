@@ -68,13 +68,13 @@
             from the set generated on ${it.sosGeneratedDate}. Regenerating replaces the whole set and
             immediately invalidates the old codes.
           </div>
-          <button type="button" class="jenkins-button" onclick="sosGenerate(true)">Regenerate codes</button>
+          <button type="button" class="jenkins-button" id="sos-regen-btn">Regenerate codes</button>
         </j:when>
         <j:otherwise>
           <div style="margin:0 0 14px; font-size:0.9em; color:var(--text-color-secondary); line-height:1.6;">
             You have not generated any SOS recovery codes yet.
           </div>
-          <button type="button" class="jenkins-button jenkins-button--primary" onclick="sosGenerate(false)">Generate codes</button>
+          <button type="button" class="jenkins-button jenkins-button--primary" id="sos-generate-btn">Generate codes</button>
         </j:otherwise>
       </j:choose>
     </div>
@@ -92,14 +92,14 @@
       </div>
       <div id="sos-codes-list" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-family:monospace; font-size:1em; margin-bottom:16px;"></div>
       <div style="display:flex; gap:8px; margin-bottom:16px;">
-        <button type="button" class="jenkins-button" onclick="sosCopy()">Copy all</button>
-        <button type="button" class="jenkins-button" onclick="sosDownload()">Download .txt</button>
+        <button type="button" class="jenkins-button" id="sos-copy-btn">Copy all</button>
+        <button type="button" class="jenkins-button" id="sos-download-btn">Download .txt</button>
       </div>
       <label style="display:flex; align-items:center; gap:8px; font-size:0.9em; margin-bottom:16px; cursor:pointer;">
-        <input type="checkbox" id="sos-saved-ack" onchange="document.getElementById('sos-continue-btn').disabled = !this.checked;"/>
+        <input type="checkbox" id="sos-saved-ack"/>
         I have saved these recovery codes somewhere safe.
       </label>
-      <button type="button" id="sos-continue-btn" class="jenkins-button jenkins-button--primary" disabled="disabled" onclick="sosContinue()">
+      <button type="button" id="sos-continue-btn" class="jenkins-button jenkins-button--primary" disabled="disabled">
         <j:choose>
           <j:when test="${it.sosEnrollMode}">Continue</j:when>
           <j:otherwise>Done</j:otherwise>

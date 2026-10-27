@@ -181,6 +181,36 @@ function validateCron(input) {
     toggleCleanupFields();
     var cronInput = document.getElementById('cleanupCron');
     if (cronInput) validateCron(cronInput);
+
+    // ── Event wiring (was inline on* handlers; moved here for CSP) ──────
+    // Number inputs: blur on wheel so scrolling the page doesn't change values.
+    document.querySelectorAll('#oauSettingsForm input[type="number"]').forEach(function(el) {
+      el.addEventListener('wheel', function() { this.blur(); });
+    });
+
+    var cleanupEnabled = document.getElementById('cleanupEnabled');
+    if (cleanupEnabled) cleanupEnabled.addEventListener('change', toggleCleanupFields);
+
+    if (cronInput) cronInput.addEventListener('input', function() { validateCron(this); });
+
+    var sosBtn = document.getElementById('sosDeactivateBtn');
+    if (sosBtn) sosBtn.addEventListener('click', function() { sosDeactivateNow(this); });
+
+    var resetBtn = document.getElementById('oauResetBranding');
+    if (resetBtn) resetBtn.addEventListener('click', oauResetLoginBranding);
+
+    document.querySelectorAll('.js-oau-remove-logo').forEach(function(btn) {
+      btn.addEventListener('click', function() { oauRemoveLoginLogo(this); });
+    });
+
+    var logoFile = document.getElementById('oauLoginLogoFile');
+    if (logoFile) logoFile.addEventListener('change', function() { oauUploadLoginLogo(this); });
+
+    var uploadBtn = document.getElementById('oauUploadBtn');
+    if (uploadBtn) uploadBtn.addEventListener('click', function() {
+      var f = document.getElementById('oauLoginLogoFile');
+      if (f) f.click();
+    });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

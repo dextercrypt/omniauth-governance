@@ -56,6 +56,21 @@ function initNotificationLog() {
   rows       = Array.from(document.querySelectorAll('.log-row'));
   totalPages = Math.ceil(rows.length / PAGE_SIZE);
   if (rows.length > 0) goPage(1);
+
+  // --- CSP: wire event handlers (replaces former inline on* attributes) ---
+  var clearBtn = document.getElementById('oauClearLogBtn');
+  if (clearBtn) clearBtn.addEventListener('click', function(e) {
+    if (!confirm(this.dataset.confirm)) e.preventDefault();
+  });
+
+  var btnFirst = document.getElementById('btnFirst');
+  if (btnFirst) btnFirst.addEventListener('click', function() { goPage(1); });
+  var btnPrev = document.getElementById('btnPrev');
+  if (btnPrev) btnPrev.addEventListener('click', function() { goPage(currentPage - 1); });
+  var btnNext = document.getElementById('btnNext');
+  if (btnNext) btnNext.addEventListener('click', function() { goPage(currentPage + 1); });
+  var btnLast = document.getElementById('btnLast');
+  if (btnLast) btnLast.addEventListener('click', function() { goPage(totalPages); });
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initNotificationLog);

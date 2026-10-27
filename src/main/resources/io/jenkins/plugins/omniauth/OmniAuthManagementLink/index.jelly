@@ -32,7 +32,7 @@
             <span class="oau-live-dot" id="oauLiveDot"></span>
             <span id="oauLiveText">Live</span>
           </span>
-          <button type="button" class="jenkins-button" id="oauLiveToggle" onclick="oauToggleLive()"
+          <button type="button" class="jenkins-button" id="oauLiveToggle"
                   title="Pause or resume live updates"
                   style="display:inline-flex;align-items:center;gap:6px;">
             <svg id="oauLiveIcon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
@@ -82,7 +82,7 @@
                 <j:if test="${!bfEntries.isEmpty()}"><span style="margin-left:3px"><strong>${bfEntries.size()}</strong> brute force alert<j:if test="${bfEntries.size() != 1}">s</j:if> active.</span></j:if>
               </div>
               <a href="security" class="oau-status-banner__action">View Security →</a>
-              <button class="oau-status-banner__close" onclick="oauDismissWarning()" title="Dismiss">
+              <button class="oau-status-banner__close js-oau-dismiss-warning" title="Dismiss">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -125,7 +125,7 @@
               Security alerts cannot be delivered. Enable at least one channel to stay informed.
             </div>
             <a href="notifications" class="oau-status-banner__action">Configure →</a>
-            <button class="oau-status-banner__close" onclick="oauDismissWeekly('oau_notif_dismiss')" title="Dismiss for 1 week">
+            <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_notif_dismiss" title="Dismiss for 1 week">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -149,7 +149,7 @@
               Stale and inactive accounts accumulate over time. Enable cleanup to maintain a clean directory.
             </div>
             <a href="settings" class="oau-status-banner__action">Enable →</a>
-            <button class="oau-status-banner__close" onclick="oauDismissWeekly('oau_cleanup_dismiss')" title="Dismiss for 1 week">
+            <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_cleanup_dismiss" title="Dismiss for 1 week">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -173,7 +173,7 @@
               Open Access Review to keep or revoke stale grants.
             </div>
             <a href="accessReview" class="oau-status-banner__action">Review now →</a>
-            <button class="oau-status-banner__close" onclick="oauDismissWeekly('oau_review_dismiss')" title="Dismiss for 1 week">
+            <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_review_dismiss" title="Dismiss for 1 week">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>

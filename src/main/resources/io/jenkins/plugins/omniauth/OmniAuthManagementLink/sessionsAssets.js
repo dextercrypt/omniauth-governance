@@ -30,3 +30,29 @@ function oauCloseRevokeModal() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') oauCloseRevokeModal();
 });
+
+// ── Wire control handlers (replaces inline on* attributes for CSP) ────
+(function () {
+  function init() {
+    document.querySelectorAll('.js-oau-revoke').forEach(function(el) {
+      el.addEventListener('click', function() {
+        oauShowRevokeModal(this);
+      });
+    });
+
+    var modal = document.getElementById('oauRevokeModal');
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) oauCloseRevokeModal();
+      });
+    }
+
+    var cancelBtn = document.getElementById('oauRevokeCancelBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', oauCloseRevokeModal);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

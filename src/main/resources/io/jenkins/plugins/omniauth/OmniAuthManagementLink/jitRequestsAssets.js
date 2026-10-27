@@ -15,3 +15,25 @@ function closeDenyModal() {
   document.getElementById('jitDenyModal').style.display = 'none';
   document.getElementById('jitDenyBackdrop').style.display = 'none';
 }
+
+// Wire former inline on* handlers (CSP compliance). Runs once at DOM ready.
+function jitInit() {
+  document.querySelectorAll('.js-jit-deny').forEach(function(el) {
+    el.addEventListener('click', function() {
+      openDenyModal(this.dataset.requestId, this.dataset.requesterId, this.dataset.scope);
+    });
+  });
+  // Revoke active JIT — confirm guards submit
+  document.querySelectorAll('.js-jit-revoke').forEach(function(el) {
+    el.addEventListener('click', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
+  });
+  var backdrop = document.getElementById('jitDenyBackdrop');
+  if (backdrop) backdrop.addEventListener('click', function() { closeDenyModal(); });
+  var cancel = document.getElementById('jitDenyCancel');
+  if (cancel) cancel.addEventListener('click', function() { closeDenyModal(); });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', jitInit);
+} else {
+  jitInit();
+}

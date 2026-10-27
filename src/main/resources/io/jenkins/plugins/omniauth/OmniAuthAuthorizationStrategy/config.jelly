@@ -19,11 +19,7 @@
         <div style="margin-top:16px;padding:12px 16px;border-radius:6px;background:#f8f9fa;border:1px solid #dee2e6;">
           <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;color:#343a40;">
             <input type="checkbox" id="omniauth-migration-confirm"
-                   style="margin-top:3px;flex-shrink:0;"
-                   onchange="
-                     var btn = document.querySelector('[name=Submit]') || document.querySelector('button.jenkins-button--primary');
-                     if (btn) { btn.disabled = !this.checked; btn.style.opacity = this.checked ? '1' : '0.5'; }
-                   "/>
+                   style="margin-top:3px;flex-shrink:0;"/>
             <span>I have reviewed the permissions above and confirm they are correct.</span>
           </label>
         </div>

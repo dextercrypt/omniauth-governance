@@ -9,9 +9,14 @@
  */
 (function () {
   function init() {
-    if (!document.getElementById('omniauth-migration-confirm')) { return; }
+    var confirm = document.getElementById('omniauth-migration-confirm');
+    if (!confirm) { return; }
     var btn = document.querySelector('[name=Submit]') || document.querySelector('button.jenkins-button--primary');
     if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+    confirm.addEventListener('change', function () {
+      var b = document.querySelector('[name=Submit]') || document.querySelector('button.jenkins-button--primary');
+      if (b) { b.disabled = !this.checked; b.style.opacity = this.checked ? '1' : '0.5'; }
+    });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

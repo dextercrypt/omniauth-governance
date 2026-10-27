@@ -123,7 +123,7 @@
                      style="flex:1;font-family:monospace;font-size:1.1em;font-weight:700;letter-spacing:0.08em;padding:10px 14px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:6px;color:var(--text-color);">
                   ${tmpPwd}
                 </div>
-                <button type="button" onclick="copyTmpPwd()"
+                <button type="button" id="udxCopyTmpBtn"
                         class="jenkins-button" style="font-size:0.82em;padding:8px 14px;white-space:nowrap;">
                   Copy
                 </button>
@@ -131,7 +131,7 @@
               <div style="font-size:0.78em;color:var(--error-color);margin-bottom:18px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>This password will not be shown again. Copy it now.
               </div>
-              <button type="button" onclick="document.getElementById('tmpPwdOverlay').style.display='none'"
+              <button type="button" id="udxTmpPwdDone"
                       class="jenkins-button jenkins-button--primary" style="width:100%;font-size:0.88em;">
                 Done — I've copied the password
               </button>
@@ -176,8 +176,8 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div style="font-size:1em;font-weight:700;">Access Assignments</div>
           <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
-            <button type="button" onclick="udxShowAdd()"
-                    class="jenkins-button jenkins-button--primary"
+            <button type="button"
+                    class="jenkins-button jenkins-button--primary js-udx-add"
                     style="font-size:0.85em;">+ Add Access</button>
           </j:if>
         </div>
@@ -189,8 +189,8 @@
                 <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
                 <div style="font-size:0.9em;">No access assigned to this user yet.</div>
                 <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
-                  <button type="button" onclick="udxShowAdd()"
-                          class="jenkins-button jenkins-button--primary"
+                  <button type="button"
+                          class="jenkins-button jenkins-button--primary js-udx-add"
                           style="margin-top:12px;font-size:0.85em;">+ Add Access</button>
                 </j:if>
               </div>
@@ -272,8 +272,16 @@
                           <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                             <j:if test="${!a.global and (header == null or !header.groupManaged)}">
                               <button type="button"
-                                      onclick="udxShowEdit('${a.scope}','${a.displayScope}','${a.roleName}',${a.customPermissionsJson},'${a.expiresAt != null ? a.expiresAt : ''}','${a.accessType}','${a.approverGroup}',${a.maxDurationHours},${a.approvalTimeoutHours})"
-                                      class="jenkins-button"
+                                      class="jenkins-button js-udx-edit"
+                                      data-scope="${a.scope}"
+                                      data-scope-display="${a.displayScope}"
+                                      data-role="${a.roleName}"
+                                      data-perms="${a.customPermissionsJson}"
+                                      data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
+                                      data-access-type="${a.accessType}"
+                                      data-approver-group="${a.approverGroup}"
+                                      data-max-duration="${a.maxDurationHours}"
+                                      data-approval-timeout="${a.approvalTimeoutHours}"
                                       style="font-size:0.78em;padding:3px 10px;">
                                 Edit
                               </button>
@@ -284,8 +292,8 @@
                               <input type="hidden" name="type"  value="${type}"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>
                               <button type="submit"
-                                      onclick="return confirm('Revoke ${a.roleName} on ${a.displayScope}?')"
-                                      class="jenkins-button"
+                                      class="jenkins-button js-udx-revoke"
+                                      data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
                                       style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
@@ -307,7 +315,7 @@
         <!-- ============================================================ -->
         <j:if test="${header == null or !header.groupManaged}">
         <div id="udxDrawer" class="udx-drawer" aria-hidden="true">
-          <div class="udx-drawer__scrim" onclick="udxCloseDrawer()"></div>
+          <div id="udxDrawerScrim" class="udx-drawer__scrim"></div>
           <form id="udxGrantForm" method="post" action="grantAssignment"
                 class="udx-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="udxDrawerTitle">
             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
@@ -320,7 +328,7 @@
                 <div class="udx-drawer__title" id="udxDrawerTitle">Grant access</div>
                 <div class="udx-drawer__sub">to <b>${sid}</b></div>
               </div>
-              <button type="button" class="udx-drawer__x" onclick="udxCloseDrawer()" aria-label="Close" title="Close">
+              <button type="button" id="udxDrawerClose" class="udx-drawer__x" aria-label="Close" title="Close">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
@@ -340,14 +348,14 @@
                   <div id="udxScopeChoose">
                     <div class="udx-seg">
                       <label class="udx-seg__opt">
-                        <input type="radio" name="scopeType" value="global" checked="checked" onchange="udxScopeChange('global')"/>
+                        <input type="radio" name="scopeType" value="global" checked="checked" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
                           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18 15 15 0 010-18z"/></svg>
                           <b>Global</b><small>All of Jenkins</small>
                         </span>
                       </label>
                       <label class="udx-seg__opt">
-                        <input type="radio" name="scopeType" value="item" onchange="udxScopeChange('item')"/>
+                        <input type="radio" name="scopeType" value="item" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
                           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
                           <b>Specific job or folder</b><small>One item + its parents</small>
@@ -357,14 +365,14 @@
                     <div id="udxItemInput" style="display:none;margin-top:12px;">
                       <input id="udxScopeValue" type="hidden" value=""/>
                       <div style="display:flex;align-items:center;gap:8px;max-width:480px;">
-                        <button type="button" id="udxScopeBtn" class="udx-scopebtn" onclick="udxModalOpen()">
+                        <button type="button" id="udxScopeBtn" class="udx-scopebtn">
                           <span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
                             <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
                             <span id="udxScopeLbl" class="udx-scopebtn__ph">Select a job or folder…</span>
                           </span>
                           <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.5;"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
                         </button>
-                        <button type="button" id="udxScopeClear" class="udx-scopeclear" onclick="udxScopeClearFn()" title="Clear selection" style="display:none;">&#x2715;</button>
+                        <button type="button" id="udxScopeClear" class="udx-scopeclear" title="Clear selection" style="display:none;">&#x2715;</button>
                       </div>
                       <div class="udx-hint">Parent folders automatically receive Read access.</div>
                     </div>
@@ -387,12 +395,12 @@
                   <div class="udx-step__d">Apply a saved role, or hand-pick permissions.</div>
 
                   <div class="udx-cards">
-                    <button type="button" id="udxModeRole" class="udx-card" onclick="udxSetMode('role')">
+                    <button type="button" id="udxModeRole" class="udx-card">
                       <span class="udx-card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
                       <span class="udx-card__tt">Use a role</span>
                       <span class="udx-card__ds">Pick a saved preset</span>
                     </button>
-                    <button type="button" id="udxModeCustom" class="udx-card" onclick="udxSetMode('custom')">
+                    <button type="button" id="udxModeCustom" class="udx-card">
                       <span class="udx-card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
                       <span class="udx-card__tt">Custom permissions</span>
                       <span class="udx-card__ds">Hand-pick individually</span>
@@ -403,7 +411,7 @@
                   <div id="udxRoleRow" style="display:none;margin-top:14px;">
                     <div class="udx-fieldlabel">Role</div>
                     <div class="udx-select-wrap">
-                      <select name="role" id="udxRoleSelect" class="udx-select" onchange="udxRoleChange()">
+                      <select name="role" id="udxRoleSelect" class="udx-select">
                         <j:forEach var="r" items="${roles}">
                           <option value="${r.name}" data-perms="${r.permissionsJson}">${r.name} · ${r.permissionCount} permissions</option>
                         </j:forEach>
@@ -422,7 +430,7 @@
                     <div class="udx-pickhead">
                       <div class="udx-search">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-                        <input type="text" id="udxPermFilter" placeholder="Filter permissions…" autocomplete="off" oninput="udxPermFilterFn(this.value)"/>
+                        <input type="text" id="udxPermFilter" placeholder="Filter permissions…" autocomplete="off"/>
                       </div>
                       <span class="udx-count" id="udxPermCount">0 selected</span>
                     </div>
@@ -433,14 +441,13 @@
                           <summary class="udx-psum">
                             <span class="udx-arr">&#9656;</span>
                             <span class="udx-pgname">${group.groupName}<j:if test="${group.subtitle != null and group.subtitle != ''}"><small>${group.subtitle}</small></j:if></span>
-                            <span class="udx-selall" onclick="udxToggleGroup(event, this)">Select all</span>
+                            <span class="udx-selall">Select all</span>
                           </summary>
                           <div class="udx-pbody">
                             <j:forEach var="perm" items="${group.permissions}">
                               <label class="udx-perm">
                                 <input type="checkbox" class="udx-perm-cb" name="customPermissions" value="${perm.id}"
-                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"
-                                       onchange="udxPermChanged()"/>
+                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"/>
                                 <span class="udx-perm__tx">
                                   <span class="udx-perm__nm">${perm.name}</span>
                                   <span class="udx-perm__id">${perm.shortId}</span>
@@ -461,8 +468,7 @@
                 <div class="udx-step__c">
                   <div class="udx-step__t">Expiry <span class="udx-opt">optional</span></div>
                   <div class="udx-step__d">Automatically revoke at the end of a chosen day.</div>
-                  <input type="date" name="expiresAt" id="udxExpiresAt" class="udx-date"
-                         onchange="udxUpdateExpiryHint(this.value,'udxExpiryHint');udxUpdateSummary()"/>
+                  <input type="date" name="expiresAt" id="udxExpiresAt" class="udx-date"/>
                   <div id="udxExpiryHint" class="udx-hint">No expiry — access stays until revoked.</div>
                 </div>
               </section>
@@ -475,13 +481,13 @@
                   <div class="udx-step__d">How the user gets this access.</div>
                   <div class="udx-seg udx-seg--stack">
                     <label class="udx-seg__opt">
-                      <input type="radio" name="accessType" value="STANDING" checked="checked" onchange="udxAccessTypeChange('STANDING')"/>
+                      <input type="radio" name="accessType" value="STANDING" checked="checked" class="js-udx-accesstype"/>
                       <span class="udx-seg__face udx-seg__face--row">
                         <b>Standing</b><small>Permanent access while the assignment is active.</small>
                       </span>
                     </label>
                     <label class="udx-seg__opt">
-                      <input type="radio" name="accessType" value="JIT" onchange="udxAccessTypeChange('JIT')"/>
+                      <input type="radio" name="accessType" value="JIT" class="js-udx-accesstype"/>
                       <span class="udx-seg__face udx-seg__face--row">
                         <b style="display:inline-flex;align-items:center;gap:4px;">JIT <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg></b>
                         <small>User must request activation; an approver must approve before access is granted.</small>
@@ -496,10 +502,7 @@
                       <div id="udxApproverChips" class="udx-chipbox"></div>
                       <div style="position:relative;">
                         <input type="text" id="udxApproverInput" class="udx-input" style="width:100%;box-sizing:border-box;"
-                               placeholder="Type email or username and press Enter…" autocomplete="off"
-                               oninput="udxChipSearch(this.value,'udxApproverDrop','udxApproverChips','udxApprovers')"
-                               onkeydown="udxChipKeydown(event,'udxApproverInput','udxApproverDrop','udxApproverChips','udxApprovers')"
-                               onblur="setTimeout(function(){var d=document.getElementById('udxApproverDrop');if(d)d.style.display='none'},200)"/>
+                               placeholder="Type email or username and press Enter…" autocomplete="off"/>
                         <div id="udxApproverDrop" class="udx-suggest-drop" style="display:none;"></div>
                       </div>
                       <input type="hidden" name="approvers" id="udxApprovers" value=""/>
@@ -508,13 +511,13 @@
                     <div style="display:flex;gap:16px;flex-wrap:wrap;">
                       <div style="flex:1;min-width:120px;">
                         <div class="udx-fieldlabel">Max duration (h)</div>
-                        <input type="number" onwheel="this.blur()" name="maxDurationHours" id="udxMaxDuration"
+                        <input type="number" name="maxDurationHours" id="udxMaxDuration"
                                class="udx-input" style="width:100%;" value="4" min="1" max="168"/>
                         <div class="udx-hint">Max hours a user can request.</div>
                       </div>
                       <div style="flex:1;min-width:120px;">
                         <div class="udx-fieldlabel">Approval timeout (h)</div>
-                        <input type="number" onwheel="this.blur()" name="approvalTimeoutHours" id="udxApprovalTimeout"
+                        <input type="number" name="approvalTimeoutHours" id="udxApprovalTimeout"
                                class="udx-input" style="width:100%;" value="4" min="1" max="48"/>
                         <div class="udx-hint">Hours before a pending request auto-denies.</div>
                       </div>
@@ -529,7 +532,7 @@
             <footer class="udx-drawer__foot">
               <div class="udx-summary" id="udxSummary">Choose a scope and what to grant.</div>
               <div class="udx-drawer__actions">
-                <button type="button" class="jenkins-button" onclick="udxCloseDrawer()">Cancel</button>
+                <button type="button" id="udxDrawerCancel" class="jenkins-button">Cancel</button>
                 <button type="submit" class="jenkins-button jenkins-button--primary" id="udxSubmitBtn">Grant access</button>
               </div>
             </footer>
@@ -570,8 +573,8 @@
           Consider removing the global Admin role first if you intend to restrict this user to a specific scope.
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button type="button" onclick="udxConflictCancel()" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
-          <button type="button" onclick="udxConflictProceed()"
+          <button type="button" id="udxConflictCancelBtn" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
+          <button type="button" id="udxConflictProceedBtn"
                   style="font-size:0.88em;padding:7px 16px;border-radius:6px;cursor:pointer;
                          background:var(--warning-color);color:#fff;border:1px solid var(--warning-color);font-weight:600;">
             Add Anyway
@@ -581,7 +584,7 @@
     </div>
 
     <!-- Scope picker modal -->
-    <div id="udxScopeModal" onclick="if(event.target===this)udxModalClose()"
+    <div id="udxScopeModal"
          style="display:flex;opacity:0;pointer-events:none;position:fixed;inset:0;z-index:9999;
                 background:rgba(15,20,30,0.5);backdrop-filter:blur(3px);
                 align-items:center;justify-content:center;transition:opacity 0.32s;">
@@ -597,12 +600,10 @@
             <div style="font-size:1.05em;font-weight:700;color:var(--text-color);letter-spacing:-0.02em;">Select Job or Folder</div>
             <div style="font-size:0.8em;color:#aaa;margin-top:3px;font-weight:400;">Choose where to apply this access grant</div>
           </div>
-          <button type="button" onclick="udxModalClose()"
+          <button type="button" id="udxScopeModalClose"
                   style="background:none;border:none;cursor:pointer;width:34px;height:34px;
                          border-radius:8px;font-size:1.1em;color:#bbb;display:flex;
-                         align-items:center;justify-content:center;flex-shrink:0;transition:background 0.12s,color 0.12s;"
-                  onmouseenter="this.style.background='var(--oau-card-border)';this.style.color='#333'"
-                  onmouseleave="this.style.background='none';this.style.color='#bbb'">&#x2715;</button>
+                         align-items:center;justify-content:center;flex-shrink:0;transition:background 0.12s,color 0.12s;">&#x2715;</button>
         </div>
 
         <!-- Search -->
@@ -612,10 +613,7 @@
             <input id="udxModalSearch" type="text" placeholder="Search jobs and folders…"
                    style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;
                           border:1.5px solid var(--oau-card-border);border-radius:9px;font-size:0.93em;
-                          outline:none;transition:border-color 0.15s,box-shadow 0.15s;color:#222;background:var(--oau-neutral-bg);"
-                   oninput="udxModalFilter(this.value)"
-                   onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(26,115,232,0.12)';this.style.background='#fff'"
-                   onblur="this.style.borderColor='var(--oau-card-border)';this.style.boxShadow='none';this.style.background='var(--oau-neutral-bg)'"/>
+                          outline:none;transition:border-color 0.15s,box-shadow 0.15s;color:#222;background:var(--oau-neutral-bg);"/>
           </div>
         </div>
 
@@ -633,9 +631,9 @@
                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nothing selected</div>
           </div>
           <div style="display:flex;gap:8px;flex-shrink:0;">
-            <button type="button" onclick="udxModalClose()"
+            <button type="button" id="udxModalCancel"
                     class="jenkins-button" style="font-size:0.88em;padding:8px 18px;">Cancel</button>
-            <button type="button" id="udxModalOk" onclick="udxModalConfirm()"
+            <button type="button" id="udxModalOk"
                     class="jenkins-button jenkins-button--primary"
                     style="font-size:0.88em;padding:8px 18px;" disabled="disabled">Select &#8594;</button>
           </div>

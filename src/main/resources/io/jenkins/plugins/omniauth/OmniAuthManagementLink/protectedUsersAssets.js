@@ -82,6 +82,16 @@
       } catch (_) {}
     });
 
+    // ── Search filter controls (replaces inline on* attributes for CSP) ──
+    var userFilter = document.getElementById('userFilter');
+    if (userFilter) {
+      userFilter.addEventListener('input', function() {
+        oauFilterUsers(this.value);
+      });
+    }
+    var clearFilterBtn = document.getElementById('clearFilter');
+    if (clearFilterBtn) clearFilterBtn.addEventListener('click', oauClearFilter);
+
     refreshBadge();
   }
   if (document.readyState === 'loading') {

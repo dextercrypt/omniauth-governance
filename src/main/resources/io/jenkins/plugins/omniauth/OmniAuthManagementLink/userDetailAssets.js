@@ -10,10 +10,10 @@
  */
 
 // ── Temp-password modal copy button ─────────────────────────────────
-function copyTmpPwd() {
+function copyTmpPwd(e) {
+  var btn = e.currentTarget;
   var pwd = document.getElementById('tmpPwdVal').textContent.trim();
   navigator.clipboard.writeText(pwd).then(function() {
-    var btn = event.target;
     btn.textContent = 'Copied!';
     setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
   });
@@ -774,6 +774,7 @@ function udxInit() {
       group: cb.getAttribute('data-group') || 'Other',
       short: cb.getAttribute('data-short') || cb.value
     };
+    cb.addEventListener('change', udxPermChanged);
   });
 
   // Block a scoped grant for a user who already has global Admin (add only).
@@ -809,6 +810,134 @@ function udxInit() {
       el.textContent = dateStr;
     }
   });
+
+  // ── Event-handler wiring (CSP: no inline on* attributes) ────────────
+  // Each listener reproduces exactly what the old inline handler did.
+  function wire(id, evt, fn) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener(evt, fn);
+  }
+
+  // Temp-password modal
+  wire('udxCopyTmpBtn', 'click', copyTmpPwd);
+  wire('udxTmpPwdDone', 'click', function() {
+    var ov = document.getElementById('tmpPwdOverlay');
+    if (ov) ov.style.display = 'none';
+  });
+
+  // Add Access buttons (header + empty state)
+  document.querySelectorAll('.js-udx-add').forEach(function(btn) {
+    btn.addEventListener('click', udxShowAdd);
+  });
+
+  // Edit assignment buttons (per-row; args come from data-* attributes)
+  document.querySelectorAll('.js-udx-edit').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var perms = [];
+      try { perms = JSON.parse(this.dataset.perms || '[]'); } catch (e) { perms = []; }
+      udxShowEdit(this.dataset.scope, this.dataset.scopeDisplay, this.dataset.role, perms,
+        this.dataset.expires, this.dataset.accessType, this.dataset.approverGroup,
+        this.dataset.maxDuration, this.dataset.approvalTimeout);
+    });
+  });
+
+  // Revoke assignment buttons (per-row; destructive — confirm blocks submit on Cancel)
+  document.querySelectorAll('.js-udx-revoke').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      if (!confirm(this.dataset.confirm)) e.preventDefault();
+    });
+  });
+
+  // Drawer open / close
+  wire('udxDrawerScrim', 'click', udxCloseDrawer);
+  wire('udxDrawerClose', 'click', udxCloseDrawer);
+  wire('udxDrawerCancel', 'click', udxCloseDrawer);
+
+  // Scope-type radios (value matches the old literal arg)
+  document.querySelectorAll('.js-udx-scopetype').forEach(function(r) {
+    r.addEventListener('change', function() { udxScopeChange(this.value); });
+  });
+
+  // Scope picker open / clear
+  wire('udxScopeBtn', 'click', udxModalOpen);
+  wire('udxScopeClear', 'click', udxScopeClearFn);
+
+  // What-to-grant mode cards
+  wire('udxModeRole', 'click', function() { udxSetMode('role'); });
+  wire('udxModeCustom', 'click', function() { udxSetMode('custom'); });
+
+  // Role select
+  wire('udxRoleSelect', 'change', udxRoleChange);
+
+  // Custom permission filter
+  wire('udxPermFilter', 'input', function() { udxPermFilterFn(this.value); });
+
+  // Select-all per permission group
+  document.querySelectorAll('.udx-selall').forEach(function(sa) {
+    sa.addEventListener('click', function(e) { udxToggleGroup(e, this); });
+  });
+
+  // Expiry date
+  wire('udxExpiresAt', 'change', function() {
+    udxUpdateExpiryHint(this.value, 'udxExpiryHint');
+    udxUpdateSummary();
+  });
+
+  // Access-type radios (value matches the old literal arg)
+  document.querySelectorAll('.js-udx-accesstype').forEach(function(r) {
+    r.addEventListener('change', function() { udxAccessTypeChange(this.value); });
+  });
+
+  // Approver chip input
+  wire('udxApproverInput', 'input', function() {
+    udxChipSearch(this.value, 'udxApproverDrop', 'udxApproverChips', 'udxApprovers');
+  });
+  wire('udxApproverInput', 'keydown', function(e) {
+    udxChipKeydown(e, 'udxApproverInput', 'udxApproverDrop', 'udxApproverChips', 'udxApprovers');
+  });
+  wire('udxApproverInput', 'blur', function() {
+    setTimeout(function() {
+      var d = document.getElementById('udxApproverDrop');
+      if (d) d.style.display = 'none';
+    }, 200);
+  });
+
+  // JIT number inputs: a wheel scroll must not nudge the value
+  wire('udxMaxDuration', 'wheel', function() { this.blur(); });
+  wire('udxApprovalTimeout', 'wheel', function() { this.blur(); });
+
+  // Global-admin conflict modal
+  wire('udxConflictCancelBtn', 'click', udxConflictCancel);
+  wire('udxConflictProceedBtn', 'click', udxConflictProceed);
+
+  // Scope picker modal: backdrop click, close (with hover), search, cancel, confirm
+  wire('udxScopeModal', 'click', function(e) { if (e.target === this) udxModalClose(); });
+  wire('udxScopeModalClose', 'click', udxModalClose);
+  var scopeModalCloseBtn = document.getElementById('udxScopeModalClose');
+  if (scopeModalCloseBtn) {
+    scopeModalCloseBtn.addEventListener('mouseenter', function() {
+      this.style.background = 'var(--oau-card-border)'; this.style.color = '#333';
+    });
+    scopeModalCloseBtn.addEventListener('mouseleave', function() {
+      this.style.background = 'none'; this.style.color = '#bbb';
+    });
+  }
+  wire('udxModalSearch', 'input', function() { udxModalFilter(this.value); });
+  var modalSearch = document.getElementById('udxModalSearch');
+  if (modalSearch) {
+    modalSearch.addEventListener('focus', function() {
+      this.style.borderColor = 'var(--blue)';
+      this.style.boxShadow = '0 0 0 3px rgba(26,115,232,0.12)';
+      this.style.background = '#fff';
+    });
+    modalSearch.addEventListener('blur', function() {
+      this.style.borderColor = 'var(--oau-card-border)';
+      this.style.boxShadow = 'none';
+      this.style.background = 'var(--oau-neutral-bg)';
+    });
+  }
+  wire('udxModalCancel', 'click', udxModalClose);
+  wire('udxModalOk', 'click', udxModalConfirm);
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', udxInit);

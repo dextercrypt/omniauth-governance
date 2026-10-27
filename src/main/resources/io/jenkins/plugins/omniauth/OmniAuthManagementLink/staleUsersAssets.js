@@ -62,6 +62,46 @@ document.addEventListener('keydown', function(e) {
 
 (function () {
   function init() {
+    // ── Run-cleanup buttons ─────────────────────────────────────────────
+    document.querySelectorAll('.js-oau-cleanup').forEach(function(el) {
+      el.addEventListener('click', function() {
+        oauShowCleanupModal(this.dataset.dryrun === 'true');
+      });
+    });
+
+    // ── Delete buttons (per-row) ────────────────────────────────────────
+    document.querySelectorAll('.js-oau-delete').forEach(function(el) {
+      el.addEventListener('click', function() {
+        oauShowDeleteModal(this);
+      });
+    });
+
+    // ── Cleanup modal controls ──────────────────────────────────────────
+    var cleanupModal = document.getElementById('oauCleanupModal');
+    if (cleanupModal) {
+      cleanupModal.addEventListener('click', function(e) {
+        if (e.target === this) oauCloseCleanupModal();
+      });
+    }
+    document.querySelectorAll('.js-oau-cleanup-cancel').forEach(function(el) {
+      el.addEventListener('click', oauCloseCleanupModal);
+    });
+    document.querySelectorAll('.js-oau-cleanup-submit').forEach(function(el) {
+      el.addEventListener('click', oauSubmitCleanup);
+    });
+
+    // ── Delete modal controls ───────────────────────────────────────────
+    var deleteModal = document.getElementById('oauDeleteModal');
+    if (deleteModal) {
+      deleteModal.addEventListener('click', function(e) {
+        if (e.target === this) oauCloseDeleteModal();
+      });
+    }
+    var deleteCancel = document.getElementById('oauDeleteCancelBtn');
+    if (deleteCancel) deleteCancel.addEventListener('click', oauCloseDeleteModal);
+    var deleteConfirmInput = document.getElementById('oauDeleteConfirmInput');
+    if (deleteConfirmInput) deleteConfirmInput.addEventListener('input', oauCheckDeleteConfirm);
+
     // ── History drawer toggle ──────────────────────────────────────────
     (function() {
       var toggle  = document.getElementById('oauHistoryToggle');

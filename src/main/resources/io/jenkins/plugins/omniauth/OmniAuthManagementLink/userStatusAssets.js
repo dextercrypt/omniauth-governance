@@ -133,6 +133,50 @@ function usInit() {
     if (e.key === 'Escape') { usCloseMenus(); usCloseD(); usPDClose(); }
   });
 
+  // ── Event wiring (was inline on* handlers; moved here for CSP) ────────
+  var q = document.getElementById('usQ');
+  if (q) q.addEventListener('input', usFilter);
+
+  document.querySelectorAll('.us-pill[data-fg]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      usSetFilter(this.dataset.fg, this.dataset.fv, this);
+    });
+  });
+
+  document.querySelectorAll('#usTbody .us-row').forEach(function(row) {
+    row.addEventListener('click', function(e) { usOpen(e, this.dataset.uid); });
+  });
+
+  document.querySelectorAll('#usTbody .js-us-stop').forEach(function(td) {
+    td.addEventListener('click', function(e) { e.stopPropagation(); });
+  });
+
+  document.querySelectorAll('.us-kebab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { usToggleMenu(e, this); });
+  });
+
+  document.querySelectorAll('.js-us-unmark').forEach(function(btn) {
+    btn.addEventListener('click', function() { usUnmark(this); });
+  });
+  document.querySelectorAll('.js-us-mark').forEach(function(btn) {
+    btn.addEventListener('click', function() { usMark(this); });
+  });
+  document.querySelectorAll('.js-us-delete').forEach(function(btn) {
+    btn.addEventListener('click', function() { usDelete(this); });
+  });
+
+  var dModal = document.getElementById('usDModal');
+  if (dModal) dModal.addEventListener('click', function(e) { if (e.target === this) usCloseD(); });
+  var dInput = document.getElementById('usDInput');
+  if (dInput) dInput.addEventListener('input', usDCheck);
+  var dCancel = document.getElementById('usDCancel');
+  if (dCancel) dCancel.addEventListener('click', usCloseD);
+
+  var pdModal = document.getElementById('usPDModal');
+  if (pdModal) pdModal.addEventListener('click', function(e) { if (e.target === this) usPDClose(); });
+  var pdOk = document.getElementById('usPDOk');
+  if (pdOk) pdOk.addEventListener('click', usPDClose);
+
   // Pending-deletion info modal
   var params = new URLSearchParams(window.location.search);
   if (params.get('info') === 'pendingDeletion') {

@@ -88,8 +88,7 @@
                         </j:when>
                         <j:otherwise>
                           <button type="button"
-                                  class="jenkins-button jenkins-button--danger jenkins-button--small"
-                                  onclick="oauShowRevokeModal(this)"
+                                  class="jenkins-button jenkins-button--danger jenkins-button--small js-oau-revoke"
                                   data-sessionid="${s.sessionId}"
                                   data-userid="${s.userId}"
                                   data-crumb-field="${app.crumbRequestField}"
@@ -109,7 +108,7 @@
       </div>
 
       <!-- REVOKE MODAL -->
-      <div id="oauRevokeModal" class="oau-modal-backdrop" style="display:none;" onclick="if(event.target===this)oauCloseRevokeModal()">
+      <div id="oauRevokeModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div class="oau-modal-header oau-modal-header--danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -124,7 +123,7 @@
             </p>
           </div>
           <div class="oau-modal-footer">
-            <button type="button" class="jenkins-button" onclick="oauCloseRevokeModal()">Cancel</button>
+            <button type="button" class="jenkins-button" id="oauRevokeCancelBtn">Cancel</button>
             <button type="button" class="jenkins-button jenkins-button--danger" id="oauRevokeConfirmBtn">Revoke</button>
           </div>
         </div>

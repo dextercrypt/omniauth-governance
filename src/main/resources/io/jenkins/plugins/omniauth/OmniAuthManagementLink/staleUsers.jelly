@@ -15,16 +15,16 @@
         <div class="jenkins-app-bar__controls">
           <j:choose>
             <j:when test="${it.omniAuthGlobalConfig.cleanupDryRun}">
-              <button type="button" class="jenkins-button jenkins-button--primary"
-                      onclick="oauShowCleanupModal(true)"
+              <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
+                      data-dryrun="true"
                       title="Dry-run mode is ON — no users will be deleted">
                 Run Cleanup Now
                 <span style="font-size:0.78em;font-weight:500;opacity:0.85;">(Dry-run)</span>
               </button>
             </j:when>
             <j:otherwise>
-              <button type="button" class="jenkins-button jenkins-button--primary"
-                      onclick="oauShowCleanupModal(false)">
+              <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
+                      data-dryrun="false">
                 Run Cleanup Now
               </button>
             </j:otherwise>
@@ -183,8 +183,7 @@
                       </td>
                       <td>
                         <button type="button"
-                                class="jenkins-button jenkins-button--danger jenkins-button--small"
-                                onclick="oauShowDeleteModal(this)"
+                                class="jenkins-button jenkins-button--danger jenkins-button--small js-oau-delete"
                                 data-userid="${u.userId}"
                                 data-crumb-field="${app.crumbRequestField}"
                                 data-crumb-value="${app.crumb}">
@@ -280,8 +279,7 @@
                           </j:when>
                           <j:otherwise>
                             <button type="button"
-                                    class="jenkins-button jenkins-button--danger jenkins-button--small"
-                                    onclick="oauShowDeleteModal(this)"
+                                    class="jenkins-button jenkins-button--danger jenkins-button--small js-oau-delete"
                                     data-userid="${u.userId}"
                                     data-crumb-field="${app.crumbRequestField}"
                                     data-crumb-value="${app.crumb}">
@@ -389,7 +387,7 @@
       <!-- ================================================================
            CLEANUP MODAL
            ================================================================ -->
-      <div id="oauCleanupModal" class="oau-modal-backdrop" style="display:none;" onclick="if(event.target===this)oauCloseCleanupModal()">
+      <div id="oauCleanupModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div id="oauModalDryRun">
             <div class="oau-modal-header oau-modal-header--warn">
@@ -407,8 +405,8 @@
               </div>
             </div>
             <div class="oau-modal-footer">
-              <button type="button" class="jenkins-button" onclick="oauCloseCleanupModal()">Cancel</button>
-              <button type="button" class="jenkins-button jenkins-button--primary" onclick="oauSubmitCleanup()">Run Dry-run</button>
+              <button type="button" class="jenkins-button js-oau-cleanup-cancel">Cancel</button>
+              <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup-submit">Run Dry-run</button>
             </div>
           </div>
           <div id="oauModalLive">
@@ -428,8 +426,8 @@
               </div>
             </div>
             <div class="oau-modal-footer">
-              <button type="button" class="jenkins-button" onclick="oauCloseCleanupModal()">Cancel</button>
-              <button type="button" class="jenkins-button jenkins-button--danger" onclick="oauSubmitCleanup()">Delete Stale Users</button>
+              <button type="button" class="jenkins-button js-oau-cleanup-cancel">Cancel</button>
+              <button type="button" class="jenkins-button jenkins-button--danger js-oau-cleanup-submit">Delete Stale Users</button>
             </div>
           </div>
         </div>
@@ -438,7 +436,7 @@
       <!-- ================================================================
            DELETE USER MODAL
            ================================================================ -->
-      <div id="oauDeleteModal" class="oau-modal-backdrop" style="display:none;" onclick="if(event.target===this)oauCloseDeleteModal()">
+      <div id="oauDeleteModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div class="oau-modal-header oau-modal-header--danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -462,11 +460,10 @@
                    class="jenkins-input"
                    placeholder="Type username to confirm"
                    autocomplete="off"
-                   oninput="oauCheckDeleteConfirm()"
                    style="width:100%;box-sizing:border-box;"/>
           </div>
           <div class="oau-modal-footer">
-            <button type="button" class="jenkins-button" onclick="oauCloseDeleteModal()">Cancel</button>
+            <button type="button" class="jenkins-button" id="oauDeleteCancelBtn">Cancel</button>
             <button type="button" class="jenkins-button jenkins-button--danger" id="oauDeleteConfirmBtn" disabled="true">Delete</button>
           </div>
         </div>

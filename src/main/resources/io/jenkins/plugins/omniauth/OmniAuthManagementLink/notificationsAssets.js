@@ -229,6 +229,43 @@ function oauInitNotifications() {
   oauToggleWebhook('teamsEnabled', 'teamsConfig');
   oauToggleSection('staleWarningEnabled', 'staleWarningConfig');
 
+  // --- CSP: wire event handlers (replaces former inline on* attributes) ---
+  var master = document.getElementById('notificationsEnabled');
+  if (master) master.addEventListener('change', oauToggleMaster);
+
+  var customLogo = document.getElementById('oauUseCustomLogo');
+  if (customLogo) customLogo.addEventListener('change', function() { oauToggleCustomLogo(this); });
+
+  var previewBtn = document.getElementById('oauPreviewBtn');
+  if (previewBtn) previewBtn.addEventListener('click', oauPreviewEmail);
+
+  var previewEventType = document.getElementById('oauPreviewEventType');
+  if (previewEventType) previewEventType.addEventListener('change', oauReloadPreview);
+
+  var previewCloseBtn = document.getElementById('oauPreviewCloseBtn');
+  if (previewCloseBtn) previewCloseBtn.addEventListener('click', oauClosePreview);
+
+  var sendTestEmailBtn = document.getElementById('oauSendTestEmailBtn');
+  if (sendTestEmailBtn) sendTestEmailBtn.addEventListener('click', function() { oauSendTestEmail(this); });
+
+  document.querySelectorAll('.js-oau-test-webhook').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      oauTestWebhook(this, this.dataset.urlField, this.dataset.endpoint, this.dataset.result);
+    });
+  });
+
+  document.querySelectorAll('.js-oau-webhook-toggle').forEach(function(cb) {
+    cb.addEventListener('change', function() { oauToggleWebhook(this.id, this.dataset.config); });
+  });
+
+  document.querySelectorAll('.js-oau-section-toggle').forEach(function(cb) {
+    cb.addEventListener('change', function() { oauToggleSection(this.id, this.dataset.section); });
+  });
+
+  document.querySelectorAll('.js-oau-no-wheel').forEach(function(el) {
+    el.addEventListener('wheel', function() { this.blur(); });
+  });
+
   var previewModal = document.getElementById('oauPreviewModal');
   if (previewModal) {
     previewModal.addEventListener('click', function(e) {

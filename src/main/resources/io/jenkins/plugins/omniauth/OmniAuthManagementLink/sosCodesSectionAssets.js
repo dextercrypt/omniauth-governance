@@ -96,6 +96,22 @@ function sosContinue() {
       document.getElementById('sos-regen-modal').style.display = 'none';
       sosDoGenerate();
     });
+
+    // --- CSP: wire event handlers (replaces former inline on* attributes) ---
+    var regenBtn = document.getElementById('sos-regen-btn');
+    if (regenBtn) regenBtn.addEventListener('click', function() { sosGenerate(true); });
+    var generateBtn = document.getElementById('sos-generate-btn');
+    if (generateBtn) generateBtn.addEventListener('click', function() { sosGenerate(false); });
+    var copyBtn = document.getElementById('sos-copy-btn');
+    if (copyBtn) copyBtn.addEventListener('click', sosCopy);
+    var downloadBtn = document.getElementById('sos-download-btn');
+    if (downloadBtn) downloadBtn.addEventListener('click', sosDownload);
+    var savedAck = document.getElementById('sos-saved-ack');
+    if (savedAck) savedAck.addEventListener('change', function() {
+      document.getElementById('sos-continue-btn').disabled = !this.checked;
+    });
+    var continueBtn = document.getElementById('sos-continue-btn');
+    if (continueBtn) continueBtn.addEventListener('click', sosContinue);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

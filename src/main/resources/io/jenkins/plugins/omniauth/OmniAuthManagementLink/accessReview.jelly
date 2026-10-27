@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.accessReviewAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -74,9 +75,9 @@
             <j:if test="${!items.isEmpty()}">
               <form method="post" action="confirmAllAccess" style="margin:0;">
                 <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-                <button type="submit" class="jenkins-button"
+                <button type="submit" class="jenkins-button js-ar-keepall"
                         style="background:var(--warning-color);color:#fff;border-color:var(--warning-color);font-weight:600;"
-                        onclick="return confirm('Keep all ${items.size()} overdue assignments?')">
+                        data-confirm="Keep all ${items.size()} overdue assignments?">
                   &#10003; Keep All
                 </button>
               </form>
@@ -112,9 +113,7 @@
                 </thead>
                 <tbody>
                   <j:forEach var="item" items="${items}">
-                    <tr style="border-bottom:1px solid var(--oau-card-border); transition:background 0.1s;"
-                        onmouseover="this.style.background='var(--oau-neutral-bg)'"
-                        onmouseout="this.style.background=''">
+                    <tr class="js-ar-row" style="border-bottom:1px solid var(--oau-card-border); transition:background 0.1s;">
 
                       <!-- User / Group cell -->
                       <td style="padding:10px 16px;">
@@ -202,7 +201,7 @@
                           </button>
                         </form>
                         <form method="post" action="revokeFromReview" style="display:inline;margin-left:4px;"
-                              onsubmit="return confirm('Revoke access for ${item.displayName}?')">
+                              class="js-ar-revoke" data-confirm="Revoke access for ${item.displayName}?">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="sid"   value="${item.userId}"/>
                           <input type="hidden" name="type"  value="${item.authType}"/>

@@ -44,9 +44,9 @@
               <j:if test="${!entries.isEmpty()}">
                 <form method="post" action="clearNotificationLog" style="margin: 0;">
                   <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-                  <button type="submit" class="jenkins-button"
+                  <button type="submit" class="jenkins-button" id="oauClearLogBtn"
                           style="font-size: 0.85em;"
-                          onclick="return confirm('Clear all notification log entries?')">
+                          data-confirm="Clear all notification log entries?">
                     Clear log
                   </button>
                 </form>
@@ -119,11 +119,11 @@
                                         display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
               <span id="pageInfo" style="font-size: 0.82em; color: var(--text-color-secondary);"></span>
               <div style="display: flex; gap: 6px;">
-                <button id="btnFirst" class="jenkins-button" style="font-size:0.82em; padding:4px 10px;" onclick="goPage(1)">&#171; First</button>
-                <button id="btnPrev"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;" onclick="goPage(currentPage - 1)">&#8249; Prev</button>
+                <button id="btnFirst" class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">&#171; First</button>
+                <button id="btnPrev"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">&#8249; Prev</button>
                 <span id="pageButtons" style="display:flex; gap:4px;"></span>
-                <button id="btnNext"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;" onclick="goPage(currentPage + 1)">Next &#8250;</button>
-                <button id="btnLast"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;" onclick="goPage(totalPages)">Last &#187;</button>
+                <button id="btnNext"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">Next &#8250;</button>
+                <button id="btnLast"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">Last &#187;</button>
               </div>
             </div>
           </j:if>

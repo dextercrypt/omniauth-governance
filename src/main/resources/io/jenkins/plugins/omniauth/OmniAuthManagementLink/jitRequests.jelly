@@ -126,8 +126,10 @@
                             </button>
                           </form>
                           <button type="button"
-                                  onclick="openDenyModal('${r.requestId}', '${r.requesterId}', '${r.scope}')"
-                                  class="jenkins-button"
+                                  class="jenkins-button js-jit-deny"
+                                  data-request-id="${r.requestId}"
+                                  data-requester-id="${r.requesterId}"
+                                  data-scope="${r.scope}"
                                   style="font-size:0.78em;padding:4px 12px;color:var(--error-color);border-color:var(--error-color);display:inline-flex;align-items:center;gap:4px;">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>Deny
                           </button>
@@ -216,8 +218,8 @@
                             <form method="post" action="revokeActiveJit" style="display:inline;">
                               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
-                              <button type="submit" class="jenkins-button"
-                                      onclick="return confirm('Revoke active JIT access for ${r.requesterId}?')"
+                              <button type="submit" class="jenkins-button js-jit-revoke"
+                                      data-confirm="Revoke active JIT access for ${r.requesterId}?"
                                       style="font-size:0.75em;padding:3px 9px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
@@ -236,7 +238,7 @@
       </div>
 
       <!-- Deny modal -->
-      <div id="jitDenyBackdrop" onclick="closeDenyModal()"
+      <div id="jitDenyBackdrop"
            style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.35);z-index:9998;"></div>
       <div id="jitDenyModal"
            style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -255,7 +257,7 @@
             <div style="font-size:0.74em;color:#aaa;margin-top:3px;">Optional but recommended — shown to the requester.</div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button type="button" onclick="closeDenyModal()" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
+            <button type="button" id="jitDenyCancel" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
             <button type="submit" class="jenkins-button"
                     style="font-size:0.88em;color:var(--error-color);border-color:var(--error-color);">Confirm Deny</button>
           </div>

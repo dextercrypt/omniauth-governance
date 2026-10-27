@@ -149,3 +149,19 @@ document.addEventListener('visibilitychange', function() {
   if (document.hidden) { if (OAU_TIMER) { clearInterval(OAU_TIMER); OAU_TIMER = null; } }
   else if (OAU_LIVE && !OAU_TIMER) { oauStartLive(); }
 });
+
+// ---- Wire control handlers (replaces inline on* attributes for CSP) ----
+oauOnReady(function() {
+  var liveToggle = document.getElementById('oauLiveToggle');
+  if (liveToggle) liveToggle.addEventListener('click', oauToggleLive);
+
+  document.querySelectorAll('.js-oau-dismiss-warning').forEach(function(el) {
+    el.addEventListener('click', oauDismissWarning);
+  });
+
+  document.querySelectorAll('.js-oau-dismiss-weekly').forEach(function(el) {
+    el.addEventListener('click', function() {
+      oauDismissWeekly(this.dataset.key);
+    });
+  });
+});
