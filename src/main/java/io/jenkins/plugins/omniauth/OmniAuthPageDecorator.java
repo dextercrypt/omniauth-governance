@@ -73,211 +73,16 @@ public class OmniAuthPageDecorator {
         + "<path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4"
         + "a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z\" clip-rule=\"evenodd\"/></svg>";
 
-    // Injected on job/folder Configure pages — grays out the per-item matrix section
-    private static final String JOB_CONFIGURE_SCRIPT =
-        "<script>(function(){" +
-        "try{" +
-        "if(!window.location.pathname.match(/\\/configure$/))return;" +
-        "function run(){" +
-        "var cb=document.querySelector('input[name=\"useProjectSecurity\"]');" +
-        "if(!cb)return;" +
-        "var c=cb.closest('.optionalBlock-container');" +
-        "if(!c){c=cb.parentElement;var d=0;while(c){if(c.classList&&(c.classList.contains('jenkins-form-item')||c.classList.contains('optionalBlock-container')))break;c=c.parentElement;if(++d>10){c=null;break;}}}" +
-        "if(!c)return;" +
-        "var w=document.createElement('div');" +
-        "w.style.cssText='position:relative;margin-bottom:4px;';" +
-        "c.parentNode.insertBefore(w,c);" +
-        "w.appendChild(c);" +
-        "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
-        "var b=document.createElement('div');" +
-        "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;gap:8px;';" +
-        "b.innerHTML='<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> — Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → OmniAuth → Access Management</strong>.</span>';" +
-        "w.insertBefore(b,c);}" +
-        "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}" +
-        "}catch(e){}" +
-        "})();</script>";
-
-    // Injected on all authenticated pages — JS exits early if not on a job page.
-    private static final String JIT_BANNER_SCRIPT =
-        "<script>(function(){" +
-        "try{" +
-        "function extractJobPath(p){" +
-          "var m=p.match(/\\/job\\/(.+)/);" +
-          "if(!m)return null;" +
-          "var parts=m[1].split('/');" +
-          "var out=[];" +
-          "for(var i=0;i<parts.length;i++){" +
-            "var s=parts[i];" +
-            "if(!s||s==='job')continue;" +
-            "if(/^\\d+$/.test(s)||['build','configure','workspace','changes','lastBuild','api','console','testReport','cobertura','robot'].indexOf(s)>=0)break;" +
-            "out.push(s);" +
-          "}" +
-          "return out.length?out.join('/'):null;" +
-        "}" +
-        "var jobPath=extractJobPath(window.location.pathname);" +
-        "if(!jobPath)return;" +
-        "var base=window.location.href.split('/job/')[0];" +
-        "var _prevJitStatus=null;" +
-        "var _pendingPoll=null;" +
-        "function fetchStatus(){" +
-          "fetch(base+'/omniauth-jit/status?job='+encodeURIComponent(jobPath),{credentials:'same-origin'})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(d){renderBanner(d);})" +
-          ".catch(function(){});" +
-        "}" +
-        "function renderBanner(d){" +
-          "if(!d||!d.hasJit)return;" +
-          // Transition PENDING → ACTIVE: reload so server re-renders the Build Now button
-          "if(d.status==='ACTIVE'&&_prevJitStatus==='PENDING'){window.location.reload();return;}" +
-          // Poll every 5s while pending so we catch approval quickly
-          "if(d.status==='PENDING'&&!_pendingPoll){_pendingPoll=setInterval(fetchStatus,5000);}" +
-          "if(d.status!=='PENDING'&&_pendingPoll){clearInterval(_pendingPoll);_pendingPoll=null;}" +
-          "_prevJitStatus=d.status;" +
-          "removeBanner();" +
-          "var banner=document.createElement('div');" +
-          "banner.id='oau-jit-banner';" +
-          "var color,icon,msg,actions;" +
-          "if(d.status==='ACTIVE'){" +
-            "removeGrayBuildNow();" +
-            "var mins=Math.ceil(d.secondsRemaining/60);" +
-            "color='#16a34a';icon='" + SVG_CHECK + "';" +
-            "msg='<strong>JIT Access active</strong> &mdash; approved by <strong>'+escHtml(d.approverId)+'</strong> &middot; expires in <strong id=\"oau-jit-countdown\">'+fmtTime(d.secondsRemaining)+'</strong>';" +
-            "actions='<button type=\"button\" onclick=\"oauJitRevoke(\\''+escHtml(d.requestId)+'\\')\" style=\"padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:#fff;color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;\">End Access</button>';" +
-            "startCountdown(d.secondsRemaining);" +
-          "}else if(d.status==='PENDING'){" +
-            "injectGrayBuildNow();" +
-            "color='#d97706';icon='" + SVG_CLOCK + "';" +
-            "var approvalInfo=d.totalApprovers>0?' &middot; <strong>'+d.approvedCount+' of '+d.totalApprovers+'</strong> approved':'';" +
-            "msg='<strong>JIT request pending</strong>'+approvalInfo+' &middot; requested '+escHtml(d.timeAgo);" +
-            "actions='<button type=\"button\" onclick=\"oauJitCancel(\\''+escHtml(d.requestId)+'\\')\" style=\"padding:4px 12px;border:1px solid #d97706;border-radius:4px;background:#fff;color:#d97706;cursor:pointer;font-size:12px;font-weight:600;\">Cancel Request</button>';" +
-          "}else{" +
-            "injectGrayBuildNow();" +
-            "color='#6366f1';icon='" + SVG_BOLT + "';" +
-            "var durOpts='';" +
-            "for(var h=1;h<=d.maxDurationHours;h++){durOpts+='<option value=\"'+h+'\"'+(h===1?' selected':'')+'>'+h+' hour'+(h>1?'s':'')+'</option>';}" +
-            "if(d.status==='DENIED'||d.status==='EXPIRED'||d.status==='TIMED_OUT'){" +
-              "msg='<strong>JIT access required</strong> &mdash; previous request was <strong>'+d.status.toLowerCase()+'</strong>. Request again to build.';" +
-            "}else{" +
-              "msg='<strong>JIT access required</strong> &mdash; building this pipeline requires approval from '+escHtml(d.approverGroup||'an admin')+'.';" +
-            "}" +
-            "actions='<button type=\"button\" onclick=\"oauJitOpen()\" style=\"display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:12px;font-weight:600;\">" + SVG_BOLT + " Request JIT Access</button>';" +
-          "}" +
-          "banner.style.cssText='margin:8px 16px;padding:10px 14px;border-radius:6px;background:#fff;border:1px solid '+color+';display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';" +
-          "banner.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;font-size:13px;\"><span style=\"display:inline-flex;align-items:center;color:'+color+';\">'+icon+'</span><span style=\"color:#333;\">'+msg+'</span></div><div style=\"display:flex;align-items:center;gap:8px;\">'+actions+'</div>';" +
-          "var main=document.getElementById('main-panel')||document.querySelector('.jenkins-main-panel')||document.querySelector('[id*=\"main\"]');" +
-          "if(main){main.insertBefore(banner,main.firstChild);}else{document.body.insertBefore(banner,document.body.firstChild);}" +
-        "}" +
-        "function removeBanner(){var b=document.getElementById('oau-jit-banner');if(b)b.remove();}" +
-        "function injectGrayBuildNow(){" +
-          "if(document.getElementById('oau-gray-build'))return;" +
-          "var tasks=document.getElementById('tasks');if(!tasks)return;" +
-          // Don't inject if real Build Now already exists
-          "var links=tasks.querySelectorAll('a');for(var i=0;i<links.length;i++){if(/build now/i.test(links[i].textContent.trim()))return;}" +
-          "var d=document.createElement('div');" +
-          "d.id='oau-gray-build';d.className='task';" +
-          "d.innerHTML='<a class=\"task-link\" href=\"#\" onclick=\"return false;\" style=\"opacity:0.38;cursor:default;pointer-events:none;\">'+" +
-            "'<span class=\"task-icon-link\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"currentColor\"><polygon points=\"5,3 19,12 5,21\"/></svg></span>'+" +
-            "'Build Now</a>';" +
-          "tasks.insertBefore(d,tasks.firstChild);" +
-        "}" +
-        "function removeGrayBuildNow(){var el=document.getElementById('oau-gray-build');if(el)el.remove();}" +
-        "function fmtTime(s){var m=Math.floor(s/60);var ss=s%60;return m+'m '+(ss<10?'0':'')+ss+'s';}" +
-        "function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}" +
-        "var _cdInterval=null;" +
-        "function startCountdown(secs){" +
-          "if(_cdInterval)clearInterval(_cdInterval);" +
-          "var rem=secs;" +
-          "_cdInterval=setInterval(function(){" +
-            "rem--;" +
-            "var el=document.getElementById('oau-jit-countdown');" +
-            "if(el)el.textContent=fmtTime(rem);" +
-            "if(rem<=0){clearInterval(_cdInterval);fetchStatus();}" +
-          "},1000);" +
-        "}" +
-        // Request modal
-        "var _jitModal=null;" +
-        "window.oauJitOpen=function(){" +
-          "if(_jitModal){_jitModal.style.display='flex';return;}" +
-          "var m=document.createElement('div');" +
-          "_jitModal=m;" +
-          "m.style.cssText='display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;';" +
-          "var durOpts='';" +
-          "fetch(base+'/omniauth-jit/status?job='+encodeURIComponent(jobPath),{credentials:'same-origin'})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(d){" +
-            "for(var h=1;h<=d.maxDurationHours;h++){durOpts+='<option value=\"'+h+'\"'+(h===1?' selected':'')+'>'+h+' hour'+(h>1?'s':'')+'</option>';}" +
-            "var scopeLabel=d.scope&&d.scope!==jobPath?'Folder':'Pipeline';" +
-          "var scopeVal=d.scope||jobPath;" +
-          "var scopeNote=d.scopeIsFolder?'<br/><small style=\"color:#6b7280;\">Approves access to all pipelines in this folder</small>':'';" +
-          "m.innerHTML='<div style=\"background:#fff;border-radius:8px;padding:24px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);\">'+" +
-              "'<div style=\"font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:6px;\">" + SVG_BOLT + " Request JIT Access</div>'+" +
-              "'<div style=\"font-size:12px;color:#888;margin-bottom:16px;padding:8px 12px;background:#f5f5f5;border-radius:4px;\">'+" +
-              "'<strong>'+escHtml(scopeLabel)+':</strong> '+escHtml(scopeVal)+scopeNote+'<br/>'+" +
-              "'<strong>Approver:</strong> '+escHtml(d.approverGroup||'Any admin')+'<br/>'+" +
-              "'<strong>Auto-deny after:</strong> '+d.approvalTimeoutHours+' hour(s)'+" +
-              "'</div>'+" +
-              "'<div style=\"margin-bottom:12px;\"><label style=\"display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:4px;\">Reason *</label>'+" +
-              "'<textarea id=\"oau-jit-reason\" placeholder=\"Why do you need access? (e.g. Deploy v2.3.1, hotfix for JIRA-441)\" style=\"width:100%;height:72px;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;resize:none;box-sizing:border-box;\"></textarea></div>'+" +
-              "'<div style=\"margin-bottom:16px;\"><label style=\"display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:4px;\">Duration</label>'+" +
-              "'<select id=\"oau-jit-dur\" style=\"width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;\">'+durOpts+'</select></div>'+" +
-              "'<div id=\"oau-jit-err\" style=\"display:none;padding:8px 12px;background:#fee;border:1px solid #fca;border-radius:4px;font-size:12px;color:#c00;margin-bottom:12px;\"></div>'+" +
-              "'<div style=\"display:flex;gap:8px;justify-content:flex-end;\">'+" +
-              "'<button type=\"button\" onclick=\"oauJitClose()\" style=\"padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;\">Cancel</button>'+" +
-              "'<button type=\"button\" id=\"oau-jit-submit\" onclick=\"oauJitSubmit()\" style=\"padding:8px 16px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:13px;font-weight:600;\">Submit Request</button>'+" +
-              "'</div></div>';" +
-          "});" +
-          "document.body.appendChild(m);" +
-        "};" +
-        "window.oauJitClose=function(){if(_jitModal)_jitModal.style.display='none';};" +
-        "window.oauJitSubmit=function(){" +
-          "var reason=document.getElementById('oau-jit-reason').value.trim();" +
-          "var dur=document.getElementById('oau-jit-dur').value;" +
-          "var err=document.getElementById('oau-jit-err');" +
-          "if(!reason){err.textContent='Reason is required.';err.style.display='block';return;}" +
-          "var btn=document.getElementById('oau-jit-submit');" +
-          "btn.disabled=true;btn.textContent='Submitting...';" +
-          "fetch(base+'/crumbIssuer/api/json',{credentials:'same-origin'})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(cd){" +
-            "var body='job='+encodeURIComponent(jobPath)+'&reason='+encodeURIComponent(reason)+'&durationHours='+encodeURIComponent(dur);" +
-            "var headers={'Content-Type':'application/x-www-form-urlencoded'};" +
-            "headers[cd.crumbRequestField]=cd.crumb;" +
-            "return fetch(base+'/omniauth-jit/request',{method:'POST',headers:headers,body:body,credentials:'same-origin'});" +
-          "})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(data){" +
-            "btn.disabled=false;btn.textContent='Submit Request';" +
-            "if(data.ok){oauJitClose();fetchStatus();}else{err.textContent=data.error||'Request failed.';err.style.display='block';}" +
-          "})" +
-          ".catch(function(){btn.disabled=false;btn.textContent='Submit Request';err.textContent='Network error.';err.style.display='block';});" +
-        "};" +
-        "window.oauJitCancel=function(requestId){" +
-          "if(!confirm('Cancel your pending JIT request?'))return;" +
-          "fetch(base+'/crumbIssuer/api/json',{credentials:'same-origin'})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(cd){" +
-            "var headers={'Content-Type':'application/x-www-form-urlencoded'};" +
-            "headers[cd.crumbRequestField]=cd.crumb;" +
-            "return fetch(base+'/omniauth-jit/cancel',{method:'POST',headers:headers,body:'requestId='+encodeURIComponent(requestId),credentials:'same-origin'});" +
-          "})" +
-          ".then(function(){fetchStatus();})" +
-          ".catch(function(){});" +
-        "};" +
-        "window.oauJitRevoke=function(requestId){" +
-          "if(!confirm('Revoke your active JIT access?'))return;" +
-          "fetch(base+'/crumbIssuer/api/json',{credentials:'same-origin'})" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(cd){" +
-            "var headers={'Content-Type':'application/x-www-form-urlencoded'};" +
-            "headers[cd.crumbRequestField]=cd.crumb;" +
-            "return fetch(base+'/omniauth-jit/cancel',{method:'POST',headers:headers,body:'requestId='+encodeURIComponent(requestId),credentials:'same-origin'});" +
-          "})" +
-          ".then(function(){fetchStatus();})" +
-          ".catch(function(){});" +
-        "};" +
-        "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',fetchStatus);}else{fetchStatus();}" +
-        "}catch(e){}" +
-        "})();</script>";
+    /**
+     * Builds a CSP-safe external script tag for one of the plugin's served JS
+     * resources. Jenkins core's CSP (script-src 'self') blocks inline scripts, so
+     * the page-decorator behaviours are delivered as same-origin files under
+     * /plugin/omniauth-governance/js/ instead of being injected inline.
+     */
+    static String jsTag(String ctx, String file) {
+        return "<script src=\"" + (ctx == null ? "" : ctx)
+                + "/plugin/omniauth-governance/js/" + file + "\"></script>";
+    }
 
     @Initializer(after = InitMilestone.EXTENSIONS_AUGMENTED)
     public static void registerFilter() throws Exception {
@@ -352,7 +157,7 @@ public class OmniAuthPageDecorator {
         private static String resolveScript(HttpServletRequest req) {
             String path = req.getRequestURI();
             if (path.endsWith("/configure") || path.endsWith("/configure/")) {
-                return JOB_CONFIGURE_SCRIPT;
+                return jsTag(req.getContextPath(), "job-security-gate.js");
             }
             if (path.endsWith("/configureSecurity") || path.endsWith("/configureSecurity/")) {
                 try {
@@ -548,7 +353,7 @@ public class OmniAuthPageDecorator {
                 }
                 String html = new String(body, charset);
                 if (html.contains("</body>")) {
-                    html = html.replace("</body>", JIT_BANNER_SCRIPT + "</body>");
+                    html = html.replace("</body>", jsTag(httpReq.getContextPath(), "jit-banner.js") + "</body>");
                     body = html.getBytes(charset);
                 }
             }
@@ -979,35 +784,18 @@ public class OmniAuthPageDecorator {
                    path.endsWith(".ttf");
         }
 
+        /**
+         * Emits the CSP-safe tags for the SOS banner: a hidden state element carrying
+         * the context path and minutes-remaining via data-* attributes, plus an
+         * external same-origin &lt;script src&gt;. The banner logic lives in
+         * /plugin/omniauth-governance/js/sos-banner.js (inline scripts are CSP-blocked).
+         */
         private static String buildSosBannerScript(String ctx, long mins) {
-            String ctxJs = ctx.replace("\\", "\\\\").replace("'", "\\'");
-            return "<script>(function(){try{" +
-                "if(document.getElementById('oau-sos-banner'))return;" +
-                "var ctx='" + ctxJs + "';var mins=" + mins + ";" +
-                "var bar=document.createElement('div');bar.id='oau-sos-banner';" +
-                "bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;"
-                + "padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;"
-                + "font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:13px;"
-                + "box-shadow:0 2px 8px rgba(0,0,0,0.3);';" +
-                "bar.innerHTML='<span style=\"display:inline-flex;align-items:center;gap:8px;\">" +
-                  "<strong style=\"display:inline-flex;align-items:center;gap:6px;\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg>SOS Mode active</strong>" +
-                  "<span style=\"opacity:.9;\">Emergency recovery is open at <code style=\\'background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px;\\'>/sos/recover</code>"
-                  + " &middot; auto-closes in '+mins+' min</span></span>" +
-                  "<button type=\"button\" id=\"oau-sos-deact\" style=\"white-space:nowrap;padding:5px 14px;border:1px solid #fff;"
-                  + "border-radius:5px;background:#fff;color:#b91c1c;font-size:12px;font-weight:700;cursor:pointer;\">Deactivate now</button>';" +
-                "function place(){document.body.insertBefore(bar,document.body.firstChild);" +
-                  "document.body.style.paddingTop=(bar.offsetHeight||40)+'px';}" +
-                "if(document.body){place();}else{document.addEventListener('DOMContentLoaded',place);}" +
-                "var btn=bar.querySelector('#oau-sos-deact');" +
-                "btn.onclick=function(){btn.disabled=true;btn.textContent='Deactivating...';" +
-                  "fetch(ctx+'/crumbIssuer/api/json',{credentials:'same-origin'})" +
-                  ".then(function(r){return r.json();})" +
-                  ".then(function(cd){var h={'Content-Type':'application/x-www-form-urlencoded'};h[cd.crumbRequestField]=cd.crumb;" +
-                    "return fetch(ctx+'/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:'',credentials:'same-origin'});})" +
-                  ".then(function(r){if(r.ok){window.location.reload();}else{btn.disabled=false;btn.textContent='Deactivate now';alert('You must be an administrator to deactivate SOS Mode.');}})" +
-                  ".catch(function(){btn.disabled=false;btn.textContent='Deactivate now';alert('Could not deactivate — network error.');});" +
-                "};" +
-                "}catch(e){}})();</script>";
+            String c = ctx == null ? "" : ctx;
+            String ctxAttr = c.replace("&", "&amp;").replace("\"", "&quot;");
+            return "<div id=\"oau-sos-state\" style=\"display:none\" data-ctx=\"" + ctxAttr
+                    + "\" data-mins=\"" + mins + "\"></div>"
+                    + jsTag(c, "sos-banner.js");
         }
     }
 
