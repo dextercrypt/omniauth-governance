@@ -568,26 +568,30 @@ public class OmniAuthPageDecorator {
                 + "<table class='approvers-table'>"
                 + "<thead><tr><th>Approver</th><th>Status</th></tr></thead>"
                 + "<tbody>" + approversHtml + "</tbody></table>"
-                + "<form method='POST' action='" + htmlEsc(submitUrl) + "'>"
-                + "<input type='hidden' name='token' value='" + htmlEsc(token) + "'/>"
+                // Two separate forms, each carrying its own "remarks" textarea, so no JavaScript is needed to
+                // copy a value into a shared hidden field. This page is served standalone (reachable via an
+                // emailed token link) and must work under a strict Content-Security-Policy, which blocks inline
+                // scripts and inline on* handlers. Each form posts token + decision + remarks to the same handler.
                 + "<section>"
                 + "<h3 style='color:#16a34a;display:flex;align-items:center;gap:5px;'>" + SVG_CHECK_CIRCLE_SM + " Approve Access</h3>"
-                + "<textarea name='approveRemarks' placeholder='Remarks (optional)'></textarea>"
+                + "<form method='POST' action='" + htmlEsc(submitUrl) + "'>"
+                + "<input type='hidden' name='token' value='" + htmlEsc(token) + "'/>"
+                + "<textarea name='remarks' placeholder='Remarks (optional)'></textarea>"
                 + "<button type='submit' name='decision' value='APPROVED' class='btn btn-approve' "
-                + "style='display:inline-flex;align-items:center;gap:5px;'"
-                + " onclick='document.querySelector(\"[name=remarks]\").value=this.form.approveRemarks.value'>"
+                + "style='display:inline-flex;align-items:center;gap:5px;'>"
                 + SVG_CHECK_CIRCLE_SM + " Approve Access</button>"
+                + "</form>"
                 + "</section>"
                 + "<section>"
                 + "<h3 style='color:#dc2626;display:flex;align-items:center;gap:5px;'>" + SVG_X_CIRCLE_SM + " Deny Request</h3>"
-                + "<textarea name='denyRemarks' placeholder='Reason for denial (recommended)'></textarea>"
+                + "<form method='POST' action='" + htmlEsc(submitUrl) + "'>"
+                + "<input type='hidden' name='token' value='" + htmlEsc(token) + "'/>"
+                + "<textarea name='remarks' placeholder='Reason for denial (recommended)'></textarea>"
                 + "<button type='submit' name='decision' value='DENIED' class='btn btn-deny' "
-                + "style='display:inline-flex;align-items:center;gap:5px;'"
-                + " onclick='document.querySelector(\"[name=remarks]\").value=this.form.denyRemarks.value'>"
+                + "style='display:inline-flex;align-items:center;gap:5px;'>"
                 + SVG_X_CIRCLE_SM + " Deny Request</button>"
-                + "</section>"
-                + "<input type='hidden' name='remarks' value=''/>"
                 + "</form>"
+                + "</section>"
                 + "</div></div>"
                 + "</body></html>";
         }
@@ -769,6 +773,11 @@ public class OmniAuthPageDecorator {
 
         private static boolean isBannerExcluded(String path) {
             return path.contains("/sos/")        ||
+                   // Never on a login page — anonymous visitors must not be told the
+                   // recovery window is open (that would advertise /sos/recover to an
+                   // attacker), and it is useless to an already-authenticated admin there.
+                   path.endsWith("/login")        ||
+                   path.endsWith("/loginError")   ||
                    path.contains("/crumbIssuer")  ||
                    path.contains("/api/")         ||
                    path.contains("/adjuncts/")    ||

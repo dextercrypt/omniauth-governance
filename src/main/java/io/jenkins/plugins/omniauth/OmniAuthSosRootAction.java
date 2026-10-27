@@ -60,7 +60,7 @@ public class OmniAuthSosRootAction implements UnprotectedRootAction {
             if (alreadyAdmin) { rsp.sendRedirect(ctx + "/"); return; }
             handlePost(req, rsp, ctx);
         } else if (alreadyAdmin) {
-            writePage(rsp, 200, alreadyAdminPage(ctx, currentUserId()));
+            writePage(rsp, 200, alreadyAdminPage(ctx, currentUserId(), req));
         } else {
             String err = req.getParameter("e");
             writePage(rsp, 200, formPage(ctx, err, OmniAuthSos.attemptsRemaining(), OmniAuthSos.minutesRemaining()));
@@ -167,9 +167,23 @@ public class OmniAuthSosRootAction implements UnprotectedRootAction {
             + "</div></body></html>";
     }
 
-    private static String alreadyAdminPage(String ctx, String sid) {
+    private static String alreadyAdminPage(String ctx, String sid, StaplerRequest2 req) {
         String who = (sid == null || sid.isEmpty()) ? "an administrator" : "<strong>" + esc(sid) + "</strong>";
-        String ctxJs = ctx.replace("\\", "\\\\").replace("'", "\\'");
+        // Deactivation is a plain form POST — no JavaScript — so it works under a strict Content-Security-Policy
+        // (which blocks inline scripts and inline on* handlers) and on a degraded recovery session. The viewer
+        // is a confirmed admin, so a CSRF crumb is available; embed it as a hidden field. The hidden "fromForm"
+        // marker tells doSosDeactivate to 302 back to Jenkins instead of writing its JSON (fetch) response.
+        String crumbField = "";
+        String crumb = "";
+        try {
+            hudson.security.csrf.CrumbIssuer ci = Jenkins.get().getCrumbIssuer();
+            if (ci != null) {
+                crumbField = ci.getDescriptor().getCrumbRequestField();
+                crumb = ci.getCrumb(req);
+            }
+        } catch (Exception ignore) { /* no crumb issuer configured: form still posts, filter decides */ }
+        String crumbInput = (crumbField == null || crumbField.isEmpty()) ? ""
+            : "<input type='hidden' name='" + esc(crumbField) + "' value='" + esc(crumb) + "'/>";
         return "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>"
             + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
             + "<title>SOS Recovery</title>" + STYLE
@@ -179,17 +193,13 @@ public class OmniAuthSosRootAction implements UnprotectedRootAction {
             + "<h1>You already have access</h1>"
             + "<p class='sub'>You are signed in as " + who + " with administrator access, so there is nothing to "
             + "recover. SOS Mode is still open — deactivate it once you no longer need the recovery window.</p>"
-            + "<button type='button' id='sos-deact' onclick='sosDeact(this)'>Deactivate SOS Mode</button>"
+            + "<form method='POST' action='" + esc(ctx) + "/manage/omniauth-management/sosDeactivate' style='margin:0;'>"
+            + crumbInput
+            + "<input type='hidden' name='fromForm' value='1'/>"
+            + "<button type='submit'>Deactivate SOS Mode</button>"
+            + "</form>"
             + "<a class='btn-ghost' href='" + esc(ctx) + "/'>Continue to Jenkins</a>"
             + "<p class='foot'>Deactivating is recorded in the OmniAuth audit log.</p>"
-            + "<script>function sosDeact(btn){btn.disabled=true;btn.textContent='Deactivating...';"
-            + "var ctx='" + ctxJs + "';"
-            + "fetch(ctx+'/crumbIssuer/api/json',{credentials:'same-origin'})"
-            + ".then(function(r){return r.json();})"
-            + ".then(function(cd){var h={'Content-Type':'application/x-www-form-urlencoded'};h[cd.crumbRequestField]=cd.crumb;"
-            + "return fetch(ctx+'/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:'',credentials:'same-origin'});})"
-            + ".then(function(r){if(r.ok){window.location.href=ctx+'/';}else{btn.disabled=false;btn.textContent='Deactivate SOS Mode';}})"
-            + ".catch(function(){btn.disabled=false;btn.textContent='Deactivate SOS Mode';});}</script>"
             + "</div></body></html>";
     }
 
