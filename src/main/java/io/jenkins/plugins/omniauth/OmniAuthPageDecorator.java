@@ -97,166 +97,6 @@ public class OmniAuthPageDecorator {
         "}catch(e){}" +
         "})();</script>";
 
-    // Injected on /configureSecurity when OmniAuth is active — grays out the Authorization
-    // matrix and adds the Emergency Override button + modal. Skipped during migration.
-    private static final String SECURITY_CONFIGURE_SCRIPT =
-        "<script>(function(){" +
-        "try{" +
-        "if(!window.location.pathname.match(/\\/configureSecurity(\\/)?$/))return;" +
-        // Inject modal into body
-        "var m=document.createElement('div');" +
-        "m.id='omniauth-bg-modal';" +
-        "m.style.cssText='display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;';" +
-        "m.innerHTML='<div style=\"background:#fff;border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);\">" +
-            "<h3 style=\"margin:0 0 16px;font-size:16px;color:#212529;\">Emergency Override</h3>" +
-            "<div id=\\\"omniauth-bg-form\\\">" +
-              "<p style=\\\"margin:0 0 16px;font-size:13px;color:#6c757d;\\\">Unlocks the Authorization table for 15 minutes. All actions are fully logged in OmniAuth Audit Log.</p>" +
-              "<div style=\\\"margin-bottom:12px;\\\">" +
-                "<label style=\\\"display:block;font-size:13px;font-weight:600;margin-bottom:4px;\\\">Reason <span style=\\\\\\\"color:#dc3545\\\\\\\">*</span></label>" +
-                "<textarea id=\\\"omniauth-bg-reason\\\" placeholder=\\\"Why do you need emergency access?\\\" style=\\\"width:100%;height:72px;padding:8px;border:1px solid #ced4da;border-radius:4px;font-size:13px;resize:none;box-sizing:border-box;\\\"></textarea>" +
-              "</div>" +
-              "<div style=\\\"margin-bottom:16px;\\\">" +
-                "<label style=\\\"display:block;font-size:13px;font-weight:600;margin-bottom:4px;\\\">TOTP Code <span style=\\\\\\\"color:#dc3545\\\\\\\">*</span></label>" +
-                "<input id=\\\"omniauth-bg-totp\\\" type=\\\"text\\\" inputmode=\\\"numeric\\\" maxlength=\\\"6\\\" autocomplete=\\\"off\\\" placeholder=\\\"6-digit code\\\" style=\\\"width:100%;padding:8px;border:1px solid #ced4da;border-radius:4px;font-size:13px;box-sizing:border-box;letter-spacing:4px;\\\"/>" +
-              "</div>" +
-              "<div id=\\\"omniauth-bg-err\\\" style=\\\"display:none;padding:8px 12px;background:#f8d7da;border:1px solid #f5c6cb;border-radius:4px;font-size:12px;color:#721c24;margin-bottom:12px;\\\"></div>" +
-              "<div style=\\\"display:flex;gap:8px;justify-content:flex-end;\\\">" +
-                "<button type=\\\"button\\\" id=\\\"omniauth-bg-cancel\\\" style=\\\"padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;\\\">Cancel</button>" +
-                "<button type=\\\"button\\\" id=\\\"omniauth-bg-submit\\\" style=\\\"padding:8px 16px;border:none;border-radius:4px;background:#dc3545;color:#fff;cursor:pointer;font-size:13px;font-weight:600;\\\">Activate Override</button>" +
-              "</div>" +
-            "</div>" +
-            "<div id=\\\"omniauth-bg-success\\\" style=\\\"display:none;text-align:center;padding:8px 0 4px;\\\">" +
-              "<div style=\\\"font-size:40px;color:#27ae60;margin-bottom:10px;\\\">&#10003;</div>" +
-              "<div style=\\\"font-size:15px;font-weight:600;color:#155724;margin-bottom:6px;\\\">Emergency Override Active</div>" +
-              "<div style=\\\"font-size:13px;color:#6c757d;margin-bottom:4px;\\\">Authorization table is now unlocked for 15 minutes.</div>" +
-              "<div style=\\\"font-size:13px;color:#6c757d;margin-bottom:14px;\\\">Reloading in <span id=\\\"omniauth-bg-secs\\\">5</span>s&hellip;</div>" +
-              "<div style=\\\"height:4px;background:#e9ecef;border-radius:2px;margin-bottom:16px;overflow:hidden;\\\">" +
-                "<div id=\\\"omniauth-bg-prog\\\" style=\\\"height:100%;width:100%;background:#27ae60;transition:width 5s linear;\\\"></div>" +
-              "</div>" +
-            "</div>" +
-        "</div>';" +
-        "document.body.appendChild(m);" +
-        "document.getElementById('omniauth-bg-cancel').onclick=function(){m.style.display='none';};" +
-        "document.getElementById('omniauth-bg-submit').onclick=function(){" +
-          "var reason=document.getElementById('omniauth-bg-reason').value.trim();" +
-          "var totp=document.getElementById('omniauth-bg-totp').value.trim();" +
-          "var err=document.getElementById('omniauth-bg-err');" +
-          "if(!reason){err.textContent='Reason is required.';err.style.display='block';return;}" +
-          "if(!totp||totp.length!==6){err.textContent='Enter the 6-digit TOTP code.';err.style.display='block';return;}" +
-          "err.style.display='none';" +
-          "var btn=document.getElementById('omniauth-bg-submit');" +
-          "btn.disabled=true;btn.textContent='Verifying...';" +
-          "var base=window.location.pathname.split('/manage/')[0];" +
-          "fetch(base+'/crumbIssuer/api/json')" +
-          ".then(function(r){return r.json();})" +
-          ".then(function(cd){" +
-            "var xhr=new XMLHttpRequest();" +
-            "xhr.open('POST',base+'/manage/omniauth-management/breakGlassActivate',true);" +
-            "xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');" +
-            "xhr.setRequestHeader(cd.crumbRequestField,cd.crumb);" +
-            "xhr.onload=function(){" +
-              "btn.disabled=false;btn.textContent='Activate Override';" +
-              "try{var r=JSON.parse(xhr.responseText);" +
-                "if(r.success){" +
-                  "document.getElementById('omniauth-bg-form').style.display='none';" +
-                  "var s=document.getElementById('omniauth-bg-success');" +
-                  "s.style.display='block';" +
-                  "requestAnimationFrame(function(){requestAnimationFrame(function(){var p=document.getElementById('omniauth-bg-prog');if(p)p.style.width='0%';});});" +
-                  "var secs=5;" +
-                  "var iv=setInterval(function(){" +
-                    "secs--;" +
-                    "var el=document.getElementById('omniauth-bg-secs');if(el)el.textContent=secs;" +
-                    "if(secs<=0){clearInterval(iv);window.onbeforeunload=null;window.location.reload();}" +
-                  "},1000);" +
-                "}" +
-                "else{btn.disabled=false;btn.textContent='Activate Override';err.textContent=r.error||'Verification failed.';err.style.display='block';}" +
-              "}catch(e){btn.disabled=false;btn.textContent='Activate Override';err.textContent='Server error ('+xhr.status+').';err.style.display='block';}" +
-            "};" +
-            "xhr.onerror=function(){btn.disabled=false;btn.textContent='Activate Override';err.textContent='Network error.';err.style.display='block';};" +
-            "xhr.send('reason='+encodeURIComponent(reason)+'&totpCode='+encodeURIComponent(totp));" +
-          "})" +
-          ".catch(function(){btn.disabled=false;btn.textContent='Activate Override';err.textContent='Failed to fetch security token.';err.style.display='block';});" +
-        "};" +
-        "function run(){" +
-        "if(document.getElementById('omniauth-migration-confirm'))return;" +
-        "var ck=document.querySelector('input[type=\"checkbox\"][name*=\"hudson.model\"],input[type=\"checkbox\"][name*=\"jenkins.model\"],input[type=\"checkbox\"][name*=\"hudson.plugins\"]');" +
-        "if(!ck)return;" +
-        "var t=ck.closest('table');if(!t)return;" +
-        "var c=t.parentElement;var depth=0;" +
-        "while(c&&depth<6){" +
-          "if(c.querySelector('button')||c.className==='repeated-container')break;" +
-          "var p=c.parentElement;" +
-          "if(!p||p.tagName==='FORM'||p.tagName==='BODY')break;" +
-          "c=p;depth++;}" +
-        "if(!c)return;" +
-        "var w=document.createElement('div');" +
-        "w.style.cssText='position:relative;margin-bottom:4px;';" +
-        "c.parentNode.insertBefore(w,c);" +
-        "w.appendChild(c);" +
-        "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
-        "var b=document.createElement('div');" +
-        "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
-            "<button type=\"button\" id=\"omniauth-bg-open\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:#fff;color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;\">Emergency Override</button>';" +
-        "w.insertBefore(b,c);" +
-        "document.getElementById('omniauth-bg-open').onclick=function(){m.style.display='flex';};" +
-        "}" +
-        "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}" +
-        "}catch(e){}" +
-        "})();</script>";
-
-    // Injected on /configureSecurity when no TOTP device is enrolled — same banner, modal shows enroll prompt.
-    private static final String SECURITY_CONFIGURE_SCRIPT_NOT_ENROLLED =
-        "<script>(function(){" +
-        "try{" +
-        "if(!window.location.pathname.match(/\\/configureSecurity(\\/)?$/))return;" +
-        "var m=document.createElement('div');" +
-        "m.id='omniauth-bg-modal';" +
-        "m.style.cssText='display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;';" +
-        "m.innerHTML='<div style=\\\"background:#fff;border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);\\\">" +
-            "<h3 style=\\\"margin:0 0 20px;font-size:16px;color:#212529;\\\">Emergency Override</h3>" +
-            "<div style=\\\"text-align:center;padding:4px 0 16px;\\\">" +
-              "<div style=\\\"margin-bottom:12px;display:flex;justify-content:center;\\\"><svg width=\\\"36\\\" height=\\\"36\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"1.5\\\" stroke-linecap=\\\"round\\\" stroke-linejoin=\\\"round\\\"><rect width=\\\"18\\\" height=\\\"11\\\" x=\\\"3\\\" y=\\\"11\\\" rx=\\\"2\\\" ry=\\\"2\\\"/><path d=\\\"M7 11V7a5 5 0 0 1 10 0v4\\\"/></svg></div>" +
-              "<div style=\\\"font-size:14px;font-weight:600;color:#495057;margin-bottom:8px;\\\">No Authenticator Device Enrolled</div>" +
-              "<div style=\\\"font-size:13px;color:#6c757d;margin-bottom:20px;\\\">Enroll a TOTP device on the Break Glass page before you can activate Emergency Override.</div>" +
-              "<div style=\\\"display:flex;gap:8px;justify-content:center;\\\">" +
-                "<button type=\\\"button\\\" id=\\\"omniauth-bg-cancel\\\" style=\\\"padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;\\\">Cancel</button>" +
-                "<a id=\\\"omniauth-bg-enroll-link\\\" href=\\\"#\\\" style=\\\"display:inline-flex;align-items:center;padding:8px 16px;border:none;border-radius:4px;background:#0d6efd;color:#fff;font-size:13px;font-weight:600;text-decoration:none;\\\">Set Up Break Glass &#8594;</a>" +
-              "</div>" +
-            "</div>" +
-        "</div>';" +
-        "document.body.appendChild(m);" +
-        "document.getElementById('omniauth-bg-cancel').onclick=function(){m.style.display='none';};" +
-        "var enrollEl=document.getElementById('omniauth-bg-enroll-link');" +
-        "if(enrollEl){var base=window.location.pathname.split('/manage/')[0];enrollEl.href=base+'/manage/omniauth-management/emergencyAccess';}" +
-        "function run(){" +
-        "if(document.getElementById('omniauth-migration-confirm'))return;" +
-        "var ck=document.querySelector('input[type=\"checkbox\"][name*=\"hudson.model\"],input[type=\"checkbox\"][name*=\"jenkins.model\"],input[type=\"checkbox\"][name*=\"hudson.plugins\"]');" +
-        "if(!ck)return;" +
-        "var t=ck.closest('table');if(!t)return;" +
-        "var c=t.parentElement;var depth=0;" +
-        "while(c&&depth<6){" +
-          "if(c.querySelector('button')||c.className==='repeated-container')break;" +
-          "var p=c.parentElement;" +
-          "if(!p||p.tagName==='FORM'||p.tagName==='BODY')break;" +
-          "c=p;depth++;}" +
-        "if(!c)return;" +
-        "var w=document.createElement('div');" +
-        "w.style.cssText='position:relative;margin-bottom:4px;';" +
-        "c.parentNode.insertBefore(w,c);" +
-        "w.appendChild(c);" +
-        "c.style.cssText='opacity:0.4;pointer-events:none;user-select:none;';" +
-        "var b=document.createElement('div');" +
-        "b.style.cssText='padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-        "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg><span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>" +
-            "<button type=\"button\" id=\"omniauth-bg-open\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:#fff;color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;\">Emergency Override</button>';" +
-        "w.insertBefore(b,c);" +
-        "document.getElementById('omniauth-bg-open').onclick=function(){m.style.display='flex';};" +
-        "}" +
-        "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}" +
-        "}catch(e){}" +
-        "})();</script>";
-
     // Injected on all authenticated pages — JS exits early if not on a job page.
     private static final String JIT_BANNER_SCRIPT =
         "<script>(function(){" +
@@ -519,23 +359,47 @@ public class OmniAuthPageDecorator {
                     AuthorizationStrategy s = Jenkins.get().getAuthorizationStrategy();
                     if (!(s instanceof OmniAuthAuthorizationStrategy)) return null;
                     // Check if break glass is currently active for this session
+                    Long activeExpiry = null;
                     jakarta.servlet.http.HttpSession session = req.getSession(false);
                     if (session != null) {
                         Long expiry = (Long) session.getAttribute("omniauth.breakGlass.expiry");
                         if (expiry != null) {
                             if (System.currentTimeMillis() < expiry) {
-                                return buildBreakGlassActiveScript(expiry);
+                                activeExpiry = expiry;
+                            } else {
+                                // Expired — clean up
+                                session.removeAttribute("omniauth.breakGlass.expiry");
+                                session.removeAttribute("omniauth.breakGlass.user");
+                                session.removeAttribute("omniauth.breakGlass.reason");
                             }
-                            // Expired — clean up
-                            session.removeAttribute("omniauth.breakGlass.expiry");
-                            session.removeAttribute("omniauth.breakGlass.user");
-                            session.removeAttribute("omniauth.breakGlass.reason");
                         }
                     }
-                    return isCurrentUserEnrolled() ? SECURITY_CONFIGURE_SCRIPT : SECURITY_CONFIGURE_SCRIPT_NOT_ENROLLED;
+                    String mode = activeExpiry != null ? "active"
+                            : (isCurrentUserEnrolled() ? "enrolled" : "notEnrolled");
+                    return buildBreakGlassGateTags(req.getContextPath(), mode, activeExpiry);
                 } catch (Exception ignored) {}
             }
             return null;
+        }
+
+        /**
+         * Builds the CSP-compliant tags injected on /configureSecurity: a hidden state
+         * element carrying the break-glass mode (and expiry when active) via data-*
+         * attributes, plus an external same-origin &lt;script src&gt; for the gate logic.
+         * Jenkins core's CSP (script-src 'self') blocks inline scripts, so the behaviour
+         * lives in /plugin/omniauth-governance/js/breakglass-gate.js instead.
+         */
+        private static String buildBreakGlassGateTags(String ctx, String mode, Long expiry) {
+            String c = ctx == null ? "" : ctx;
+            StringBuilder sb = new StringBuilder();
+            sb.append("<div id=\"omniauth-bg-state\" style=\"display:none\" data-mode=\"").append(mode).append('"');
+            if (expiry != null) {
+                sb.append(" data-expiry=\"").append(expiry.longValue()).append('"');
+            }
+            sb.append("></div>");
+            sb.append("<script src=\"").append(c)
+              .append("/plugin/omniauth-governance/js/breakglass-gate.js\"></script>");
+            return sb.toString();
         }
 
         private static boolean isCurrentUserEnrolled() {
@@ -547,58 +411,6 @@ public class OmniAuthPageDecorator {
             } catch (Exception ignored) {
                 return false;
             }
-        }
-
-        private static String buildBreakGlassActiveScript(long expiryMs) {
-            return "<script>(function(){" +
-                "try{" +
-                "if(!window.location.pathname.match(/\\/configureSecurity(\\/)?$/))return;" +
-                "function run(){" +
-                "var expiry=" + expiryMs + ";" +
-                "var ck=document.querySelector('input[type=\"checkbox\"][name*=\"hudson.model\"],input[type=\"checkbox\"][name*=\"jenkins.model\"],input[type=\"checkbox\"][name*=\"hudson.plugins\"]');" +
-                "if(!ck)return;" +
-                "var t=ck.closest('table');if(!t)return;" +
-                "var c=t.parentElement;var depth=0;" +
-                "while(c&&depth<6){" +
-                  "if(c.querySelector('button')||c.className==='repeated-container')break;" +
-                  "var p=c.parentElement;" +
-                  "if(!p||p.tagName==='FORM'||p.tagName==='BODY')break;" +
-                  "c=p;depth++;}" +
-                "if(!c)return;" +
-                "var w=document.createElement('div');" +
-                "w.style.cssText='position:relative;margin-bottom:4px;';" +
-                "c.parentNode.insertBefore(w,c);" +
-                "w.appendChild(c);" +
-                "var b=document.createElement('div');" +
-                "b.style.cssText='padding:10px 14px;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;margin-bottom:6px;font-size:13px;color:#856404;display:flex;align-items:center;justify-content:space-between;gap:8px;';" +
-                "b.innerHTML='<div style=\"display:flex;align-items:center;gap:8px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"flex-shrink:0;\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 9.9-1\"/></svg><span><strong>Emergency Override Active</strong> &mdash; Authorization table is unlocked. Expires in <strong id=\"omniauth-timer\">--:--</strong>.</span></div>" +
-                    "<button type=\"button\" id=\"omniauth-bg-end\" style=\"white-space:nowrap;padding:6px 12px;border:1px solid #856404;border-radius:4px;background:#fff;color:#856404;cursor:pointer;font-size:12px;font-weight:600;\">End Override Now</button>';" +
-                "w.insertBefore(b,c);" +
-                "function tick(){" +
-                  "var rem=Math.max(0,expiry-Date.now());" +
-                  "var mm=Math.floor(rem/60000);var ss=Math.floor((rem%60000)/1000);" +
-                  "var el=document.getElementById('omniauth-timer');" +
-                  "if(el)el.textContent=mm+':'+(ss<10?'0':'')+ss;" +
-                  "if(rem<=0)window.location.reload();" +
-                "}" +
-                "tick();setInterval(tick,1000);" +
-                "document.getElementById('omniauth-bg-end').onclick=function(){" +
-                  "var base=window.location.pathname.split('/manage/')[0];" +
-                  "fetch(base+'/crumbIssuer/api/json')" +
-                  ".then(function(r){return r.json();})" +
-                  ".then(function(cd){" +
-                    "var xhr=new XMLHttpRequest();" +
-                    "xhr.open('POST',base+'/manage/omniauth-management/breakGlassDeactivate',true);" +
-                    "xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');" +
-                    "xhr.setRequestHeader(cd.crumbRequestField,cd.crumb);" +
-                    "xhr.onload=function(){window.location.reload();};" +
-                    "xhr.send('');" +
-                  "});" +
-                "};" +
-                "}" +
-                "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}" +
-                "}catch(e){}" +
-                "})();</script>";
         }
     }
 

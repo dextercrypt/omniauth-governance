@@ -61,23 +61,35 @@ public class OmniAuthPageDecoratorTest {
         assertEquals("hello world", htmlEsc("hello world"));
     }
 
-    // ─── buildBreakGlassActiveScript (MatrixDisableFilter) ───────────────────
+    // ─── buildBreakGlassGateTags (MatrixDisableFilter) ───────────────────────
+    // The gate logic is served as an external, CSP-safe script; the filter only
+    // injects a hidden state element (data-* attributes) plus a <script src>.
 
-    private static String buildBreakGlassActiveScript(long expiryMs) throws Exception {
+    private static String buildBreakGlassGateTags(String ctx, String mode, Long expiry) throws Exception {
         Class<?> c = Class.forName(MATRIX_FILTER);
-        Method m = c.getDeclaredMethod("buildBreakGlassActiveScript", long.class);
+        Method m = c.getDeclaredMethod("buildBreakGlassGateTags", String.class, String.class, Long.class);
         m.setAccessible(true);
-        return (String) m.invoke(null, expiryMs);
+        return (String) m.invoke(null, ctx, mode, expiry);
     }
 
     @Test
-    public void buildBreakGlassActiveScript_embedsExpiryAndBanner() throws Exception {
+    public void buildBreakGlassGateTags_activeEmbedsExpiryAndExternalScript() throws Exception {
         long expiry = 1_900_000_000_000L;
-        String script = buildBreakGlassActiveScript(expiry);
+        String tags = buildBreakGlassGateTags("/jenkins", "active", Long.valueOf(expiry));
 
-        assertTrue(script.contains("var expiry=" + expiry + ";"), "script must embed the expiry epoch-millis as a JS literal");
-        assertTrue(script.contains("Emergency Override Active"), "script must render the active-override banner");
-        assertTrue(script.startsWith("<script>") && script.endsWith("</script>"), "script must be a <script> block");
+        assertTrue(tags.contains("data-mode=\"active\""), "must carry the active mode");
+        assertTrue(tags.contains("data-expiry=\"" + expiry + "\""), "must embed the expiry epoch-millis");
+        assertTrue(tags.contains("/plugin/omniauth-governance/js/breakglass-gate.js"),
+                "must load the external, CSP-safe gate script");
+        assertFalse(tags.contains("<script>(function"), "must NOT inline executable JS (blocked by CSP)");
+    }
+
+    @Test
+    public void buildBreakGlassGateTags_nonActiveHasNoExpiry() throws Exception {
+        String tags = buildBreakGlassGateTags("/jenkins", "enrolled", null);
+        assertTrue(tags.contains("data-mode=\"enrolled\""), "must carry the enrolled mode");
+        assertFalse(tags.contains("data-expiry="), "non-active modes carry no expiry");
+        assertTrue(tags.contains("/plugin/omniauth-governance/js/breakglass-gate.js"));
     }
 
     // ─── resolveScript — Long-expiry gate (MatrixDisableFilter) ──────────────
@@ -131,7 +143,8 @@ public class OmniAuthPageDecoratorTest {
         String script = resolveScript(req);
 
         assertNotNull(script, "an active break-glass session must produce a script");
-        assertTrue(script.contains("var expiry=" + future + ";"), "future Long expiry must emit the active-override script with the embedded expiry");
+        assertTrue(script.contains("data-mode=\"active\""), "future Long expiry must emit the active mode");
+        assertTrue(script.contains("data-expiry=\"" + future + "\""), "with the embedded expiry epoch-millis");
     }
 
     @Test
@@ -142,11 +155,12 @@ public class OmniAuthPageDecoratorTest {
 
         String script = resolveScript(req);
 
-        // Expired → falls through to the standard (not-enrolled) configure-security script,
-        // which never carries the active-override expiry literal.
+        // Expired → falls through to the standard (not-enrolled) gate, which carries
+        // no active-override expiry.
         assertNotNull(script);
-        assertFalse(script.contains("var expiry="), "a past expiry must NOT emit the active-override script");
-        assertTrue(script.contains("No Authenticator Device Enrolled"), "falls through to the not-enrolled configure-security script");
+        assertFalse(script.contains("data-mode=\"active\""), "a past expiry must NOT emit the active mode");
+        assertFalse(script.contains("data-expiry="), "a non-active gate carries no expiry");
+        assertTrue(script.contains("data-mode=\"notEnrolled\""), "falls through to the not-enrolled gate");
     }
 
     @Test
