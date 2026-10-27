@@ -2,11 +2,11 @@ package io.jenkins.plugins.omniauth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pure unit tests (no JenkinsRule) for the JSON / HTML escaping used by the
@@ -66,7 +66,7 @@ public class NotificationEscapingTest {
     public void slackEsc_newline_isEscapedNotRaw() throws Exception {
         String out = slackEsc("\n");
         assertEquals("\"\\n\"", out);
-        assertEquals("no raw LF char in output", -1, out.indexOf('\n'));
+        assertEquals(-1, out.indexOf('\n'), "no raw LF char in output");
     }
 
     @Test
@@ -162,18 +162,15 @@ public class NotificationEscapingTest {
     public void slackBuildPayload_maliciousTitle_isEmbeddedOnlyInEscapedForm() {
         String evilTitle = "pwn\",\"x\":\"y"; // pwn","x":"y  — attempts to close + inject a key
         String json = SlackHelper.buildPayload(evilTitle, "plain body");
-        assertTrue("escaped form must be present",
-                json.contains("pwn\\\",\\\"x\\\":\\\"y"));
-        assertFalse("raw unescaped breakout must NOT appear", json.contains(evilTitle));
+        assertTrue(json.contains("pwn\\\",\\\"x\\\":\\\"y"), "escaped form must be present");
+        assertFalse(json.contains(evilTitle), "raw unescaped breakout must NOT appear");
     }
 
     @Test
     public void slackBuildPayload_maliciousBody_isEmbeddedOnlyInEscapedForm() {
         String json = SlackHelper.buildPayload("Event", "Note: a\"}],\"evil\":1");
-        assertTrue("escaped body value must be present",
-                json.contains("a\\\"}],\\\"evil\\\":1"));
-        assertFalse("raw unescaped body breakout must NOT appear",
-                json.contains("a\"}],\"evil\":1"));
+        assertTrue(json.contains("a\\\"}],\\\"evil\\\":1"), "escaped body value must be present");
+        assertFalse(json.contains("a\"}],\"evil\":1"), "raw unescaped body breakout must NOT appear");
     }
 
     @Test
@@ -181,8 +178,8 @@ public class NotificationEscapingTest {
         // Regression for the fixed double-comma defect: the payload must parse cleanly
         // and must NOT contain the "}},,{" sequence that previously made it invalid.
         String json = SlackHelper.buildPayload("Access granted", "User: alice\n\nDetails.");
-        assertFalse("payload must not contain the double-comma defect", json.contains("}},,{"));
-        assertNotNull("payload must be valid JSON", MAPPER.readTree(json));
+        assertFalse(json.contains("}},,{"), "payload must not contain the double-comma defect");
+        assertNotNull(MAPPER.readTree(json), "payload must be valid JSON");
     }
 
     @Test

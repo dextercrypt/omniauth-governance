@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.80</version>
+    <version>6.2236.v12dd4c483242</version>
     <relativePath/>
   </parent>
 
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>omniauth-governance</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>OmniAuth</name>
@@ -37,10 +37,20 @@
   </scm>
 
   <properties>
-    <revision>1.0</revision>
-    <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.541.2</jenkins.version>
+    <changelist>999999-SNAPSHOT</changelist>
+    <jenkins.baseline>2.555</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <!-- Modern dependency/code hygiene enforced for Jenkins hosting (CD). -->
+    <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
+    <!-- Third-party libraries we intentionally bundle (not provided by core or
+         another plugin): MSAL4J + its transitive OAuth/JOSE/JSON deps, Nimbus,
+         and ZXing for Break Glass QR codes. -->
+    <hpi.bundledArtifacts>accessors-smart,aerogear-otp-java,asm,content-type,core,jai-imageio-core,javase,jcip-annotations,jcommander,json-smart,lang-tag,msal4j,nimbus-jose-jwt,oauth2-oidc-sdk</hpi.bundledArtifacts>
+    <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
+    <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
+    <ban-deprecated-stapler.skip>false</ban-deprecated-stapler.skip>
+    <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
     <spotless.check.skip>true</spotless.check.skip>
     <!-- Skip cloudbees license plugin — uses Groovy 2.4/ASM 5 which can't parse
          Java 25 class files present in Maven 3.9.13's plexus-testing jar. -->
@@ -49,7 +59,15 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- No BOM import for weekly builds — versions pinned explicitly below -->
+      <!-- Jenkins plugin BOM for the 2.555.x baseline: keeps all Jenkins plugin
+           dependency versions mutually compatible so we don't pin them by hand. -->
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+        <version>7237.v5071b_f4589f1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -59,6 +77,19 @@
       <groupId>com.microsoft.azure</groupId>
       <artifactId>msal4j</artifactId>
       <version>1.17.0</version>
+      <exclusions>
+        <!-- Use the jackson2-api plugin's Jackson (2.22) instead of the older
+             2.13 that msal4j pulls transitively, keeping one version on the path. -->
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <!-- slf4j-api is provided by Jenkins core; don't bundle a second copy. -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Nimbus JOSE+JWT for ID token parsing/validation -->
@@ -68,11 +99,11 @@
       <version>9.40</version>
     </dependency>
 
-    <!-- Jackson for JSON parsing of Graph API responses -->
+    <!-- Jackson for JSON parsing of Graph API responses — supplied by the Jenkins
+         jackson2-api plugin (version managed by the BOM) rather than bundled. -->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.15.4</version>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>jackson2-api</artifactId>
     </dependency>
 
     <!-- Jakarta Servlet API — Jenkins 2.541.2 migrated from javax to jakarta -->
@@ -87,7 +118,6 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>jakarta-mail-api</artifactId>
-      <version>2.1.5-1</version>
     </dependency>
 
     <!-- Spring Security - provided by Jenkins core, do NOT bundle -->
@@ -107,21 +137,12 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>matrix-auth</artifactId>
-      <version>3.2.9</version>
     </dependency>
 
     <!-- CloudBees Folder — needed for folder-level permission grants in user hierarchy -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>cloudbees-folder</artifactId>
-      <version>6.1079.vc0975c2de294</version>
-    </dependency>
-
-    <!-- Pin ionicons-api to the higher version required by cloudbees-folder, satisfying enforcer -->
-    <dependency>
-      <groupId>io.jenkins.plugins</groupId>
-      <artifactId>ionicons-api</artifactId>
-      <version>94.vcc3065403257</version>
     </dependency>
 
     <!-- Configuration as Code (JCasC) — OPTIONAL: our config classes carry @Symbol so an
@@ -130,7 +151,6 @@
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>1998.v3e50e6e9d9d3</version>
       <optional>true</optional>
     </dependency>
 
@@ -139,7 +159,6 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>snakeyaml-api</artifactId>
-      <version>2.5-149.v72471e9c6371</version>
     </dependency>
 
     <!-- TOTP for Break Glass authentication -->
@@ -175,7 +194,6 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.11.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -183,7 +201,6 @@
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
-      <version>1998.v3e50e6e9d9d3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

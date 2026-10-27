@@ -1,17 +1,17 @@
 package io.jenkins.plugins.omniauth;
 
 import hudson.XmlFile;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link NotificationLog}: the in-memory + persisted record of every
@@ -25,15 +25,16 @@ import static org.junit.Assert.*;
  * returned list is iterated while async senders append), the capacity cap, and
  * the redacted webhook recipient label surviving persistence.
  */
+@WithJenkins
 public class NotificationLogTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private NotificationLog log;
 
-    @Before
-    public void freshLog() {
+    @BeforeEach
+    public void freshLog(JenkinsRule rule) {
+        j = rule;
         log = NotificationLog.get();
         log.clear();
     }
@@ -129,7 +130,7 @@ public class NotificationLogTest {
             stop.set(true);
             writer.join(10_000);
         }
-        assertFalse("concurrent writer must not have thrown", writerFailed.get());
+        assertFalse(writerFailed.get(), "concurrent writer must not have thrown");
     }
 
     // ─── capacity cap ─────────────────────────────────────────────────────────
@@ -138,7 +139,7 @@ public class NotificationLogTest {
     public void addEntry_capsAtMaxEntries() {
         for (int i = 0; i < 250; i++) log.addEntry("[Email] msg " + i, "a@x.com", true, null);
 
-        assertEquals("log must cap at MAX_ENTRIES (200)", 200, log.getEntries().size());
+        assertEquals(200, log.getEntries().size(), "log must cap at MAX_ENTRIES (200)");
         // Most-recent-first + cap => the newest entry is retained, the oldest dropped.
         assertEquals("[Email] msg 249", log.getEntries().get(0).getDescription());
     }
@@ -184,8 +185,8 @@ public class NotificationLogTest {
 
         NotificationLogEntry e = log.getEntries().get(0);
         assertEquals("Slack webhook", e.getRecipients());
-        assertFalse("recipient must not leak a URL", e.getRecipients().contains("http"));
-        assertFalse("recipient must not leak a host", e.getRecipients().contains("hooks."));
+        assertFalse(e.getRecipients().contains("http"), "recipient must not leak a URL");
+        assertFalse(e.getRecipients().contains("hooks."), "recipient must not leak a host");
     }
 
     @Test
@@ -194,7 +195,7 @@ public class NotificationLogTest {
 
         // Re-read the persisted XML straight off disk (same path get()/persist() use).
         XmlFile f = new XmlFile(new File(j.jenkins.getRootDir(), "omniauth-notification-log.xml"));
-        assertTrue("log must have been persisted", f.exists());
+        assertTrue(f.exists(), "log must have been persisted");
         NotificationLog reloaded = (NotificationLog) f.read();
 
         List<NotificationLogEntry> entries = reloaded.getEntries();

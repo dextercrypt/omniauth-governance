@@ -1,8 +1,9 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -10,7 +11,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the pure helpers and the break-glass gating of OmniAuthPageDecorator.
@@ -23,10 +24,15 @@ import static org.junit.Assert.*;
  * The three servlet filters' full doFilter paths need a real servlet pipeline and are not
  * unit-tested here; the gating decision (resolveScript) is the security-relevant logic.
  */
+@WithJenkins
 public class OmniAuthPageDecoratorTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     private static final String MATRIX_FILTER   = "io.jenkins.plugins.omniauth.OmniAuthPageDecorator$MatrixDisableFilter";
     private static final String APPROVER_FILTER = "io.jenkins.plugins.omniauth.OmniAuthPageDecorator$ApproverActionFilter";
@@ -69,11 +75,9 @@ public class OmniAuthPageDecoratorTest {
         long expiry = 1_900_000_000_000L;
         String script = buildBreakGlassActiveScript(expiry);
 
-        assertTrue("script must embed the expiry epoch-millis as a JS literal",
-                script.contains("var expiry=" + expiry + ";"));
-        assertTrue("script must render the active-override banner",
-                script.contains("Emergency Override Active"));
-        assertTrue("script must be a <script> block", script.startsWith("<script>") && script.endsWith("</script>"));
+        assertTrue(script.contains("var expiry=" + expiry + ";"), "script must embed the expiry epoch-millis as a JS literal");
+        assertTrue(script.contains("Emergency Override Active"), "script must render the active-override banner");
+        assertTrue(script.startsWith("<script>") && script.endsWith("</script>"), "script must be a <script> block");
     }
 
     // ─── resolveScript — Long-expiry gate (MatrixDisableFilter) ──────────────
@@ -126,9 +130,8 @@ public class OmniAuthPageDecoratorTest {
 
         String script = resolveScript(req);
 
-        assertNotNull("an active break-glass session must produce a script", script);
-        assertTrue("future Long expiry must emit the active-override script with the embedded expiry",
-                script.contains("var expiry=" + future + ";"));
+        assertNotNull(script, "an active break-glass session must produce a script");
+        assertTrue(script.contains("var expiry=" + future + ";"), "future Long expiry must emit the active-override script with the embedded expiry");
     }
 
     @Test
@@ -142,16 +145,14 @@ public class OmniAuthPageDecoratorTest {
         // Expired → falls through to the standard (not-enrolled) configure-security script,
         // which never carries the active-override expiry literal.
         assertNotNull(script);
-        assertFalse("a past expiry must NOT emit the active-override script",
-                script.contains("var expiry="));
-        assertTrue("falls through to the not-enrolled configure-security script",
-                script.contains("No Authenticator Device Enrolled"));
+        assertFalse(script.contains("var expiry="), "a past expiry must NOT emit the active-override script");
+        assertTrue(script.contains("No Authenticator Device Enrolled"), "falls through to the not-enrolled configure-security script");
     }
 
     @Test
     public void resolveScript_nonSecurityPath_returnsNull() throws Exception {
         j.jenkins.setAuthorizationStrategy(new OmniAuthAuthorizationStrategy());
         HttpServletRequest req = fakeRequest("http://x/jenkins/somewhere/else", fakeSession(null));
-        assertNull("only configure pages inject a script", resolveScript(req));
+        assertNull(resolveScript(req), "only configure pages inject a script");
     }
 }

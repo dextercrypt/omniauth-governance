@@ -1,16 +1,17 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for the newly-wired {@link OmniAuthAuditLog} event types — the coverage pass that
@@ -21,10 +22,15 @@ import static org.junit.Assert.assertTrue;
  * {@code action} discriminator and its key fields, so a future refactor can't silently drop
  * one of them back into the gap list.
  */
+@WithJenkins
 public class OmniAuthAuditLogTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     /** Finds the most recent recorded event with the given action, or null. */
     private Map<String, String> latest(String action) {
@@ -41,14 +47,14 @@ public class OmniAuthAuditLogTest {
         log.logPermissionRevoked("admin", "bob", "my-job", "scoped permissions");
 
         Map<String, String> g = latest("permission_granted");
-        assertNotNull("permission_granted must be recorded", g);
+        assertNotNull(g, "permission_granted must be recorded");
         assertEquals("admin", g.get("by"));
         assertEquals("alice", g.get("user"));
         assertEquals("global", g.get("scope"));
         assertTrue(g.get("detail").contains("DEVELOPER"));
 
         Map<String, String> r = latest("permission_revoked");
-        assertNotNull("permission_revoked must be recorded", r);
+        assertNotNull(r, "permission_revoked must be recorded");
         assertEquals("bob", r.get("user"));
         assertEquals("my-job", r.get("scope"));
     }
@@ -141,10 +147,10 @@ public class OmniAuthAuditLogTest {
         OmniAuthAuditLog log = OmniAuthAuditLog.get();
 
         int removed = log.pruneOlderThan(365);
-        assertEquals("the 50 stale lines must be pruned", 50, removed);
-        assertTrue("the file stays (it still has a recent line)", cur.exists());
+        assertEquals(50, removed, "the 50 stale lines must be pruned");
+        assertTrue(cur.exists(), "the file stays (it still has a recent line)");
         assertEquals("fresh", log.readRecent(10).get(0).get("user"));
-        assertEquals("retention 0 = keep forever (no-op)", 0, log.pruneOlderThan(0));
+        assertEquals(0, log.pruneOlderThan(0), "retention 0 = keep forever (no-op)");
     }
 
     @Test
@@ -153,9 +159,9 @@ public class OmniAuthAuditLogTest {
         log.logConfigChanged("admin", "S1", "a");
         log.logConfigChanged("admin", "S2", "b");
         OmniAuthAuditLog.StorageInfo info = log.getStorageInfo();
-        assertTrue("events counted", info.getEvents() >= 2);
-        assertTrue("bytes counted", info.getBytes() > 0);
-        assertNotNull("human size", info.getHumanSize());
+        assertTrue(info.getEvents() >= 2, "events counted");
+        assertTrue(info.getBytes() > 0, "bytes counted");
+        assertNotNull(info.getHumanSize(), "human size");
     }
 
     /**
@@ -185,9 +191,8 @@ public class OmniAuthAuditLogTest {
         }
 
         List<Map<String, String>> recent = OmniAuthAuditLog.get().readRecent(5);
-        assertEquals("newest event must come first", "config_changed", recent.get(0).get("action"));
+        assertEquals("config_changed", recent.get(0).get("action"), "newest event must come first");
         assertEquals("NewestArea", recent.get(0).get("area"));
-        assertFalse("oldest entries must not be returned ahead of new ones",
-                "ancient".equals(recent.get(0).get("user")));
+        assertFalse("ancient".equals(recent.get(0).get("user")), "oldest entries must not be returned ahead of new ones");
     }
 }

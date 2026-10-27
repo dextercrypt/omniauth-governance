@@ -1,9 +1,9 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Pure unit tests for {@link OmniAuthAuditLog#isTrustedProxyPeer(String)} — the gate that
@@ -21,13 +21,11 @@ import static org.junit.Assert.assertTrue;
 public class TrustedProxyPeerTest {
 
     private static void assertTrusted(String addr) {
-        assertTrue("expected TRUSTED (private/loopback) peer: " + addr,
-                OmniAuthAuditLog.isTrustedProxyPeer(addr));
+        assertTrue(OmniAuthAuditLog.isTrustedProxyPeer(addr), "expected TRUSTED (private/loopback) peer: " + addr);
     }
 
     private static void assertUntrusted(String addr) {
-        assertFalse("expected UNTRUSTED peer: " + addr,
-                OmniAuthAuditLog.isTrustedProxyPeer(addr));
+        assertFalse(OmniAuthAuditLog.isTrustedProxyPeer(addr), "expected UNTRUSTED peer: " + addr);
     }
 
     // ── Loopback ──────────────────────────────────────────────────────────────

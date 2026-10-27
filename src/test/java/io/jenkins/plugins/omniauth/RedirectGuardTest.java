@@ -1,12 +1,12 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Anti-open-redirect gate tests. Pure string logic — no Jenkins needed.
@@ -41,14 +41,14 @@ public class RedirectGuardTest {
 
     /** Assert BOTH guards agree the target is accepted. */
     private void accept(String url) throws Exception {
-        assertTrue("isSafeRedirectUrl should ACCEPT: " + url, isSafe(url));
-        assertEquals("safeFrom should return the target unchanged for: " + url, url, safeFrom(url));
+        assertTrue(isSafe(url), "isSafeRedirectUrl should ACCEPT: " + url);
+        assertEquals(url, safeFrom(url), "safeFrom should return the target unchanged for: " + url);
     }
 
     /** Assert BOTH guards agree the target is rejected. */
     private void reject(String url) throws Exception {
-        assertFalse("isSafeRedirectUrl should REJECT: " + url, isSafe(url));
-        assertEquals("safeFrom should fall back to ctx+'/' for: " + url, FALLBACK, safeFrom(url));
+        assertFalse(isSafe(url), "isSafeRedirectUrl should REJECT: " + url);
+        assertEquals(FALLBACK, safeFrom(url), "safeFrom should fall back to ctx+'/' for: " + url);
     }
 
     // ── ACCEPT: single-leading-slash relative paths ──────────────────────────

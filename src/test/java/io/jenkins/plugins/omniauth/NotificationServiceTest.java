@@ -2,11 +2,11 @@ package io.jenkins.plugins.omniauth;
 
 import com.sun.net.httpserver.HttpServer;
 import hudson.util.Secret;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Event-gating tests for {@link NotificationService} / the channel helpers.
@@ -39,10 +39,10 @@ import static org.junit.Assert.*;
  * OmniAuthGlobalConfig has no public setters for these fields, so we set the
  * private fields on the REAL instance (never a mock, per Mockito caution).
  */
+@WithJenkins
 public class NotificationServiceTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthGlobalConfig cfg;
     private HttpServer server;
@@ -62,8 +62,9 @@ public class NotificationServiceTest {
         setField(cfg, field, new ArrayList<>(Arrays.asList(events)));
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
         cfg = OmniAuthGlobalConfig.get();
         NotificationLog.get().clear();
 
@@ -94,7 +95,7 @@ public class NotificationServiceTest {
         setEvents("teamsEvents");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (server != null) server.stop(0);
     }
@@ -106,11 +107,11 @@ public class NotificationServiceTest {
     }
 
     private void assertChannelHit() throws Exception {
-        assertTrue("channel should have been contacted", hitLatch.await(10, TimeUnit.SECONDS));
+        assertTrue(hitLatch.await(10, TimeUnit.SECONDS), "channel should have been contacted");
     }
 
     private void assertNoChannelHit() throws Exception {
-        assertFalse("no channel contact expected", hitLatch.await(900, TimeUnit.MILLISECONDS));
+        assertFalse(hitLatch.await(900, TimeUnit.MILLISECONDS), "no channel contact expected");
         assertEquals(0, hits.get());
     }
 
@@ -200,11 +201,10 @@ public class NotificationServiceTest {
         assertChannelHit();
 
         NotificationLogEntry e = awaitLogEntry("[Slack] ", 10_000);
-        assertNotNull("a Slack log entry should have been written", e);
-        assertTrue("send should be recorded as success", e.isSuccess());
-        assertEquals("recipient must be the redacted label", "Slack webhook", e.getRecipients());
-        assertFalse("webhook URL must never appear in the log recipient",
-                e.getRecipients().contains(webhookUrl));
+        assertNotNull(e, "a Slack log entry should have been written");
+        assertTrue(e.isSuccess(), "send should be recorded as success");
+        assertEquals("Slack webhook", e.getRecipients(), "recipient must be the redacted label");
+        assertFalse(e.getRecipients().contains(webhookUrl), "webhook URL must never appear in the log recipient");
         assertFalse(e.getRecipients().contains("127.0.0.1"));
     }
 
@@ -217,7 +217,7 @@ public class NotificationServiceTest {
         assertChannelHit();
 
         NotificationLogEntry e = awaitLogEntry("[Teams] ", 10_000);
-        assertNotNull("a Teams log entry should have been written", e);
+        assertNotNull(e, "a Teams log entry should have been written");
         assertTrue(e.isSuccess());
         assertEquals("Teams webhook", e.getRecipients());
         assertFalse(e.getRecipients().contains(webhookUrl));
@@ -235,7 +235,7 @@ public class NotificationServiceTest {
         fireUserDeleted();
         // Give any (erroneously) spawned sender thread a chance; none should exist.
         Thread.sleep(900);
-        assertFalse("no [Email] entry when SMTP is disabled", anyLogEntry("[Email] "));
+        assertFalse(anyLogEntry("[Email] "), "no [Email] entry when SMTP is disabled");
     }
 
     // ─── both channels off, master on => total silence ──────────────────────────

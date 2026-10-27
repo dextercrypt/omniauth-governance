@@ -1,11 +1,11 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pure unit tests for {@link LoginHistoryProperty}: newest-first ordering, the 10-event
@@ -32,7 +32,7 @@ public class LoginHistoryPropertyTest {
 
         List<LoginEvent> events = p.getEvents();
         assertEquals(2, events.size());
-        assertSame("Most recently added event must be at index 0", second, events.get(0));
+        assertSame(second, events.get(0), "Most recently added event must be at index 0");
         assertSame(first, events.get(1));
     }
 
@@ -66,7 +66,7 @@ public class LoginHistoryPropertyTest {
         }
 
         List<LoginEvent> events = p.getEvents();
-        assertEquals("History must be capped at 10 events", 10, events.size());
+        assertEquals(10, events.size(), "History must be capped at 10 events");
         // Newest (evt-14) is kept at the head; the 5 oldest (evt-0..evt-4) are dropped.
         assertEquals("evt-14", events.get(0).getTimestamp());
         assertEquals("evt-5", events.get(9).getTimestamp());
@@ -92,8 +92,7 @@ public class LoginHistoryPropertyTest {
         List<LoginEvent> copy = p.getEvents();
         copy.clear();
 
-        assertEquals("Clearing the returned list must not clear the property's own history",
-                2, p.getEvents().size());
+        assertEquals(2, p.getEvents().size(), "Clearing the returned list must not clear the property's own history");
     }
 
     @Test
@@ -130,7 +129,7 @@ public class LoginHistoryPropertyTest {
         writer.join();
         reader.join();
 
-        assertFalse("Concurrent add/read must not throw (copy returned under the lock)", failed.get());
+        assertFalse(failed.get(), "Concurrent add/read must not throw (copy returned under the lock)");
         assertEquals(10, p.getEvents().size());
     }
 }

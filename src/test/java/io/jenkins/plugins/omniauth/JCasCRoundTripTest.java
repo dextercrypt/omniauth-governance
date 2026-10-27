@@ -3,17 +3,18 @@ package io.jenkins.plugins.omniauth;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
-import org.junit.Rule;
-import org.junit.Test;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies OmniAuth's roles and assignments survive a JCasC round trip.
@@ -25,10 +26,15 @@ import static org.junit.Assert.assertTrue;
  * those two types makes them configurable, so JCasC can both <em>apply</em> them from YAML
  * (import) and <em>emit</em> them (export). These tests pin both directions.
  */
+@WithJenkinsConfiguredWithCode
 public class JCasCRoundTripTest {
 
-    @Rule
-    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+    private JenkinsConfiguredWithCodeRule j;
+
+    @BeforeEach
+    void setUp(JenkinsConfiguredWithCodeRule r) {
+        j = r;
+    }
 
     // ── Import: YAML -> live config ──────────────────────────────────────────
 
@@ -90,14 +96,13 @@ public class JCasCRoundTripTest {
         String yaml = exportToString();
 
         // The regression this guards: nested element types used to be inexportable.
-        assertFalse("export must not contain the no-configurator failure marker",
-                yaml.contains("FAILED TO EXPORT"));
+        assertFalse(yaml.contains("FAILED TO EXPORT"), "export must not contain the no-configurator failure marker");
 
         // Round-trip evidence: the configured values re-appear in the exported document.
-        assertTrue("role name should be exported", yaml.contains("ci-developer"));
-        assertTrue("standing assignment should be exported", yaml.contains("alice@contoso.com"));
-        assertTrue("JIT assignment should be exported", yaml.contains("release-team"));
-        assertTrue("Access-Management group should be exported", yaml.contains("Platform Engineers"));
+        assertTrue(yaml.contains("ci-developer"), "role name should be exported");
+        assertTrue(yaml.contains("alice@contoso.com"), "standing assignment should be exported");
+        assertTrue(yaml.contains("release-team"), "JIT assignment should be exported");
+        assertTrue(yaml.contains("Platform Engineers"), "Access-Management group should be exported");
     }
 
     private String exportToString() throws Exception {

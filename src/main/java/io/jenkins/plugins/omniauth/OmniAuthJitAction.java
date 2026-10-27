@@ -3,8 +3,8 @@ package io.jenkins.plugins.omniauth;
 import hudson.Extension;
 import hudson.model.RootAction;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 import org.springframework.security.core.Authentication;
 
@@ -28,7 +28,7 @@ public class OmniAuthJitAction implements RootAction {
      * Returns JSON describing the JIT state for the current user + job.
      * Called by the in-page banner script via AJAX.
      */
-    public void doStatus(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doStatus(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins j = Jenkins.getInstanceOrNull();
         if (j == null) { writeJson(rsp, "{\"hasJit\":false}"); return; }
 
@@ -96,7 +96,7 @@ public class OmniAuthJitAction implements RootAction {
      * Creates a new JIT request for the current user.
      */
     @POST
-    public void doRequest(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRequest(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins j = Jenkins.getInstanceOrNull();
         if (j == null) { writeJson(rsp, "{\"ok\":false,\"error\":\"Jenkins unavailable\"}"); return; }
 
@@ -195,7 +195,7 @@ public class OmniAuthJitAction implements RootAction {
      * Cancels the current user's own pending JIT request.
      */
     @POST
-    public void doCancel(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doCancel(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Authentication auth = Jenkins.getAuthentication2();
         if (auth == null || "anonymous".equals(auth.getName())) {
             writeJson(rsp, "{\"ok\":false,\"error\":\"Not authenticated\"}"); return;
@@ -243,7 +243,7 @@ public class OmniAuthJitAction implements RootAction {
         return assignmentScope.equals(job) || job.startsWith(assignmentScope + "/");
     }
 
-    private static void writeJson(StaplerResponse rsp, String json) throws Exception {
+    private static void writeJson(StaplerResponse2 rsp, String json) throws Exception {
         rsp.setContentType("application/json;charset=UTF-8");
         rsp.getWriter().write(json);
     }

@@ -5,31 +5,32 @@ import hudson.model.FreeStyleProject;
 import hudson.security.ACL;
 import hudson.security.AuthorizationStrategy;
 import hudson.security.GlobalMatrixAuthorizationStrategy;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link OmniAuthAuthorizationStrategy}: per-item ACL wiring, the lazy ACL cache and
  * its invalidation, and the descriptor/converter plumbing.
  */
+@WithJenkins
 public class OmniAuthAuthorizationStrategyTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthAuthorizationStrategy strategy;
     private OmniAuthAssignmentConfig config;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) {
+        j = rule;
         strategy = new OmniAuthAuthorizationStrategy();
         j.jenkins.setAuthorizationStrategy(strategy);
         // aclCache is static and survives across tests in the JVM — clear it for isolation.
@@ -62,8 +63,7 @@ public class OmniAuthAuthorizationStrategyTest {
         FreeStyleProject p = j.createFreeStyleProject("job-empty");
         ACL acl = aclFor(p);
         assertNotNull(acl);
-        assertFalse("with no assignments, the super matrix ACL should be used",
-                acl instanceof OmniAuthItemACL);
+        assertFalse(acl instanceof OmniAuthItemACL, "with no assignments, the super matrix ACL should be used");
     }
 
     @Test
@@ -71,8 +71,7 @@ public class OmniAuthAuthorizationStrategyTest {
         addAssignment();
         FreeStyleProject p = j.createFreeStyleProject("job-present");
         ACL acl = aclFor(p);
-        assertTrue("with assignments present, a per-item OmniAuthItemACL should be returned",
-                acl instanceof OmniAuthItemACL);
+        assertTrue(acl instanceof OmniAuthItemACL, "with assignments present, a per-item OmniAuthItemACL should be returned");
     }
 
     @Test
@@ -81,7 +80,7 @@ public class OmniAuthAuthorizationStrategyTest {
         FreeStyleProject p = j.createFreeStyleProject("job-cached");
         ACL first  = aclFor(p);
         ACL second = aclFor(p);
-        assertSame("the per-item ACL should be cached and reused", first, second);
+        assertSame(first, second, "the per-item ACL should be cached and reused");
     }
 
     @Test
@@ -91,7 +90,7 @@ public class OmniAuthAuthorizationStrategyTest {
         ACL first = aclFor(p);
         OmniAuthAuthorizationStrategy.invalidateCache();
         ACL second = aclFor(p);
-        assertNotSame("after invalidation a new ACL instance should be built", first, second);
+        assertNotSame(first, second, "after invalidation a new ACL instance should be built");
         assertTrue(second instanceof OmniAuthItemACL);
     }
 
@@ -101,11 +100,10 @@ public class OmniAuthAuthorizationStrategyTest {
     public void rootACL_withNoGrants_deniesOrdinaryAuthenticatedUser() {
         ACL root = strategy.getRootACL();
         assertNotNull(root);
-        assertFalse("an unprivileged user must not have ADMINISTER via the empty root matrix",
-                root.hasPermission2(
+        assertFalse(root.hasPermission2(
                         new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                                 "nobody", "", java.util.Collections.emptyList()),
-                        jenkins.model.Jenkins.ADMINISTER));
+                        jenkins.model.Jenkins.ADMINISTER), "an unprivileged user must not have ADMINISTER via the empty root matrix");
     }
 
     // ── descriptor / converter plumbing ─────────────────────────────────────────
@@ -124,13 +122,12 @@ public class OmniAuthAuthorizationStrategyTest {
                 new OmniAuthAuthorizationStrategy.ConverterImpl();
         assertTrue(converter.canConvert(OmniAuthAuthorizationStrategy.class));
         assertFalse(converter.canConvert(GlobalMatrixAuthorizationStrategy.class));
-        assertTrue("ConverterImpl.create() yields an OmniAuth strategy",
-                converter.create() instanceof OmniAuthAuthorizationStrategy);
+        assertTrue(converter.create() instanceof OmniAuthAuthorizationStrategy, "ConverterImpl.create() yields an OmniAuth strategy");
     }
 
     @Test
     public void migrationSource_isNull_whenOmniAuthIsAlreadyActive() {
-        // OmniAuth is the installed strategy (see @Before) → there is nothing to migrate from.
+        // OmniAuth is the installed strategy (see @BeforeEach) → there is nothing to migrate from.
         OmniAuthAuthorizationStrategy.DescriptorImpl d =
                 j.jenkins.getDescriptorByType(OmniAuthAuthorizationStrategy.DescriptorImpl.class);
         assertNull(d.getMigrationSource());

@@ -11,9 +11,7 @@ import jenkins.security.stapler.StaplerDispatchable;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -65,7 +63,7 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      * URL: GET /omniauth/commenceLogin[?from=…]
      */
     @StaplerDispatchable
-    public HttpResponse doCommenceLogin(StaplerRequest req) throws Exception {
+    public HttpResponse doCommenceLogin(StaplerRequest2 req) throws Exception {
         OmniAuthSecurityRealm realm = getOmniAuthRealm();
         if (realm == null) {
             return HttpResponses.error(503,
@@ -79,7 +77,7 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      * URL: GET /omniauth/finishLogin?code=…&state=…
      */
     @StaplerDispatchable
-    public HttpResponse doFinishLogin(StaplerRequest req) throws Exception {
+    public HttpResponse doFinishLogin(StaplerRequest2 req) throws Exception {
         OmniAuthSecurityRealm realm = getOmniAuthRealm();
         if (realm == null) {
             return HttpResponses.error(503,

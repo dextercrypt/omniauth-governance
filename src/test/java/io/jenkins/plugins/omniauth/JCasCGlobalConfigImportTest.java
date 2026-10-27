@@ -2,11 +2,12 @@ package io.jenkins.plugins.omniauth;
 
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
-import org.junit.Rule;
-import org.junit.Test;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies an {@code omniAuthGlobalConfig} section imports. The class mixes a setter-backed field
@@ -14,10 +15,15 @@ import static org.junit.Assert.assertTrue;
  * applies both (the latter via field injection), so the plugin's global settings can be driven
  * from {@code jenkins.yaml}, not only the security realm / roles / assignments.
  */
+@WithJenkinsConfiguredWithCode
 public class JCasCGlobalConfigImportTest {
 
-    @Rule
-    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+    private JenkinsConfiguredWithCodeRule j;
+
+    @BeforeEach
+    void setUp(JenkinsConfiguredWithCodeRule r) {
+        j = r;
+    }
 
     @Test
     public void globalConfigSectionImports() throws Exception {

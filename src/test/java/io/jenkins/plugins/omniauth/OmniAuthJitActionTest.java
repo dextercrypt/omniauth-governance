@@ -3,12 +3,12 @@ package io.jenkins.plugins.omniauth;
 import hudson.security.ACL;
 import hudson.security.ACLContext;
 import jenkins.model.Jenkins;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link OmniAuthJitAction} — the user-facing JIT endpoints (/omniauth-jit/).
@@ -32,25 +32,26 @@ import static org.junit.Assert.*;
  *  - doRequest: rejects anonymous, requires job+reason, caps reason, caps duration to assignment
  *    max, requires >=2 approvers, dedupes pending/active, and is annotated @POST
  *
- * StaplerRequest/Response are java.lang.reflect.Proxy fakes (house style). The current
+ * StaplerRequest2/Response are java.lang.reflect.Proxy fakes (house style). The current
  * authentication is set with ACL.as2(...) using a UsernamePasswordAuthenticationToken built
  * directly (the user need not exist in a realm — avoids User.impersonate2()'s requirement).
  */
+@WithJenkins
 public class OmniAuthJitActionTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthJitAction action;
     private OmniAuthJitRequestStore store;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) {
+        j = rule;
         action = j.jenkins.getExtensionList(OmniAuthJitAction.class).get(0);
         store = OmniAuthJitRequestStore.get();
         assertNotNull(action);
         assertNotNull(store);
-        assertTrue("Fresh store per test", store.getRecentRequests(100).isEmpty());
+        assertTrue(store.getRecentRequests(100).isEmpty(), "Fresh store per test");
     }
 
     // ── Fakes ─────────────────────────────────────────────────────────────────
@@ -59,10 +60,10 @@ public class OmniAuthJitActionTest {
         return new UsernamePasswordAuthenticationToken(name, "", Collections.emptyList());
     }
 
-    private StaplerRequest fakeReq(Map<String, String> params) {
-        return (StaplerRequest) Proxy.newProxyInstance(
+    private StaplerRequest2 fakeReq(Map<String, String> params) {
+        return (StaplerRequest2) Proxy.newProxyInstance(
                 getClass().getClassLoader(),
-                new Class<?>[]{ StaplerRequest.class },
+                new Class<?>[]{ StaplerRequest2.class },
                 (proxy, method, args) -> {
                     if ("getParameter".equals(method.getName())) return params.get((String) args[0]);
                     if (method.getReturnType() == boolean.class) return false;
@@ -71,15 +72,15 @@ public class OmniAuthJitActionTest {
                 });
     }
 
-    /** StaplerResponse proxy that captures everything written through getWriter(). */
+    /** StaplerResponse2 proxy that captures everything written through getWriter(). */
     private static final class CapturingResponse {
         final StringWriter body = new StringWriter();
-        final StaplerResponse rsp;
+        final StaplerResponse2 rsp;
         CapturingResponse() {
             final PrintWriter writer = new PrintWriter(body);
-            rsp = (StaplerResponse) Proxy.newProxyInstance(
+            rsp = (StaplerResponse2) Proxy.newProxyInstance(
                     getClass().getClassLoader(),
-                    new Class<?>[]{ StaplerResponse.class },
+                    new Class<?>[]{ StaplerResponse2.class },
                     (proxy, method, args) -> {
                         if ("getWriter".equals(method.getName())) return writer;
                         if (method.getReturnType() == boolean.class) return false;
@@ -129,10 +130,10 @@ public class OmniAuthJitActionTest {
 
     @Test
     public void doRequest_and_doCancel_areAnnotatedPost() throws Exception {
-        Method req = OmniAuthJitAction.class.getMethod("doRequest", StaplerRequest.class, StaplerResponse.class);
-        Method cancel = OmniAuthJitAction.class.getMethod("doCancel", StaplerRequest.class, StaplerResponse.class);
-        assertNotNull("doRequest must be @POST (CSRF-protected)", req.getAnnotation(POST.class));
-        assertNotNull("doCancel must be @POST (CSRF-protected)", cancel.getAnnotation(POST.class));
+        Method req = OmniAuthJitAction.class.getMethod("doRequest", StaplerRequest2.class, StaplerResponse2.class);
+        Method cancel = OmniAuthJitAction.class.getMethod("doCancel", StaplerRequest2.class, StaplerResponse2.class);
+        assertNotNull(req.getAnnotation(POST.class), "doRequest must be @POST (CSRF-protected)");
+        assertNotNull(cancel.getAnnotation(POST.class), "doCancel must be @POST (CSRF-protected)");
     }
 
     // ── doCancel: IDOR regression ──────────────────────────────────────────────
@@ -146,8 +147,8 @@ public class OmniAuthJitActionTest {
         // Alice attempts to cancel bob's request by guessing/learning its id
         String json = doCancel(user("alice"), params("requestId", bobReq.getRequestId()));
 
-        assertTrue("Must be rejected as not-your-request, got: " + json, json.contains("Not your request"));
-        assertTrue("Bob's request must stay pending (NOT cancelled)", bobReq.isPending());
+        assertTrue(json.contains("Not your request"), "Must be rejected as not-your-request, got: " + json);
+        assertTrue(bobReq.isPending(), "Bob's request must stay pending (NOT cancelled)");
         assertEquals(OmniAuthJitRequest.STATUS_PENDING, bobReq.getStatus());
     }
 
@@ -159,7 +160,7 @@ public class OmniAuthJitActionTest {
 
         String json = doCancel(user("bob"), params("requestId", bobReq.getRequestId()));
 
-        assertTrue("Owner cancel returns ok, got: " + json, json.contains("\"ok\":true"));
+        assertTrue(json.contains("\"ok\":true"), "Owner cancel returns ok, got: " + json);
         assertEquals(OmniAuthJitRequest.STATUS_CANCELLED, bobReq.getStatus());
     }
 
@@ -175,8 +176,8 @@ public class OmniAuthJitActionTest {
 
         String json = doCancel(user("mallory"), params("requestId", bobReq.getRequestId()));
 
-        assertTrue("Must be rejected, got: " + json, json.contains("Not your request"));
-        assertTrue("Bob's grant must remain active", bobReq.isActive());
+        assertTrue(json.contains("Not your request"), "Must be rejected, got: " + json);
+        assertTrue(bobReq.isActive(), "Bob's grant must remain active");
     }
 
     @Test
@@ -191,7 +192,7 @@ public class OmniAuthJitActionTest {
     public void doRequest_anonymous_isRejected() throws Exception {
         String json = doRequest(Jenkins.ANONYMOUS2, params("job", "folder/job", "reason", "x"));
         assertTrue(json.contains("Not authenticated"));
-        assertTrue("No request should be created for anonymous", store.getRecentRequests(100).isEmpty());
+        assertTrue(store.getRecentRequests(100).isEmpty(), "No request should be created for anonymous");
     }
 
     @Test
@@ -209,16 +210,14 @@ public class OmniAuthJitActionTest {
     @Test
     public void doRequest_noJitEligibility_isRejected() throws Exception {
         String json = doRequest(user("alice"), params("job", "folder/job", "reason", "need it"));
-        assertTrue("No assignment → no eligibility, got: " + json,
-                json.contains("No JIT eligibility"));
+        assertTrue(json.contains("No JIT eligibility"), "No assignment → no eligibility, got: " + json);
     }
 
     @Test
     public void doRequest_fewerThanTwoApprovers_isRejected() throws Exception {
         seedJitAssignment("alice", "folder/job", 4, "only@x"); // single approver
         String json = doRequest(user("alice"), params("job", "folder/job", "reason", "need it"));
-        assertTrue("Requires >=2 approvers, got: " + json,
-                json.contains("at least 2 approvers"));
+        assertTrue(json.contains("at least 2 approvers"), "Requires >=2 approvers, got: " + json);
     }
 
     @Test
@@ -227,9 +226,9 @@ public class OmniAuthJitActionTest {
         String json = doRequest(user("alice"),
                 params("job", "folder/job", "reason", "deploy hotfix", "durationHours", "2"));
 
-        assertTrue("Should succeed, got: " + json, json.contains("\"ok\":true"));
+        assertTrue(json.contains("\"ok\":true"), "Should succeed, got: " + json);
         OmniAuthJitRequest r = store.findPendingForUser("alice", "folder/job");
-        assertNotNull("A pending request should now exist", r);
+        assertNotNull(r, "A pending request should now exist");
         assertEquals(2, r.getTotalApprovers());
         assertEquals(2, r.getRequestedDurationHours());
         assertEquals("deploy hotfix", r.getReason());
@@ -242,7 +241,7 @@ public class OmniAuthJitActionTest {
                 params("job", "folder/job", "reason", "r", "durationHours", "999"));
         OmniAuthJitRequest r = store.findPendingForUser("alice", "folder/job");
         assertNotNull(r);
-        assertEquals("Duration must be capped at assignment max (4h)", 4, r.getRequestedDurationHours());
+        assertEquals(4, r.getRequestedDurationHours(), "Duration must be capped at assignment max (4h)");
     }
 
     @Test
@@ -253,7 +252,7 @@ public class OmniAuthJitActionTest {
                 params("job", "folder/job", "reason", longReason, "durationHours", "1"));
         OmniAuthJitRequest r = store.findPendingForUser("alice", "folder/job");
         assertNotNull(r);
-        assertEquals("Reason must be truncated to 1000 chars", 1000, r.getReason().length());
+        assertEquals(1000, r.getReason().length(), "Reason must be truncated to 1000 chars");
     }
 
     @Test
@@ -261,9 +260,8 @@ public class OmniAuthJitActionTest {
         seedJitAssignment("alice", "folder/job", 4, "x@x", "y@x");
         doRequest(user("alice"), params("job", "folder/job", "reason", "first", "durationHours", "1"));
         String json = doRequest(user("alice"), params("job", "folder/job", "reason", "second", "durationHours", "1"));
-        assertTrue("A second pending request for the same scope is blocked, got: " + json,
-                json.contains("already pending"));
-        assertEquals("Still only one request", 1, store.getRecentRequests(100).size());
+        assertTrue(json.contains("already pending"), "A second pending request for the same scope is blocked, got: " + json);
+        assertEquals(1, store.getRecentRequests(100).size(), "Still only one request");
     }
 
     @Test
@@ -275,8 +273,7 @@ public class OmniAuthJitActionTest {
         store.addRequest(existing);
 
         String json = doRequest(user("alice"), params("job", "folder/job", "reason", "again", "durationHours", "1"));
-        assertTrue("An active grant blocks a new request, got: " + json,
-                json.contains("already active"));
+        assertTrue(json.contains("already active"), "An active grant blocks a new request, got: " + json);
     }
 
     @Test
@@ -285,8 +282,7 @@ public class OmniAuthJitActionTest {
         seedJitAssignment("alice", "folder", 4, "x@x", "y@x");
         String json = doRequest(user("alice"),
                 params("job", "folder/sub/job", "reason", "nested", "durationHours", "1"));
-        assertTrue("Folder-scoped JIT assignment covers nested jobs, got: " + json,
-                json.contains("\"ok\":true"));
+        assertTrue(json.contains("\"ok\":true"), "Folder-scoped JIT assignment covers nested jobs, got: " + json);
         // Request is created at the assignment scope, not the job path
         assertNotNull(store.findPendingForUser("alice", "folder"));
     }

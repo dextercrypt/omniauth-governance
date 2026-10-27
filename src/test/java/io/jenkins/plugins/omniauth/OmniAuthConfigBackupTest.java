@@ -1,18 +1,19 @@
 package io.jenkins.plugins.omniauth;
 
 import hudson.util.Secret;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for {@link OmniAuthConfigBackup} — the UI Backup &amp; Restore serializer.
@@ -21,10 +22,15 @@ import static org.junit.Assert.fail;
  * import round-trips roles/assignments/groups/global settings with replace semantics; import
  * preserves existing secrets (never nulls them); and malformed input is rejected.
  */
+@WithJenkins
 public class OmniAuthConfigBackupTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
     public void roundTripConfig() {
@@ -71,11 +77,11 @@ public class OmniAuthConfigBackupTest {
 
         String yaml = OmniAuthConfigBackup.export();
 
-        assertFalse("realm must not be exported", yaml.contains("securityRealm"));
-        assertFalse("entra must not be exported", yaml.contains("entraConfig"));
-        assertFalse("slack secret must not appear", yaml.contains("SECRET-XYZ"));
-        assertFalse("smtp secret must not appear", yaml.contains("p4ss-SECRET"));
-        assertFalse("secret keys must not appear", yaml.contains("slackWebhookUrl"));
+        assertFalse(yaml.contains("securityRealm"), "realm must not be exported");
+        assertFalse(yaml.contains("entraConfig"), "entra must not be exported");
+        assertFalse(yaml.contains("SECRET-XYZ"), "slack secret must not appear");
+        assertFalse(yaml.contains("p4ss-SECRET"), "smtp secret must not appear");
+        assertFalse(yaml.contains("slackWebhookUrl"), "secret keys must not appear");
         assertFalse(yaml.contains("smtpPassword"));
         // but the config sections are present
         assertTrue(yaml.contains("omniAuthRoles"));
@@ -99,8 +105,8 @@ public class OmniAuthConfigBackupTest {
 
         OmniAuthConfigBackup.applyParsed(OmniAuthConfigBackup.parse(yaml));
 
-        assertEquals("non-secret field restored", "old-host", cfg.getSmtpHost());
-        assertEquals("secret preserved, not touched by import", "https://current", cfg.getSlackWebhookUrlPlain());
+        assertEquals("old-host", cfg.getSmtpHost(), "non-secret field restored");
+        assertEquals("https://current", cfg.getSlackWebhookUrlPlain(), "secret preserved, not touched by import");
     }
 
     @Test
@@ -116,7 +122,7 @@ public class OmniAuthConfigBackupTest {
         assertEquals(3, rc.getRoles().size());
 
         OmniAuthConfigBackup.applyParsed(OmniAuthConfigBackup.parse(yaml));
-        assertEquals("replace, not append", 1, rc.getRoles().size());
+        assertEquals(1, rc.getRoles().size(), "replace, not append");
         assertEquals("only", rc.getRoles().get(0).getName());
     }
 
@@ -144,7 +150,7 @@ public class OmniAuthConfigBackupTest {
         String yaml = OmniAuthConfigBackup.export();
         String header = yaml.substring(0, yaml.indexOf("unclassified"));
         for (int i = 0; i < header.length(); i++) {
-            assertTrue("non-ASCII char in header at " + i, header.charAt(i) < 0x80);
+            assertTrue(header.charAt(i) < 0x80, "non-ASCII char in header at " + i);
         }
     }
 
@@ -176,7 +182,7 @@ public class OmniAuthConfigBackupTest {
         OmniAuthRoleConfig.get().setRoles(List.of(
                 new OmniAuthRoleConfig.RoleDefinition("r1", "d", List.of("hudson.model.Hudson.Read"))));
         OmniAuthConfigBackup.Diff d = OmniAuthConfigBackup.diff(OmniAuthConfigBackup.current());
-        assertTrue("diff against the live state must be empty", d.isEmpty());
+        assertTrue(d.isEmpty(), "diff against the live state must be empty");
         assertEquals(0, d.totalChanges());
     }
 
@@ -228,11 +234,11 @@ public class OmniAuthConfigBackupTest {
         }
         String all = sb.toString();
         // description: current "two" (removed/red) → incoming "one" (added/green)
-        assertTrue(all, all.contains("description") && all.contains("[remove]\"two\"") && all.contains("[add]\"one\""));
+        assertTrue(all.contains("description") && all.contains("[remove]\"two\"") && all.contains("[add]\"one\""), all);
         // permissions: import re-adds Build (green) and drops Read (red)
-        assertTrue(all, all.contains("permissions")
+        assertTrue(all.contains("permissions")
                 && all.contains("[add]+hudson.model.Item.Build")
-                && all.contains("[remove]-hudson.model.Item.Read"));
+                && all.contains("[remove]-hudson.model.Item.Read"), all);
     }
 
     @Test
@@ -251,7 +257,7 @@ public class OmniAuthConfigBackupTest {
                 assertEquals("host-a", c.to);
             }
         }
-        assertTrue("smtpHost change must be reported", found);
+        assertTrue(found, "smtpHost change must be reported");
     }
 
     @Test
@@ -261,8 +267,8 @@ public class OmniAuthConfigBackupTest {
         OmniAuthRoleConfig.get().setRoles(List.of());  // live now empty → import re-adds "keep"
 
         OmniAuthConfigBackup.Diff d = OmniAuthConfigBackup.diff(OmniAuthConfigBackup.parse(yamlA));
-        assertTrue(d.summary(), d.summary().contains("roles"));
-        assertTrue(d.summary(), d.summary().contains("+1"));
+        assertTrue(d.summary().contains("roles"), d.summary());
+        assertTrue(d.summary().contains("+1"), d.summary());
     }
 
     private static void setSecret(OmniAuthGlobalConfig cfg, String field, String value) throws Exception {

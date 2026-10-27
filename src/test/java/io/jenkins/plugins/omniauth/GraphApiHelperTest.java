@@ -1,7 +1,7 @@
 package io.jenkins.plugins.omniauth;
 
 import io.jenkins.plugins.omniauth.util.GraphApiHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the SSRF guard on Graph API pagination in GraphApiHelper#getGroupMemberships.
@@ -121,10 +121,8 @@ public class GraphApiHelperTest {
                 new FakeResponse(200, pageBody("https://evil.com/steal?token=1", "Group-A"))));
         helperWith(fake).getGroupMemberships("fake-token");
 
-        assertEquals("a nextLink to another host must NOT be followed",
-                1, fake.requestedUris.size());
-        assertFalse("must never request the attacker host",
-                fake.requestedUris.get(0).contains("evil.com"));
+        assertEquals(1, fake.requestedUris.size(), "a nextLink to another host must NOT be followed");
+        assertFalse(fake.requestedUris.get(0).contains("evil.com"), "must never request the attacker host");
     }
 
     @Test
@@ -135,10 +133,9 @@ public class GraphApiHelperTest {
                         "https://graph.microsoft.com.evil.com/v1.0/me/memberOf", "Group-A"))));
         helperWith(fake).getGroupMemberships("fake-token");
 
-        assertEquals("a look-alike host (suffix-attached) must be rejected",
-                1, fake.requestedUris.size());
+        assertEquals(1, fake.requestedUris.size(), "a look-alike host (suffix-attached) must be rejected");
         for (String uri : fake.requestedUris) {
-            assertFalse("must never request the look-alike host", uri.contains("evil.com"));
+            assertFalse(uri.contains("evil.com"), "must never request the look-alike host");
         }
     }
 
@@ -151,11 +148,9 @@ public class GraphApiHelperTest {
 
         List<EntraGroupDetails> groups = helperWith(fake).getGroupMemberships("fake-token");
 
-        assertEquals("a legitimate graph.microsoft.com/v1.0 nextLink must be followed",
-                2, fake.requestedUris.size());
-        assertEquals("the second request must target the graph nextLink",
-                legitNext, fake.requestedUris.get(1));
-        assertEquals("both pages of groups must be collected", 2, groups.size());
+        assertEquals(2, fake.requestedUris.size(), "a legitimate graph.microsoft.com/v1.0 nextLink must be followed");
+        assertEquals(legitNext, fake.requestedUris.get(1), "the second request must target the graph nextLink");
+        assertEquals(2, groups.size(), "both pages of groups must be collected");
     }
 
     @Test
@@ -164,8 +159,7 @@ public class GraphApiHelperTest {
                 new FakeResponse(200, pageBody(null, "Group-A"))));
         helperWith(fake).getGroupMemberships("fake-token");
 
-        assertTrue("the initial request must go to the Graph base",
-                fake.requestedUris.get(0).startsWith("https://graph.microsoft.com/v1.0/me/memberOf"));
+        assertTrue(fake.requestedUris.get(0).startsWith("https://graph.microsoft.com/v1.0/me/memberOf"), "the initial request must go to the Graph base");
     }
 
     @Test
@@ -179,7 +173,7 @@ public class GraphApiHelperTest {
 
         List<EntraGroupDetails> groups = helperWith(fake).getGroupMemberships("fake-token");
 
-        assertEquals("a group node without a displayName must be skipped", 1, groups.size());
+        assertEquals(1, groups.size(), "a group node without a displayName must be skipped");
     }
 
     @Test
@@ -188,7 +182,7 @@ public class GraphApiHelperTest {
 
         List<EntraGroupDetails> groups = helperWith(fake).getGroupMemberships("fake-token");
 
-        assertTrue("an HTTP error yields no groups and no further requests", groups.isEmpty());
+        assertTrue(groups.isEmpty(), "an HTTP error yields no groups and no further requests");
         assertEquals(1, fake.requestedUris.size());
     }
 }

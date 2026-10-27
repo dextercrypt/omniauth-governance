@@ -3,16 +3,17 @@ package io.jenkins.plugins.omniauth;
 import hudson.util.Secret;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
-import org.junit.Rule;
-import org.junit.Test;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Security + round-trip for the notification secrets (SMTP password, Slack/Teams webhooks).
@@ -23,10 +24,15 @@ import static org.junit.Assert.assertTrue;
  * {@code ${ENV}} the same way). This test proves (1) no plaintext ever reaches the exported YAML,
  * (2) the secrets ARE exported (encrypted) so a backup is complete, and (3) they import back.
  */
+@WithJenkinsConfiguredWithCode
 public class JCasCSecretExportTest {
 
-    @Rule
-    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+    private JenkinsConfiguredWithCodeRule j;
+
+    @BeforeEach
+    void setUp(JenkinsConfiguredWithCodeRule r) {
+        j = r;
+    }
 
     private static final String SLACK = "https://hooks.slack.com/services/T000/B000/XXXXsecretXXXX";
     private static final String TEAMS = "https://outlook.office.com/webhook/TEAMSsecretTOKEN";
@@ -43,16 +49,16 @@ public class JCasCSecretExportTest {
         String yaml = exportToString();
 
         // (1) No plaintext anywhere.
-        assertFalse("Slack webhook leaked in plaintext", yaml.contains(SLACK));
-        assertFalse("Teams webhook leaked in plaintext", yaml.contains(TEAMS));
-        assertFalse("SMTP password leaked in plaintext", yaml.contains(SMTP_PW));
+        assertFalse(yaml.contains(SLACK), "Slack webhook leaked in plaintext");
+        assertFalse(yaml.contains(TEAMS), "Teams webhook leaked in plaintext");
+        assertFalse(yaml.contains(SMTP_PW), "SMTP password leaked in plaintext");
 
         // (2) They ARE exported now (so backup is complete) — as encrypted attributes.
-        assertTrue("slackWebhookUrl should be exported", yaml.contains("slackWebhookUrl"));
-        assertTrue("teamsWebhookUrl should be exported", yaml.contains("teamsWebhookUrl"));
-        assertTrue("smtpPassword should be exported", yaml.contains("smtpPassword"));
+        assertTrue(yaml.contains("slackWebhookUrl"), "slackWebhookUrl should be exported");
+        assertTrue(yaml.contains("teamsWebhookUrl"), "teamsWebhookUrl should be exported");
+        assertTrue(yaml.contains("smtpPassword"), "smtpPassword should be exported");
         // Jenkins Secret ciphertext is wrapped in braces, e.g. {AQAA....==}.
-        assertTrue("exported secret should be Jenkins ciphertext", yaml.matches("(?s).*slackWebhookUrl:\\s*\"\\{.*"));
+        assertTrue(yaml.matches("(?s).*slackWebhookUrl:\\s*\"\\{.*"), "exported secret should be Jenkins ciphertext");
     }
 
     @Test

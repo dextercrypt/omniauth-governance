@@ -2,17 +2,18 @@ package io.jenkins.plugins.omniauth;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Config save-safety + getter-clamping tests against a REAL {@link OmniAuthGlobalConfig}
@@ -25,10 +26,15 @@ import static org.junit.Assert.assertTrue;
  * re-reads every key it owns (resetting absent ones to defaults), which is exactly why the
  * dedicated setter exists.
  */
+@WithJenkins
 public class OmniAuthGlobalConfigTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     private OmniAuthGlobalConfig cfg() { return OmniAuthGlobalConfig.get(); }
 
@@ -59,11 +65,11 @@ public class OmniAuthGlobalConfigTest {
         assertEquals(2, c.getProtectedUsers().size());
 
         // ...and nothing else was reset (would have been, had this routed through configure()).
-        assertTrue("provisioningEnabled must survive", c.isProvisioningEnabled());
-        assertEquals("bruteForceLockoutMinutes must survive", 42, c.getBruteForceLockoutMinutes());
-        assertEquals("jitHistoryRetentionDays must survive", 55, c.getJitHistoryRetentionDays());
-        assertEquals("loginHeading must survive", "Welcome Team", c.getLoginHeading());
-        assertEquals("provisioningBreakerMax must survive", 250, c.getProvisioningBreakerMax());
+        assertTrue(c.isProvisioningEnabled(), "provisioningEnabled must survive");
+        assertEquals(42, c.getBruteForceLockoutMinutes(), "bruteForceLockoutMinutes must survive");
+        assertEquals(55, c.getJitHistoryRetentionDays(), "jitHistoryRetentionDays must survive");
+        assertEquals("Welcome Team", c.getLoginHeading(), "loginHeading must survive");
+        assertEquals(250, c.getProvisioningBreakerMax(), "provisioningBreakerMax must survive");
     }
 
     @Test
@@ -95,12 +101,12 @@ public class OmniAuthGlobalConfigTest {
         c.setActivationLinkTtlHours(96);
 
         // A form submit that omits every provisioning key entirely.
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, new JSONObject());
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, new JSONObject());
 
-        assertTrue("provisioningEnabled is outside configure()'s scope", c.isProvisioningEnabled());
-        assertTrue("provisioningAllowNative is outside configure()'s scope", c.isProvisioningAllowNative());
-        assertEquals("provisioningBreakerMax is outside configure()'s scope", 321, c.getProvisioningBreakerMax());
-        assertEquals("activationLinkTtlHours is outside configure()'s scope", 96, c.getActivationLinkTtlHours());
+        assertTrue(c.isProvisioningEnabled(), "provisioningEnabled is outside configure()'s scope");
+        assertTrue(c.isProvisioningAllowNative(), "provisioningAllowNative is outside configure()'s scope");
+        assertEquals(321, c.getProvisioningBreakerMax(), "provisioningBreakerMax is outside configure()'s scope");
+        assertEquals(96, c.getActivationLinkTtlHours(), "activationLinkTtlHours is outside configure()'s scope");
     }
 
     @Test
@@ -112,7 +118,7 @@ public class OmniAuthGlobalConfigTest {
         arr.add("bob");
         json.put("protectedUsers", arr);
 
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, json);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
 
         assertEquals(2, c.getProtectedUsers().size());
         assertTrue(c.getProtectedUsers().contains("alice"));
@@ -125,7 +131,7 @@ public class OmniAuthGlobalConfigTest {
         JSONObject json = new JSONObject();
         json.put("protectedUsers", "solo");
 
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, json);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
 
         assertEquals(1, c.getProtectedUsers().size());
         assertTrue(c.getProtectedUsers().contains("solo"));
@@ -138,13 +144,13 @@ public class OmniAuthGlobalConfigTest {
         // First submit sets a non-default threshold (there is no public setter for it).
         JSONObject first = new JSONObject();
         first.put("staleThresholdDays", 120);
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, first);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, first);
         assertEquals(120, c.getStaleThresholdDays());
 
         // A later submit that omits the key resets it to the default — this is why a
         // subset-of-fields save must use a dedicated setter rather than configure().
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, new JSONObject());
-        assertEquals("absent managed field reverts to default", 90, c.getStaleThresholdDays());
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, new JSONObject());
+        assertEquals(90, c.getStaleThresholdDays(), "absent managed field reverts to default");
     }
 
     @Test
@@ -156,7 +162,7 @@ public class OmniAuthGlobalConfigTest {
         json.put("smtpHost", "mail.example.com");
         json.put("smtpPort", 2525);
 
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, json);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
 
         assertEquals(9, c.getBruteForceThreshold());
         assertEquals(25, c.getBruteForceLockoutMinutes());
@@ -169,7 +175,7 @@ public class OmniAuthGlobalConfigTest {
         OmniAuthGlobalConfig c = cfg();
         JSONObject json = new JSONObject();
         json.put("smtpHost", "smtp.example.com:465");
-        c.configure((org.kohsuke.stapler.StaplerRequest) null, json);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
         assertEquals("smtp.example.com", c.getSmtpHost());
         assertEquals(465, c.getSmtpPort());
     }
@@ -271,11 +277,11 @@ public class OmniAuthGlobalConfigTest {
     @Test
     public void setProvisioningExpiryAction_normalisesToDisableOrDelete() {
         OmniAuthGlobalConfig c = cfg();
-        assertEquals("default is DISABLE", "DISABLE", c.getProvisioningExpiryAction());
+        assertEquals("DISABLE", c.getProvisioningExpiryAction(), "default is DISABLE");
         c.setProvisioningExpiryAction("delete");
         assertEquals("DELETE", c.getProvisioningExpiryAction());
         c.setProvisioningExpiryAction("garbage");
-        assertEquals("unknown value normalises to DISABLE", "DISABLE", c.getProvisioningExpiryAction());
+        assertEquals("DISABLE", c.getProvisioningExpiryAction(), "unknown value normalises to DISABLE");
     }
 
     @Test
@@ -283,14 +289,14 @@ public class OmniAuthGlobalConfigTest {
         OmniAuthGlobalConfig c = cfg();
         c.setProvisioningEnabled(false);
         c.setProvisioningAllowEntra(true);
-        assertFalse("disabled portal is never usable", c.isProvisioningUsable());
+        assertFalse(c.isProvisioningUsable(), "disabled portal is never usable");
 
         c.setProvisioningEnabled(true);
         c.setProvisioningAllowEntra(false);
         c.setProvisioningAllowNative(false);
-        assertFalse("enabled but no channel is not usable", c.isProvisioningUsable());
+        assertFalse(c.isProvisioningUsable(), "enabled but no channel is not usable");
 
         c.setProvisioningAllowNative(true);
-        assertTrue("enabled + a channel is usable", c.isProvisioningUsable());
+        assertTrue(c.isProvisioningUsable(), "enabled + a channel is usable");
     }
 }

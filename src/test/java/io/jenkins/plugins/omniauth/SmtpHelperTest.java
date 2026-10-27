@@ -1,11 +1,11 @@
 package io.jenkins.plugins.omniauth;
 
 import hudson.util.Secret;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link SmtpHelper#sendTo}'s recipient validation — the guard that
@@ -30,10 +30,10 @@ import static org.junit.Assert.*;
  * load() in its constructor). Channel/SMTP flags have no public setters, so we
  * set the private fields directly on the real instance (not a mock).
  */
+@WithJenkins
 public class SmtpHelperTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthGlobalConfig cfg;
     private Logger smtpLogger;
@@ -56,8 +56,9 @@ public class SmtpHelperTest {
         f.set(target, value);
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
         cfg = OmniAuthGlobalConfig.get();
         // Enable notifications + SMTP and make isSmtpConfigured() true, so sendTo
         // reaches the recipient-validation branch instead of short-circuiting earlier.
@@ -68,7 +69,7 @@ public class SmtpHelperTest {
         setField(cfg, "smtpFromAddress", "from@example.com");
         setField(cfg, "smtpUsername", "user");
         setField(cfg, "smtpPassword", Secret.fromString("pw"));
-        assertTrue("precondition: SMTP must be considered configured", cfg.isSmtpConfigured());
+        assertTrue(cfg.isSmtpConfigured(), "precondition: SMTP must be considered configured");
 
         smtpLogger = Logger.getLogger(SmtpHelper.class.getName());
         handler = new CapturingHandler();
@@ -77,7 +78,7 @@ public class SmtpHelperTest {
         smtpLogger.setLevel(Level.ALL);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (smtpLogger != null && handler != null) smtpLogger.removeHandler(handler);
     }
@@ -86,8 +87,7 @@ public class SmtpHelperTest {
     private void assertRejected(String toEmail) {
         handler.records.clear();
         SmtpHelper.sendTo(cfg, toEmail, "subj", "<p>html</p>", "plain");
-        assertTrue("address <" + toEmail + "> should have been rejected as invalid",
-                handler.sawInvalidRecipient());
+        assertTrue(handler.sawInvalidRecipient(), "address <" + toEmail + "> should have been rejected as invalid");
     }
 
     // ─── rejected addresses ────────────────────────────────────────────────────
@@ -119,8 +119,7 @@ public class SmtpHelperTest {
         // A clean address passes the guard and spawns the (daemon) sender thread;
         // we only assert it was NOT rejected. No join → no real connection matters.
         SmtpHelper.sendTo(cfg, "good@example.com", "subj", "<p>html</p>", "plain");
-        assertFalse("a well-formed single address must not be rejected",
-                handler.sawInvalidRecipient());
+        assertFalse(handler.sawInvalidRecipient(), "a well-formed single address must not be rejected");
     }
 
     // ─── channel-level short circuit still applies ─────────────────────────────

@@ -1,6 +1,6 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pure-POJO unit tests for {@link OmniAuthJitRequest} and its {@link OmniAuthJitRequest.ApprovalEntry}.
@@ -60,15 +60,14 @@ public class OmniAuthJitRequestTest {
 
     @Test
     public void isTimedOut_corruptDeadline_failsClosedTrue() {
-        assertTrue("A corrupt deadline must be treated as timed out (fail closed)",
-                pending("not-a-timestamp").isTimedOut());
+        assertTrue(pending("not-a-timestamp").isTimedOut(), "A corrupt deadline must be treated as timed out (fail closed)");
     }
 
     @Test
     public void isTimedOut_nonPendingStatus_isFalseEvenWithPastDeadline() {
         OmniAuthJitRequest r = pending(pastIso());
         r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
-        assertFalse("Only PENDING requests can time out", r.isTimedOut());
+        assertFalse(r.isTimedOut(), "Only PENDING requests can time out");
     }
 
     // ── isExpiredActive ───────────────────────────────────────────────────────
@@ -90,15 +89,14 @@ public class OmniAuthJitRequestTest {
 
     @Test
     public void isExpiredActive_corruptExpiry_failsClosedTrue() {
-        assertTrue("A corrupt expiry must be treated as expired (fail closed)",
-                active("garbage").isExpiredActive());
+        assertTrue(active("garbage").isExpiredActive(), "A corrupt expiry must be treated as expired (fail closed)");
     }
 
     @Test
     public void isExpiredActive_nonActiveStatus_isFalse() {
         OmniAuthJitRequest r = active(pastIso());
         r.setStatus(OmniAuthJitRequest.STATUS_PENDING);
-        assertFalse("Only ACTIVE requests can be expired-active", r.isExpiredActive());
+        assertFalse(r.isExpiredActive(), "Only ACTIVE requests can be expired-active");
     }
 
     // ── secondsRemaining ──────────────────────────────────────────────────────
@@ -141,7 +139,7 @@ public class OmniAuthJitRequestTest {
         r.initApprovalEntries(Arrays.asList("a@x", "b@x"));
         r.getApprovalEntries().get(0).setDecision("APPROVED");
         // second stays pending
-        assertFalse("A single pending approver blocks full approval", r.isFullyApproved());
+        assertFalse(r.isFullyApproved(), "A single pending approver blocks full approval");
     }
 
     @Test
@@ -181,8 +179,7 @@ public class OmniAuthJitRequestTest {
         OmniAuthJitRequest r = new OmniAuthJitRequest();
         r.initApprovalEntries(Arrays.asList("alice@x", "bob@x"));
         r.findPendingEntryByIdentity("alice@x").setDecision("APPROVED");
-        assertNull("A decided entry is no longer pending",
-                r.findPendingEntryByIdentity("alice@x"));
+        assertNull(r.findPendingEntryByIdentity("alice@x"), "A decided entry is no longer pending");
     }
 
     @Test
@@ -223,8 +220,7 @@ public class OmniAuthJitRequestTest {
         OmniAuthJitRequest r = new OmniAuthJitRequest();
         r.initApprovalEntries(Arrays.asList("alice@x", "bob@x"));
         r.findPendingEntryByIdentity("alice@x").setDecision("APPROVED");
-        assertFalse("A user who already decided is no longer a pending approver",
-                r.isCurrentUserApprover("alice@x"));
+        assertFalse(r.isCurrentUserApprover("alice@x"), "A user who already decided is no longer a pending approver");
     }
 
     @Test
@@ -271,7 +267,7 @@ public class OmniAuthJitRequestTest {
         for (int i = 0; i < 500; i++) {
             tokens.add(OmniAuthJitRequest.ApprovalEntry.create("a@x").getToken());
         }
-        assertEquals("All generated tokens must be unique", 500, tokens.size());
+        assertEquals(500, tokens.size(), "All generated tokens must be unique");
     }
 
     @Test

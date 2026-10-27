@@ -294,7 +294,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * Step 1 — redirect browser to Azure AD login page.
      * Called by OmniAuthRootAction at GET /omniauth/commenceLogin[?from=…]
      */
-    HttpResponse startEntraLogin(StaplerRequest req)
+    HttpResponse startEntraLogin(StaplerRequest2 req)
             throws Exception {
         if (entraConfig == null) {
             return HttpResponses.error(503,
@@ -346,7 +346,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * Step 2 — Azure AD posts back with an authorization code.
      * Called by OmniAuthRootAction at GET /omniauth/finishLogin?code=…&state=…
      */
-    HttpResponse finishEntraLogin(StaplerRequest req)
+    HttpResponse finishEntraLogin(StaplerRequest2 req)
             throws Exception {
         // CSRF: validate state nonce
         String returnedState = req.getParameter("state");
@@ -768,7 +768,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         return true;
     }
 
-    private String buildRedirectUri(StaplerRequest req) {
+    private String buildRedirectUri(StaplerRequest2 req) {
         String root = Jenkins.get().getRootUrl();
         if (root == null) root = req.getRootPath() + "/";
         if (root.endsWith("/")) root = root.substring(0, root.length() - 1);

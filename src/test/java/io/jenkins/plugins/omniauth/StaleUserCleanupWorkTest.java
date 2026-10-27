@@ -1,16 +1,16 @@
 package io.jenkins.plugins.omniauth;
 
 import hudson.model.User;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for StaleUserCleanupWork — the cron-field matcher (pure logic) and the
@@ -25,10 +25,10 @@ import static org.junit.Assert.*;
  * configure(json)), so the sweep tests set the private fields reflectively — exactly the
  * values an admin would configure on the Notifications page.
  */
+@WithJenkins
 public class StaleUserCleanupWorkTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     // ─── Cron field matcher (pure logic) ──────────────────────────────────────
 
@@ -144,8 +144,9 @@ public class StaleUserCleanupWorkTest {
         return Instant.now().minus(days, ChronoUnit.DAYS).toString();
     }
 
-    @Before
-    public void sanityNoStaleRealm() {
+    @BeforeEach
+    public void sanityNoStaleRealm(JenkinsRule rule) {
+        j = rule;
         // No security realm needed for runCleanup; left intentionally default.
     }
 
@@ -154,14 +155,12 @@ public class StaleUserCleanupWorkTest {
         // A freshly provisioned account that has never logged in has no LastLoginProperty.
         User newbie = User.getById("sweep-newbie", true);
         newbie.save();
-        assertNull("precondition: no recorded login",
-                OmniAuthUserProperty.resolveLastLogin(null, newbie.getProperty(LastLoginProperty.class)));
+        assertNull(OmniAuthUserProperty.resolveLastLogin(null, newbie.getProperty(LastLoginProperty.class)), "precondition: no recorded login");
 
         configureCleanup(1, 50, false); // aggressive 1-day threshold, live mode
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNotNull("never-logged-in account must survive the sweep",
-                User.getById("sweep-newbie", false));
+        assertNotNull(User.getById("sweep-newbie", false), "never-logged-in account must survive the sweep");
     }
 
     @Test
@@ -171,8 +170,7 @@ public class StaleUserCleanupWorkTest {
         configureCleanup(30, 50, false);
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNull("a 100-day-idle account past the 30-day threshold must be deleted",
-                User.getById("sweep-oldie", false));
+        assertNull(User.getById("sweep-oldie", false), "a 100-day-idle account past the 30-day threshold must be deleted");
     }
 
     @Test
@@ -182,8 +180,7 @@ public class StaleUserCleanupWorkTest {
         configureCleanup(30, 50, false);
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNotNull("a 2-day-idle account well under the threshold must be kept",
-                User.getById("sweep-fresh", false));
+        assertNotNull(User.getById("sweep-fresh", false), "a 2-day-idle account well under the threshold must be kept");
     }
 
     @Test
@@ -194,10 +191,8 @@ public class StaleUserCleanupWorkTest {
         configureCleanup(30, 50, false);
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNotNull("the corrupt-timestamp user is skipped, not deleted",
-                User.getById("sweep-garbage", false));
-        assertNull("one corrupt timestamp must not abort the whole sweep — the stale sibling is still deleted",
-                User.getById("sweep-stale-sibling", false));
+        assertNotNull(User.getById("sweep-garbage", false), "the corrupt-timestamp user is skipped, not deleted");
+        assertNull(User.getById("sweep-stale-sibling", false), "one corrupt timestamp must not abort the whole sweep — the stale sibling is still deleted");
     }
 
     @Test
@@ -214,7 +209,7 @@ public class StaleUserCleanupWorkTest {
         for (int i = 1; i <= 4; i++) {
             if (User.getById("sweep-cap-" + i, false) != null) surviving++;
         }
-        assertEquals("with a cap of 2 of 4 stale users, exactly 2 should remain", 2, surviving);
+        assertEquals(2, surviving, "with a cap of 2 of 4 stale users, exactly 2 should remain");
     }
 
     @Test
@@ -224,8 +219,7 @@ public class StaleUserCleanupWorkTest {
         configureCleanup(30, 50, true); // dry run
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNotNull("dry-run mode must not delete anything",
-                User.getById("sweep-dry", false));
+        assertNotNull(User.getById("sweep-dry", false), "dry-run mode must not delete anything");
     }
 
     @Test
@@ -236,7 +230,6 @@ public class StaleUserCleanupWorkTest {
         configureCleanup(30, 50, false);
         StaleUserCleanupWork.runCleanup(OmniAuthGlobalConfig.get());
 
-        assertNotNull("a protected user must never be auto-deleted",
-                User.getById("sweep-protected", false));
+        assertNotNull(User.getById("sweep-protected", false), "a protected user must never be auto-deleted");
     }
 }

@@ -1,14 +1,14 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Pure unit tests for the time-based predicates that govern access revocation. The security
@@ -50,7 +50,7 @@ public class ExpiryPredicatesTest {
     @Test public void assignment_nullExpiry_notExpired() {
         OmniAuthAssignment a = new OmniAuthAssignment();
         a.setExpiresAt(null);
-        assertFalse("no expiry date means never auto-expires", a.isExpired());
+        assertFalse(a.isExpired(), "no expiry date means never auto-expires");
     }
 
     @Test public void assignment_blankExpiry_notExpired() throws Exception {
@@ -62,7 +62,7 @@ public class ExpiryPredicatesTest {
     @Test public void assignment_corruptExpiry_failsClosed() {
         OmniAuthAssignment a = new OmniAuthAssignment();
         a.setExpiresAt(CORRUPT);
-        assertTrue("corrupt expiry must be treated as EXPIRED (fail closed)", a.isExpired());
+        assertTrue(a.isExpired(), "corrupt expiry must be treated as EXPIRED (fail closed)");
     }
 
     @Test public void assignment_corruptExpiry2_failsClosed() {
@@ -77,7 +77,7 @@ public class ExpiryPredicatesTest {
         OmniAuthAssignment a = new OmniAuthAssignment();
         a.setExpiresAt(future());
         a.setReviewedAt(daysAgo(1000));
-        assertFalse("assignments with any expiry are excluded from review", a.isReviewDue(90));
+        assertFalse(a.isReviewDue(90), "assignments with any expiry are excluded from review");
     }
 
     @Test public void reviewDue_recentlyReviewed_notDue() {
@@ -164,7 +164,7 @@ public class ExpiryPredicatesTest {
     @Test public void jitTimedOut_pendingCorruptDeadline_failsClosed() {
         OmniAuthJitRequest r = jit(OmniAuthJitRequest.STATUS_PENDING);
         r.setApprovalDeadline(CORRUPT);
-        assertTrue("corrupt deadline must be treated as TIMED OUT (fail closed)", r.isTimedOut());
+        assertTrue(r.isTimedOut(), "corrupt deadline must be treated as TIMED OUT (fail closed)");
     }
 
     // ───────────────────────── OmniAuthJitRequest.isExpiredActive() ───────────────────
@@ -202,7 +202,7 @@ public class ExpiryPredicatesTest {
     @Test public void jitExpiredActive_activeCorruptExpiry_failsClosed() {
         OmniAuthJitRequest r = jit(OmniAuthJitRequest.STATUS_ACTIVE);
         r.setExpiresAt(CORRUPT);
-        assertTrue("corrupt expiry must be treated as EXPIRED (fail closed)", r.isExpiredActive());
+        assertTrue(r.isExpiredActive(), "corrupt expiry must be treated as EXPIRED (fail closed)");
     }
 
     // ─────────────────── OmniAuthAccountExpiryProperty.isExpired() ─────────────────────
@@ -224,15 +224,14 @@ public class ExpiryPredicatesTest {
     }
 
     @Test public void accountExpiry_corruptExpiry_failsClosed() {
-        assertTrue("corrupt account expiry must fail closed (treat as expired)",
-                new OmniAuthAccountExpiryProperty(CORRUPT).isExpired());
+        assertTrue(new OmniAuthAccountExpiryProperty(CORRUPT).isExpired(), "corrupt account expiry must fail closed (treat as expired)");
     }
 
     // ─────────────── OmniAuthAccountExpiryProperty.daysUntilExpiry() ───────────────────
 
     @Test public void accountExpiry_daysUntil_future_positive() {
         long d = new OmniAuthAccountExpiryProperty(daysAhead(2)).daysUntilExpiry();
-        assertTrue("future expiry should report a positive day count, got " + d, d >= 1);
+        assertTrue(d >= 1, "future expiry should report a positive day count, got " + d);
     }
 
     @Test public void accountExpiry_daysUntil_past_minusOne() {

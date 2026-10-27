@@ -2,29 +2,35 @@ package io.jenkins.plugins.omniauth;
 
 import hudson.util.FormValidation;
 import hudson.util.Secret;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link EntraOAuthConfig} round-trip, secret-at-rest, scope/authority, and form-validation
  * tests. JenkinsRule is used because {@code getScope()} (no group sync) consults
  * {@code OmniAuthAssignmentConfig.get()} and the descriptor lives in the Jenkins registry.
  */
+@WithJenkins
 public class EntraOAuthConfigTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     private EntraOAuthConfig newConfig() {
         return new EntraOAuthConfig("tenant-123", "client-abc", Secret.fromString("s3cr3t"));
@@ -45,10 +51,10 @@ public class EntraOAuthConfigTest {
     public void clientSecret_isStoredAsSecret_getterReturnsPlaintext() {
         EntraOAuthConfig c = newConfig();
         Secret stored = c.getClientSecret();
-        assertNotNull("clientSecret should be a Secret, not raw String", stored);
-        assertEquals("plaintext is retrievable from the Secret", "s3cr3t", stored.getPlainText());
+        assertNotNull(stored, "clientSecret should be a Secret, not raw String");
+        assertEquals("s3cr3t", stored.getPlainText(), "plaintext is retrievable from the Secret");
         // The encrypted-at-rest form must differ from the plaintext.
-        assertFalse("encrypted value must not equal plaintext", "s3cr3t".equals(stored.getEncryptedValue()));
+        assertFalse("s3cr3t".equals(stored.getEncryptedValue()), "encrypted value must not equal plaintext");
     }
 
     // ── enableGroupSync DataBoundSetter round-trip ────────────────────────────
@@ -56,7 +62,7 @@ public class EntraOAuthConfigTest {
     @Test
     public void enableGroupSync_defaultsFalse_andRoundTrips() {
         EntraOAuthConfig c = newConfig();
-        assertFalse("group sync defaults off", c.isEnableGroupSync());
+        assertFalse(c.isEnableGroupSync(), "group sync defaults off");
         c.setEnableGroupSync(true);
         assertTrue(c.isEnableGroupSync());
     }
@@ -116,15 +122,13 @@ public class EntraOAuthConfigTest {
     public void constructor_isAnnotatedDataBoundConstructor() throws Exception {
         Constructor<EntraOAuthConfig> ctor =
                 EntraOAuthConfig.class.getDeclaredConstructor(String.class, String.class, Secret.class);
-        assertNotNull("@DataBoundConstructor must remain for form binding",
-                ctor.getAnnotation(DataBoundConstructor.class));
+        assertNotNull(ctor.getAnnotation(DataBoundConstructor.class), "@DataBoundConstructor must remain for form binding");
     }
 
     @Test
     public void setEnableGroupSync_isAnnotatedDataBoundSetter() throws Exception {
         Method m = EntraOAuthConfig.class.getDeclaredMethod("setEnableGroupSync", boolean.class);
-        assertNotNull("@DataBoundSetter must remain for form binding",
-                m.getAnnotation(DataBoundSetter.class));
+        assertNotNull(m.getAnnotation(DataBoundSetter.class), "@DataBoundSetter must remain for form binding");
     }
 
     // ── allowedDomains (SSO login domain gate) ────────────────────────────────
@@ -132,27 +136,23 @@ public class EntraOAuthConfigTest {
     @Test
     public void allowedDomains_defaultsEmpty_andRoundTripsTrimmed() throws Exception {
         EntraOAuthConfig c = newConfig();
-        assertEquals("defaults to empty (allow all)", "", c.getAllowedDomains());
+        assertEquals("", c.getAllowedDomains(), "defaults to empty (allow all)");
         c.setAllowedDomains("  example.com, example.org  ");
-        assertEquals("value is trimmed", "example.com, example.org", c.getAllowedDomains());
+        assertEquals("example.com, example.org", c.getAllowedDomains(), "value is trimmed");
         c.setAllowedDomains(null);
-        assertEquals("null normalises to empty", "", c.getAllowedDomains());
+        assertEquals("", c.getAllowedDomains(), "null normalises to empty");
 
         Method m = EntraOAuthConfig.class.getDeclaredMethod("setAllowedDomains", String.class);
-        assertNotNull("@DataBoundSetter must remain for form binding",
-                m.getAnnotation(DataBoundSetter.class));
+        assertNotNull(m.getAnnotation(DataBoundSetter.class), "@DataBoundSetter must remain for form binding");
     }
 
     @Test
     public void allowedDomains_enforcedByTheSharedDomainGate() {
         // The login gate reuses ProvisioningPortalAction.domainAllowed with this field: empty = all,
         // otherwise only listed domains pass.
-        assertTrue("empty list allows any domain",
-                ProvisioningPortalAction.domainAllowed("anyone@anywhere.com", ""));
-        assertTrue("listed domain passes",
-                ProvisioningPortalAction.domainAllowed("alice@example.com", "example.com"));
-        assertFalse("unlisted domain is rejected",
-                ProvisioningPortalAction.domainAllowed("mallory@evil.com", "example.com"));
+        assertTrue(ProvisioningPortalAction.domainAllowed("anyone@anywhere.com", ""), "empty list allows any domain");
+        assertTrue(ProvisioningPortalAction.domainAllowed("alice@example.com", "example.com"), "listed domain passes");
+        assertFalse(ProvisioningPortalAction.domainAllowed("mallory@evil.com", "example.com"), "unlisted domain is rejected");
     }
 
     // ── doTestConnection: required-field guard (no network) ───────────────────
@@ -160,9 +160,7 @@ public class EntraOAuthConfigTest {
     @Test
     public void doTestConnection_missingFields_isError() {
         EntraOAuthConfig.DescriptorImpl d = descriptor();
-        assertEquals("blank secret must short-circuit before any network call",
-                FormValidation.Kind.ERROR,
-                d.doTestConnection("tenant-123", "client-abc", Secret.fromString("")).kind);
+        assertEquals(FormValidation.Kind.ERROR, d.doTestConnection("tenant-123", "client-abc", Secret.fromString("")).kind, "blank secret must short-circuit before any network call");
         assertEquals(FormValidation.Kind.ERROR,
                 d.doTestConnection("", "client-abc", Secret.fromString("s")).kind);
     }

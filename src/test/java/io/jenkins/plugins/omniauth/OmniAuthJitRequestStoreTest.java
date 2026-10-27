@@ -1,15 +1,15 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link OmniAuthJitRequestStore} — the CopyOnWriteArrayList-backed JIT request store.
@@ -24,18 +24,19 @@ import static org.junit.Assert.*;
  *  - separation of duty (full approval needs ALL listed approvers; one actor cannot activate)
  *  - requester-ownership on cancel
  */
+@WithJenkins
 public class OmniAuthJitRequestStoreTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthJitRequestStore store;
 
-    @Before
-    public void freshStore() {
+    @BeforeEach
+    public void freshStore(JenkinsRule rule) {
+        j = rule;
         store = OmniAuthJitRequestStore.get();
         assertNotNull(store);
-        assertTrue("Each test must start from an empty store", store.getRecentRequests(100).isEmpty());
+        assertTrue(store.getRecentRequests(100).isEmpty(), "Each test must start from an empty store");
     }
 
     private static String pastIso()   { return Instant.now().minus(2, ChronoUnit.HOURS).toString(); }
@@ -87,8 +88,7 @@ public class OmniAuthJitRequestStoreTest {
         r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
         r.setExpiresAt(pastIso()); // status still ACTIVE but window has elapsed
         store.addRequest(r);
-        assertNull("An ACTIVE-but-expired grant must fail closed at check time",
-                store.findActiveForUser("alice", "scopeA"));
+        assertNull(store.findActiveForUser("alice", "scopeA"), "An ACTIVE-but-expired grant must fail closed at check time");
     }
 
     @Test
@@ -109,8 +109,7 @@ public class OmniAuthJitRequestStoreTest {
         assertNull(store.findPendingForUser("alice", "scopeB"));
 
         r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
-        assertNull("A non-pending request is not returned by findPendingForUser",
-                store.findPendingForUser("alice", "scopeA"));
+        assertNull(store.findPendingForUser("alice", "scopeA"), "A non-pending request is not returned by findPendingForUser");
     }
 
     @Test
@@ -141,8 +140,8 @@ public class OmniAuthJitRequestStoreTest {
                 store.processApproverAction(firstToken, "APPROVED", "lgtm");
 
         assertEquals(OmniAuthJitRequestStore.ActionResult.PARTIAL_APPROVED, res);
-        assertTrue("Still pending until ALL approvers sign off", r.isPending());
-        assertNull("No expiry until fully approved", r.getExpiresAt());
+        assertTrue(r.isPending(), "Still pending until ALL approvers sign off");
+        assertNull(r.getExpiresAt(), "No expiry until fully approved");
     }
 
     @Test
@@ -155,8 +154,8 @@ public class OmniAuthJitRequestStoreTest {
 
         assertEquals(OmniAuthJitRequestStore.ActionResult.ALL_APPROVED, res);
         assertTrue(r.isActive());
-        assertNotNull("expiresAt must be set on activation", r.getExpiresAt());
-        assertNotNull("approvedAt must be set on activation", r.getApprovedAt());
+        assertNotNull(r.getExpiresAt(), "expiresAt must be set on activation");
+        assertNotNull(r.getApprovedAt(), "approvedAt must be set on activation");
         // ~3h window → positive seconds remaining
         assertTrue(r.secondsRemaining() > 0);
     }
@@ -170,7 +169,7 @@ public class OmniAuthJitRequestStoreTest {
 
         assertEquals(OmniAuthJitRequestStore.ActionResult.DENIED, res);
         assertEquals(OmniAuthJitRequest.STATUS_DENIED, r.getStatus());
-        assertNull("A denied request never activates", r.getExpiresAt());
+        assertNull(r.getExpiresAt(), "A denied request never activates");
     }
 
     @Test
@@ -206,16 +205,15 @@ public class OmniAuthJitRequestStoreTest {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         r.setApprovalDeadline(pastIso()); // PENDING but approval window already elapsed
         store.addRequest(r);
-        assertTrue("precondition: request is pending", r.isPending());
-        assertTrue("precondition: request is timed out", r.isTimedOut());
+        assertTrue(r.isPending(), "precondition: request is pending");
+        assertTrue(r.isTimedOut(), "precondition: request is timed out");
 
         OmniAuthJitRequestStore.ActionResult res =
                 store.processApproverAction(r.getApprovalEntries().get(0).getToken(), "APPROVED", "");
 
-        assertEquals("A timed-out request must not be approvable",
-                OmniAuthJitRequestStore.ActionResult.ALREADY_PROCESSED, res);
+        assertEquals(OmniAuthJitRequestStore.ActionResult.ALREADY_PROCESSED, res, "A timed-out request must not be approvable");
         assertEquals(OmniAuthJitRequest.STATUS_TIMED_OUT, r.getStatus());
-        assertNull("No expiry may be set on a timed-out request", r.getExpiresAt());
+        assertNull(r.getExpiresAt(), "No expiry may be set on a timed-out request");
         assertFalse(r.isActive());
         // The approval entry must remain undecided — the decision was refused, not recorded
         assertTrue(r.getApprovalEntries().get(0).isPending());
@@ -229,9 +227,9 @@ public class OmniAuthJitRequestStoreTest {
 
         boolean activated = store.approveAsApprover(r.getRequestId(), "a@x");
 
-        assertFalse("approveAsApprover must refuse a timed-out request", activated);
+        assertFalse(activated, "approveAsApprover must refuse a timed-out request");
         assertEquals(OmniAuthJitRequest.STATUS_TIMED_OUT, r.getStatus());
-        assertNull("No expiry may be set on a timed-out request", r.getExpiresAt());
+        assertNull(r.getExpiresAt(), "No expiry may be set on a timed-out request");
         assertFalse(r.isActive());
         assertTrue(r.getApprovalEntries().get(0).isPending());
     }
@@ -242,8 +240,7 @@ public class OmniAuthJitRequestStoreTest {
     public void approveAsApprover_nonApprover_isRejected() {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         store.addRequest(r);
-        assertFalse("A user not on the approver list cannot act",
-                store.approveAsApprover(r.getRequestId(), "eve@x"));
+        assertFalse(store.approveAsApprover(r.getRequestId(), "eve@x"), "A user not on the approver list cannot act");
         assertTrue(r.isPending());
     }
 
@@ -252,7 +249,7 @@ public class OmniAuthJitRequestStoreTest {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         store.addRequest(r);
         boolean activated = store.approveAsApprover(r.getRequestId(), "a@x");
-        assertFalse("One of two approvers cannot alone activate (separation of duty)", activated);
+        assertFalse(activated, "One of two approvers cannot alone activate (separation of duty)");
         assertTrue(r.isPending());
         assertNull(r.getExpiresAt());
         assertEquals(1, r.getApprovedCount());
@@ -264,7 +261,7 @@ public class OmniAuthJitRequestStoreTest {
         store.addRequest(r);
         assertFalse(store.approveAsApprover(r.getRequestId(), "a@x"));
         boolean activated = store.approveAsApprover(r.getRequestId(), "b@x");
-        assertTrue("Full approval requires ALL listed approvers", activated);
+        assertTrue(activated, "Full approval requires ALL listed approvers");
         assertTrue(r.isActive());
         assertNotNull(r.getExpiresAt());
     }
@@ -275,8 +272,7 @@ public class OmniAuthJitRequestStoreTest {
         store.addRequest(r);
         assertFalse(store.approveAsApprover(r.getRequestId(), "a@x"));
         // a@x has no remaining pending entry → second call finds no pending entry for them
-        assertFalse("A single actor cannot fill a second approver slot",
-                store.approveAsApprover(r.getRequestId(), "a@x"));
+        assertFalse(store.approveAsApprover(r.getRequestId(), "a@x"), "A single actor cannot fill a second approver slot");
         assertTrue(r.isPending());
         assertEquals(1, r.getApprovedCount());
     }
@@ -317,8 +313,8 @@ public class OmniAuthJitRequestStoreTest {
     public void cancel_byDifferentUser_isRefused() {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         store.addRequest(r);
-        assertFalse("A different requesterId must not be able to cancel", store.cancel(r.getRequestId(), "mallory"));
-        assertTrue("Request must remain pending after refused cancel", r.isPending());
+        assertFalse(store.cancel(r.getRequestId(), "mallory"), "A different requesterId must not be able to cancel");
+        assertTrue(r.isPending(), "Request must remain pending after refused cancel");
     }
 
     @Test
@@ -326,7 +322,7 @@ public class OmniAuthJitRequestStoreTest {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
         store.addRequest(r);
-        assertFalse("Only pending requests can be cancelled", store.cancel(r.getRequestId(), "alice"));
+        assertFalse(store.cancel(r.getRequestId(), "alice"), "Only pending requests can be cancelled");
     }
 
     // ── revoke: active requests only ──────────────────────────────────────────
@@ -346,7 +342,7 @@ public class OmniAuthJitRequestStoreTest {
     public void revoke_pendingRequest_isRefused() {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");
         store.addRequest(r);
-        assertFalse("Only active requests can be revoked", store.revoke(r.getRequestId(), "admin"));
+        assertFalse(store.revoke(r.getRequestId(), "admin"), "Only active requests can be revoked");
         assertTrue(r.isPending());
     }
 
@@ -371,7 +367,7 @@ public class OmniAuthJitRequestStoreTest {
         assertEquals(2, transitioned.size());
         assertEquals(OmniAuthJitRequest.STATUS_TIMED_OUT, timedOut.getStatus());
         assertEquals(OmniAuthJitRequest.STATUS_EXPIRED, expired.getStatus());
-        assertTrue("Healthy pending request is untouched", healthy.isPending());
+        assertTrue(healthy.isPending(), "Healthy pending request is untouched");
     }
 
     // ── purgeOldRecords (retention) ───────────────────────────────────────────
@@ -397,9 +393,9 @@ public class OmniAuthJitRequestStoreTest {
         int purged = store.purgeOldRecords(90);
 
         assertEquals(1, purged);
-        assertNull("Old terminal record purged", store.findById(oldTerminal.getRequestId()));
-        assertNotNull("Recent terminal kept", store.findById(recentTerminal.getRequestId()));
-        assertNotNull("Live pending kept regardless of age", store.findById(livePending.getRequestId()));
+        assertNull(store.findById(oldTerminal.getRequestId()), "Old terminal record purged");
+        assertNotNull(store.findById(recentTerminal.getRequestId()), "Recent terminal kept");
+        assertNotNull(store.findById(livePending.getRequestId()), "Live pending kept regardless of age");
     }
 
     @Test

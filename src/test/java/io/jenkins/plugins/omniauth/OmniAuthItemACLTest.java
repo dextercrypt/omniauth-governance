@@ -4,10 +4,10 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.security.Permission;
 import jenkins.model.Jenkins;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Behaviour tests for {@link OmniAuthItemACL} — the core per-item permission resolver and the
@@ -36,18 +36,19 @@ import static org.junit.Assert.*;
  * used. "Developer" is the useful one here: it grants Item.Build/Cancel/Configure/Delete/WipeOut/Read
  * (but NOT Item.Discover), which is exactly what the ancestor/direct-parent boundary tests need.</p>
  */
+@WithJenkins
 public class OmniAuthItemACLTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private static final String DEVELOPER     = "Developer";
     private static final String ADMINISTRATOR = "Administrator";
 
     private OmniAuthAssignmentConfig config;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) {
+        j = rule;
         // No matrix grants => the ACL's admin bypass and root-ACL fall-through both deny the
         // ordinary test user, so the assignment logic is actually exercised.
         j.jenkins.setAuthorizationStrategy(new OmniAuthAuthorizationStrategy());
@@ -82,10 +83,10 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL acl = new OmniAuthItemACL("folderA/folderB/jobX");
         Authentication alice = user("alice");
 
-        assertTrue("job gets Build",     acl.hasPermission2(alice, Item.BUILD));
-        assertTrue("job gets Configure", acl.hasPermission2(alice, Item.CONFIGURE));
-        assertTrue("job gets Delete",    acl.hasPermission2(alice, Item.DELETE));
-        assertTrue("job gets Read",      acl.hasPermission2(alice, Item.READ));
+        assertTrue(acl.hasPermission2(alice, Item.BUILD), "job gets Build");
+        assertTrue(acl.hasPermission2(alice, Item.CONFIGURE), "job gets Configure");
+        assertTrue(acl.hasPermission2(alice, Item.DELETE), "job gets Delete");
+        assertTrue(acl.hasPermission2(alice, Item.READ), "job gets Read");
     }
 
     // ── REGRESSION (fixed HIGH priv-esc): ancestor folders must NOT be elevated ──
@@ -97,10 +98,10 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL ancestor = new OmniAuthItemACL("folderA");
         Authentication alice = user("alice");
 
-        assertFalse("ancestor must NOT get Configure", ancestor.hasPermission2(alice, Item.CONFIGURE));
-        assertFalse("ancestor must NOT get Delete",    ancestor.hasPermission2(alice, Item.DELETE));
-        assertFalse("ancestor must NOT get Build",     ancestor.hasPermission2(alice, Item.BUILD));
-        assertFalse("ancestor must NOT get WipeOut",   ancestor.hasPermission2(alice, Item.WIPEOUT));
+        assertFalse(ancestor.hasPermission2(alice, Item.CONFIGURE), "ancestor must NOT get Configure");
+        assertFalse(ancestor.hasPermission2(alice, Item.DELETE), "ancestor must NOT get Delete");
+        assertFalse(ancestor.hasPermission2(alice, Item.BUILD), "ancestor must NOT get Build");
+        assertFalse(ancestor.hasPermission2(alice, Item.WIPEOUT), "ancestor must NOT get WipeOut");
     }
 
     @Test
@@ -110,8 +111,7 @@ public class OmniAuthItemACLTest {
 
         // Nav-only: the ancestor is readable (so the user can navigate down to the job)
         // but nothing mutating is allowed.
-        assertTrue("ancestor gets Item.Read for navigation",
-                ancestor.hasPermission2(user("alice"), Item.READ));
+        assertTrue(ancestor.hasPermission2(user("alice"), Item.READ), "ancestor gets Item.Read for navigation");
     }
 
     // ── direct parent of a job grant gets ONLY the build subset ─────────────────
@@ -124,15 +124,15 @@ public class OmniAuthItemACLTest {
 
         // Build-enabling subset is delegated to the direct parent (Jenkins routes a pipeline's
         // Build check through its parent folder).
-        assertTrue("direct parent gets Read",   directParent.hasPermission2(alice, Item.READ));
-        assertTrue("direct parent gets Build",  directParent.hasPermission2(alice, Item.BUILD));
-        assertTrue("direct parent gets Cancel", directParent.hasPermission2(alice, Item.CANCEL));
+        assertTrue(directParent.hasPermission2(alice, Item.READ), "direct parent gets Read");
+        assertTrue(directParent.hasPermission2(alice, Item.BUILD), "direct parent gets Build");
+        assertTrue(directParent.hasPermission2(alice, Item.CANCEL), "direct parent gets Cancel");
 
         // But NEVER the mutating permissions — that would let a one-job grant reconfigure/delete
         // the whole parent folder.
-        assertFalse("direct parent must NOT get Configure", directParent.hasPermission2(alice, Item.CONFIGURE));
-        assertFalse("direct parent must NOT get Delete",    directParent.hasPermission2(alice, Item.DELETE));
-        assertFalse("direct parent must NOT get WipeOut",   directParent.hasPermission2(alice, Item.WIPEOUT));
+        assertFalse(directParent.hasPermission2(alice, Item.CONFIGURE), "direct parent must NOT get Configure");
+        assertFalse(directParent.hasPermission2(alice, Item.DELETE), "direct parent must NOT get Delete");
+        assertFalse(directParent.hasPermission2(alice, Item.WIPEOUT), "direct parent must NOT get WipeOut");
     }
 
     // ── folder-scoped grant ─────────────────────────────────────────────────────
@@ -148,8 +148,7 @@ public class OmniAuthItemACLTest {
     public void folderScopedGrant_appliesToDescendants() {
         install(assignment("alice", "USER", DEVELOPER, "teamA", "FOLDER"));
         OmniAuthItemACL descendant = new OmniAuthItemACL("teamA/job1");
-        assertTrue("descendant inherits the folder role",
-                descendant.hasPermission2(user("alice"), Item.CONFIGURE));
+        assertTrue(descendant.hasPermission2(user("alice"), Item.CONFIGURE), "descendant inherits the folder role");
     }
 
     // ── REGRESSION: trailing-slash matching stops sibling-prefix leakage ────────
@@ -161,8 +160,8 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL sibling = new OmniAuthItemACL("teamA-secret");
         Authentication alice = user("alice");
 
-        assertFalse("sibling prefix must NOT get Configure", sibling.hasPermission2(alice, Item.CONFIGURE));
-        assertFalse("sibling prefix must NOT even get Read",  sibling.hasPermission2(alice, Item.READ));
+        assertFalse(sibling.hasPermission2(alice, Item.CONFIGURE), "sibling prefix must NOT get Configure");
+        assertFalse(sibling.hasPermission2(alice, Item.READ), "sibling prefix must NOT even get Read");
     }
 
     @Test
@@ -172,8 +171,8 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL parent = new OmniAuthItemACL("parent");
         Authentication alice = user("alice");
 
-        assertTrue("ancestor folder gets nav Read", parent.hasPermission2(alice, Item.READ));
-        assertFalse("ancestor folder does NOT get Configure", parent.hasPermission2(alice, Item.CONFIGURE));
+        assertTrue(parent.hasPermission2(alice, Item.READ), "ancestor folder gets nav Read");
+        assertFalse(parent.hasPermission2(alice, Item.CONFIGURE), "ancestor folder does NOT get Configure");
     }
 
     // ── global grant resolution ─────────────────────────────────────────────────
@@ -202,8 +201,8 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL acl = new OmniAuthItemACL("folderA/jobX");
         Authentication alice = user("alice");
 
-        assertFalse("expired grant gives no Read",      acl.hasPermission2(alice, Item.READ));
-        assertFalse("expired grant gives no Configure", acl.hasPermission2(alice, Item.CONFIGURE));
+        assertFalse(acl.hasPermission2(alice, Item.READ), "expired grant gives no Read");
+        assertFalse(acl.hasPermission2(alice, Item.CONFIGURE), "expired grant gives no Configure");
     }
 
     @Test
@@ -284,9 +283,9 @@ public class OmniAuthItemACLTest {
         Authentication alice = user("alice");
 
         // No active JIT request → the user may *see* the job but not build/configure it.
-        assertTrue("JIT inactive still allows nav Read", acl.hasPermission2(alice, Item.READ));
-        assertFalse("JIT inactive must NOT grant Build",     acl.hasPermission2(alice, Item.BUILD));
-        assertFalse("JIT inactive must NOT grant Configure", acl.hasPermission2(alice, Item.CONFIGURE));
+        assertTrue(acl.hasPermission2(alice, Item.READ), "JIT inactive still allows nav Read");
+        assertFalse(acl.hasPermission2(alice, Item.BUILD), "JIT inactive must NOT grant Build");
+        assertFalse(acl.hasPermission2(alice, Item.CONFIGURE), "JIT inactive must NOT grant Configure");
     }
 
     @Test
@@ -303,8 +302,8 @@ public class OmniAuthItemACLTest {
 
         OmniAuthItemACL acl = new OmniAuthItemACL("teamA/jobX");
         Authentication alice = user("alice");
-        assertTrue("active JIT request unlocks Build",     acl.hasPermission2(alice, Item.BUILD));
-        assertTrue("active JIT request unlocks Configure", acl.hasPermission2(alice, Item.CONFIGURE));
+        assertTrue(acl.hasPermission2(alice, Item.BUILD), "active JIT request unlocks Build");
+        assertTrue(acl.hasPermission2(alice, Item.CONFIGURE), "active JIT request unlocks Configure");
     }
 
     // ── custom-permission roles ──────────────────────────────────────────────────
@@ -317,8 +316,8 @@ public class OmniAuthItemACLTest {
         OmniAuthItemACL acl = new OmniAuthItemACL("teamA/jobX");
         Authentication alice = user("alice");
 
-        assertTrue("custom grant includes Build",      acl.hasPermission2(alice, Item.BUILD));
-        assertFalse("custom grant excludes Configure", acl.hasPermission2(alice, Item.CONFIGURE));
+        assertTrue(acl.hasPermission2(alice, Item.BUILD), "custom grant includes Build");
+        assertFalse(acl.hasPermission2(alice, Item.CONFIGURE), "custom grant excludes Configure");
     }
 
     // ── invariant: the ACL never consults break-glass / TOTP state ───────────────
@@ -330,11 +329,10 @@ public class OmniAuthItemACLTest {
         // enrolment or break-glass flag. This guards against a future change wiring either into the
         // permission path. (Structural invariant: the class must not reference those identifiers.)
         File src = new File("src/main/java/io/jenkins/plugins/omniauth/OmniAuthItemACL.java");
-        assertTrue("source file should be resolvable from the module root: " + src.getAbsolutePath(),
-                src.isFile());
+        assertTrue(src.isFile(), "source file should be resolvable from the module root: " + src.getAbsolutePath());
         String body = Files.readString(src.toPath());
-        assertFalse("ACL must not reference break-glass", body.toLowerCase().contains("breakglass")
-                || body.toLowerCase().contains("break-glass"));
-        assertFalse("ACL must not reference TOTP", body.toLowerCase().contains("totp"));
+        assertFalse(body.toLowerCase().contains("breakglass")
+                || body.toLowerCase().contains("break-glass"), "ACL must not reference break-glass");
+        assertFalse(body.toLowerCase().contains("totp"), "ACL must not reference TOTP");
     }
 }

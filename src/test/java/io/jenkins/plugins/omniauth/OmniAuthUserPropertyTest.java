@@ -3,14 +3,15 @@ package io.jenkins.plugins.omniauth;
 import hudson.util.Secret;
 import org.jboss.aerogear.security.otp.Totp;
 import org.jboss.aerogear.security.otp.api.Base32;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for {@link OmniAuthUserProperty}: Break-Glass TOTP verification + secret-at-rest,
@@ -20,10 +21,15 @@ import static org.junit.Assert.*;
  * requires a live ConfidentialStore. The TOTP code is generated in-test with the SAME library
  * the production code uses (org.jboss.aerogear) from the enrolled secret.
  */
+@WithJenkins
 public class OmniAuthUserPropertyTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     private OmniAuthUserProperty newProp() {
         return new OmniAuthUserProperty("oid-123", "user@example.com");
@@ -127,13 +133,12 @@ public class OmniAuthUserPropertyTest {
         Field f = OmniAuthUserProperty.BreakGlassDevice.class.getDeclaredField("secret");
         f.setAccessible(true);
         Object stored = f.get(d);
-        assertTrue("TOTP secret must be stored as hudson.util.Secret", stored instanceof Secret);
+        assertTrue(stored instanceof Secret, "TOTP secret must be stored as hudson.util.Secret");
 
         Secret secret = (Secret) stored;
         String encrypted = secret.getEncryptedValue();
-        assertNotEquals("Encrypted-at-rest form must differ from the plaintext secret", plaintext, encrypted);
-        assertEquals("Secret must round-trip back to the original plaintext",
-                plaintext, Secret.decrypt(encrypted).getPlainText());
+        assertNotEquals(plaintext, encrypted, "Encrypted-at-rest form must differ from the plaintext secret");
+        assertEquals(plaintext, Secret.decrypt(encrypted).getPlainText(), "Secret must round-trip back to the original plaintext");
 
         // In-process accessor returns the decrypted plaintext for TOTP verification.
         assertEquals(plaintext, d.getSecret());
@@ -145,7 +150,7 @@ public class OmniAuthUserPropertyTest {
         assertTrue(p.addBreakGlassDevice("d1", Base32.random()));
         assertTrue(p.addBreakGlassDevice("d2", Base32.random()));
         assertTrue(p.addBreakGlassDevice("d3", Base32.random()));
-        assertFalse("A 4th device must be refused", p.addBreakGlassDevice("d4", Base32.random()));
+        assertFalse(p.addBreakGlassDevice("d4", Base32.random()), "A 4th device must be refused");
         assertEquals(3, p.getBreakGlassDevices().size());
     }
 
@@ -158,8 +163,7 @@ public class OmniAuthUserPropertyTest {
 
         assertTrue(p.removeBreakGlassDevice(idToRemove));
         assertEquals(1, p.getBreakGlassDevices().size());
-        assertFalse("Removing an unknown id returns false",
-                p.removeBreakGlassDevice("no-such-id"));
+        assertFalse(p.removeBreakGlassDevice("no-such-id"), "Removing an unknown id returns false");
     }
 
     @Test
@@ -171,7 +175,7 @@ public class OmniAuthUserPropertyTest {
 
         p.removeBreakGlassDevice(id);
         assertTrue(p.getBreakGlassDevices().isEmpty());
-        assertEquals("Removing the last device resets the skip counter", 0, p.getBreakGlassEnrollSkips());
+        assertEquals(0, p.getBreakGlassEnrollSkips(), "Removing the last device resets the skip counter");
     }
 
     @Test
@@ -195,8 +199,7 @@ public class OmniAuthUserPropertyTest {
         p.addBreakGlassDevice("Phone", secret);
 
         String currentCode = new Totp(secret).now();
-        assertTrue("The current TOTP code computed from the enrolled secret must verify",
-                p.verifyBreakGlassCode(currentCode));
+        assertTrue(p.verifyBreakGlassCode(currentCode), "The current TOTP code computed from the enrolled secret must verify");
     }
 
     @Test
@@ -205,8 +208,7 @@ public class OmniAuthUserPropertyTest {
         OmniAuthUserProperty p = newProp();
         p.addBreakGlassDevice("Phone", secret);
 
-        assertFalse("A malformed (non-numeric) code must be rejected, not throw",
-                p.verifyBreakGlassCode("abcdef"));
+        assertFalse(p.verifyBreakGlassCode("abcdef"), "A malformed (non-numeric) code must be rejected, not throw");
     }
 
     @Test
@@ -221,7 +223,7 @@ public class OmniAuthUserPropertyTest {
         if (p.verifyBreakGlassCode(foreignCode)) {
             foreignCode = new Totp(Base32.random()).now();
         }
-        assertFalse("A code from a different secret must be rejected", p.verifyBreakGlassCode(foreignCode));
+        assertFalse(p.verifyBreakGlassCode(foreignCode), "A code from a different secret must be rejected");
     }
 
     @Test
@@ -252,7 +254,7 @@ public class OmniAuthUserPropertyTest {
         f.set(p, legacySecret);
 
         List<OmniAuthUserProperty.BreakGlassDevice> devices = p.getBreakGlassDevices();
-        assertEquals("Legacy secret must migrate to exactly one device", 1, devices.size());
+        assertEquals(1, devices.size(), "Legacy secret must migrate to exactly one device");
         assertEquals(legacySecret, devices.get(0).getSecret());
         // Migrated secret still verifies via TOTP.
         assertTrue(p.verifyBreakGlassCode(new Totp(legacySecret).now()));

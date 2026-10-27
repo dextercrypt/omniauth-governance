@@ -7,7 +7,7 @@ import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -434,7 +434,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     // ── configure() ───────────────────────────────────────────────────────────
 
     @Override
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
         // Protected users
         protectedUsers = new ArrayList<>();
         Object raw = json.opt("protectedUsers");

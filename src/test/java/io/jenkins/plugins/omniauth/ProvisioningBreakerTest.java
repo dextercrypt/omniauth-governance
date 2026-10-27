@@ -1,13 +1,13 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ProvisioningBreaker}, the global flood guard for the anonymous native
@@ -19,15 +19,16 @@ import static org.junit.Assert.assertTrue;
  * and the inline mock maker cannot reliably instrument it under recent JDKs — the real singleton
  * with its setters is both simpler and faithful to production.
  */
+@WithJenkins
 public class ProvisioningBreakerTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthGlobalConfig cfg;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) {
+        j = rule;
         ProvisioningBreaker.reset();
         cfg = OmniAuthGlobalConfig.get();
         cfg.setProvisioningBreakerMax(3);
@@ -35,7 +36,7 @@ public class ProvisioningBreakerTest {
         cfg.setProvisioningBreakerCooldownMin(30);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         ProvisioningBreaker.reset();
     }
@@ -82,8 +83,8 @@ public class ProvisioningBreakerTest {
         }
         long rem = ProvisioningBreaker.cooldownSecondsRemaining();
         // 30 min cooldown -> up to 1800s; must be positive and within the configured ceiling.
-        assertTrue("cooldown should be positive", rem > 0);
-        assertTrue("cooldown within 30 min", rem <= 30 * 60);
+        assertTrue(rem > 0, "cooldown should be positive");
+        assertTrue(rem <= 30 * 60, "cooldown within 30 min");
     }
 
     @Test
@@ -103,7 +104,7 @@ public class ProvisioningBreakerTest {
     public void nullConfigUsesDefaultThresholdOfHundred() {
         // With defaults (max 100), 100 attempts are accepted and the 101st trips.
         for (int i = 0; i < 100; i++) {
-            assertTrue("attempt " + i, ProvisioningBreaker.tryAcquire(null));
+            assertTrue(ProvisioningBreaker.tryAcquire(null), "attempt " + i);
         }
         assertFalse(ProvisioningBreaker.tryAcquire(null));
         assertTrue(ProvisioningBreaker.isTripped());

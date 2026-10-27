@@ -4,12 +4,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CSRF crumb-exemption SCOPE tests. Pure unit tests — CrumbExclusion has no Jenkins
@@ -45,11 +45,11 @@ public class CrumbExclusionScopeTest {
     /** Runs process() and asserts the exempt/not-exempt outcome is internally consistent. */
     private void assertExempt(boolean expectExempt, boolean actual, RecordingChain chain, String path) {
         if (expectExempt) {
-            assertTrue("process() should return true (exempt) for " + path, actual);
-            assertTrue("chain.doFilter must be invoked when exempt for " + path, chain.called);
+            assertTrue(actual, "process() should return true (exempt) for " + path);
+            assertTrue(chain.called, "chain.doFilter must be invoked when exempt for " + path);
         } else {
-            assertFalse("process() should return false (not exempt) for " + path, actual);
-            assertFalse("chain.doFilter must NOT be invoked when not exempt for " + path, chain.called);
+            assertFalse(actual, "process() should return false (not exempt) for " + path);
+            assertFalse(chain.called, "chain.doFilter must NOT be invoked when not exempt for " + path);
         }
     }
 

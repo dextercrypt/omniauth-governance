@@ -8,12 +8,11 @@ import hudson.security.AuthorizationStrategy;
 import hudson.security.GroupDetails;
 import hudson.util.Secret;
 import io.jenkins.plugins.omniauth.util.TokenHelper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for OmniAuthSecurityRealm.
@@ -43,13 +42,14 @@ import static org.junit.Assert.*;
  *   Tier 2 — OAuth2 error cases that return before reaching Azure AD
  *   Tier 3 — full OAuth2 flow with fake token exchange
  */
+@WithJenkins
 public class OmniAuthSecurityRealmTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
-    @Before
-    public void allowAnonymousAccess() {
+    @BeforeEach
+    public void allowAnonymousAccess(JenkinsRule rule) {
+        j = rule;
         j.jenkins.setAuthorizationStrategy(new AuthorizationStrategy.Unsecured());
     }
 
@@ -118,7 +118,7 @@ public class OmniAuthSecurityRealmTest {
      * Shared across multiple fakeRequest() calls to simulate a real browser session
      * that persists state between commenceLogin and finishLogin.
      */
-    static class FakeSession implements javax.servlet.http.HttpSession {
+    static class FakeSession implements jakarta.servlet.http.HttpSession {
         private final Map<String, Object> attrs = new HashMap<>();
 
         @Override public Object getAttribute(String name)                  { return attrs.get(name); }
@@ -128,17 +128,11 @@ public class OmniAuthSecurityRealmTest {
         @Override public String getId()                                    { return "fake-session-id"; }
         @Override public long   getCreationTime()                          { return 0; }
         @Override public long   getLastAccessedTime()                      { return 0; }
-        @Override public javax.servlet.ServletContext getServletContext()   { return null; }
+        @Override public jakarta.servlet.ServletContext getServletContext() { return null; }
         @Override public void   setMaxInactiveInterval(int interval)       {}
         @Override public int    getMaxInactiveInterval()                   { return 0; }
         @Override public void   invalidate()                               { attrs.clear(); }
         @Override public boolean isNew()                                   { return false; }
-        // Deprecated Servlet 2.1 methods — required by the interface
-        @Override public void   putValue(String name, Object value)        { attrs.put(name, value); }
-        @Override public Object getValue(String name)                      { return attrs.get(name); }
-        @Override public void   removeValue(String name)                   { attrs.remove(name); }
-        @Override public String[] getValueNames()                          { return attrs.keySet().toArray(new String[0]); }
-        @Override public javax.servlet.http.HttpSessionContext getSessionContext() { return null; }
     }
 
     // ─── FakeHelperRealm ──────────────────────────────────────────────────────
@@ -206,10 +200,10 @@ public class OmniAuthSecurityRealmTest {
      * calls so that session attributes written by startEntraLogin are visible to
      * finishEntraLogin — exactly as a real browser session works.
      */
-    private StaplerRequest fakeRequest(Map<String, String> params, FakeSession session) {
-        return (StaplerRequest) Proxy.newProxyInstance(
+    private StaplerRequest2 fakeRequest(Map<String, String> params, FakeSession session) {
+        return (StaplerRequest2) Proxy.newProxyInstance(
                 getClass().getClassLoader(),
-                new Class<?>[]{ StaplerRequest.class },
+                new Class<?>[]{ StaplerRequest2.class },
                 (proxy, method, args) -> {
                     switch (method.getName()) {
                         case "getSession":  return session;
@@ -309,20 +303,22 @@ public class OmniAuthSecurityRealmTest {
         assertEquals("dev-team", group.getName());
     }
 
-    @Test(expected = UsernameNotFoundException.class)
+    @Test
     public void loadGroupByGroupname2_groupSyncDisabled_throwsUsernameNotFoundException() throws Exception {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig(false));
         j.jenkins.setSecurityRealm(realm);
 
-        realm.loadGroupByGroupname2("dev-team", false);
+        assertThrows(UsernameNotFoundException.class,
+                () -> realm.loadGroupByGroupname2("dev-team", false));
     }
 
-    @Test(expected = UsernameNotFoundException.class)
+    @Test
     public void loadGroupByGroupname2_noEntraConfig_throwsUsernameNotFoundException() throws Exception {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, null);
         j.jenkins.setSecurityRealm(realm);
 
-        realm.loadGroupByGroupname2("any-group", false);
+        assertThrows(UsernameNotFoundException.class,
+                () -> realm.loadGroupByGroupname2("any-group", false));
     }
 
     @Test
@@ -336,12 +332,13 @@ public class OmniAuthSecurityRealmTest {
         assertEquals("preprovisioned@example.com", userDetails.getUsername());
     }
 
-    @Test(expected = UsernameNotFoundException.class)
+    @Test
     public void loadUserByUsername2_nonEmailFormat_whenNotInDB_throwsUsernameNotFoundException() throws Exception {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         j.jenkins.setSecurityRealm(realm);
 
-        realm.loadUserByUsername2("notanemail");
+        assertThrows(UsernameNotFoundException.class,
+                () -> realm.loadUserByUsername2("notanemail"));
     }
 
     // ─── Tier 2: OAuth2 error cases (direct method calls, no HTTP) ───────────
@@ -375,10 +372,9 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertEquals("Should redirect to URL returned by buildAuthorizationUrl",
-                fakeHelper.fakeAuthUrl, resp.location);
-        assertNotNull("State must be stored in session", fakeHelper.capturedState);
-        assertNotNull("Nonce must be stored in session", fakeHelper.capturedNonce);
+        assertEquals(fakeHelper.fakeAuthUrl, resp.location, "Should redirect to URL returned by buildAuthorizationUrl");
+        assertNotNull(fakeHelper.capturedState, "State must be stored in session");
+        assertNotNull(fakeHelper.capturedNonce, "Nonce must be stored in session");
     }
 
     /**
@@ -401,8 +397,7 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertTrue("Should redirect to login with session error",
-                resp.location.contains("error=session"));
+        assertTrue(resp.location.contains("error=session"), "Should redirect to login with session error");
     }
 
     /**
@@ -428,7 +423,7 @@ public class OmniAuthSecurityRealmTest {
         HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
-        assertEquals("Missing auth code should return 400", 400, resp.status);
+        assertEquals(400, resp.status, "Missing auth code should return 400");
     }
 
     /**
@@ -455,8 +450,7 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertTrue("Missing PKCE verifier should redirect to login with session error",
-                resp.location.contains("error=session"));
+        assertTrue(resp.location.contains("error=session"), "Missing PKCE verifier should redirect to login with session error");
     }
 
     /**
@@ -473,7 +467,7 @@ public class OmniAuthSecurityRealmTest {
 
         // Step 1: commenceLogin — stores valid state in session
         realm.startEntraLogin(fakeRequest(Map.of(), session));
-        assertNotNull("State must be captured from session", fakeHelper.capturedState);
+        assertNotNull(fakeHelper.capturedState, "State must be captured from session");
 
         // Step 2: finishLogin — Azure returns an error (e.g. user cancelled)
         Map<String, String> params = new HashMap<>();
@@ -485,8 +479,7 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertTrue("Should redirect to login with entra error",
-                resp.location.contains("error=entra"));
+        assertTrue(resp.location.contains("error=entra"), "Should redirect to login with entra error");
     }
 
     // ─── Tier 3: Full OAuth2 flow (direct method calls) ──────────────────────
@@ -514,7 +507,7 @@ public class OmniAuthSecurityRealmTest {
 
         // Step 1: commenceLogin — stores state and nonce in session, captures them in fakeHelper
         realm.startEntraLogin(fakeRequest(Map.of(), session));
-        assertNotNull("Nonce must be captured", fakeHelper.capturedNonce);
+        assertNotNull(fakeHelper.capturedNonce, "Nonce must be captured");
 
         // Step 2: arm parseIdToken to return claims with the EXACT nonce stored in the session
         fakeHelper.fakeClaims = fakeClaims(fakeHelper.capturedNonce);
@@ -527,16 +520,16 @@ public class OmniAuthSecurityRealmTest {
         HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
-        assertEquals("Should redirect after successful login", 302, resp.status);
-        assertFalse("Should NOT redirect to an error page", resp.location.contains("error="));
+        assertEquals(302, resp.status, "Should redirect after successful login");
+        assertFalse(resp.location.contains("error="), "Should NOT redirect to an error page");
 
         // Step 4: verify Jenkins user was provisioned with the correct identity
         hudson.model.User user = hudson.model.User.getById("testuser@example.com", false);
-        assertNotNull("Jenkins user should have been provisioned", user);
+        assertNotNull(user, "Jenkins user should have been provisioned");
         assertEquals("Test User", user.getFullName());
 
         OmniAuthUserProperty prop = user.getProperty(OmniAuthUserProperty.class);
-        assertNotNull("OmniAuthUserProperty should be attached", prop);
+        assertNotNull(prop, "OmniAuthUserProperty should be attached");
         assertEquals("test-oid-abc123",      prop.getEntraObjectId());
         assertEquals("testuser@example.com", prop.getEntraUpn());
     }
@@ -568,7 +561,7 @@ public class OmniAuthSecurityRealmTest {
         HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
-        assertEquals("Nonce mismatch should return 400", 400, resp.status);
+        assertEquals(400, resp.status, "Nonce mismatch should return 400");
     }
 
     /**
@@ -596,7 +589,7 @@ public class OmniAuthSecurityRealmTest {
 
         // Step 1: commenceLogin WITH provision=1 → sets the provision-mode session flag.
         realm.startEntraLogin(fakeRequest(Map.of("provision", "1"), session));
-        assertNotNull("Nonce must be captured", fakeHelper.capturedNonce);
+        assertNotNull(fakeHelper.capturedNonce, "Nonce must be captured");
 
         // Step 2: arm the token with the matching nonce.
         fakeHelper.fakeClaims = fakeClaims(fakeHelper.capturedNonce);
@@ -609,16 +602,13 @@ public class OmniAuthSecurityRealmTest {
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
-        assertTrue("Should redirect to the reason-capture page, got: " + resp.location,
-                resp.location.contains("request-access/reason"));
-        assertFalse("Must NOT reject as notProvisioned", resp.location.contains("notProvisioned"));
+        assertTrue(resp.location.contains("request-access/reason"), "Should redirect to the reason-capture page, got: " + resp.location);
+        assertFalse(resp.location.contains("notProvisioned"), "Must NOT reject as notProvisioned");
 
         // No Jenkins account should be created for a mere request.
-        assertNull("No user should be provisioned by a request",
-                hudson.model.User.getById("testuser@example.com", false));
+        assertNull(hudson.model.User.getById("testuser@example.com", false), "No user should be provisioned by a request");
 
         // The request is created only once a reason is submitted — none should exist yet.
-        assertNull("No PENDING request should exist before the reason is submitted",
-                ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com"));
+        assertNull(ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com"), "No PENDING request should exist before the reason is submitted");
     }
 }

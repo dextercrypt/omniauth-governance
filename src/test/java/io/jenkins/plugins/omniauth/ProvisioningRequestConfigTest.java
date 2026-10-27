@@ -1,20 +1,21 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for {@link ProvisioningRequestConfig}, the persistent request store.
@@ -23,14 +24,19 @@ import static org.junit.Assert.assertTrue;
  * {@code save()} against {@code JENKINS_HOME}, so a {@link JenkinsRule} is used. Each test gets a
  * fresh Jenkins (and thus an empty store singleton), so no explicit reset is needed.
  */
+@WithJenkins
 public class ProvisioningRequestConfigTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     private ProvisioningRequestConfig store() {
         ProvisioningRequestConfig s = ProvisioningRequestConfig.get();
-        assertNotNull("store extension should be registered", s);
+        assertNotNull(s, "store extension should be registered");
         return s;
     }
 

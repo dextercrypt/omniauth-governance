@@ -1,6 +1,6 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pure unit tests for the one-time activation-link token ({@link OmniAuthActivationProperty}).
@@ -34,9 +34,8 @@ public class OmniAuthActivationPropertyTest {
         String raw = OmniAuthActivationProperty.newRawToken();
         OmniAuthActivationProperty p = propFor(raw, System.currentTimeMillis() + HOUR);
 
-        assertNotEquals("Stored value must not be the raw token", raw, p.getTokenHash());
-        assertEquals("Stored value must be exactly the SHA-256 hash of the raw token",
-                OmniAuthActivationProperty.hash(raw), p.getTokenHash());
+        assertNotEquals(raw, p.getTokenHash(), "Stored value must not be the raw token");
+        assertEquals(OmniAuthActivationProperty.hash(raw), p.getTokenHash(), "Stored value must be exactly the SHA-256 hash of the raw token");
     }
 
     @Test
@@ -46,8 +45,7 @@ public class OmniAuthActivationPropertyTest {
         byte[] digest = md.digest(raw.getBytes(StandardCharsets.UTF_8));
         String expected = Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 
-        assertEquals("hash() must be SHA-256 then Base64url-no-padding", expected,
-                OmniAuthActivationProperty.hash(raw));
+        assertEquals(expected, OmniAuthActivationProperty.hash(raw), "hash() must be SHA-256 then Base64url-no-padding");
     }
 
     @Test
@@ -74,17 +72,16 @@ public class OmniAuthActivationPropertyTest {
     public void newRawToken_is256BitsOfEntropy_43CharBase64Url() {
         String raw = OmniAuthActivationProperty.newRawToken();
         // 32 random bytes = 256 bits → Base64url without padding = 43 chars.
-        assertEquals("Raw token should encode 32 bytes (256 bits)", 43, raw.length());
+        assertEquals(43, raw.length(), "Raw token should encode 32 bytes (256 bits)");
         // Base64url alphabet only: no '+', '/', or '=' padding.
-        assertTrue("Token must be URL-safe (no +,/,=)",
-                raw.matches("[A-Za-z0-9_-]{43}"));
+        assertTrue(raw.matches("[A-Za-z0-9_-]{43}"), "Token must be URL-safe (no +,/,=)");
     }
 
     @Test
     public void newRawToken_isUnpredictable_distinctAcrossManyCalls() {
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
-            assertTrue("newRawToken must never repeat", seen.add(OmniAuthActivationProperty.newRawToken()));
+            assertTrue(seen.add(OmniAuthActivationProperty.newRawToken()), "newRawToken must never repeat");
         }
     }
 
@@ -95,7 +92,7 @@ public class OmniAuthActivationPropertyTest {
         String raw = OmniAuthActivationProperty.newRawToken();
         OmniAuthActivationProperty p = propFor(raw, System.currentTimeMillis() + HOUR);
 
-        assertTrue("A correct, non-expired token must match", p.matches(raw));
+        assertTrue(p.matches(raw), "A correct, non-expired token must match");
     }
 
     // ── matches(): wrong token rejected ───────────────────────────────────────
@@ -105,7 +102,7 @@ public class OmniAuthActivationPropertyTest {
         String raw = OmniAuthActivationProperty.newRawToken();
         OmniAuthActivationProperty p = propFor(raw, System.currentTimeMillis() + HOUR);
 
-        assertFalse("A different token must not match", p.matches(OmniAuthActivationProperty.newRawToken()));
+        assertFalse(p.matches(OmniAuthActivationProperty.newRawToken()), "A different token must not match");
     }
 
     @Test
@@ -124,8 +121,8 @@ public class OmniAuthActivationPropertyTest {
         String raw = OmniAuthActivationProperty.newRawToken();
         OmniAuthActivationProperty p = propFor(raw, System.currentTimeMillis() + HOUR);
 
-        assertFalse("null token must be rejected", p.matches(null));
-        assertFalse("empty token must be rejected", p.matches(""));
+        assertFalse(p.matches(null), "null token must be rejected");
+        assertFalse(p.matches(""), "empty token must be rejected");
     }
 
     @Test
@@ -141,8 +138,8 @@ public class OmniAuthActivationPropertyTest {
         String raw = OmniAuthActivationProperty.newRawToken();
         OmniAuthActivationProperty p = propFor(raw, System.currentTimeMillis() - 1_000L); // already past
 
-        assertTrue("sanity: property should report expired", p.isExpired());
-        assertFalse("An expired token must never match, even if the hash is correct", p.matches(raw));
+        assertTrue(p.isExpired(), "sanity: property should report expired");
+        assertFalse(p.matches(raw), "An expired token must never match, even if the hash is correct");
     }
 
     @Test
@@ -159,8 +156,8 @@ public class OmniAuthActivationPropertyTest {
 
     @Test
     public void isExpired_nonPositiveExpiry_isTreatedAsExpired() {
-        assertTrue("expiresAt=0 must be treated as expired", propFor("t", 0L).isExpired());
-        assertTrue("negative expiresAt must be treated as expired", propFor("t", -5L).isExpired());
+        assertTrue(propFor("t", 0L).isExpired(), "expiresAt=0 must be treated as expired");
+        assertTrue(propFor("t", -5L).isExpired(), "negative expiresAt must be treated as expired");
     }
 
     // ── single-use: consumed token becomes an inert expired marker ────────────
@@ -171,9 +168,9 @@ public class OmniAuthActivationPropertyTest {
         // (new OmniAuthActivationProperty("", 1L)) to overwrite/consume the live token.
         OmniAuthActivationProperty marker = new OmniAuthActivationProperty("", 1L);
 
-        assertTrue("Consumed marker must be expired", marker.isExpired());
-        assertFalse("Consumed marker must not match any token", marker.matches("anything"));
-        assertFalse("Consumed marker must not match the empty string either", marker.matches(""));
+        assertTrue(marker.isExpired(), "Consumed marker must be expired");
+        assertFalse(marker.matches("anything"), "Consumed marker must not match any token");
+        assertFalse(marker.matches(""), "Consumed marker must not match the empty string either");
     }
 
     @Test

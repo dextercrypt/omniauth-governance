@@ -16,8 +16,8 @@ import hudson.security.PermissionGroup;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.matrixauth.AuthorizationType;
 import org.jenkinsci.plugins.matrixauth.PermissionEntry;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 import org.springframework.security.core.Authentication;
 
@@ -77,37 +77,37 @@ public class OmniAuthManagementLink extends ManagementLink {
     // Sub-page routing
     // -------------------------------------------------------------------------
 
-    public void doUserStatus(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doUserStatus(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "userStatus.jelly").forward(req, rsp);
     }
 
-    public void doStaleUsers(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doStaleUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "staleUsers.jelly").forward(req, rsp);
     }
 
-    public void doUserOverview(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doUserOverview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "access.jelly").forward(req, rsp);
     }
 
-    public void doAccessManagement(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAccessManagement(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "accessManagement.jelly").forward(req, rsp);
     }
 
-    public void doAccessReview(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAccessReview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "accessReview.jelly").forward(req, rsp);
     }
 
-    public void doJitRequests(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doJitRequests(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "jitRequests.jelly").forward(req, rsp);
     }
 
-    public void doAuditLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAuditLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "auditLog.jelly").forward(req, rsp);
     }
@@ -134,7 +134,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doPurgeAuditLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doPurgeAuditLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String currentUser = Jenkins.getAuthentication2().getName();
 
@@ -185,13 +185,13 @@ public class OmniAuthManagementLink extends ManagementLink {
     private static final java.util.logging.Logger BR_LOG =
             java.util.logging.Logger.getLogger(OmniAuthManagementLink.class.getName());
 
-    public void doBackup(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBackup(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "backup.jelly").forward(req, rsp);
     }
 
     @POST
-    public void doExportConfig(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doExportConfig(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String yaml = OmniAuthConfigBackup.export();
         String fname = "omniauth-backup-" + java.time.format.DateTimeFormatter
@@ -204,7 +204,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doImportConfig(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doImportConfig(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         // Decode the uploaded form as UTF-8 so non-ASCII content survives; otherwise a default
         // Latin-1 decode can turn multi-byte chars into control chars the YAML parser rejects.
@@ -250,7 +250,7 @@ public class OmniAuthManagementLink extends ManagementLink {
      * modal the admin confirms before a real import.
      */
     @POST
-    public void doPreviewImport(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doPreviewImport(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.setCharacterEncoding("UTF-8");
         net.sf.json.JSONObject out;
@@ -269,7 +269,7 @@ public class OmniAuthManagementLink extends ManagementLink {
      * modal before a rollback, so a restore is as auditable as an import.
      */
     @POST
-    public void doPreviewRevert(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doPreviewRevert(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         net.sf.json.JSONObject out;
         try {
@@ -313,7 +313,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return out;
     }
 
-    private static void writeJson(StaplerResponse rsp, net.sf.json.JSONObject out) throws Exception {
+    private static void writeJson(StaplerResponse2 rsp, net.sf.json.JSONObject out) throws Exception {
         rsp.setContentType("application/json; charset=utf-8");
         rsp.getWriter().write(out.toString());
     }
@@ -354,7 +354,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevertImport(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevertImport(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String base = req.getContextPath() + "/manage/omniauth-management/backup";
 
@@ -534,12 +534,12 @@ public class OmniAuthManagementLink extends ManagementLink {
     /** True when there is at least one history event to show. */
     public boolean isHistoryAvailable() { return !getImportHistory().isEmpty(); }
 
-    public void doSettings(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSettings(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "settings.jelly").forward(req, rsp);
     }
 
-    public void doAbout(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAbout(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "about.jelly").forward(req, rsp);
     }
@@ -564,14 +564,14 @@ public class OmniAuthManagementLink extends ManagementLink {
         return sp > 0 ? v.substring(0, sp) : v;
     }
 
-    public void doNotifications(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doNotifications(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "notifications.jelly").forward(req, rsp);
     }
 
-    public void doSessions(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSessions(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        javax.servlet.http.HttpSession s = req.getSession(false);
+        jakarta.servlet.http.HttpSession s = req.getSession(false);
         if (s != null) req.setAttribute("currentSessionId", s.getId());
         req.getView(this, "sessions.jelly").forward(req, rsp);
     }
@@ -587,19 +587,19 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     /** Unified Emergency Access page: Break Glass (TOTP) + SOS recovery codes in one place. */
-    public void doEmergencyAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doEmergencyAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     /** Back-compat alias — the Break Glass enrollment now lives on the unified Emergency Access page. */
-    public void doBreakGlass(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlass(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     @POST
-    public void doBreakGlassEnrollInit(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlassEnrollInit(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
 
@@ -639,7 +639,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doBreakGlassEnrollVerify(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlassEnrollVerify(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
 
@@ -680,7 +680,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doBreakGlassEnrollRemove(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlassEnrollRemove(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
         String deviceId = req.getParameter("deviceId");
@@ -697,7 +697,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doBreakGlassActivate(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlassActivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
 
@@ -743,7 +743,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doBreakGlassDeactivate(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doBreakGlassDeactivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
 
@@ -757,13 +757,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.getWriter().write("{\"success\":true}");
     }
 
-    public void doTotpReminder(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doTotpReminder(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "totpReminder.jelly").forward(req, rsp);
     }
 
     @POST
-    public void doTotpReminderSkip(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doTotpReminderSkip(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
         User current = User.current();
@@ -800,14 +800,14 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ── SOS Mode (lockout recovery) ────────────────────────────────────────────
 
     /** Back-compat alias — SOS recovery codes now live on the unified Emergency Access page. */
-    public void doSosRecoveryCodes(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSosRecoveryCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     /** Generate a fresh set of SOS recovery codes for the current admin; returns the raw codes once. */
     @POST
-    public void doSosGenerateCodes(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSosGenerateCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
         User current = User.current();
@@ -836,7 +836,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Deactivate an armed SOS window (from the site-wide banner or the Settings page). */
     @POST
-    public void doSosDeactivate(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSosDeactivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         rsp.setContentType("application/json;charset=UTF-8");
         User current = User.current();
@@ -883,7 +883,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** True when the SOS enrollment gate sent the admin here because they have no usable codes. */
     public boolean isSosEnrollMode() {
-        StaplerRequest req = org.kohsuke.stapler.Stapler.getCurrentRequest();
+        StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
         return req != null && req.getParameter("enroll") != null && getSosUnusedCount() == 0;
     }
 
@@ -903,7 +903,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     public long getSosMinutesRemaining() { return OmniAuthSos.minutesRemaining(); }
 
     @POST
-    public void doClearBruteForce(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doClearBruteForce(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
         if (userId != null && !userId.isEmpty()) {
@@ -914,7 +914,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevokeSession(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeSession(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         Jenkins.get().checkPermission(Jenkins.ADMINISTER); // CSRF already enforced via @POST
         String sessionId = req.getParameter("sessionId");
@@ -937,13 +937,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         return NotificationLog.get();
     }
 
-    public void doNotificationLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doNotificationLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "notificationLog.jelly").forward(req, rsp);
     }
 
     @POST
-    public void doSendTestSlack(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSendTestSlack(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String url = req.getParameter("slackWebhookUrl");
         String json;
@@ -962,7 +962,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSendTestTeams(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSendTestTeams(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String url = req.getParameter("teamsWebhookUrl");
         String json;
@@ -980,7 +980,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         writeJson(rsp, json);
     }
 
-    private static void writeJson(StaplerResponse rsp, String json) throws Exception {
+    private static void writeJson(StaplerResponse2 rsp, String json) throws Exception {
         rsp.setContentType("application/json;charset=UTF-8");
         byte[] bytes = json.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         rsp.setContentLength(bytes.length);
@@ -988,7 +988,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doClearNotificationLog(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doClearNotificationLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         NotificationLog.get().clear();
         OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Notification log", "cleared");
@@ -996,7 +996,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSaveNotifications(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSaveNotifications(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig config = OmniAuthGlobalConfig.get();
         if (config != null) {
@@ -1210,13 +1210,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("notifications?saved=true");
     }
 
-    public void doProtectedUsers(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doProtectedUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "protectedUsers.jelly").forward(req, rsp);
     }
 
     @POST
-    public void doSaveProtectedUsers(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSaveProtectedUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String[] selected = req.getParameterValues("protectedUsers");
         OmniAuthGlobalConfig config = OmniAuthGlobalConfig.get();
@@ -1246,7 +1246,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSaveSettings(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSaveSettings(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig config = OmniAuthGlobalConfig.get();
         if (config != null) {
@@ -1380,7 +1380,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSendTestEmail(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSendTestEmail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 
         // Read current form values — no save needed
@@ -1432,7 +1432,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         writeJson(rsp, json);
     }
 
-    public void doPreviewEmail(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doPreviewEmail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         String eventType = param(req, "eventType", "configChanged");
@@ -1537,7 +1537,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return html;
     }
 
-    private static String param(StaplerRequest req, String name, String fallback) {
+    private static String param(StaplerRequest2 req, String name, String fallback) {
         String v = req.getParameter(name);
         return (v != null && !v.trim().isEmpty()) ? v.trim() : fallback;
     }
@@ -1546,7 +1546,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 
-    private static void putParam(net.sf.json.JSONObject json, StaplerRequest req, String name) {
+    private static void putParam(net.sf.json.JSONObject json, StaplerRequest2 req, String name) {
         String v = req.getParameter(name);
         if (v != null) json.put(name, v.trim());
     }
@@ -1592,7 +1592,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doUploadLoginLogo(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doUploadLoginLogo(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         org.apache.commons.fileupload.FileItem fileItem = req.getFileItem("loginLogo");
         if (fileItem == null || fileItem.getSize() == 0) {
@@ -1630,7 +1630,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRemoveLoginLogo(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRemoveLoginLogo(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         java.io.File dir = new java.io.File(Jenkins.get().getRootDir(), "omniauth-branding");
         java.io.File[] files = dir.listFiles(f -> f.getName().startsWith("login-logo."));
@@ -1845,14 +1845,14 @@ public class OmniAuthManagementLink extends ManagementLink {
         return pwd.toString();
     }
 
-    public void doProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "provisioning.jelly").forward(req, rsp);
     }
 
     /** Approve a pending request — create the account (mirroring doAddUser) and mark it approved. */
     @POST
-    public void doApproveProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doApproveProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
@@ -1918,7 +1918,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Reject a pending request with an optional reason. */
     @POST
-    public void doRejectProvisioning(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRejectProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         String comment   = req.getParameter("comment");
@@ -1941,7 +1941,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Re-issue + re-email the one-time activation link for a native account that hasn't activated yet. */
     @POST
-    public void doResendActivation(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doResendActivation(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
@@ -1964,7 +1964,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Admin control: clear the native-intake circuit breaker cooldown. */
     @POST
-    public void doResetProvisioningBreaker(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doResetProvisioningBreaker(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         ProvisioningBreaker.reset();
         OmniAuthAuditLog.get().logConfigChanged(Jenkins.getAuthentication2().getName(),
@@ -1974,7 +1974,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Save the provisioning-portal settings from the Access Requests page. */
     @POST
-    public void doSaveProvisioningSettings(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSaveProvisioningSettings(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get();
         if (c != null) {
@@ -2080,7 +2080,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ── JIT: admin actions ───────────────────────────────────────────────────
 
     @POST
-    public void doApproveJit(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doApproveJit(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         if (requestId == null || requestId.isBlank()) { rsp.sendRedirect("jitRequests"); return; }
@@ -2103,7 +2103,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doDenyJit(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doDenyJit(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         String comment   = req.getParameter("comment");
@@ -2128,7 +2128,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevokeActiveJit(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeActiveJit(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String requestId = req.getParameter("requestId");
         if (requestId == null || requestId.isBlank()) { rsp.sendRedirect("jitRequests"); return; }
@@ -2273,7 +2273,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return count;
     }
 
-    public void doSecurity(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSecurity(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         int hours = 24;
         try {
@@ -2455,7 +2455,7 @@ public class OmniAuthManagementLink extends ManagementLink {
      * Live metrics for the Overview page's auto-refresh. Returns the volatile KPI counts as JSON so
      * the dashboard can update in place every few seconds without a full reload. Read-only.
      */
-    public void doOverviewMetrics(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doOverviewMetrics(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         net.sf.json.JSONObject out = new net.sf.json.JSONObject();
         out.put("total",       getTotalUserCount());
@@ -2683,7 +2683,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // Access detail (used by access.jelly)
     // -------------------------------------------------------------------------
 
-    public AccessInfo getAccessInfo(StaplerRequest req) {
+    public AccessInfo getAccessInfo(StaplerRequest2 req) {
         String userId = req.getParameter("userId");
         if (userId == null || userId.isEmpty()) return null;
 
@@ -3101,7 +3101,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // -------------------------------------------------------------------------
 
     @POST
-    public void doRunCleanupNow(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRunCleanupNow(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig config = OmniAuthGlobalConfig.get();
         if (config != null) {
@@ -3111,7 +3111,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doDeleteUser(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doDeleteUser(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
         String from   = req.getParameter("from");
@@ -3144,7 +3144,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doMarkForDeletion(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doMarkForDeletion(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
         String from   = req.getParameter("from");
@@ -3166,7 +3166,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doUnmarkForDeletion(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doUnmarkForDeletion(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userId = req.getParameter("userId");
         String from   = req.getParameter("from");
@@ -3264,7 +3264,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSetUserRole(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSetUserRole(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid      = req.getParameter("sid");
         String type     = req.getParameter("type");
@@ -3335,7 +3335,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRemoveUserAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRemoveUserAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid  = req.getParameter("sid");
         String type = req.getParameter("type");
@@ -3374,7 +3374,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     /** Returns JSON array of scoped permissions for a user across all jobs. */
-    public void doScopedAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doScopedAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid  = req.getParameter("sid");
         String type = req.getParameter("type");
@@ -3418,7 +3418,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         writeJson(rsp, json.append("]").toString());
     }
 
-    public void doAllScopedAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAllScopedAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         StringBuilder json = new StringBuilder("[");
         boolean first = true;
@@ -3462,7 +3462,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doGrantScopedAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doGrantScopedAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid       = req.getParameter("sid");
         String type      = req.getParameter("type");
@@ -3540,7 +3540,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevokeScopedAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeScopedAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid     = req.getParameter("sid");
         String type    = req.getParameter("type");
@@ -3594,7 +3594,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doSaveRole(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSaveRole(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String name        = req.getParameter("roleName");
         String description = req.getParameter("roleDescription");
@@ -3617,7 +3617,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doDeleteRole(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doDeleteRole(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String name = req.getParameter("roleName");
         if (name != null) {
@@ -3692,7 +3692,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Grant a config-defined role to a user at a given scope (global or specific item path). */
     @POST
-    public void doGrantAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doGrantAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid      = req.getParameter("sid");
         String type     = req.getParameter("type");
@@ -3756,7 +3756,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     /** Typeahead endpoint — returns up to 10 users + groups whose id/name contains the query. */
-    public void doSuggestApprovers(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSuggestApprovers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String q = req.getParameter("q");
         if (q == null) q = "";
@@ -3805,7 +3805,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 
-    private static void applyJitFieldsFromRequest(StaplerRequest req, OmniAuthAssignment assignment) {
+    private static void applyJitFieldsFromRequest(StaplerRequest2 req, OmniAuthAssignment assignment) {
         String accessType = req.getParameter("accessType");
         if ("JIT".equalsIgnoreCase(accessType)) {
             assignment.setAccessType("JIT");
@@ -3825,7 +3825,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Edit (replace) an existing assignment — scope stays the same, role/permissions/expiry may change. */
     @POST
-    public void doEditAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doEditAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid      = req.getParameter("sid");
         String type     = req.getParameter("type");
@@ -3897,7 +3897,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Revoke a specific access assignment (global or scoped to an item path). */
     @POST
-    public void doRevokeAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid   = req.getParameter("sid");
         String type  = req.getParameter("type");
@@ -3929,7 +3929,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doConfirmAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doConfirmAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid      = req.getParameter("sid");
         String type     = req.getParameter("type");
@@ -3961,7 +3961,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doConfirmAllAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doConfirmAllAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         if (cfg == null || !cfg.isAccessReviewEnabled()) { rsp.sendRedirect("accessReview"); return; }
@@ -3979,7 +3979,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevokeFromReview(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeFromReview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid   = req.getParameter("sid");
         String type  = req.getParameter("type");
@@ -4062,7 +4062,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doGrantGroupAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doGrantGroupAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid   = req.getParameter("sid");
         String roleId     = req.getParameter("roleId");
@@ -4091,7 +4091,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRevokeGroupAssignment(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRevokeGroupAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid = req.getParameter("sid");
         String scope    = req.getParameter("scope");
@@ -4111,7 +4111,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // -------------------------------------------------------------------------
 
     /** AJAX: check whether a native Jenkins account exists for the given username. */
-    public void doCheckNativeUser(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doCheckNativeUser(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String username = req.getParameter("username");
         rsp.setContentType("application/json;charset=UTF-8");
@@ -4132,7 +4132,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** POST: add a user (native create or Entra pre-provision) then redirect to their detail page. */
     @POST
-    public void doAddUser(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doAddUser(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String userType           = req.getParameter("userType"); // NATIVE, ENTRA, or GROUP
         String sid                = req.getParameter("sid");
@@ -4238,7 +4238,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Removes a GROUP entity from Access Management and revokes sessions for affected members. */
     @POST
-    public void doRemoveGroup(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRemoveGroup(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String groupOid = req.getParameter("oid");
         if (groupOid == null || groupOid.trim().isEmpty()) {
@@ -5066,7 +5066,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // User-centric hierarchy view
     // =========================================================================
 
-    public void doCheckAccess(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doCheckAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid = req.getParameter("sid");
         if (sid != null) {
@@ -5082,7 +5082,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         req.getView(this, "userDetail.jelly").forward(req, rsp);
     }
 
-    public void doGroupDetail(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doGroupDetail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "groupDetail.jelly").forward(req, rsp);
     }
@@ -5285,7 +5285,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ─── POST: Set role at any node (root, folder, job) ─────────────────────
 
     @POST
-    public void doSetNodePermission(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doSetNodePermission(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid  = req.getParameter("sid");
         String type = req.getParameter("type");
@@ -5337,7 +5337,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     @POST
-    public void doRemoveNodePermission(StaplerRequest req, StaplerResponse rsp) throws Exception {
+    public void doRemoveNodePermission(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         String sid  = req.getParameter("sid");
         String type = req.getParameter("type");
@@ -5367,7 +5367,7 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     /** Rebuild the global OmniAuthAuthorizationStrategy with this user's permissions replaced. */
     private void applyRootPermissions(String sid, AuthorizationType atype, Set<String> permIds,
-                                      StaplerResponse rsp, boolean removing) throws Exception {
+                                      StaplerResponse2 rsp, boolean removing) throws Exception {
         hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
         if (!(strat instanceof OmniAuthAuthorizationStrategy)) {
             rsp.sendRedirect(detailUrl(sid, atype, "error=notOmniAuth"));

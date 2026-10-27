@@ -1,11 +1,11 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Pure unit tests for the {@link ProvisioningRequest} POJO: the {@code create} factory,
@@ -20,7 +20,7 @@ public class ProvisioningRequestTest {
                 null, "need CI access", 14, "10.0.0.1");
 
         assertNotNull(r.getRequestId());
-        assertFalse("requestId should be a non-empty UUID", r.getRequestId().isEmpty());
+        assertFalse(r.getRequestId().isEmpty(), "requestId should be a non-empty UUID");
         assertEquals(ProvisioningRequest.TYPE_NATIVE, r.getRequestType());
         assertEquals("alice", r.getUserId());
         assertEquals("Alice A", r.getFullName());

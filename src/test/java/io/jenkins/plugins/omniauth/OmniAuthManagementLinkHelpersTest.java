@@ -1,8 +1,9 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.mockito.MockedStatic;
@@ -11,7 +12,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 
 /**
@@ -26,10 +27,15 @@ import static org.mockito.Mockito.mockStatic;
  *
  * The doXxx Stapler handlers (ADMINISTER + request + crumb) are intentionally not tested here.
  */
+@WithJenkins
 public class OmniAuthManagementLinkHelpersTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
 
     // ─── reflection helpers ─────────────────────────────────────────────────
 
@@ -90,10 +96,8 @@ public class OmniAuthManagementLinkHelpersTest {
         String payload = "x' onerror='alert(1)";
         String html = buildPreviewHtml(cfg, "configChanged", payload, null);
 
-        assertFalse("the raw single quote must not break out of the src attribute",
-                html.contains("src='x' onerror='alert(1)'"));
-        assertTrue("the single quote must be HTML-entity-escaped",
-                html.contains("src='x&#39; onerror=&#39;alert(1)'"));
+        assertFalse(html.contains("src='x' onerror='alert(1)'"), "the raw single quote must not break out of the src attribute");
+        assertTrue(html.contains("src='x&#39; onerror=&#39;alert(1)'"), "the single quote must be HTML-entity-escaped");
     }
 
     @Test
@@ -101,15 +105,15 @@ public class OmniAuthManagementLinkHelpersTest {
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         String html = buildPreviewHtml(cfg, "configChanged", "<img x>", null);
 
-        assertFalse("raw angle brackets must not appear in the logo src", html.contains("src='<img x>'"));
-        assertTrue("angle brackets must be escaped", html.contains("src='&lt;img x&gt;'"));
+        assertFalse(html.contains("src='<img x>'"), "raw angle brackets must not appear in the logo src");
+        assertTrue(html.contains("src='&lt;img x&gt;'"), "angle brackets must be escaped");
     }
 
     @Test
     public void buildPreviewHtml_logoUrlWithDoubleQuote_isEscaped() throws Exception {
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         String html = buildPreviewHtml(cfg, "configChanged", "a\"b", null);
-        assertTrue("double quote must be escaped", html.contains("src='a&quot;b'"));
+        assertTrue(html.contains("src='a&quot;b'"), "double quote must be escaped");
     }
 
     // ─── break-glass session state (Long expiry) ──────────────────────────────
@@ -155,7 +159,7 @@ public class OmniAuthManagementLinkHelpersTest {
             st.when(Stapler::getCurrentRequest2).thenReturn(req);
             // Regression: before the fix this cast the Long to String → ClassCastException
             // (swallowed) → always reported inactive.
-            assertTrue("a future Long expiry must report break-glass active", link.isBreakGlassActive());
+            assertTrue(link.isBreakGlassActive(), "a future Long expiry must report break-glass active");
         }
     }
 
@@ -167,7 +171,7 @@ public class OmniAuthManagementLinkHelpersTest {
 
         try (MockedStatic<Stapler> st = mockStatic(Stapler.class)) {
             st.when(Stapler::getCurrentRequest2).thenReturn(req);
-            assertFalse("a past Long expiry must report break-glass inactive", link.isBreakGlassActive());
+            assertFalse(link.isBreakGlassActive(), "a past Long expiry must report break-glass inactive");
         }
     }
 
@@ -200,9 +204,8 @@ public class OmniAuthManagementLinkHelpersTest {
         try (MockedStatic<Stapler> st = mockStatic(Stapler.class)) {
             st.when(Stapler::getCurrentRequest2).thenReturn(req);
             String iso = link.getBreakGlassExpiresAt();
-            assertNotNull("a Long expiry must be read without throwing", iso);
-            assertEquals("must equal the ISO form of the stored epoch-millis",
-                    java.time.Instant.ofEpochMilli(future).toString(), iso);
+            assertNotNull(iso, "a Long expiry must be read without throwing");
+            assertEquals(java.time.Instant.ofEpochMilli(future).toString(), iso, "must equal the ISO form of the stored epoch-millis");
         }
     }
 

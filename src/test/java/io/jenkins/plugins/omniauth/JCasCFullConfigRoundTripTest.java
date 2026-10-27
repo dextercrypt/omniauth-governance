@@ -3,16 +3,17 @@ package io.jenkins.plugins.omniauth;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
-import org.junit.Rule;
-import org.junit.Test;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Completeness proof for {@link OmniAuthGlobalConfig} over JCasC: imports one field from every
@@ -21,10 +22,15 @@ import static org.junit.Assert.assertTrue;
  * asserts the same keys come back with no "FAILED TO EXPORT". This guards against a field being
  * added later without a setter and silently falling out of JCasC coverage.
  */
+@WithJenkinsConfiguredWithCode
 public class JCasCFullConfigRoundTripTest {
 
-    @Rule
-    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+    private JenkinsConfiguredWithCodeRule j;
+
+    @BeforeEach
+    void setUp(JenkinsConfiguredWithCodeRule r) {
+        j = r;
+    }
 
     @Test
     @ConfiguredWithCode("jcasc-globalconfig-full.yaml")
@@ -79,7 +85,7 @@ public class JCasCFullConfigRoundTripTest {
                 "staleThresholdDays", "cleanupCron", "notificationsEnabled", "smtpHost",
                 "smtpPort", "smtpFromName", "bruteForceThreshold", "staleWarningCron",
                 "accessReviewThresholdDays", "notificationLogoUrl", "smtpEvents"}) {
-            assertTrue("expected exported key: " + key, yaml.contains(key));
+            assertTrue(yaml.contains(key), "expected exported key: " + key);
         }
     }
 

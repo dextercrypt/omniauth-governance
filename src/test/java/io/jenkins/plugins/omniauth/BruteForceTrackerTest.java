@@ -2,11 +2,11 @@ package io.jenkins.plugins.omniauth;
 
 import hudson.security.AuthorizationStrategy;
 import hudson.security.HudsonPrivateSecurityRealm;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
@@ -14,9 +14,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,25 +36,26 @@ import static org.mockito.Mockito.times;
  * no protected users. A {@link HudsonPrivateSecurityRealm} (case-insensitive IdStrategy) is
  * installed so canonicalization is deterministic.
  */
+@WithJenkins
 public class BruteForceTrackerTest {
 
     private static final int DEFAULT_THRESHOLD = 5;
     private static final int MAX_TRACKED = 10_000;
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private OmniAuthGlobalConfig cfg;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
         j.jenkins.setSecurityRealm(new HudsonPrivateSecurityRealm(true, false, null));
         j.jenkins.setAuthorizationStrategy(new AuthorizationStrategy.Unsecured());
         resetTracker();
         cfg = OmniAuthGlobalConfig.get();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         resetTracker();
     }
@@ -118,8 +119,7 @@ public class BruteForceTrackerTest {
     public void notLockedBelowThreshold() {
         fail("bob", DEFAULT_THRESHOLD - 1); // 4 failures
         assertEquals(DEFAULT_THRESHOLD - 1, BruteForceTracker.getFailureCount("bob"));
-        assertFalse("must NOT lock before the threshold (regression: no double-count)",
-                BruteForceTracker.isLocked("bob"));
+        assertFalse(BruteForceTracker.isLocked("bob"), "must NOT lock before the threshold (regression: no double-count)");
     }
 
     @Test
@@ -139,10 +139,8 @@ public class BruteForceTrackerTest {
         BruteForceTracker.recordFailure("ADMIN ");
         BruteForceTracker.recordFailure("  admin");
         BruteForceTracker.recordFailure("ADMIN");
-        assertEquals("all variants must canonicalize to one counter",
-                DEFAULT_THRESHOLD, BruteForceTracker.getFailureCount("admin"));
-        assertTrue("lockout must not be bypassable via case/whitespace",
-                BruteForceTracker.isLocked("aDmIn"));
+        assertEquals(DEFAULT_THRESHOLD, BruteForceTracker.getFailureCount("admin"), "all variants must canonicalize to one counter");
+        assertTrue(BruteForceTracker.isLocked("aDmIn"), "lockout must not be bypassable via case/whitespace");
     }
 
     @Test
@@ -157,9 +155,8 @@ public class BruteForceTrackerTest {
     public void protectedUser_isNeverLocked() {
         cfg.setProtectedUsers(Arrays.asList("admin"));
         fail("admin", DEFAULT_THRESHOLD * 2); // hammer well past threshold
-        assertFalse("protected users must never be locked", BruteForceTracker.isLocked("admin"));
-        assertTrue("protected user has no lock entry",
-                BruteForceTracker.getLockedUsers().isEmpty());
+        assertFalse(BruteForceTracker.isLocked("admin"), "protected users must never be locked");
+        assertTrue(BruteForceTracker.getLockedUsers().isEmpty(), "protected user has no lock entry");
     }
 
     @Test
@@ -167,8 +164,7 @@ public class BruteForceTrackerTest {
         // Protected name stored mixed-case; login attempts arrive lower-case.
         cfg.setProtectedUsers(Arrays.asList("Admin"));
         fail("admin", DEFAULT_THRESHOLD * 2);
-        assertFalse("canonicalized protected comparison must still grant immunity",
-                BruteForceTracker.isLocked("admin"));
+        assertFalse(BruteForceTracker.isLocked("admin"), "canonicalized protected comparison must still grant immunity");
     }
 
     // ───────────────────────── reset / unlock ──────────────────────────────────
@@ -209,19 +205,17 @@ public class BruteForceTrackerTest {
     public void expiredLock_isClearedOnRead() throws Exception {
         // Inject an already-expired lock directly, bypassing the 1-minute minimum cooldown.
         lockedMap().put("stale", System.currentTimeMillis() - 1000L);
-        assertFalse("an expired lock must read as not-locked", BruteForceTracker.isLocked("stale"));
-        assertFalse("and must be pruned from the map on read",
-                lockedMap().containsKey("stale"));
+        assertFalse(BruteForceTracker.isLocked("stale"), "an expired lock must read as not-locked");
+        assertFalse(lockedMap().containsKey("stale"), "and must be pruned from the map on read");
     }
 
     @Test
     public void lockedUntilAndRemaining_whileLocked() {
         fail("bob", DEFAULT_THRESHOLD);
         long until = BruteForceTracker.lockedUntil("bob");
-        assertTrue("lockedUntil is in the future", until > System.currentTimeMillis());
+        assertTrue(until > System.currentTimeMillis(), "lockedUntil is in the future");
         long remaining = BruteForceTracker.lockRemainingMinutes("bob");
-        assertTrue("remaining minutes within the configured 15-min window",
-                remaining >= 1 && remaining <= 15);
+        assertTrue(remaining >= 1 && remaining <= 15, "remaining minutes within the configured 15-min window");
     }
 
     @Test
@@ -236,14 +230,14 @@ public class BruteForceTrackerTest {
     public void lockoutDisabled_neverLocks() {
         cfg.setBruteForceLockoutEnabled(false);
         fail("bob", DEFAULT_THRESHOLD * 2);
-        assertFalse("with lockout disabled, no account is locked", BruteForceTracker.isLocked("bob"));
+        assertFalse(BruteForceTracker.isLocked("bob"), "with lockout disabled, no account is locked");
         assertTrue(BruteForceTracker.getLockedUsers().isEmpty());
     }
 
     @Test
     public void lockoutEnabled_failsSafeWhenConfigNull() throws Exception {
         // The private gate must treat a missing config as ENABLED (fail safe / closed).
-        assertTrue("null config must fail safe to lockout ENABLED", invokeLockoutEnabled(null));
+        assertTrue(invokeLockoutEnabled(null), "null config must fail safe to lockout ENABLED");
         cfg.setBruteForceLockoutEnabled(true);
         assertTrue(invokeLockoutEnabled(cfg));
         cfg.setBruteForceLockoutEnabled(false);
@@ -276,8 +270,7 @@ public class BruteForceTrackerTest {
             BruteForceTracker.recordFailure("flood-user-" + i);
         }
         int size = failuresSize();
-        assertTrue("map must stay bounded at/under the cap, was " + size, size <= MAX_TRACKED);
-        assertTrue("pruning must have dropped entries (flood was " + flood + ", size " + size + ")",
-                size < flood);
+        assertTrue(size <= MAX_TRACKED, "map must stay bounded at/under the cap, was " + size);
+        assertTrue(size < flood, "pruning must have dropped entries (flood was " + flood + ", size " + size + ")");
     }
 }

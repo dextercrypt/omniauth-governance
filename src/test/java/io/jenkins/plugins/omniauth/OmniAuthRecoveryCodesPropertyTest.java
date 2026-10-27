@@ -1,10 +1,10 @@
 package io.jenkins.plugins.omniauth;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the hashed, single-use SOS recovery codes — no Jenkins instance needed.
@@ -22,7 +22,7 @@ public class OmniAuthRecoveryCodesPropertyTest {
         assertEquals(OmniAuthRecoveryCodesProperty.CODE_COUNT, p.getUnusedCount());
         assertNotNull(p.getGeneratedAt());
         // Formatted as dash-grouped blocks, e.g. ABCD-EFGH-JKLM
-        for (String c : codes) assertTrue("code should be grouped with dashes: " + c, c.contains("-"));
+        for (String c : codes) assertTrue(c.contains("-"), "code should be grouped with dashes: " + c);
         // All distinct
         assertEquals(codes.size(), new java.util.HashSet<>(codes).size());
     }
@@ -33,11 +33,10 @@ public class OmniAuthRecoveryCodesPropertyTest {
         List<String> codes = p.regenerate();
         String raw = codes.get(3);
 
-        assertTrue("valid code must match", p.matchAndConsume(raw));
+        assertTrue(p.matchAndConsume(raw), "valid code must match");
         assertEquals(OmniAuthRecoveryCodesProperty.CODE_COUNT - 1, p.getUnusedCount());
-        assertFalse("a consumed code must not match again", p.matchAndConsume(raw));
-        assertEquals("unused count unchanged after rejected reuse",
-                OmniAuthRecoveryCodesProperty.CODE_COUNT - 1, p.getUnusedCount());
+        assertFalse(p.matchAndConsume(raw), "a consumed code must not match again");
+        assertEquals(OmniAuthRecoveryCodesProperty.CODE_COUNT - 1, p.getUnusedCount(), "unused count unchanged after rejected reuse");
     }
 
     @Test
@@ -65,7 +64,7 @@ public class OmniAuthRecoveryCodesPropertyTest {
         for (String c : codes) assertTrue(p.matchAndConsume(c));
         // Every code used: the gate keys on unused (0), while a set still technically exists.
         assertEquals(0, p.getUnusedCount());
-        assertTrue("a fully-consumed set still counts as a generated set", p.isEnrolled());
+        assertTrue(p.isEnrolled(), "a fully-consumed set still counts as a generated set");
         // No code works any more until regeneration.
         assertFalse(p.matchAndConsume(codes.get(0)));
         // Regenerating restores a full, usable set.
@@ -78,7 +77,7 @@ public class OmniAuthRecoveryCodesPropertyTest {
         OmniAuthRecoveryCodesProperty p = new OmniAuthRecoveryCodesProperty();
         String oldCode = p.regenerate().get(0);
         p.regenerate(); // new set replaces the old
-        assertFalse("old code must stop working after regeneration", p.matchAndConsume(oldCode));
+        assertFalse(p.matchAndConsume(oldCode), "old code must stop working after regeneration");
         assertEquals(OmniAuthRecoveryCodesProperty.CODE_COUNT, p.getUnusedCount());
     }
 
