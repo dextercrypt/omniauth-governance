@@ -838,9 +838,16 @@ public class OmniAuthManagementLink extends ManagementLink {
     @POST
     public void doSosDeactivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        rsp.setContentType("application/json;charset=UTF-8");
         User current = User.current();
         OmniAuthSos.deactivate(current != null ? current.getId() : "unknown");
+        // The /sos/recover page deactivates via a plain (no-JS) form POST and sends fromForm=1; reply with a
+        // redirect so the browser lands on Jenkins rather than a bare JSON body. The site-wide banner's fetch
+        // omits the marker and still gets JSON.
+        if (req.getParameter("fromForm") != null) {
+            rsp.sendRedirect(req.getContextPath() + "/");
+            return;
+        }
+        rsp.setContentType("application/json;charset=UTF-8");
         rsp.getWriter().write("{\"success\":true}");
     }
 
@@ -2683,7 +2690,12 @@ public class OmniAuthManagementLink extends ManagementLink {
     // Access detail (used by access.jelly)
     // -------------------------------------------------------------------------
 
-    public AccessInfo getAccessInfo(StaplerRequest2 req) {
+    public AccessInfo getAccessInfo() {
+        // Read the current request directly (same pattern as getUserDetailHeader/getTempPassword). The
+        // jelly's implicit `request` does not bind to a StaplerRequest2 parameter after the Stapler2
+        // migration, which silently returned null here → "User not found" for every user.
+        org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
+        if (req == null) return null;
         String userId = req.getParameter("userId");
         if (userId == null || userId.isEmpty()) return null;
 
@@ -4234,6 +4246,135 @@ public class OmniAuthManagementLink extends ManagementLink {
         } else {
             rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER");
         }
+    }
+
+    /**
+     * Admin: reset a native (local-password) account's password. Generates a one-time temporary
+     * password, forces a change at next login, invalidates the user's existing sessions, and shows
+     * the new password once via the same modal as account creation. Never for SSO/Entra users (no
+     * local password) — the admin never learns a password the user will keep.
+     */
+    @POST
+    public void doResetPassword(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String sid = req.getParameter("sid");
+        if (sid == null || sid.trim().isEmpty()) { rsp.sendRedirect("userStatus?error=missingSid"); return; }
+        sid = sid.trim();
+        if (!(Jenkins.get().getSecurityRealm() instanceof hudson.security.HudsonPrivateSecurityRealm)) {
+            rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&error=notNativeRealm"); return;
+        }
+        User user = User.getById(sid, false);
+        // Only native accounts (ones that carry a local password hash) can have a password reset here.
+        if (user == null || user.getProperty(hudson.security.HudsonPrivateSecurityRealm.Details.class) == null) {
+            rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&error=notNative"); return;
+        }
+        String tmpPwd = generateTempPassword();
+        try {
+            // fromPlainPassword is package-private in Jenkins core — same reflection the self-service
+            // password-change flow uses (OmniAuthRootAction.doSubmitPasswordChange).
+            java.lang.reflect.Method m = hudson.security.HudsonPrivateSecurityRealm.Details.class
+                    .getDeclaredMethod("fromPlainPassword", String.class);
+            m.setAccessible(true);
+            hudson.security.HudsonPrivateSecurityRealm.Details details =
+                    (hudson.security.HudsonPrivateSecurityRealm.Details) m.invoke(null, tmpPwd);
+            user.addProperty(details);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "OmniAuth: admin password reset failed for " + sid, e);
+            rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&error=resetFailed"); return;
+        }
+        // Force the user to set their own password at next login — the admin-set temp password is transient.
+        user.addProperty(new OmniAuthForcePasswordProperty(true));
+        user.save();
+        // Invalidate the target's existing sessions so a stolen/open session can't outlive the reset.
+        revokeSessionsFor(sid);
+        OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+        if (audit != null) audit.logPasswordReset(Jenkins.getAuthentication2().getName(), sid);
+        // Show the temp password exactly once, reusing the userDetail session-backed modal.
+        req.getSession().setAttribute("omniauth.tmpPwd", tmpPwd);
+        req.getSession().setAttribute("omniauth.tmpPwdSid", sid);
+        rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&pwReset=true&mustChange=true");
+    }
+
+    /**
+     * Admin: edit a user's display name and e-mail without leaving the OmniAuth console. Mirrors the
+     * same fields {@link #doAddUser} sets at creation (full name + Mailer e-mail property).
+     */
+    @POST
+    public void doEditUser(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+        String sid      = req.getParameter("sid");
+        String fullName = req.getParameter("fullName");
+        String email    = req.getParameter("email");
+        if (sid == null || sid.trim().isEmpty()) { rsp.sendRedirect("userStatus?error=missingSid"); return; }
+        sid = sid.trim();
+        User user = User.getById(sid, false);
+        if (user == null) { rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&error=notFound"); return; }
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            user.setFullName(fullName.trim());
+        }
+        if (email != null) {
+            setUserEmail(user, email.trim());
+        }
+        user.save();
+        OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+        if (audit != null) audit.logConfigChanged(Jenkins.getAuthentication2().getName(), "user_details",
+                "Updated profile for " + sid);
+        rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&detailsSaved=true");
+    }
+
+    /** Revoke every active session belonging to {@code sid} (snapshot first to avoid mutation during iteration). */
+    private static void revokeSessionsFor(String sid) {
+        try {
+            java.util.List<String> toRevoke = new ArrayList<>();
+            for (ActiveSessionManager.ActiveSession s : ActiveSessionManager.getAll()) {
+                if (sid.equals(s.getUserId())) toRevoke.add(s.getSessionId());
+            }
+            for (String id : toRevoke) ActiveSessionManager.revoke(id);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "OmniAuth: could not revoke sessions for " + sid, e);
+        }
+    }
+
+    /** Attach/replace the Mailer e-mail property — same reflective approach as {@link #doAddUser}. */
+    private static void setUserEmail(User user, String email) {
+        try {
+            ClassLoader uberCl = Jenkins.get().getPluginManager().uberClassLoader;
+            Class<?> mailerPropClass = Class.forName("hudson.tasks.Mailer$UserProperty", true, uberCl);
+            java.lang.reflect.Constructor<?> ctor = mailerPropClass.getConstructor(String.class);
+            hudson.model.UserProperty prop = (hudson.model.UserProperty) ctor.newInstance(email);
+            user.addProperty(prop);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not set email for user " + user.getId(), e);
+        }
+    }
+
+    /** True when {@code sid} is a native (local-password) account that supports reset/edit here. */
+    public boolean isNativePasswordAccount(String sid) {
+        if (sid == null || sid.isEmpty()) return false;
+        if (!(Jenkins.get().getSecurityRealm() instanceof hudson.security.HudsonPrivateSecurityRealm)) return false;
+        User user = User.getById(sid, false);
+        return user != null && user.getProperty(hudson.security.HudsonPrivateSecurityRealm.Details.class) != null;
+    }
+
+    /** Current e-mail for the userDetail "Edit details" form (Mailer property), or "" when none/unknown. */
+    @SuppressWarnings("unchecked")
+    public String getUserEmail() {
+        org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
+        if (req == null) return "";
+        String sid = req.getParameter("sid");
+        if (sid == null) return "";
+        User user = User.getById(sid, false);
+        if (user == null) return "";
+        try {
+            ClassLoader uberCl = Jenkins.get().getPluginManager().uberClassLoader;
+            Class<?> mailerPropClass = Class.forName("hudson.tasks.Mailer$UserProperty", true, uberCl);
+            hudson.model.UserProperty prop = user.getProperty((Class<? extends hudson.model.UserProperty>) mailerPropClass);
+            if (prop != null) {
+                Object addr = mailerPropClass.getMethod("getAddress").invoke(prop);
+                if (addr != null) return addr.toString();
+            }
+        } catch (Exception ignore) { /* no mailer plugin or no address: fall through */ }
+        return "";
     }
 
     /** Removes a GROUP entity from Access Management and revokes sessions for affected members. */

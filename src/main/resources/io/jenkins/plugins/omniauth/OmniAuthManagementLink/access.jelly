@@ -16,7 +16,7 @@
 
       <div style="padding: 16px;">
 
-        <j:set var="info" value="${it.getAccessInfo(request)}"/>
+        <j:set var="info" value="${it.accessInfo}"/>
 
         <j:choose>
           <j:when test="${info == null}">

@@ -13,6 +13,7 @@
       <j:set var="tmpPwd"           value="${it.tempPassword}"/>
       <j:set var="isNewUser"        value="${request2.getParameter('newUser') == 'true'}"/>
       <j:set var="isPreProvisioned" value="${request2.getParameter('preProvisioned') == 'true'}"/>
+      <j:set var="isPwReset"        value="${request2.getParameter('pwReset') == 'true'}"/>
       <j:set var="userIsGlobalAdmin" value="${it.isUserGlobalAdmin(sid)}"/>
 
       <!-- CSP: server values for userDetailAssets.js (read via dataset, keeps EL out of the .js) -->
@@ -50,6 +51,18 @@
         <!-- Flash -->
         <j:if test="${request2.getParameter('saved') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access updated.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('detailsSaved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">User details updated.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notNative'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Password reset is only available for native (local-password) accounts.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notNativeRealm'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">The active security realm does not manage local passwords.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'resetFailed'}">
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Could not reset the password. Check the Jenkins log for details.</div>
         </j:if>
         <j:if test="${request2.getParameter('reviewed') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access confirmed — review clock reset.</div>
@@ -107,7 +120,12 @@
           <div id="tmpPwdOverlay"
                style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:10px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-              <div style="font-weight:700;font-size:1.05em;margin-bottom:6px;">Account Created</div>
+              <div style="font-weight:700;font-size:1.05em;margin-bottom:6px;">
+                <j:choose>
+                  <j:when test="${isPwReset}">Password Reset</j:when>
+                  <j:otherwise>Account Created</j:otherwise>
+                </j:choose>
+              </div>
               <div style="font-size:0.85em;color:#555;margin-bottom:18px;">
                 Share this temporary password with <strong>${sid}</strong>.
                 <j:if test="${request2.getParameter('mustChange') == 'true'}">
@@ -115,6 +133,9 @@
                 </j:if>
                 <j:if test="${request2.getParameter('mustChange') != 'true'}">
                   They can log in directly with this password.
+                </j:if>
+                <j:if test="${isPwReset}">
+                  Their existing sessions have been signed out.
                 </j:if>
               </div>
               <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:6px;">Temporary Password</div>
@@ -168,6 +189,71 @@
                   </j:choose>
                 </div>
               </j:if>
+            </div>
+
+            <!-- Native-account actions: reset password / edit details (local-password accounts only) -->
+            <j:if test="${header.userEntry and it.isNativePasswordAccount(sid)}">
+              <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
+                <button type="button" id="udxEditDetailsBtn" class="jenkins-button" style="font-size:0.82em;white-space:nowrap;">
+                  Edit details
+                </button>
+                <button type="button" id="udxResetPwBtn" class="jenkins-button" style="font-size:0.82em;white-space:nowrap;">
+                  Reset password
+                </button>
+                <!-- Submitted by the in-app confirm modal below (no browser confirm dialog) -->
+                <form method="post" action="resetPassword" id="udxResetPwForm" style="display:none;">
+                  <input type="hidden" name="sid" value="${sid}"/>
+                </form>
+              </div>
+            </j:if>
+          </div>
+        </j:if>
+
+        <!-- Edit user details modal -->
+        <j:if test="${header != null and header.userEntry and it.isNativePasswordAccount(sid)}">
+          <div id="udxEditOverlay"
+               style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:var(--oau-card-bg,#fff);border-radius:10px;padding:26px 30px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+              <div style="font-weight:700;font-size:1.05em;margin-bottom:4px;">Edit user details</div>
+              <div style="font-size:0.82em;color:var(--text-color-secondary,#888);margin-bottom:18px;">
+                Update the display name and e-mail for <strong>${sid}</strong>.
+              </div>
+              <form method="post" action="editUser">
+                <input type="hidden" name="sid" value="${sid}"/>
+                <div style="margin-bottom:14px;">
+                  <label for="udxEditFullName" style="display:block;font-size:0.76em;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:5px;">Full name</label>
+                  <input id="udxEditFullName" type="text" name="fullName" value="${header.displayName}"
+                         class="jenkins-input" style="width:100%;box-sizing:border-box;"/>
+                </div>
+                <div style="margin-bottom:20px;">
+                  <label for="udxEditEmail" style="display:block;font-size:0.76em;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:5px;">E-mail</label>
+                  <input id="udxEditEmail" type="email" name="email" value="${it.userEmail}"
+                         class="jenkins-input" style="width:100%;box-sizing:border-box;"/>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                  <button type="button" id="udxEditCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
+                  <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Save changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Reset-password confirm modal (in-app; replaces the browser confirm dialog) -->
+          <div id="udxResetOverlay"
+               style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:var(--oau-card-bg,#fff);border-radius:10px;padding:26px 30px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+              <div style="font-weight:700;font-size:1.05em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                Reset password
+              </div>
+              <div style="font-size:0.85em;color:var(--text-color-secondary,#555);margin-bottom:20px;line-height:1.5;">
+                Reset the password for <strong>${sid}</strong>? A new temporary password will be generated,
+                the user will be forced to change it at next login, and their active sessions will be signed out.
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" id="udxResetCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
+                <button type="button" id="udxResetConfirm" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Reset password</button>
+              </div>
             </div>
           </div>
         </j:if>

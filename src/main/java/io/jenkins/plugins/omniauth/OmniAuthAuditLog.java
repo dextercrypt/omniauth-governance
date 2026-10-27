@@ -259,6 +259,13 @@ public class OmniAuthAuditLog {
         write(e);
     }
 
+    /** An administrator reset another native account's password (distinct from self-service change). */
+    public void logPasswordReset(String by, String user) {
+        Map<String, String> e = event("password_reset");
+        e.put("by", by); e.put("user", user);
+        write(e);
+    }
+
     public void logAuditPurged(String by, int count) {
         Map<String, String> e = event("audit_purged");
         e.put("by", by); e.put("count", String.valueOf(count));

@@ -825,6 +825,46 @@ function udxInit() {
     if (ov) ov.style.display = 'none';
   });
 
+  // Edit-details modal: open / close (native accounts only; elements absent otherwise)
+  wire('udxEditDetailsBtn', 'click', function() {
+    var ov = document.getElementById('udxEditOverlay');
+    if (ov) {
+      ov.style.display = 'flex';
+      var fn = document.getElementById('udxEditFullName');
+      if (fn) fn.focus();
+    }
+  });
+  wire('udxEditCancel', 'click', function() {
+    var ov = document.getElementById('udxEditOverlay');
+    if (ov) ov.style.display = 'none';
+  });
+  var editOv = document.getElementById('udxEditOverlay');
+  if (editOv) {
+    editOv.addEventListener('click', function(e) {
+      if (e.target === editOv) editOv.style.display = 'none';  // click backdrop to dismiss
+    });
+  }
+
+  // Reset-password: open the in-app confirm modal (no browser confirm dialog)
+  wire('udxResetPwBtn', 'click', function() {
+    var ov = document.getElementById('udxResetOverlay');
+    if (ov) ov.style.display = 'flex';
+  });
+  wire('udxResetCancel', 'click', function() {
+    var ov = document.getElementById('udxResetOverlay');
+    if (ov) ov.style.display = 'none';
+  });
+  wire('udxResetConfirm', 'click', function() {
+    var form = document.getElementById('udxResetPwForm');
+    if (form) form.submit();
+  });
+  var resetOv = document.getElementById('udxResetOverlay');
+  if (resetOv) {
+    resetOv.addEventListener('click', function(e) {
+      if (e.target === resetOv) resetOv.style.display = 'none';  // click backdrop to dismiss
+    });
+  }
+
   // Add Access buttons (header + empty state)
   document.querySelectorAll('.js-udx-add').forEach(function(btn) {
     btn.addEventListener('click', udxShowAdd);
