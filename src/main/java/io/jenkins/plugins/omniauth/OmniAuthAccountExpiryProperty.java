@@ -58,6 +58,11 @@ public class OmniAuthAccountExpiryProperty extends UserProperty {
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
         @Override public String getDisplayName() { return ""; }
+        // Operational property (admin-set account expiry): hide it from the per-user config UI. Without
+        // this, the core "Account" settings page (UserPropertyCategoryAccountAction) tries to
+        // <st:include> a config.jelly this property does not have and the whole page render throws. All the
+        // other operational properties here disable themselves the same way.
+        @Override public boolean isEnabled() { return false; }
         // Not shown in the user-config UI and never auto-attached.
         @Override public UserProperty newInstance(User user) { return null; }
     }

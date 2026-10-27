@@ -235,8 +235,14 @@ public class OmniAuthUserProperty extends UserProperty {
 
         @Override
         public boolean isEnabled() {
-            // Only show this property when OmniAuthSecurityRealm is active
-            return hudson.model.Hudson.get().getSecurityRealm() instanceof OmniAuthSecurityRealm;
+            // Hidden from the per-user config UI. This property holds the user's linked Entra identity
+            // (object id + UPN), set only during Entra login — it is not user-editable and has no
+            // config.jelly. Leaving it enabled made the core "Account" settings page
+            // (UserPropertyCategoryAccountAction) <st:include> a config.jelly that does not exist, which
+            // threw and broke the whole page render. Rendering it as an editable form section would also
+            // risk wiping entraObjectId/entraUpn on save (empty form JSON rebinding the property), so it
+            // stays hidden like the other operational OmniAuth user properties.
+            return false;
         }
 
         @Override
