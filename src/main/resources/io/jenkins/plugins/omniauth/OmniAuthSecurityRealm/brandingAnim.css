@@ -1,0 +1,48 @@
+/*
+ * Animated login branding panel styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthSecurityRealm.brandingAnim"/>
+ * Externalised from animated-branding.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+
+/*
+  Kill Jenkins' native colourful starburst blobs. Core paints two pseudo-elements
+  (.app-sign-in-register__branding::before / ::after) of radial gradients at z-index:-1 —
+  ON TOP of this section's own background but BEHIND the canvas. The canvas is transparent
+  until JS paints its first frame, so on reload those blobs flash through for a beat
+  ("stardust"). Removing them means the pre-paint state is just our dark base gradient,
+  visually identical to the animation's drawBG() — no flash. Only applies in animated mode
+  (this stylesheet isn't included for the 'starburst' background option).
+*/
+.app-sign-in-register__branding::before,
+.app-sign-in-register__branding::after { content: none !important; background: none !important; }
+
+/*
+  Version-proof the branding panel. Jenkins restyles its own login page between
+  releases: 2.541.2 centred the logo via `.app-sign-in-register__branding{display:flex;
+  align-items:center;justify-content:center}` and sized it via
+  `.app-sign-in-register__branding img{height:25vh}`; Jenkins 2.580.1 switched the login
+  page to a CSS grid and DROPPED both rules, which left our logo pinned to the top-left at
+  its natural size. We restore exactly those two behaviours here so the panel renders the
+  same on every supported Jenkins. These are no-ops where core still supplies them.
+  NOTE: we deliberately do NOT set `position` — 2.541.2 needs this section `position:fixed`
+  while 2.580.1 positions it through the grid; overriding it would break one of the two.
+*/
+.app-sign-in-register__branding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* 2.580.1 also gives this panel a page-inset margin and a border-radius, which
+     reveals the light page background as a white frame and rounds the edges. 2.541.2
+     had neither (the panel was a full-bleed position:fixed). Restore full-bleed. */
+  margin: 0;
+  border-radius: 0;
+}
+/* The butler SVGs size themselves inline (height:40vh); this covers the plain-logo
+   fallback image (the 'default' selection), which otherwise has no height of its own. */
+.app-sign-in-register__branding > img {
+  height: 25vh;
+  max-height: 30rem;
+  min-height: 15rem;
+  width: auto;
+}

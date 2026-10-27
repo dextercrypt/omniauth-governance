@@ -3,6 +3,7 @@
   <l:layout title="OmniAuth — JIT Requests" norefresh="true">
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.jitRequestsAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -260,24 +261,6 @@
           </div>
         </form>
       </div>
-
-      <style>
-        .jit-th { padding:10px 16px;text-align:left;font-size:.76em;font-weight:700;text-transform:uppercase;
-                  letter-spacing:.05em;color:var(--text-color-secondary);white-space:nowrap; }
-      </style>
-
-      <script>//<![CDATA[
-        function openDenyModal(requestId, userId, scope) {
-          document.getElementById('jitDenyRequestId').value = requestId;
-          document.getElementById('jitDenyMeta').textContent = userId + ' → ' + scope;
-          document.getElementById('jitDenyModal').style.display = '';
-          document.getElementById('jitDenyBackdrop').style.display = '';
-        }
-        function closeDenyModal() {
-          document.getElementById('jitDenyModal').style.display = 'none';
-          document.getElementById('jitDenyBackdrop').style.display = 'none';
-        }
-      //]]></script>
 
     </l:main-panel>
   </l:layout>

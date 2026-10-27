@@ -1,0 +1,57 @@
+/*
+ * Overview dashboard styles: KPI hover/tick, live status indicator, login
+ * activity chart, and the composition donut.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.indexAssets"/>
+ * Externalised from index.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+
+/* KPI hover lift + live-update tick */
+.oau-kpi-card { transition: transform .15s ease, box-shadow .15s ease; }
+.oau-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
+.oau-kpi-card__value { transition: color .2s ease; }
+@keyframes oauTick { 0%{ transform: scale(1);} 35%{ transform: scale(1.14);} 100%{ transform: scale(1);} }
+.oau-kpi-card__value.oau-ticked { animation: oauTick .45s ease; }
+
+/* Live status indicator */
+.oau-live-status { display:inline-flex; align-items:center; gap:7px; font-size:0.82em;
+                   color: var(--text-color-secondary); white-space:nowrap; }
+.oau-live-dot { width:8px; height:8px; border-radius:50%; background: var(--success-color);
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 70%, transparent);
+                animation: oauPulse 2s infinite; }
+@keyframes oauPulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 60%, transparent); }
+  70%  { box-shadow: 0 0 0 7px color-mix(in srgb, var(--success-color) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-color) 0%, transparent); }
+}
+.oau-live-status--paused { color: var(--text-color-secondary); }
+.oau-live-status--paused .oau-live-dot { background: var(--text-color-secondary); animation: none; box-shadow:none; }
+
+/* Login activity chart */
+.oau-chart-legend { display:inline-flex; gap:14px; font-size:0.78em; color: var(--text-color-secondary); }
+.oau-chart-legend .oau-dot { margin-right:4px; }
+.oau-chart-plot { display:flex; align-items:flex-end; gap:6px; height:120px; padding:14px 16px 6px; }
+.oau-chart-col  { flex:1; display:flex; align-items:flex-end; justify-content:center; height:100%;
+                  border-radius:5px; transition: background .15s ease; text-decoration:none; cursor:pointer; }
+.oau-chart-col:hover { background: var(--oau-neutral-bg); }
+.oau-chart-bars { display:flex; align-items:flex-end; justify-content:center; gap:3px; height:100%; width:100%; }
+/* Stacked success bar (native base + SSO on top) */
+.oau-chart-stack { display:flex; flex-direction:column; justify-content:flex-end;
+                   width:7px; max-width:40%; height:100%; }
+.oau-chart-seg { width:100%; height:0; min-height:0; animation: oauBarRise .55s cubic-bezier(.3,.8,.4,1) forwards; }
+.oau-chart-seg--sso    { background:#1d4ed8; border-radius:3px 3px 0 0; }
+.oau-chart-seg--native { background: var(--success-color); }
+.oau-chart-bar  { position:relative; width:7px; max-width:40%; min-height:0; height:0; border-radius:3px 3px 0 0;
+                  animation: oauBarRise .55s cubic-bezier(.3,.8,.4,1) forwards; }
+.oau-chart-bar--fail { background: var(--error-color); }
+@keyframes oauBarRise { from { height:0; } to { height: var(--h); } }
+.oau-chart-xaxis { display:flex; justify-content:space-between; padding:2px 16px 14px;
+                   font-size:0.72em; color: var(--text-color-secondary); }
+
+/* Composition donut draw-in */
+.oau-donut-arc { animation: oauDonut .9s cubic-bezier(.4,.9,.3,1) forwards; }
+@keyframes oauDonut { from { stroke-dasharray: 0 251; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .oau-chart-bar, .oau-chart-seg, .oau-donut-arc, .oau-live-dot, .oau-kpi-card__value.oau-ticked { animation: none !important; }
+  .oau-chart-bar, .oau-chart-seg { height: var(--h); }
+}

@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.securityAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -173,32 +174,6 @@
         </div>
 
       </div>
-
-      <style>
-        .oau-info-wrap { position: relative; display: inline-flex; align-items: center; }
-        .oau-info-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary); color: #fff;
-          font-size: 9px; font-weight: 700; font-style: normal;
-          cursor: default; user-select: none; flex-shrink: 0;
-          font-family: serif; line-height: 1;
-        }
-        .oau-info-tip {
-          display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
-          transform: translateX(-50%);
-          background: #333; color: #fff; font-size: 0.78em;
-          padding: 4px 8px; border-radius: 4px; white-space: nowrap;
-          z-index: 100; pointer-events: none;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        }
-        .oau-info-tip::after {
-          content: ''; position: absolute; top: 100%; left: 50%;
-          transform: translateX(-50%);
-          border: 4px solid transparent; border-top-color: #333;
-        }
-        .oau-info-wrap:hover .oau-info-tip { display: block; }
-      </style>
 
     </l:main-panel>
   </l:layout>

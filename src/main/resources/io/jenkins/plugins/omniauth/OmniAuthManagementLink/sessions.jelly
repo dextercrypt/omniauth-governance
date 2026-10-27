@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.sessionsAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -134,88 +135,6 @@
         <input type="hidden" id="oauRevokeCrumbField"/>
         <input type="hidden" id="oauRevokeCrumbValue"/>
       </form>
-
-      <script>//<![CDATA[
-        function oauShowRevokeModal(btn) {
-          var sessionId  = btn.dataset.sessionid;
-          var userId     = btn.dataset.userid;
-          var crumbField = btn.dataset.crumbField;
-          var crumbValue = btn.dataset.crumbValue;
-
-          document.getElementById('oauRevokeUserId').textContent       = userId;
-          document.getElementById('oauRevokeSessionIdInput').value      = sessionId;
-          document.getElementById('oauRevokeCrumbField').name           = crumbField;
-          document.getElementById('oauRevokeCrumbField').value          = crumbField;
-          document.getElementById('oauRevokeCrumbValue').name           = crumbField;
-          document.getElementById('oauRevokeCrumbValue').value          = crumbValue;
-          document.getElementById('oauRevokeModal').style.display       = 'flex';
-
-          document.getElementById('oauRevokeConfirmBtn').onclick = function() {
-            oauCloseRevokeModal();
-            document.getElementById('oauRevokeForm').submit();
-          };
-        }
-        function oauCloseRevokeModal() {
-          document.getElementById('oauRevokeModal').style.display = 'none';
-        }
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') oauCloseRevokeModal();
-        });
-      //]]></script>
-
-      <style>
-        .oau-modal-backdrop {
-          position: fixed; inset: 0; z-index: 9999;
-          background: rgba(0,0,0,0.45);
-          display: flex; align-items: center; justify-content: center;
-        }
-        .oau-modal {
-          background: var(--oau-card-bg);
-          border-radius: 8px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-          width: 100%; max-width: 400px;
-          overflow: hidden;
-          animation: oauModalIn 0.15s ease;
-        }
-        @keyframes oauModalIn {
-          from { transform: scale(0.95); opacity: 0; }
-          to   { transform: scale(1);    opacity: 1; }
-        }
-        .oau-modal-header {
-          display: flex; align-items: center; gap: 10px;
-          padding: 16px 20px; font-weight: 600; font-size: 0.95em;
-        }
-        .oau-modal-header--danger { background: var(--oau-danger-bg); color: var(--oau-danger-fg); border-bottom: 1px solid var(--oau-danger-border); }
-        .oau-modal-body   { padding: 20px; font-size: 0.88em; line-height: 1.6; }
-        .oau-modal-footer {
-          display: flex; justify-content: flex-end; gap: 8px;
-          padding: 12px 20px; border-top: 1px solid var(--oau-card-border);
-          background: var(--oau-neutral-bg);
-        }
-        .oau-info-wrap { position: relative; display: inline-flex; align-items: center; }
-        .oau-info-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary); color: #fff;
-          font-size: 9px; font-weight: 700; font-style: normal;
-          cursor: default; user-select: none; flex-shrink: 0;
-          font-family: serif; line-height: 1;
-        }
-        .oau-info-tip {
-          display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
-          transform: translateX(-50%);
-          background: #333; color: #fff; font-size: 0.78em;
-          padding: 4px 8px; border-radius: 4px; white-space: nowrap;
-          z-index: 100; pointer-events: none;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        }
-        .oau-info-tip::after {
-          content: ''; position: absolute; top: 100%; left: 50%;
-          transform: translateX(-50%);
-          border: 4px solid transparent; border-top-color: #333;
-        }
-        .oau-info-wrap:hover .oau-info-tip { display: block; }
-      </style>
 
     </l:main-panel>
   </l:layout>

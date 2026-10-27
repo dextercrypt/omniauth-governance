@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.aboutAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -123,12 +124,6 @@
         <div class="jenkins-card" style="padding: 0; overflow: hidden;">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 44 46" width="20" height="21" shape-rendering="geometricPrecision" style="flex-shrink:0;">
-              <style>
-                .oa-s-sec { stroke: var(--text-color-secondary); }
-                .oa-s-pri { stroke: var(--text-color); }
-                .oa-f-sec { fill: var(--text-color-secondary); }
-                .oa-f-pri { fill: var(--text-color); }
-              </style>
               <path class="oa-s-sec" d="M16 51 L16 32 A16 16 0 0 1 32 16" fill="none" stroke-width="8.5" stroke-linecap="butt"/>
               <path class="oa-s-pri" d="M32 16 A16 16 0 0 1 48 32 L48 51" fill="none" stroke-width="8.5" stroke-linecap="butt"/>
               <circle class="oa-f-sec" cx="16" cy="51" r="3.2"/>

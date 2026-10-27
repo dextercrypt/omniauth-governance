@@ -1,6 +1,8 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
 
+  <st:adjunct includes="io.jenkins.plugins.omniauth.EntraOAuthConfig.configAssets"/>
+
   <f:entry title="Tenant ID" field="tenantId"
            help="/plugin/omniauth-governance/help/tenantId.html">
     <f:textbox/>
@@ -24,38 +26,6 @@
         Checks the Tenant ID, Client ID and Client Secret above against Microsoft before you save.
       </div>
     </div>
-    <!-- Jenkins floats the validate button right and stacks the progress ABOVE and the result
-         BELOW it. Lay the container out as a left-aligned column so the button sits under the
-         fields and BOTH the "Contacting…" spinner and the result land directly beneath it, in the
-         same fixed spot. Also suppress Jenkins' built-in validation icon (.error::before) — we
-         render our own inline SVG, so without this an error would show two icons. -->
-    <style>
-      .oau-test-connection .jenkins-validate-button__container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      .oau-test-connection .jenkins-validate-button__container > .jenkins-button {
-        float: none;
-        order: 0;
-      }
-      .oau-test-connection .jenkins-validate-button__container > *:not(.jenkins-button) {
-        order: 1;
-        margin: 0;
-      }
-      .oau-test-connection .jenkins-validate-button__container .jenkins-spinner {
-        margin: 0;
-      }
-      .oau-test-connection .error::before {
-        display: none;
-      }
-      /* .error reserves left padding for that icon; reclaim it so our content starts at the
-         button's left edge (the icon then lines up under the button, like the success state). */
-      .oau-test-connection .error {
-        padding-left: 0;
-      }
-    </style>
   </f:entry>
 
   <f:entry title="Enable Group Sync" field="enableGroupSync"

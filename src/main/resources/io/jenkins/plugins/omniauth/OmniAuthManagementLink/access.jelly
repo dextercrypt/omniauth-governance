@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.accessAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -408,49 +409,6 @@
         </j:choose>
       </div>
 
-      <style>
-        /* Badges */
-        .oau-badge {
-          display: inline-block; padding: 2px 8px; border-radius: 4px;
-          font-size: 0.8em; font-weight: 500; white-space: nowrap;
-        }
-        .oau-badge-blue   { background: var(--oau-info-bg); color: var(--blue); }
-        .oau-badge-purple { background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; }
-        .oau-badge-grey   { background: var(--oau-neutral-bg); color: var(--text-color-secondary); }
-        .oau-badge-green  { background: var(--oau-success-bg); color: var(--oau-success-fg); }
-        .oau-badge-red    { background: var(--oau-danger-bg); color: var(--oau-danger-fg); }
-        .oau-badge-orange { background: var(--oau-warning-bg); color: var(--oau-warning-fg); }
-
-        /* Permission yes/no chips */
-        .oau-perm-yes { background: var(--oau-success-bg); color: var(--oau-success-fg); padding: 2px 8px; border-radius: 4px; font-size: 0.82em; font-weight: 500; }
-        .oau-perm-no  { background: var(--oau-neutral-bg); color: var(--text-color-secondary); padding: 2px 8px; border-radius: 4px; font-size: 0.82em; }
-        .oau-perm-tick { color: var(--oau-success-fg); font-weight: 700; font-size: 1.1em; }
-
-        /* Info tooltip */
-        .oau-info-wrap { position: relative; display: inline-flex; align-items: center; }
-        .oau-info-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 14px; height: 14px; border-radius: 50%;
-          background: var(--text-color-secondary); color: #fff;
-          font-size: 9px; font-weight: 700; font-style: normal;
-          cursor: default; user-select: none; flex-shrink: 0;
-          font-family: serif; line-height: 1;
-        }
-        .oau-info-tip {
-          display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
-          transform: translateX(-50%);
-          background: var(--text-color); color: var(--oau-neutral-bg); font-size: 0.78em;
-          padding: 5px 9px; border-radius: 5px; white-space: nowrap;
-          z-index: 100; pointer-events: none;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .oau-info-tip::after {
-          content: ''; position: absolute; top: 100%; left: 50%;
-          transform: translateX(-50%);
-          border: 4px solid transparent; border-top-color: var(--text-color);
-        }
-        .oau-info-wrap:hover .oau-info-tip { display: block; }
-      </style>
 
     </l:main-panel>
   </l:layout>

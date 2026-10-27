@@ -1,0 +1,10 @@
+/*
+ * about.jelly styles.
+ * Externalised from the inline <style> for CSP compliance (Jenkins hosting).
+ * Loaded via <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.aboutAssets"/>.
+ */
+
+                .oa-s-sec { stroke: var(--text-color-secondary); }
+                .oa-s-pri { stroke: var(--text-color); }
+                .oa-f-sec { fill: var(--text-color-secondary); }
+                .oa-f-pri { fill: var(--text-color); }

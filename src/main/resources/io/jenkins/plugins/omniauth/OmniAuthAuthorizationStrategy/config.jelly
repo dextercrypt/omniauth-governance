@@ -5,6 +5,7 @@
 
     <!-- Switching from GlobalMatrix/ProjectMatrix with existing permissions -->
     <j:when test="${migrationSource != null and descriptor.shouldShowMigrationNotice()}">
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthAuthorizationStrategy.configAssets"/>
       <f:block>
         <div style="margin-bottom:12px;padding:12px 16px;border-radius:6px;background:#e8f4fd;border:1px solid #bee3f8;color:#2c5282;">
           <strong>Permission import ready</strong> — Existing authorization configuration detected.
@@ -27,12 +28,6 @@
           </label>
         </div>
       </f:block>
-      <script>
-        (function() {
-          var btn = document.querySelector('[name=Submit]') || document.querySelector('button.jenkins-button--primary');
-          if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
-        })();
-      </script>
     </j:when>
 
     <!-- Switching from GlobalMatrix/ProjectMatrix but it was empty -->

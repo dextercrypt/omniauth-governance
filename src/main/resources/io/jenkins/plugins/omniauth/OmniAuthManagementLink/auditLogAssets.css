@@ -1,0 +1,61 @@
+/*
+ * Audit Log page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.auditLogAssets"/>
+ * Externalised from auditLog.jelly's inline <style> blocks for CSP compliance (Jenkins hosting).
+ */
+
+.alx-th {
+  padding:10px 16px;text-align:left;font-size:0.78em;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.05em;
+  color:var(--text-color-secondary,#888);white-space:nowrap;
+}
+.alx-badge {
+  display:inline-block;padding:2px 9px;border-radius:10px;font-size:0.75em;
+  font-weight:700;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em;
+}
+.alx-badge-grant        { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-badge-revoke       { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-edit         { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-expired      { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-role_created { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+.alx-badge-role_edited  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-role_deleted { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
+.alx-badge-login_success { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-badge-login_failure { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-user_created  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-badge-user_deleted  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-permission_granted { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-badge-permission_revoked { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-session_revoked    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-bruteforce_cleared { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-audit_purged       { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
+.alx-badge-config_changed     { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-config_exported    { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
+.alx-badge-config_imported    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-config_reverted    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-user_marked_deletion   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-user_unmarked_deletion { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-password_changed   { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-provisioning_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+.alx-badge-provisioning_rejected  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-activation_resent  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
+.alx-badge-jit_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
+.alx-badge-jit_approved  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-badge-jit_denied    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-jit_expired   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-jit_timed_out { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
+.alx-badge-jit_revoked   { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
+.alx-badge-jit_cancelled { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
+.alx-badge-review_confirmed { background:var(--oau-success-bg);color:var(--oau-success-fg); }
+.alx-role {
+  display:inline-block;padding:1px 7px;background:var(--oau-info-bg);color:var(--oau-info-fg);
+  border-radius:8px;font-size:0.88em;font-weight:600;
+}
+.alx-row.alx-hidden { display:none; }
+
+@keyframes alxShake {
+  0%,100% { transform:translateX(0); }
+  15%,45%,75% { transform:translateX(-10px); }
+  30%,60%,90% { transform:translateX(10px); }
+}
+.alx-shake { animation: alxShake 0.5s ease; }

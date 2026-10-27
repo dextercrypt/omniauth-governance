@@ -1,0 +1,16 @@
+/*
+ * Group-detail page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.groupDetailAssets"/>
+ * Externalised from groupDetail.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+.udx-th { padding:10px 16px;text-align:left;font-size:.78em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary,#888);white-space:nowrap; }
+.udx-role-badge { display:inline-block;padding:3px 10px;border-radius:10px;font-size:.78em;font-weight:700;background:var(--oau-info-bg);color:var(--oau-info-fg);white-space:nowrap; }
+.udx-label { font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary);margin-bottom:6px; }
+details[open] .udx-arr { display:inline-block;transform:rotate(90deg); }
+details > summary::-webkit-details-marker { display:none; }
+.udx-perm-label:hover { background:var(--oau-info-bg) !important;border-color:var(--oau-info-border) !important; }
+.udx-perm-label:has(input:checked) { background:var(--oau-info-bg) !important;border-color:var(--oau-info-border) !important;font-weight:600; }
+.udx-expiry-badge { display:inline-block;padding:2px 8px;border-radius:8px;font-size:.78em;font-weight:600;background:var(--oau-warning-bg);color:var(--oau-warning-fg);border:1px solid var(--oau-warning-border);white-space:nowrap; }
+.udx-expiry-badge.udx-expiry-soon { background:var(--oau-danger-bg);color:var(--oau-danger-fg);border-color:var(--oau-danger-border); }
+@keyframes udxModalIn { 0%{opacity:0;transform:translate(var(--genie-dx,0px),var(--genie-dy,0px)) scale(0.08);filter:blur(3px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)} }
+@keyframes udxModalOut { 0%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)} 40%{filter:blur(0)} 100%{opacity:0;transform:translate(var(--genie-dx,0px),var(--genie-dy,0px)) scale(0.08);filter:blur(3px)} }

@@ -1,0 +1,7 @@
+/*
+ * JIT-requests page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.jitRequestsAssets"/>
+ * Externalised from jitRequests.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+.jit-th { padding:10px 16px;text-align:left;font-size:.76em;font-weight:700;text-transform:uppercase;
+          letter-spacing:.05em;color:var(--text-color-secondary);white-space:nowrap; }

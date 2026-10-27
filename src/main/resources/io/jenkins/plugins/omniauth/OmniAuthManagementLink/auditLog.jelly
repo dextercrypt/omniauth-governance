@@ -3,6 +3,7 @@
   <l:layout title="OmniAuth — Audit Log" norefresh="true">
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.auditLogAssets"/>
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
@@ -180,124 +181,8 @@
 
       </div>
 
-      <style>
-        .alx-th {
-          padding:10px 16px;text-align:left;font-size:0.78em;font-weight:700;
-          text-transform:uppercase;letter-spacing:0.05em;
-          color:var(--text-color-secondary,#888);white-space:nowrap;
-        }
-        .alx-badge {
-          display:inline-block;padding:2px 9px;border-radius:10px;font-size:0.75em;
-          font-weight:700;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em;
-        }
-        .alx-badge-grant        { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-badge-revoke       { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-edit         { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-expired      { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-role_created { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
-        .alx-badge-role_edited  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-role_deleted { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
-        .alx-badge-login_success { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-badge-login_failure { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-user_created  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-badge-user_deleted  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-permission_granted { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-badge-permission_revoked { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-session_revoked    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-bruteforce_cleared { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-audit_purged       { background:color-mix(in srgb, #be185d 14%, transparent);color:#be185d; }
-        .alx-badge-config_changed     { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-config_exported    { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
-        .alx-badge-config_imported    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-config_reverted    { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-user_marked_deletion   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-user_unmarked_deletion { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-password_changed   { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-provisioning_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
-        .alx-badge-provisioning_rejected  { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-activation_resent  { background:var(--oau-info-bg);color:var(--oau-info-fg); }
-        .alx-badge-jit_requested { background:color-mix(in srgb, #7c3aed 14%, transparent);color:#7c3aed; }
-        .alx-badge-jit_approved  { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-badge-jit_denied    { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-jit_expired   { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-jit_timed_out { background:var(--oau-warning-bg);color:var(--oau-warning-fg); }
-        .alx-badge-jit_revoked   { background:var(--oau-danger-bg);color:var(--oau-danger-fg); }
-        .alx-badge-jit_cancelled { background:var(--oau-neutral-bg);color:var(--text-color-secondary); }
-        .alx-badge-review_confirmed { background:var(--oau-success-bg);color:var(--oau-success-fg); }
-        .alx-role {
-          display:inline-block;padding:1px 7px;background:var(--oau-info-bg);color:var(--oau-info-fg);
-          border-radius:8px;font-size:0.88em;font-weight:600;
-        }
-        .alx-row.alx-hidden { display:none; }
-      </style>
-
-      <script>//<![CDATA[
-        // Format timestamps
-        document.addEventListener('DOMContentLoaded', function() {
-          document.querySelectorAll('.alx-ts').forEach(function(el) {
-            var ts = el.getAttribute('data-ts');
-            if (!ts) return;
-            try {
-              var d = new Date(ts);
-              el.textContent = d.toLocaleString(undefined, {
-                year:'numeric', month:'short', day:'numeric',
-                hour:'2-digit', minute:'2-digit'
-              });
-            } catch(e) {}
-          });
-          // Pre-fill filters from URL params (e.g. arriving from the dashboard chart: ?from&to&action)
-          try {
-            var qp = new URLSearchParams(window.location.search);
-            if (qp.get('from'))   document.getElementById('alxDateFrom').value   = qp.get('from');
-            if (qp.get('to'))     document.getElementById('alxDateTo').value     = qp.get('to');
-            if (qp.get('action')) document.getElementById('alxActionFilter').value = qp.get('action');
-          } catch(e) {}
-          alxFilter();
-        });
-
-        function alxFilter() {
-          var q       = document.getElementById('alxSearch').value.toLowerCase();
-          var action  = document.getElementById('alxActionFilter').value;
-          var ip      = document.getElementById('alxIpFilter').value.toLowerCase();
-          var fromVal = document.getElementById('alxDateFrom').value;
-          var toVal   = document.getElementById('alxDateTo').value;
-          // Parse both bounds as UTC day edges so they line up with the event timestamps (stored UTC)
-          // and with the dashboard chart (bucketed UTC). Parsing 'to' as local time dropped same-day
-          // events logged after the local end-of-day in timezones ahead of UTC.
-          var fromTs  = fromVal ? new Date(fromVal + 'T00:00:00Z').getTime() : null;
-          var toTs    = toVal   ? new Date(toVal + 'T23:59:59Z').getTime() : null;
-          var rows    = document.querySelectorAll('.alx-row');
-          var shown   = 0;
-          rows.forEach(function(row) {
-            var text   = (row.getAttribute('data-text') || '').toLowerCase();
-            var act    = row.getAttribute('data-action') || '';
-            var rowIp  = (row.getAttribute('data-ip') || '').toLowerCase();
-            var rowTs  = row.getAttribute('data-ts');
-            var rowTime = rowTs ? new Date(rowTs).getTime() : null;
-            var match  = (!q      || text.indexOf(q) >= 0)
-                      && (!action || act === action)
-                      && (!ip     || rowIp.indexOf(ip) >= 0)
-                      && (!fromTs || (rowTime !== null && rowTime >= fromTs))
-                      && (!toTs   || (rowTime !== null && rowTime <= toTs));
-            row.classList.toggle('alx-hidden', !match);
-            if (match) shown++;
-          });
-          var count = document.getElementById('alxCount');
-          if (count) count.textContent = shown + ' event' + (shown === 1 ? '' : 's');
-        }
-
-        function alxClearFilters() {
-          document.getElementById('alxSearch').value      = '';
-          document.getElementById('alxActionFilter').value = '';
-          document.getElementById('alxIpFilter').value    = '';
-          document.getElementById('alxDateFrom').value    = '';
-          document.getElementById('alxDateTo').value      = '';
-          alxFilter();
-        }
-      //]]></script>
-
     <!-- Purge confirmation modal -->
-    <div id="alxPurgeModal" onclick="if(event.target===this)alxPurgeClose()"
+    <div id="alxPurgeModal" data-sso="${it.currentUserSso}" onclick="if(event.target===this)alxPurgeClose()"
          style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,20,30,0.55);
                 backdrop-filter:blur(3px);align-items:center;justify-content:center;">
       <div id="alxPurgeBox" style="background:#fff;border-radius:14px;width:420px;max-width:92vw;
@@ -363,72 +248,6 @@
         </div>
       </div>
     </div>
-
-    <style>
-      @keyframes alxShake {
-        0%,100% { transform:translateX(0); }
-        15%,45%,75% { transform:translateX(-10px); }
-        30%,60%,90% { transform:translateX(10px); }
-      }
-      .alx-shake { animation: alxShake 0.5s ease; }
-    </style>
-
-    <script>//<![CDATA[
-      // Current admin signs in via SSO (no local password) → confirm purge with a typed phrase.
-      var ALX_PURGE_SSO = ${it.currentUserSso};
-      function alxPurgeOpen() {
-        var modal = document.getElementById('alxPurgeModal');
-        modal.style.display = 'flex';
-        document.getElementById('alxPurgePwd').value = '';
-        document.getElementById('alxPurgeBtn').disabled = true;
-        document.getElementById('alxPurgeErr').style.display = 'none';
-        document.getElementById('alxPurgeBox').classList.remove('alx-shake');
-        setTimeout(function(){ document.getElementById('alxPurgePwd').focus(); }, 60);
-        document.addEventListener('keydown', alxPurgeKey);
-      }
-      function alxPurgeClose() {
-        document.getElementById('alxPurgeModal').style.display = 'none';
-        document.removeEventListener('keydown', alxPurgeKey);
-      }
-      function alxPurgeKey(e) {
-        if (e.key === 'Escape') alxPurgeClose();
-      }
-      function alxPurgeSubmit() {
-        var pwd = document.getElementById('alxPurgePwd').value;
-        if (!pwd) return;
-        var btn = document.getElementById('alxPurgeBtn');
-        btn.disabled = true;
-        btn.textContent = 'Verifying…';
-
-        var body = new URLSearchParams();
-        // SSO admins confirm with a typed phrase; native users with their password.
-        body.append(ALX_PURGE_SSO ? 'confirmPhrase' : 'confirmPassword', pwd);
-        var head = document.head;
-        body.append(head.dataset.crumbHeader || 'Jenkins-Crumb', head.dataset.crumbValue || '');
-
-        fetch('purgeAuditLog', { method:'POST', body: body })
-          .then(function(res) { return res.json(); })
-          .then(function(data) {
-            if (data.error) {
-              var box = document.getElementById('alxPurgeBox');
-              box.classList.remove('alx-shake');
-              void box.offsetWidth;
-              box.classList.add('alx-shake');
-              document.getElementById('alxPurgeErr').style.display = '';
-              document.getElementById('alxPurgePwd').value = '';
-              document.getElementById('alxPurgePwd').focus();
-              btn.disabled = true;
-              btn.textContent = 'Delete All Logs';
-            } else {
-              window.location.href = 'auditLog?purged=true';
-            }
-          })
-          .catch(function() {
-            btn.disabled = false;
-            btn.textContent = 'Delete All Logs';
-          });
-      }
-    //]]></script>
 
     </l:main-panel>
   </l:layout>

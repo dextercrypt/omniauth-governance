@@ -33,117 +33,7 @@
         <meta name="ROBOTS" content="NOFOLLOW" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <st:include it="${simpleDecorator}" page="simple-head.jelly" />
-        <style>
-          /* Dark base for the whole page so no light background shows through the grid gaps
-             that Jenkins 2.580.1 introduced around the branding panel (2.541.2 was full-bleed). */
-          body.app-sign-in-register { background: #0a1226; }
-
-          /* ===== Dark login — right side, SOFT glow (maps design .right-panel) ===== */
-          .app-sign-in-register__content {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
-          }
-          /* edge-bleed glow from the panel seam — removes the hard divide */
-          .app-sign-in-register__content::before {
-            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-            background:
-              radial-gradient(140% 90% at -6% 50%, rgba(40,120,230,0.18) 0%, rgba(30,90,200,0.06) 28%, transparent 56%),
-              radial-gradient(60% 50% at 6% 42%, rgba(34,211,238,0.07) 0%, transparent 60%);
-          }
-          /* depth vignette */
-          .app-sign-in-register__content::after {
-            content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-            background: radial-gradient(120% 120% at 70% 50%, transparent 55%, rgba(2,6,16,0.55) 100%);
-          }
-          /* keep the form above the glow layers */
-          .app-sign-in-register__content-inner { position: relative; z-index: 2; }
-
-          /* ===== company-logo placement (Settings → Logo Position: a|e|f) ===== */
-          .brand-logo img { height: ${logoSize}px; width: auto; max-width: none; object-fit: contain; display: block; }
-          /* A — top of column, left-aligned (default) */
-          .pos-a .brand-logo { align-self: flex-start; margin: 0 0 18px 0; }
-          /* E — pinned to the panel's top-right corner */
-          .pos-e .brand-logo { position: absolute; top: 28px; right: 9%; z-index: 3; }
-          /* F — center the logo only; heading and everything else stay left/default */
-          .pos-f .brand-logo { align-self: center; margin: 0 auto 18px auto; }
-
-          /* text */
-          .app-sign-in-register__content-inner h1 { color: #f2f6ff; }
-          .app-sign-in-register__content-inner label { color: #aebbd0; }
-
-          /* inputs */
-          .app-sign-in-register__content-inner input[type=text],
-          .app-sign-in-register__content-inner input[type=password] {
-            background: #101a2e;
-            border: 1px solid #26344c;
-            color: #eaf1ff;
-            transition: box-shadow .2s, border-color .2s;
-          }
-          .app-sign-in-register__content-inner input::placeholder { color: #6b7a92; }
-          .app-sign-in-register__content-inner input[type=text]:focus,
-          .app-sign-in-register__content-inner input[type=password]:focus {
-            border-color: #3f7ce8;
-            box-shadow: 0 0 0 2px rgba(47,116,232,0.18), 0 0 10px rgba(47,116,232,0.10);
-            outline: none;
-          }
-
-          /* sign-in button — gentle lift, no bloom */
-          .app-sign-in-register__content-inner button[type=submit] {
-            background: #1f57e0;
-            color: #fff;
-            box-shadow: 0 0 0 1px rgba(80,150,255,.22), 0 6px 18px rgba(31,87,224,0.32);
-          }
-          .app-sign-in-register__content-inner button[type=submit]:hover { background: #2a63ee; }
-
-          /* checkbox label */
-          .app-sign-in-register__content-inner .jenkins-checkbox label { color: #c2cde0; }
-
-          /* Microsoft button hover (base colours set inline on the anchor) */
-          .app-sign-in-register__content-inner a[href*='commenceLogin']:hover { background: #16223a !important; }
-
-          /* footer readability on dark */
-          .app-sign-in-register__content-inner .footer,
-          .app-sign-in-register__content-inner .footer * { color: #7d8aa2 !important; }
-
-          /* ===== show-password eye toggle ===== */
-          .pw-wrap { position: relative; }
-          .pw-wrap input[type=text],
-          .pw-wrap input[type=password] { padding-right: 44px; }
-          .pw-toggle {
-            position: absolute; top: 0; right: 0; height: 100%; width: 42px;
-            display: flex; align-items: center; justify-content: center;
-            background: none; border: none; padding: 0; margin: 0; cursor: pointer;
-            color: #9fb2d0;
-          }
-          .pw-toggle:hover { color: #e2e9f5; }
-          /* force a sensible icon size — Jenkins core shrinks bare svg icons otherwise */
-          .pw-toggle svg { width: 20px !important; height: 20px !important; display: block; }
-          .pw-toggle .icon-eye-off { display: none; }
-          .pw-toggle.revealed .icon-eye { display: none; }
-          .pw-toggle.revealed .icon-eye-off { display: block; }
-
-          /* ===== caps-lock warning ===== */
-          .caps-warn {
-            display: none; align-items: center; gap: 6px;
-            margin-top: 6px; font-size: 12px; color: #ffcf66;
-          }
-          .caps-warn.show { display: flex; }
-
-          /* ===== SSO button loading state ===== */
-          .sso-spinner {
-            display: none;
-            width: 16px; height: 16px; flex-shrink: 0;
-            border: 2px solid rgba(221, 230, 244, 0.3);
-            border-top-color: #dde6f4;
-            border-radius: 50%;
-            animation: sso-spin 0.6s linear infinite;
-          }
-          .sso-btn.loading .sso-spinner { display: inline-block; }
-          .sso-btn.loading .sso-logo { display: none; }
-          .sso-btn.loading { pointer-events: none; opacity: 0.85; cursor: default; }
-          @keyframes sso-spin { to { transform: rotate(360deg); } }
-        </style>
+        <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthSecurityRealm.loginPage"/>
       </head>
       <body class="app-sign-in-register">
         <j:choose>
@@ -163,12 +53,12 @@
             <main id="main-panel" class="app-sign-in-register__content pos-${logoPos}">
               <!-- Company logo for option E: direct panel child so it anchors to the panel corner -->
               <j:if test="${logoPos == 'e' and it.loginLogoUrl != null and it.loginLogoUrl != ''}">
-                <div class="brand-logo"><img src="${it.loginLogoUrl}" alt=""/></div>
+                <div class="brand-logo"><img src="${it.loginLogoUrl}" alt="" style="height:${logoSize}px"/></div>
               </j:if>
               <div class="app-sign-in-register__content-inner">
                 <!-- Company logo for options A/F: in the form column, above the heading. Hidden when not uploaded. -->
                 <j:if test="${logoPos != 'e' and it.loginLogoUrl != null and it.loginLogoUrl != ''}">
-                  <div class="brand-logo"><img src="${it.loginLogoUrl}" alt=""/></div>
+                  <div class="brand-logo"><img src="${it.loginLogoUrl}" alt="" style="height:${logoSize}px"/></div>
                 </j:if>
                 <h1>${it.loginHeading}</h1>
 
@@ -353,63 +243,6 @@
                 </div>
               </div>
             </main>
-            <!-- Password UX: show/hide toggle + caps-lock warning (always-on, no setting) -->
-            <script>
-              //<![CDATA[
-              (function () {
-                var pw = document.getElementById('j_password');
-                var btn = document.getElementById('togglePw');
-                var caps = document.getElementById('capsWarn');
-                if (pw && btn) {
-                  btn.addEventListener('click', function () {
-                    var reveal = pw.type === 'password';
-                    pw.type = reveal ? 'text' : 'password';
-                    btn.classList.toggle('revealed', reveal);
-                    var label = reveal ? 'Hide password' : 'Show password';
-                    btn.setAttribute('aria-label', label);
-                    btn.setAttribute('title', label);
-                    pw.focus();
-                  });
-                }
-                if (pw && caps) {
-                  var update = function (e) {
-                    var on = false;
-                    if (e && typeof e.getModifierState === 'function') {
-                      on = e.getModifierState('CapsLock');
-                    }
-                    caps.classList.toggle('show', on);
-                  };
-                  pw.addEventListener('keydown', update);
-                  pw.addEventListener('keyup', update);
-                  pw.addEventListener('blur', function () { caps.classList.remove('show'); });
-                }
-                // Username uses the browser's native autocomplete="username" suggestions.
-                // We intentionally do NOT force-prefill the field ourselves.
-
-                // SSO button loading state: on click, show a spinner + "Redirecting…"
-                // label so the redirect gap doesn't look dead. The navigation still
-                // proceeds (we don't preventDefault). A safety timeout re-enables the
-                // button if the redirect stalls without unloading the page.
-                var sso = document.getElementById('ssoBtn');
-                var ssoLabel = document.getElementById('ssoLabel');
-                if (sso) {
-                  sso.addEventListener('click', function () {
-                    if (sso.classList.contains('loading')) { return; }
-                    var orig = ssoLabel ? ssoLabel.textContent : '';
-                    var loading = sso.getAttribute('data-loading-label');
-                    sso.classList.add('loading');
-                    sso.setAttribute('aria-busy', 'true');
-                    if (ssoLabel && loading) { ssoLabel.textContent = loading; }
-                    window.setTimeout(function () {
-                      sso.classList.remove('loading');
-                      sso.removeAttribute('aria-busy');
-                      if (ssoLabel) { ssoLabel.textContent = orig; }
-                    }, 8000);
-                  });
-                }
-              })();
-              //]]>
-            </script>
           </j:otherwise>
         </j:choose>
       </body>
