@@ -34,9 +34,13 @@ Full walkthrough: [Microsoft Entra setup](../administration/entra-setup.md).
 
 Then, in the security realm configuration:
 
-1. Enter **Tenant ID**, **Client ID**, **Client Secret**.
-2. (Optional) Enable **Group Sync** to import Azure AD groups.
-3. **Save**.
+1. Turn on **Connect a single sign-on provider (SSO)** (off by default — OmniAuth is native-first).
+2. Enter **Tenant ID**, **Client ID**, **Client Secret**.
+3. (Optional) Enable **Group Sync** to import Azure AD groups.
+4. **Save**.
+
+> Leave the SSO toggle off to run native-only — step 2 above is skipped entirely and the login
+> page stays username/password. You can turn SSO on later without losing anything.
 
 ## 4. Test both login paths
 

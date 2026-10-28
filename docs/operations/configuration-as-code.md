@@ -37,6 +37,7 @@ in YAML.
 jenkins:
   securityRealm:
     omniAuth:
+      ssoEnabled: true          # off by default (native-first); omit for a native-only realm
       entraConfig:
         tenantId: "${ENTRA_TENANT_ID}"
         clientId: "${ENTRA_CLIENT_ID}"
@@ -53,6 +54,12 @@ unclassified:
   omniAuthRoles:
     # role definitions
 ```
+
+> **`ssoEnabled`** is the authoritative SSO switch. Omit it (or set `false`) for a native-only
+> realm — leave `entraConfig` out entirely in that case. Setting `entraConfig` without
+> `ssoEnabled` keeps SSO on (back-compat: a provider implies on), but stating `ssoEnabled`
+> explicitly is clearest. Setting `ssoEnabled: false` while keeping `entraConfig` preserves the
+> provider settings but makes sign-in native-only.
 
 ## Handling secrets
 

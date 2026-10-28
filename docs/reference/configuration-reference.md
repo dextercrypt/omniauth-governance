@@ -10,6 +10,12 @@ differ slightly.
 > Some settings' exact semantics (units, defaults) should be confirmed against the running
 > instance and the descriptor help text; this table documents intent.
 
+## Authentication — security realm (`OmniAuthSecurityRealm`)
+
+| Field | Type | Description |
+|---|---|---|
+| `ssoEnabled` | boolean | Authoritative SSO on/off switch (default off — native-first). When off, sign-in is native-only and any `entraConfig` is preserved but dormant. Unset on an upgraded config means "on if a provider is configured", preserving pre-existing SSO. |
+
 ## Authentication — Microsoft Entra (`EntraOAuthConfig`)
 
 | Field | Type | Description |

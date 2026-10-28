@@ -110,9 +110,12 @@ single plugin instead of a sprawling platform.
 
 ### 🔐 Authentication
 - **Native** username/password (bcrypt), inherited from Jenkins core — full API-token and CLI
-  compatibility.
-- **OAuth2 / OIDC single sign-on** (currently Microsoft Entra), always hardened with **PKCE** and
-  **ID-token nonce** validation; identity anchored to the stable directory object id.
+  compatibility. **Native-first:** the realm runs on native accounts alone, so you get the whole
+  governance layer with no external identity provider required.
+- **OAuth2 / OIDC single sign-on** (currently Microsoft Entra) — an opt-in **"Connect a single
+  sign-on provider (SSO)"** toggle (off by default), always hardened with **PKCE** and **ID-token
+  nonce** validation; identity anchored to the stable directory object id. Turning it off preserves
+  the stored provider settings.
 - **Test Connection** button validates tenant / client ID / secret against Microsoft before saving.
 - **Allowed email domains** — restrict SSO sign-in to listed domains, even for pre-provisioned users.
 - Optional **group synchronization** from the identity provider, surfaced as authorities.
@@ -143,7 +146,9 @@ Relies on Matrix Authorization Strategy, CloudBees Folder (folder-scoped grants)
    then restart.
 2. **Enable** — **Manage Jenkins → Security → Security Realm → OmniAuth**, and select the **OmniAuth
    Authorization Strategy** to unlock access management.
-3. **Connect SSO (optional)** — for Microsoft Entra, follow [Entra setup](docs/administration/entra-setup.md).
+3. **Connect SSO (optional)** — turn on **Connect a single sign-on provider (SSO)** in the realm
+   config (off by default); for Microsoft Entra, follow [Entra setup](docs/administration/entra-setup.md).
+   Skip this step to run native-only.
 4. **Manage** — everything else lives under **Manage Jenkins → OmniAuth**.
 
 See the [Quick start](docs/getting-started/quick-start.md) for a 15-minute walkthrough.

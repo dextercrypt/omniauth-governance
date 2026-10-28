@@ -13,6 +13,13 @@ All notable changes to OmniAuth are documented here. This project aims to follow
 Most recent notable changes (newest first):
 
 ### Added
+- **Native-first sign-in with an optional SSO toggle**: the OmniAuth security realm now leads with
+  native accounts and treats single sign-on as a capability you add. A **"Connect a single sign-on
+  provider (SSO)"** toggle (off by default on new installs) reveals the provider settings; with it
+  off, sign-in is native-only and the login page shows no SSO button. The toggle is authoritative
+  and **preserves stored provider settings** when switched off (no re-entering the client secret to
+  turn it back on). Upgrades are safe: a realm that already had Entra configured stays on SSO.
+  Configurable via JCasC (`ssoEnabled` under the `omniAuth` realm).
 - **Native-account management**: reset a native account's password (one-time temporary password,
   forces a change at next login, revokes active sessions, audited) and edit its full name / email
   directly from the user detail view — no need for Jenkins' own user pages. Native accounts only;

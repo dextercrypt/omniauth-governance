@@ -3,10 +3,18 @@
 > How users sign in: native accounts and OAuth2 / OIDC single sign-on, with a pluggable
 > provider framework and group synchronization.
 
-OmniAuth's security realm (`OmniAuthSecurityRealm`) offers two authentication paths on a
-single login page. Native login is inherited from Jenkins core; OAuth2/OIDC single sign-on is
-added on top through a **provider framework**. **Microsoft Entra (Azure AD) is the provider
+OmniAuth's security realm (`OmniAuthSecurityRealm`) is **native-first**: the Jenkins user
+database is always on (the realm extends `HudsonPrivateSecurityRealm`), so a deployment can run
+on native accounts alone with no external dependency. OAuth2/OIDC single sign-on is an
+**additive capability you turn on** — the realm config has a **"Connect a single sign-on
+provider (SSO)"** toggle, off by default on a new install. When it's off, sign-in is native
+only; turning it on reveals the provider settings. **Microsoft Entra (Azure AD) is the provider
 integrated today; additional OAuth2/OIDC providers are planned.**
+
+> **The toggle is authoritative, and it preserves your settings.** Turning SSO off keeps any
+> stored provider configuration (so you don't re-enter the client secret) but makes sign-in
+> native-only until you turn it back on. An install that already had Entra configured before
+> this toggle existed keeps SSO on across the upgrade.
 
 ## The login page
 
@@ -16,7 +24,8 @@ The custom login page is served at:
 https://<jenkins-host>/<prefix>/securityRealm/login
 ```
 
-It presents a username/password form **and** an SSO button (when a provider is configured).
+It presents a username/password form, plus an SSO button **when SSO is enabled** (the toggle is
+on and a provider is configured). With SSO off, the page is native-only and shows no SSO button.
 The button's label and branding follow the configured
 [provider preset](#provider-framework). See [Login branding](login-branding.md) to customize
 the page.
@@ -32,6 +41,11 @@ Native authentication is standard Jenkins local-account login:
 
 Native accounts are ideal for **service accounts** and **break-glass admins** that must not
 depend on an external identity provider.
+
+**Native-only deployment.** You don't have to configure SSO at all. With the SSO toggle off,
+OmniAuth runs purely on native accounts and still gives you the full governance layer — access
+management, JIT, access reviews, audit logging, the provisioning portal, and break-glass. SSO is
+something you add when you want organization sign-in, not a prerequisite.
 
 Related safety features:
 - [Force password change](user-lifecycle.md#force-password-change) — require a user to set a

@@ -72,8 +72,9 @@ tenant requires it; the plugin uses the authorization-code flow with PKCE.
 
 ## 6. Connect OmniAuth
 
-In Jenkins: **Manage Jenkins → Security → Security Realm → OmniAuth**, then fill the Entra
-configuration:
+In Jenkins: **Manage Jenkins → Security → Security Realm → OmniAuth**, then turn on **"Connect a
+single sign-on provider (SSO)"** to reveal the provider settings (it's off by default — OmniAuth
+is native-first). Fill the Entra configuration:
 
 | Field | Value |
 |---|---|
