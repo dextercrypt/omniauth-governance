@@ -181,7 +181,17 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
 
     public enum ActionResult { TOKEN_NOT_FOUND, ALREADY_PROCESSED, PARTIAL_APPROVED, ALL_APPROVED, DENIED }
 
+    /** Backward-compatible: approve/deny with no duration override (grants the full requested window). */
     public synchronized ActionResult processApproverAction(String token, String decision, String remarks) {
+        return processApproverAction(token, decision, remarks, 0);
+    }
+
+    /**
+     * durationHours = this approver's chosen grant window (0 = accept the full requested duration),
+     * clamped to [1, requestedDurationHours]. On full approval the request is granted for the minimum
+     * across all approvers (see {@link OmniAuthJitRequest#effectiveGrantedDurationHours()}).
+     */
+    public synchronized ActionResult processApproverAction(String token, String decision, String remarks, int durationHours) {
         OmniAuthJitRequest r = findByToken(token);
         if (r == null) return ActionResult.TOKEN_NOT_FOUND;
         if (!r.isPending()) return ActionResult.ALREADY_PROCESSED;
@@ -200,6 +210,10 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
         entry.setDecision(decision);
         entry.setRemarks(remarks != null ? remarks : "");
         entry.setDecidedAt(java.time.Instant.now().toString());
+        if ("APPROVED".equals(decision)) {
+            int reqH = r.getRequestedDurationHours();
+            entry.setGrantedDurationHours((durationHours >= 1 && durationHours <= reqH) ? durationHours : reqH);
+        }
 
         if ("DENIED".equals(decision)) {
             r.setStatus(OmniAuthJitRequest.STATUS_DENIED);
@@ -214,7 +228,7 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
             r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
             r.setApprovedAt(java.time.Instant.now().toString());
             r.setExpiresAt(java.time.Instant.now()
-                    .plus(r.getRequestedDurationHours(), java.time.temporal.ChronoUnit.HOURS).toString());
+                    .plus(r.effectiveGrantedDurationHours(), java.time.temporal.ChronoUnit.HOURS).toString());
             r.setApproverId(entry.getApproverIdentity());
             save();
             OmniAuthAuthorizationStrategy.invalidateCache();
@@ -225,8 +239,17 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
         return ActionResult.PARTIAL_APPROVED;
     }
 
-    /** Admin approves via Jenkins page — only works if approverId is a listed approver. Returns true if went ACTIVE. */
+    /** Backward-compatible: approve with no duration override (grants the full requested window). */
     public synchronized boolean approveAsApprover(String requestId, String approverId) {
+        return approveAsApprover(requestId, approverId, 0);
+    }
+
+    /**
+     * Admin approves via the Jenkins page — only works if approverId is a listed approver.
+     * durationHours = this approver's chosen grant window (0 = full requested), clamped to
+     * [1, requested]. Returns true if the request went ACTIVE.
+     */
+    public synchronized boolean approveAsApprover(String requestId, String approverId, int durationHours) {
         OmniAuthJitRequest r = findById(requestId);
         if (r == null || !r.isPending()) return false;
         // Same fail-closed deadline check as processApproverAction — a request whose approval
@@ -241,12 +264,14 @@ public class OmniAuthJitRequestStore extends GlobalConfiguration {
 
         entry.setDecision("APPROVED");
         entry.setDecidedAt(java.time.Instant.now().toString());
+        int reqH = r.getRequestedDurationHours();
+        entry.setGrantedDurationHours((durationHours >= 1 && durationHours <= reqH) ? durationHours : reqH);
 
         if (r.isFullyApproved()) {
             r.setStatus(OmniAuthJitRequest.STATUS_ACTIVE);
             r.setApprovedAt(java.time.Instant.now().toString());
             r.setExpiresAt(java.time.Instant.now()
-                    .plus(r.getRequestedDurationHours(), java.time.temporal.ChronoUnit.HOURS).toString());
+                    .plus(r.effectiveGrantedDurationHours(), java.time.temporal.ChronoUnit.HOURS).toString());
             r.setApproverId(approverId);
             save();
             OmniAuthAuthorizationStrategy.invalidateCache();

@@ -120,6 +120,19 @@
                           <form method="post" action="approveJit" style="display:inline;">
                             <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                             <input type="hidden" name="requestId" value="${r.requestId}"/>
+                            <select name="durationHours" title="Grant duration — up to the ${r.requestedDurationHours}h requested"
+                                    style="font-size:0.78em;padding:3px 6px;margin-right:4px;border-radius:4px;border:1px solid var(--input-border, #ccc);vertical-align:middle;background:var(--input-color, #fff);">
+                              <j:forEach var="h" begin="1" end="${r.requestedDurationHours}">
+                                <j:choose>
+                                  <j:when test="${h == r.requestedDurationHours}">
+                                    <option value="${h}" selected="selected">${h}h</option>
+                                  </j:when>
+                                  <j:otherwise>
+                                    <option value="${h}">${h}h</option>
+                                  </j:otherwise>
+                                </j:choose>
+                              </j:forEach>
+                            </select>
                             <button type="submit" class="jenkins-button jenkins-button--primary"
                                     style="font-size:0.78em;padding:4px 12px;margin-right:4px;background:var(--oau-success-fg);border-color:var(--oau-success-fg);display:inline-flex;align-items:center;gap:4px;">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Approve
@@ -211,7 +224,14 @@
                             <div style="font-size:0.88em;color:#999;font-style:italic;">"${r.approverComment}"</div>
                           </j:if>
                         </td>
-                        <td style="padding:11px 16px;font-size:0.84em;">${r.requestedDurationHours}h</td>
+                        <td style="padding:11px 16px;font-size:0.84em;">
+                          <j:choose>
+                            <j:when test="${r.status.equals('ACTIVE') or r.status.equals('EXPIRED') or r.status.equals('REVOKED')}">
+                              ${r.effectiveGrantedDurationHours()}h<j:if test="${r.effectiveGrantedDurationHours() != r.requestedDurationHours}"><span style="color:var(--text-color-secondary);"> (of ${r.requestedDurationHours}h)</span></j:if>
+                            </j:when>
+                            <j:otherwise>${r.requestedDurationHours}h</j:otherwise>
+                          </j:choose>
+                        </td>
                         <td style="padding:11px 16px;font-size:0.8em;color:var(--text-color-secondary);">${r.timeAgo()}</td>
                         <td style="padding:11px 16px;text-align:right;">
                           <j:if test="${r.status.equals('ACTIVE')}">

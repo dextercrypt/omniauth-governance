@@ -172,6 +172,47 @@ public class OmniAuthJitRequestStoreTest {
         assertNull(r.getExpiresAt(), "A denied request never activates");
     }
 
+    // ── per-approver duration override: minimum across approvers wins ──────────
+
+    @Test
+    public void durationOverride_minimumAcrossApprovers_wins() {
+        OmniAuthJitRequest r = pendingRequest("alice", "s", 4, "a@x", "b@x");
+        store.addRequest(r);
+        // Approver A grants 2h; approver B accepts the full requested window (0 -> 4h).
+        store.processApproverAction(r.getApprovalEntries().get(0).getToken(), "APPROVED", "", 2);
+        OmniAuthJitRequestStore.ActionResult res =
+                store.processApproverAction(r.getApprovalEntries().get(1).getToken(), "APPROVED", "", 0);
+
+        assertEquals(OmniAuthJitRequestStore.ActionResult.ALL_APPROVED, res);
+        assertTrue(r.isActive());
+        assertEquals(2, r.effectiveGrantedDurationHours(), "shortest approver duration wins");
+        long secs = r.secondsRemaining();
+        assertTrue(secs > 2 * 3600 - 120 && secs <= 2 * 3600 + 5,
+                "granted window should be ~2h, was " + secs + "s");
+    }
+
+    @Test
+    public void durationOverride_cannotExceedRequested() {
+        OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x");
+        store.addRequest(r);
+        // Approver asks for 10h but only 3h was requested -> clamped to 3h.
+        store.processApproverAction(r.getApprovalEntries().get(0).getToken(), "APPROVED", "", 10);
+
+        assertTrue(r.isActive());
+        assertEquals(3, r.effectiveGrantedDurationHours(), "cannot grant beyond what was requested");
+    }
+
+    @Test
+    public void durationOverride_defaultGrantsFullRequested() {
+        OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x");
+        store.addRequest(r);
+        // Legacy 3-arg path (no duration) -> full requested window.
+        store.processApproverAction(r.getApprovalEntries().get(0).getToken(), "APPROVED", "");
+
+        assertTrue(r.isActive());
+        assertEquals(3, r.effectiveGrantedDurationHours());
+    }
+
     @Test
     public void processApproverAction_alreadyDecidedRequest_returnsAlreadyProcessed() {
         OmniAuthJitRequest r = pendingRequest("alice", "s", 3, "a@x", "b@x");

@@ -2096,12 +2096,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         OmniAuthJitRequest jitReq = store != null ? store.findById(requestId) : null;
         if (jitReq == null) { rsp.sendRedirect("jitRequests"); return; }
 
-        boolean wentActive = store.approveAsApprover(requestId, approver);
+        int durationHours = parseIntOr(req.getParameter("durationHours"), 0);
+        boolean wentActive = store.approveAsApprover(requestId, approver, durationHours);
         OmniAuthAuditLog audit = OmniAuthAuditLog.get();
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         if (wentActive) {
             if (audit != null) audit.logJitApproved(approver, jitReq.getRequesterId(),
-                    jitReq.getScope(), jitReq.getRequestedDurationHours());
+                    jitReq.getScope(), jitReq.effectiveGrantedDurationHours());
             NotificationService.sendJitApproved(cfg, jitReq);
             rsp.sendRedirect("jitRequests?approved=true");
         } else {

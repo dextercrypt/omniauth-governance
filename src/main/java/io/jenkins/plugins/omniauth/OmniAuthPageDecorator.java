@@ -410,7 +410,9 @@ public class OmniAuthPageDecorator {
                     String decision = params.get("decision");
                     String remarks  = params.get("remarks");
                     if (remarks != null && remarks.length() > 1000) remarks = remarks.substring(0, 1000);
-                    serveSubmitAction(token, decision, remarks, httpRes);
+                    int durationHours = 0;
+                    try { durationHours = Integer.parseInt(params.get("durationHours")); } catch (Exception ignore) {}
+                    serveSubmitAction(token, decision, remarks, durationHours, httpRes);
                 }
             } catch (Exception e) {
                 httpRes.setStatus(500);
@@ -468,7 +470,7 @@ public class OmniAuthPageDecorator {
             rsp.getWriter().write(html);
         }
 
-        private static void serveSubmitAction(String token, String decision, String remarks, HttpServletResponse rsp) throws IOException {
+        private static void serveSubmitAction(String token, String decision, String remarks, int durationHours, HttpServletResponse rsp) throws IOException {
             if (token == null || token.isBlank() || decision == null) {
                 renderSimplePage(rsp, 400, "Invalid Request", "Missing token or decision.", "#dc2626");
                 return;
@@ -480,7 +482,7 @@ public class OmniAuthPageDecorator {
             OmniAuthJitRequestStore store = OmniAuthJitRequestStore.get();
             if (store == null) { renderSimplePage(rsp, 500, "Error", "Store unavailable.", "#dc2626"); return; }
 
-            OmniAuthJitRequestStore.ActionResult result = store.processApproverAction(token, decision, remarks);
+            OmniAuthJitRequestStore.ActionResult result = store.processApproverAction(token, decision, remarks, durationHours);
             OmniAuthJitRequest jitReq = store.findByToken(token);
 
             switch (result) {
@@ -510,7 +512,7 @@ public class OmniAuthPageDecorator {
                     if (jitReq != null) {
                         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
                         OmniAuthAuditLog audit = OmniAuthAuditLog.get();
-                        if (audit != null) audit.logJitApproved(jitReq.getApproverId(), jitReq.getRequesterId(), jitReq.getScope(), jitReq.getRequestedDurationHours());
+                        if (audit != null) audit.logJitApproved(jitReq.getApproverId(), jitReq.getRequesterId(), jitReq.getScope(), jitReq.effectiveGrantedDurationHours());
                         NotificationService.sendJitApproved(cfg, jitReq);
                     }
                     renderSimplePage(rsp, 200, "Access Granted", "All approvers have approved. " + (jitReq != null ? jitReq.getRequesterId() : "The requester") + " now has access.", "#16a34a");
@@ -576,6 +578,10 @@ public class OmniAuthPageDecorator {
                 + "<h3 style='color:#16a34a;display:flex;align-items:center;gap:5px;'>" + SVG_CHECK_CIRCLE_SM + " Approve Access</h3>"
                 + "<form method='POST' action='" + htmlEsc(submitUrl) + "'>"
                 + "<input type='hidden' name='token' value='" + htmlEsc(token) + "'/>"
+                + "<label style='display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;'>Grant for <span style='font-weight:400;color:#6b7280;'>(up to the " + req.getRequestedDurationHours() + "h requested)</span></label>"
+                + "<select name='durationHours' style='width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;font-family:inherit;margin-bottom:10px;background:#fff;'>"
+                + durationOptions(req.getRequestedDurationHours())
+                + "</select>"
                 + "<textarea name='remarks' placeholder='Remarks (optional)'></textarea>"
                 + "<button type='submit' name='decision' value='APPROVED' class='btn btn-approve' "
                 + "style='display:inline-flex;align-items:center;gap:5px;'>"
@@ -594,6 +600,20 @@ public class OmniAuthPageDecorator {
                 + "</section>"
                 + "</div></div>"
                 + "</body></html>";
+        }
+
+        /** Builds the &lt;option&gt; list 1..requested for the approver's "grant for" selector; requested is pre-selected. */
+        private static String durationOptions(int requested) {
+            if (requested < 1) requested = 1;
+            StringBuilder sb = new StringBuilder();
+            for (int h = 1; h <= requested; h++) {
+                sb.append("<option value='").append(h).append("'")
+                  .append(h == requested ? " selected" : "")
+                  .append(">").append(h).append(h == 1 ? " hour" : " hours")
+                  .append(h == requested ? " (full request)" : "")
+                  .append("</option>");
+            }
+            return sb.toString();
         }
 
         private static void renderSimplePage(HttpServletResponse rsp, int status,

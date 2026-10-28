@@ -14,6 +14,10 @@ public class OmniAuthJitRequest {
         private String decision;         // null = pending, "APPROVED", "DENIED"
         private String remarks;
         private String decidedAt;        // ISO-8601 UTC
+        // Hours this approver chose to grant. 0 = unset (approver did not shorten → counts as the
+        // request's full requested duration). Always ≤ requestedDurationHours. On full approval the
+        // request is granted for the MINIMUM of all approvers' values (see effectiveGrantedDurationHours).
+        private int grantedDurationHours;
 
         public ApprovalEntry() {}
 
@@ -34,6 +38,8 @@ public class OmniAuthJitRequest {
         public void   setRemarks(String v)  { this.remarks = v; }
         public String getDecidedAt()        { return decidedAt != null ? decidedAt : ""; }
         public void   setDecidedAt(String v){ this.decidedAt = v; }
+        public int    getGrantedDurationHours()      { return grantedDurationHours; }
+        public void   setGrantedDurationHours(int v) { this.grantedDurationHours = v; }
 
         public boolean isPending()  { return decision == null; }
         public boolean isApproved() { return "APPROVED".equals(decision); }
@@ -162,6 +168,27 @@ public class OmniAuthJitRequest {
     }
 
     public int getTotalApprovers() { return getApprovalEntries().size(); }
+
+    /**
+     * Hours to grant when this request goes active: the MINIMUM of every approver's chosen duration.
+     * An approver who did not shorten (grantedDurationHours == 0) counts as the full requested
+     * duration, and any value is clamped to [1, requestedDurationHours] so no approver can grant more
+     * than was asked. The shortest wins — one approver can cap the window below what another intended.
+     * With no approved entries yet, falls back to the requested duration.
+     */
+    public int effectiveGrantedDurationHours() {
+        int requested = requestedDurationHours > 0 ? requestedDurationHours : 1;
+        int min = requested;
+        for (ApprovalEntry e : getApprovalEntries()) {
+            if (!e.isApproved()) continue;
+            int d = e.getGrantedDurationHours();
+            if (d <= 0) d = requested;        // approver accepted the full requested duration
+            if (d > requested) d = requested; // never exceed what was requested
+            if (d < 1) d = 1;
+            if (d < min) min = d;
+        }
+        return min < 1 ? 1 : min;
+    }
 
     /** True if userId has a pending (not yet decided) entry in the approvers list. */
     public boolean isCurrentUserApprover(String userId) {
