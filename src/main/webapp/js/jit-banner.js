@@ -38,7 +38,14 @@
     var _cdInterval = null;
     var _jitModal = null;
 
-    function fmtTime(s) { var m = Math.floor(s / 60); var ss = s % 60; return m + "m " + (ss < 10 ? "0" : "") + ss + "s"; }
+    function fmtTime(s) {
+      if (s < 0) s = 0;
+      var h = Math.floor(s / 3600);
+      var m = Math.floor((s % 3600) / 60);
+      var ss = s % 60;
+      var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+      return (h > 0 ? h + "h " + pad(m) + "m " : m + "m ") + pad(ss) + "s";
+    }
     function escHtml(s) { if (!s) return ""; return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
     function fetchStatus() {
@@ -186,8 +193,27 @@
         .catch(function () { btn.disabled = false; btn.textContent = "Submit Request"; err.textContent = "Network error."; err.style.display = "block"; });
     }
 
-    function oauJitCancel(requestId) {
-      if (!confirm("Cancel your pending JIT request?")) return;
+    // In-app confirm modal (replaces the browser's native confirm() dialog, which CSP/UX-wise
+    // looks out of place). Same look as the Request-JIT modal. onConfirm runs on OK.
+    function oauJitConfirm(opts) {
+      var ov = document.createElement("div");
+      ov.style.cssText = "display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:10000;align-items:center;justify-content:center;";
+      ov.innerHTML = '<div style="background:#fff;border-radius:8px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
+        '<div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:' + (opts.color || "#dc2626") + ';">' + (opts.icon || "") + '<span style="color:#111;">' + escHtml(opts.title) + '</span></div>' +
+        '<div style="font-size:13px;color:#444;margin-bottom:20px;line-height:1.5;">' + escHtml(opts.message) + '</div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+        '<button type="button" class="oau-cf-cancel" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">Cancel</button>' +
+        '<button type="button" class="oau-cf-ok" style="padding:8px 16px;border:none;border-radius:4px;background:' + (opts.color || "#dc2626") + ';color:#fff;cursor:pointer;font-size:13px;font-weight:600;">' + escHtml(opts.confirmLabel || "Confirm") + '</button>' +
+        '</div></div>';
+      function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+      ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
+      ov.querySelector(".oau-cf-cancel").addEventListener("click", close);
+      ov.querySelector(".oau-cf-ok").addEventListener("click", function () { close(); opts.onConfirm(); });
+      document.body.appendChild(ov);
+    }
+
+    // POST to the cancel/revoke endpoint (shared by pending-cancel and active-revoke).
+    function oauJitPostCancel(requestId) {
       fetch(base + "/crumbIssuer/api/json", { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
         .then(function (cd) {
@@ -199,17 +225,26 @@
         .catch(function () {});
     }
 
+    function oauJitCancel(requestId) {
+      oauJitConfirm({
+        title: "Cancel JIT request",
+        message: "Cancel your pending JIT request? You can submit a new one at any time.",
+        confirmLabel: "Cancel Request",
+        color: "#d97706",
+        icon: SVG_CLOCK,
+        onConfirm: function () { oauJitPostCancel(requestId); }
+      });
+    }
+
     function oauJitRevoke(requestId) {
-      if (!confirm("Revoke your active JIT access?")) return;
-      fetch(base + "/crumbIssuer/api/json", { credentials: "same-origin" })
-        .then(function (r) { return r.json(); })
-        .then(function (cd) {
-          var headers = { "Content-Type": "application/x-www-form-urlencoded" };
-          headers[cd.crumbRequestField] = cd.crumb;
-          return fetch(base + "/omniauth-jit/cancel", { method: "POST", headers: headers, body: "requestId=" + encodeURIComponent(requestId), credentials: "same-origin" });
-        })
-        .then(function () { fetchStatus(); })
-        .catch(function () {});
+      oauJitConfirm({
+        title: "End JIT access",
+        message: "Revoke your active JIT access now? You'll need a new approval before you can build again.",
+        confirmLabel: "End Access",
+        color: "#dc2626",
+        icon: SVG_CLOCK,
+        onConfirm: function () { oauJitPostCancel(requestId); }
+      });
     }
 
     if (document.readyState === "loading") {
