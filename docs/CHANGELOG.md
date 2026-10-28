@@ -13,6 +13,17 @@ All notable changes to OmniAuth are documented here. This project aims to follow
 Most recent notable changes (newest first):
 
 ### Added
+- **Native-account management**: reset a native account's password (one-time temporary password,
+  forces a change at next login, revokes active sessions, audited) and edit its full name / email
+  directly from the user detail view — no need for Jenkins' own user pages. Native accounts only;
+  the login id itself is immutable and cannot be renamed.
+- **Approver-adjustable JIT duration**: an approver can grant a **shorter** window than requested
+  (a "grant for" selector on both the in-product and emailed approval pages); with multiple
+  approvers the **minimum** chosen duration wins, and no approver can exceed the requested window.
+- **In-app confirmation dialogs**: destructive per-row actions across the management pages (JIT
+  revoke, role delete, access-review keep/revoke, group remove, notification-log clear) and the JIT
+  banner's End Access / Cancel now use a consistent in-app modal instead of the browser's native
+  `confirm()`.
 - **SOS Mode**: a host-filesystem-triggered fail-safe for a true admin lockout (all admins SSO-only
   with Entra down, or a misconfigured authorization strategy). Dropping an `omniauth-sos.request`
   file in `JENKINS_HOME` arms a 30-minute recovery window — live-checked, no restart — and opens a
@@ -53,6 +64,11 @@ Most recent notable changes (newest first):
 - **About / Info page** with a live version row and dynamic sign-in-methods summary.
 
 ### Changed
+- **Baseline raised to Jenkins 2.555.3 / Java 21** (from 2.541.2), preparing for Update Center
+  hosting. Jenkins 2.555.x removed Java 17, so **Java 21 is now required**. Parent plugin POM bumped
+  to `6.2236.v12dd4c483242`; dependency versions moved onto the `bom-2.555.x` plugin BOM. Artifact
+  id renamed `omni-auth` → `omniauth-governance` (Java package, class names and URLs unchanged).
+- JIT access banner countdown now shows hours and minutes (e.g. `3h 15m 02s`) instead of raw minutes.
 - Reframed the plugin as an **authentication and access-governance** platform (not just SSO);
   dropped all legacy "Dual Auth" naming.
 - Security realm presents a **provider selector** (Microsoft Entra available; Okta / Google /

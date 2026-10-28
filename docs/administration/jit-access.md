@@ -43,9 +43,22 @@ Approvers can act two ways:
 
 | Action | Result |
 |---|---|
-| **Approve** | Records this approver's decision; once **all** approvers have approved, the elevated access becomes active for the (clamped) window; audited. |
+| **Approve** | Records this approver's decision — optionally for a **shorter window** than requested (see below); once **all** approvers have approved, the elevated access becomes active for the granted window; audited. |
 | **Deny** | The request is rejected (with optional reason); the requester is notified. |
 | **Revoke** | An active JIT grant is ended early. |
+
+### Approval duration
+
+When approving, each approver can **grant a shorter window than the user requested**. Both the
+in-product Approve form and the tokenized email page show a **"grant for"** selector offering
+`1 … requestedHours`, defaulting to the full request.
+
+With multiple approvers, the activated grant uses the **minimum** of their chosen durations — the
+shortest cap wins, and no approver can grant more than was requested
+(`OmniAuthJitRequest.effectiveGrantedDurationHours()`). An approver who leaves the default grants
+the full requested window, so a plain Approve behaves exactly as before. The management queue's
+Recent Activity shows the granted window, noting **"(of N h)"** when it was shortened below the
+request, and the audit log records the granted duration (not the requested one).
 
 ## Expiry and cleanup
 

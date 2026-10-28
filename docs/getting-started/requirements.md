@@ -6,8 +6,8 @@
 
 | Component | Requirement |
 |---|---|
-| **Jenkins** | 2.541.2 or newer (Jakarta servlet API line) |
-| **Java** | 21 (tested on Amazon Corretto 21) |
+| **Jenkins** | 2.555.3 or newer (current LTS line; Jakarta servlet API) |
+| **Java** | 21 (required — Jenkins 2.555.x dropped Java 17; tested on Amazon Corretto 21) |
 | **Servlet API** | Jakarta Servlet 6.x (provided by Jenkins core) |
 
 > OmniAuth targets the Jenkins release line that migrated from `javax.*` to `jakarta.*`.

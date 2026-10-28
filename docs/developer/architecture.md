@@ -5,8 +5,8 @@
 
 - **Group id / artifact:** `io.jenkins.plugins:omniauth-governance`
 - **Java package:** `io.jenkins.plugins.omniauth`
-- **Parent POM:** `org.jenkins-ci.plugins:plugin:4.80`
-- **Target platform:** Jenkins 2.541.2+, Java 21 (Jakarta servlet API)
+- **Parent POM:** `org.jenkins-ci.plugins:plugin:6.2236.v12dd4c483242`
+- **Target platform:** Jenkins 2.555.3+, Java 21 (Jakarta servlet API; Jenkins 2.555.x requires Java 21)
 
 ## Component map
 

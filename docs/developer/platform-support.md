@@ -15,15 +15,15 @@ As of the current baseline:
 
 | Axis | Supported | Where it is set |
 |---|---|---|
-| **Jenkins (minimum)** | **2.541.2** | `pom.xml` → `<jenkins.version>` |
+| **Jenkins (minimum)** | **2.555.3** | `pom.xml` → `<jenkins.version>` |
 | **Jenkins (newer)** | any later weekly or LTS | runs forward by policy |
-| **Java** | **17 or 21** | derived from `jenkins.version` by the parent POM |
+| **Java** | **21** (17 no longer supported) | derived from `jenkins.version` by the parent POM |
 | **Built & verified on** | **Java 21** (Amazon Corretto 21) | CI / local build |
-| **Parent plugin POM** | `4.80` | `pom.xml` `<parent>` |
+| **Parent plugin POM** | `6.2236.v12dd4c483242` | `pom.xml` `<parent>` |
 
-> The README advertises **"Jenkins 2.541.2+ · Java 21"**. That is the *tested* claim and is
-> intentionally narrower than the technical floor below. Only widen it to "Java 17 or 21" once
-> a Java 17 build/test run has actually been done (see [Pre-release verification](#pre-release-verification)).
+> The README advertises **"Jenkins 2.555.3+ · Java 21"**, matching this baseline. Jenkins 2.555.x
+> removed Java 17 support, so **Java 21 is mandatory** on this line — there is no longer a
+> "Java 17 or 21" option to widen to.
 
 ---
 
@@ -64,10 +64,12 @@ scratch. It is listed under Requirements in the README and must stay declared as
 
 ### 3. Declared baseline — a convention, not a hard limit
 
-The hard floor is ~2.479.1, but we **declare** 2.541.2 because that is the LTS line we actively
-develop and test against. Keeping a recent-but-not-bleeding-edge baseline is the standard
-Jenkins practice (roughly the last ~12 months of LTS). Lowering the declaration toward the true
-floor is possible but not worth the extra test burden for a shrinking set of old installs.
+The hard floor is ~2.479.1, but we **declare** 2.555.3 — the current LTS line we actively develop
+and test against. The baseline was raised from 2.541.2 to 2.555.3 on 2026-10-27 as part of
+preparing for Jenkins Update Center hosting (see the decision log). Keeping a recent-but-not-
+bleeding-edge baseline is standard Jenkins practice (roughly the last ~12 months of LTS). Lowering
+the declaration toward the true floor is possible but not worth the extra test burden for a
+shrinking set of old installs.
 
 ---
 
@@ -98,8 +100,8 @@ The running JVM warns when its Java line nears end of support in Jenkins.
 
 | Java | Role today | End-of-support signal |
 |---|---|---|
-| Java 17 | lower bound of current line | dropped from LTS at 2.555.1 (Apr 2026) |
-| Java 21 | our tested JVM | Jenkins EOL on/after **2027-09-30** |
+| Java 17 | **no longer supported** | dropped from LTS at 2.555.1 (Apr 2026); below our 2.555.3 baseline |
+| Java 21 | **our minimum + tested JVM** | Jenkins EOL on/after **2027-09-30** |
 | Java 25 | next target | Jenkins EOL warnings begin **Mar 2029** |
 
 When our tested Java line approaches EOL, the move is: pick the current LTS that supports the
@@ -181,9 +183,15 @@ Passing both axes on the latest LTS + newest Java lets us honestly state "verifi
 
 ## Decision log
 
-- **Baseline held at Jenkins 2.541.2 / Java 21** — current. Tested on Corretto 21. Java 21 is
-  fully supported on this LTS line; no benefit to bumping until a forced move. Forward
-  compatibility is handled by the verification axes above, not by raising the floor.
+- **2026-10-27 — Baseline raised Jenkins 2.541.2 → 2.555.3 / Java 21** (trigger: Clock B +
+  Update Center hosting prep). 2.555.x is the current LTS line and **removed Java 17**, so Java 21
+  is now the hard minimum. The parent plugin POM moved to `6.2236.v12dd4c483242` and plugin
+  dependency versions were put on the **`bom-2.555.x`** BOM (hand-pins dropped for matrix-auth /
+  cloudbees-folder / config-as-code / snakeyaml-api / jakarta-mail-api / test-harness). Shipped
+  with the hosting-readiness work. Supersedes the "held at 2.541.2" stance below.
+- **(superseded) Baseline held at Jenkins 2.541.2 / Java 21** — the prior stance, where forward
+  compatibility was handled by the verification axes rather than by raising the floor. Replaced by
+  the 2026-10-27 bump above.
 - **2026-10-26 — Forward-compatibility verified on Jenkins 2.580.1 (latest LTS) + Corretto 25**
   (no baseline change). Axis A: `mvn clean verify` on JDK 25 → **553 tests, 0 failures**, hpi
   built; enforcer `RequireJavaVersion` / `EnforceBytecodeVersion` and `access-modifier-checker`

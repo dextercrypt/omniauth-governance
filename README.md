@@ -15,9 +15,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" />
-  <img src="https://img.shields.io/badge/Jenkins-2.541.2%2B-d33833" alt="Jenkins 2.541.2+" />
+  <img src="https://img.shields.io/badge/Jenkins-2.555.3%2B-d33833" alt="Jenkins 2.555.3+" />
   <img src="https://img.shields.io/badge/Java-21-orange" alt="Java 21" />
-  <img src="https://img.shields.io/badge/tests-553%20passing-brightgreen" alt="553 tests passing" />
+  <img src="https://img.shields.io/badge/tests-557%20passing-brightgreen" alt="557 tests passing" />
   <img src="https://img.shields.io/badge/status-beta-yellow" alt="Beta" />
 </p>
 
@@ -131,7 +131,7 @@ single plugin instead of a sprawling platform.
 
 ## Requirements
 
-- Jenkins **2.541.2+** (Jakarta servlet API line) · **Java 21** (tested on Amazon Corretto 21).
+- Jenkins **2.555.3+** (current LTS line) · **Java 21** (required — Jenkins 2.555.x dropped Java 17; tested on Amazon Corretto 21).
 - For SSO: an OAuth2/OIDC provider — **Microsoft Entra** today
   ([setup](docs/administration/entra-setup.md)).
 
@@ -176,9 +176,8 @@ mvn package -DskipTests   # produces target/omniauth-governance.hpi
 ### Running for development
 
 ```bash
-JENKINS_HOME=./work \
-  java -jar jenkins-war-2.541.2.war --httpPort=9090 --prefix=/jenkins
-# → http://localhost:9090/jenkins/
+mvn hpi:run -Dport=9090
+# → http://localhost:9090/jenkins/  (JENKINS_HOME defaults to ./work; runs the POM's Jenkins baseline)
 ```
 
 See [Building & contributing](docs/developer/contributing.md) for the full developer guide.

@@ -28,6 +28,26 @@ Use this for:
 - Newly created accounts with a temporary password.
 - Forced rotation after a suspected compromise.
 
+## Managing native accounts {#native-account-management}
+
+For **native (local) accounts**, an administrator can reset the password and edit profile
+details directly from the plugin — no need to use Jenkins' own user pages. Open a user from
+**Manage Jenkins → OmniAuth → Access Management** (or the User Overview) to reach their detail
+view; these controls appear only for native password accounts (SSO/Entra identities are managed
+in the identity provider, so they are not shown).
+
+| Action | What it does |
+|---|---|
+| **Reset password** | Generates a **one-time temporary password**, shown **once** in a dialog. It automatically sets the [force-password-change](#force-password-change) flag (the user must choose a new password at next login) and **revokes the account's active sessions**, so any existing logins are cut immediately. Audited as `password_reset`. |
+| **Edit details** | Updates the account's **full name** and **email address** (the email is used for notifications). |
+
+> **Why no username change?** A Jenkins user id is an immutable primary key — it anchors the user
+> directory, the permission matrix, scoped assignments, audit records and build history — so the
+> login id cannot be renamed in place. To change it, create a new account and migrate access.
+
+The reset confirmation and the temporary-password display are in-app dialogs; the temporary
+password is never emailed. See [Sessions](sessions.md) for how the active-session revocation works.
+
 ## Protected users
 
 Some accounts must never be touched by automated cleanup — for example, break-glass admins

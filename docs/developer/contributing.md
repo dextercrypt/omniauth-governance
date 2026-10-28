@@ -6,7 +6,7 @@
 
 - **JDK 21** (Amazon Corretto 21 recommended).
 - **Maven 3.9.x**.
-- A local `jenkins-war-2.541.2.war` for running (see below).
+- No separate Jenkins download is needed — the plugin runs via `mvn hpi:run` (see below).
 
 ## Build
 
@@ -31,26 +31,19 @@ Maven/JDK toolchain:
 
 ## Run locally
 
-`mvn hpi:run` is **not** used (its embedded Jetty does not register the Jenkins
-web-fragment, so Stapler/`WebAppMain` never initialize). Instead, run the standalone WAR
-against a local home:
+`mvn hpi:run -Dport=9090` builds the plugin and launches Jenkins with it loaded, resolving
+the full dependency-plugin closure automatically. It serves at a `/jenkins` context path with
+`JENKINS_HOME` defaulting to `./work`:
 
 ```bash
-JENKINS_HOME=./work \
-  java -jar jenkins-war-2.541.2.war --httpPort=9090 --prefix=/jenkins
+mvn hpi:run -Dport=9090
 # → http://localhost:9090/jenkins/
 ```
 
-### Deploying a fresh build into the running home
+To pick up source changes, stop and restart `hpi:run` — it recompiles and repackages on launch.
 
-```bash
-cp target/omniauth-governance.hpi "$JENKINS_HOME/plugins/omniauth-governance.jpi"
-rm -rf "$JENKINS_HOME/plugins/omniauth-governance" "$JENKINS_HOME/plugins/omniauth-governance.hpi"
-# then restart Jenkins
-```
-
-> A leftover `.hpi` next to the `.jpi`, or a stale exploded directory, will shadow your new
-> build. Remove both and restart.
+> Stop `hpi:run` before running `mvn test`: the test harness forks its own Jenkins and will
+> conflict with a running instance on the same port.
 
 ## Project layout
 
