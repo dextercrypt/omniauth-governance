@@ -341,6 +341,82 @@ public class OmniAuthSecurityRealmTest {
                 () -> realm.loadUserByUsername2("notanemail"));
     }
 
+    // ─── SSO toggle (native-first) ───────────────────────────────────────────
+
+    /**
+     * A provider configured with no explicit flag (the legacy/upgrade state: config.xml persisted
+     * before the toggle existed) counts as SSO on — so updating the plugin never silently kills a
+     * working SSO setup.
+     */
+    @Test
+    public void sso_configuredWithUnsetFlag_isActive() {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
+        assertTrue(realm.isSsoEnabled(), "unset flag + configured provider → reported on");
+        assertTrue(realm.isSsoActive(), "SSO should be active");
+        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+    }
+
+    /** No provider and no flag → native-only: SSO off and inactive, no login-button provider. */
+    @Test
+    public void sso_noProvider_isInactive() {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, null);
+        assertFalse(realm.isSsoEnabled());
+        assertFalse(realm.isSsoActive());
+        assertNull(realm.getSsoProvider());
+    }
+
+    /**
+     * Toggling SSO off keeps the provider settings stored (so re-enabling needs no secret re-entry)
+     * but makes sign-in native-only: inactive, no provider on the login page, and the OAuth entry
+     * point refuses with 503.
+     */
+    @Test
+    public void sso_disabledWithToggle_preservesConfigButInactive() throws Exception {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
+        realm.setSsoEnabled(false);
+
+        assertNotNull(realm.getEntraConfig(), "provider settings must be preserved while dormant");
+        assertFalse(realm.isSsoEnabled());
+        assertFalse(realm.isSsoActive());
+        assertNull(realm.getSsoProvider(), "no SSO button when the toggle is off");
+
+        Resp resp = captureResponse(realm.startEntraLogin(fakeRequest(Map.of(), new FakeSession())));
+        assertEquals(503, resp.status, "OAuth entry point must refuse while SSO is off");
+    }
+
+    /** Explicitly turning the toggle on with a configured provider activates SSO. */
+    @Test
+    public void sso_enabledWithToggleAndProvider_isActive() {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
+        realm.setSsoEnabled(true);
+        assertTrue(realm.isSsoActive());
+        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+    }
+
+    /** The toggle alone cannot activate SSO — a provider must also be configured. */
+    @Test
+    public void sso_enabledWithoutProvider_staysInactive() {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, null);
+        realm.setSsoEnabled(true);
+        assertTrue(realm.isSsoEnabled(), "flag reflects the admin's choice");
+        assertFalse(realm.isSsoActive(), "but SSO is not available without a provider");
+        assertNull(realm.getSsoProvider());
+    }
+
+    /**
+     * Pre-provisioning an email-format user is an SSO affordance: when SSO is toggled off, an
+     * unknown email must not resolve to a stub Entra user even though the config is preserved.
+     */
+    @Test
+    public void loadUserByUsername2_emailFormat_whenSsoDisabled_throwsUsernameNotFoundException() {
+        OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
+        realm.setSsoEnabled(false);
+        j.jenkins.setSecurityRealm(realm);
+
+        assertThrows(UsernameNotFoundException.class,
+                () -> realm.loadUserByUsername2("preprovisioned@example.com"));
+    }
+
     // ─── Tier 2: OAuth2 error cases (direct method calls, no HTTP) ───────────
 
     /**

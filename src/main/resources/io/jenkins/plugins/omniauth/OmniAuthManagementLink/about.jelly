@@ -19,7 +19,9 @@
         <!-- ================================================================
              MICROSOFT ENTRA CONFIGURATION (read-only)
              ================================================================ -->
-        <j:set var="entra" value="${it.entraConfig}"/>
+        <!-- Treat a dormant-but-preserved Entra config (SSO toggled off) the same as unconfigured
+             here: the read-only details only make sense when SSO is actually active. -->
+        <j:set var="entra" value="${it.ssoConfigured ? it.entraConfig : null}"/>
         <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -46,7 +48,7 @@
                       <span style="background:var(--oau-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;">SSO</span>
                     </j:when>
                     <j:otherwise>
-                      <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO — not configured</span>
+                      <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO — not enabled</span>
                     </j:otherwise>
                   </j:choose>
                 </span>
@@ -58,7 +60,7 @@
                 <j:choose>
                   <j:when test="${it.omniAuthRealm}">
                     <div class="jenkins-alert jenkins-alert-info" style="margin: 0;">
-                      No SSO provider configured — native sign-in only. Configure Microsoft Entra in
+                      Single sign-on is not enabled — native sign-in only. Connect a provider in
                       Configure Global Security to enable SSO.
                     </div>
                   </j:when>

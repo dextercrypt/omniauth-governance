@@ -549,9 +549,11 @@ public class OmniAuthManagementLink extends ManagementLink {
         return Jenkins.get().getSecurityRealm() instanceof OmniAuthSecurityRealm;
     }
 
-    /** True when an SSO provider (Entra) is configured — i.e. SSO sign-in is actually available. */
+    /** True when SSO sign-in is actually available — the toggle is on and a provider is configured. */
     public boolean isSsoConfigured() {
-        return getEntraConfig() != null;
+        Jenkins j = Jenkins.get();
+        return (j.getSecurityRealm() instanceof OmniAuthSecurityRealm)
+                && ((OmniAuthSecurityRealm) j.getSecurityRealm()).isSsoActive();
     }
 
     /** This plugin's version, read live from its wrapper (build qualifier stripped). For the Info page. */
