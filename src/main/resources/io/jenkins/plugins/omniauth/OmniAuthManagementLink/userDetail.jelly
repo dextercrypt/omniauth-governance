@@ -3,6 +3,7 @@
   <l:layout title="OmniAuth — User Access" norefresh="true">
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.userDetailAssets"/>
 
       <j:set var="sid"              value="${request2.getParameter('sid')}"/>

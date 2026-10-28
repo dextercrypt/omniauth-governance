@@ -23,10 +23,8 @@ function jitInit() {
       openDenyModal(this.dataset.requestId, this.dataset.requesterId, this.dataset.scope);
     });
   });
-  // Revoke active JIT — confirm guards submit
-  document.querySelectorAll('.js-jit-revoke').forEach(function(el) {
-    el.addEventListener('click', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
-  });
+  // Revoke active JIT — confirmation handled by the shared in-app modal (oau/oauConfirm.js) via the
+  // button's data-confirm attribute; no native confirm() here.
   var backdrop = document.getElementById('jitDenyBackdrop');
   if (backdrop) backdrop.addEventListener('click', function() { closeDenyModal(); });
   var cancel = document.getElementById('jitDenyCancel');

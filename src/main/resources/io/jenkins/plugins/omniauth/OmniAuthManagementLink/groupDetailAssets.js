@@ -156,11 +156,8 @@ function udxWireGroupDetail() {
   document.querySelectorAll('.js-udx-add').forEach(function(el) {
     el.addEventListener('click', function() { udxShowAdd(); });
   });
-  // Remove-group form — confirm guards submit
-  var removeForm = document.getElementById('udxRemoveGroupForm');
-  if (removeForm) removeForm.addEventListener('submit', function(e) {
-    if (!confirm(this.dataset.confirm)) e.preventDefault();
-  });
+  // Remove-group form confirmation is handled by the shared in-app modal (oau/oauConfirm.js) via the
+  // form's data-confirm attribute; no native confirm() here.
   // Per-row Edit buttons
   document.querySelectorAll('.js-udx-edit').forEach(function(el) {
     el.addEventListener('click', function() {
@@ -169,10 +166,8 @@ function udxWireGroupDetail() {
       udxShowEdit(this.dataset.scope, this.dataset.scopeDisplay, this.dataset.role, perms, this.dataset.expires);
     });
   });
-  // Per-row Revoke buttons — confirm guards submit
-  document.querySelectorAll('.js-udx-revoke').forEach(function(el) {
-    el.addEventListener('click', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
-  });
+  // Per-row Revoke buttons — confirmation handled by the shared in-app modal (oau/oauConfirm.js)
+  // via each button's data-confirm attribute; no native confirm() here.
   // Scope-type radios
   document.querySelectorAll('.js-udx-scope-radio').forEach(function(el) {
     el.addEventListener('change', function() { udxScopeChange(this.value); });

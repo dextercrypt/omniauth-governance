@@ -6,18 +6,12 @@
  */
 (function() {
   function init() {
-    // Keep-All — confirm guards submit
-    document.querySelectorAll('.js-ar-keepall').forEach(function(el) {
-      el.addEventListener('click', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
-    });
+    // Keep-All and Revoke-from-review confirmations are handled by the shared in-app modal
+    // (oau/oauConfirm.js) via their data-confirm attributes; no native confirm() here.
     // Row hover highlight (preserves former onmouseover/onmouseout behaviour)
     document.querySelectorAll('.js-ar-row').forEach(function(el) {
       el.addEventListener('mouseover', function() { this.style.background = 'var(--oau-neutral-bg)'; });
       el.addEventListener('mouseout', function() { this.style.background = ''; });
-    });
-    // Revoke-from-review — confirm guards submit
-    document.querySelectorAll('.js-ar-revoke').forEach(function(el) {
-      el.addEventListener('submit', function(e) { if (!confirm(this.dataset.confirm)) e.preventDefault(); });
     });
   }
   if (document.readyState === 'loading') {

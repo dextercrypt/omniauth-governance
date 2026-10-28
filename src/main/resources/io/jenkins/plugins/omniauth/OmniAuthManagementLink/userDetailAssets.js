@@ -881,12 +881,8 @@ function udxInit() {
     });
   });
 
-  // Revoke assignment buttons (per-row; destructive — confirm blocks submit on Cancel)
-  document.querySelectorAll('.js-udx-revoke').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      if (!confirm(this.dataset.confirm)) e.preventDefault();
-    });
-  });
+  // Revoke assignment buttons (per-row; destructive) — confirmation handled by the shared in-app
+  // modal (oau/oauConfirm.js) via each button's data-confirm attribute; no native confirm() here.
 
   // Drawer open / close
   wire('udxDrawerScrim', 'click', udxCloseDrawer);

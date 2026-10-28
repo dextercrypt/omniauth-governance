@@ -227,12 +227,8 @@ function oamWireEvents() {
   document.querySelectorAll('.js-oau-edit-role').forEach(function(el) {
     el.addEventListener('click', function() { editRoleFromBtn(this); });
   });
-  // Delete role confirm guards
-  document.querySelectorAll('.js-oau-confirm').forEach(function(el) {
-    el.addEventListener('click', function(e) {
-      if (!confirm(this.dataset.confirm)) e.preventDefault();
-    });
-  });
+  // Delete role — confirmation handled by the shared in-app modal (oau/oauConfirm.js) via the
+  // button's data-confirm attribute; no native confirm() here.
 
   // Add User drawer: close triggers (backdrop, X, Cancel)
   document.querySelectorAll('.js-oau-close-drawer').forEach(function(el) {

@@ -58,10 +58,8 @@ function initNotificationLog() {
   if (rows.length > 0) goPage(1);
 
   // --- CSP: wire event handlers (replaces former inline on* attributes) ---
-  var clearBtn = document.getElementById('oauClearLogBtn');
-  if (clearBtn) clearBtn.addEventListener('click', function(e) {
-    if (!confirm(this.dataset.confirm)) e.preventDefault();
-  });
+  // Clear-log confirmation is handled by the shared in-app modal (oau/oauConfirm.js) via the
+  // button's data-confirm attribute; no native confirm() here.
 
   var btnFirst = document.getElementById('btnFirst');
   if (btnFirst) btnFirst.addEventListener('click', function() { goPage(1); });
