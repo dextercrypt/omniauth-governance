@@ -42,6 +42,8 @@ public class OmniAuthSosRootAction implements UnprotectedRootAction {
     @Override public String getDisplayName()  { return null; }
 
     /** GET renders the code form; POST verifies a submitted code. Both 302 to login when not armed. */
+    // lgtm false positive: Emergency sign-in recovery (SOS): unauthenticated by design and gated by an armed window + one-time recovery code, not a Jenkins crumb; the POST branch verifies the code itself.
+    @SuppressWarnings("lgtm[jenkins/csrf]")
     public void doRecover(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         String ctx = req.getContextPath();
 

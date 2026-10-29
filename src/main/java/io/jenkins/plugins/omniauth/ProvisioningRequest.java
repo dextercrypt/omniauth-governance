@@ -35,6 +35,8 @@ public class ProvisioningRequest {
     private String oid;           // Entra object id, when known (ENTRA only)
 
     private String reason;
+    // lgtm false positive: Not a credential: free-text "what access do you need?" written by the requester.
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String requestedAccess; // free-text "what access do you need?" (optional, requester's words)
     private int    requestedDurationDays; // 0 = permanent
 

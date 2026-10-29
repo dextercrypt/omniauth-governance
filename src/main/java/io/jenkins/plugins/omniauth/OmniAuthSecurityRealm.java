@@ -136,6 +136,8 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * Account creation itself is already blocked by {@code allowsSignup == false}; this just avoids a
      * misleading dead-end page.
      */
+    // lgtm false positive: Self-signup is disabled; this only redirects a stale /signup bookmark to the login page. Anonymous by design, no state change -- no crumb or permission check applies.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     public HttpResponse doSignup(StaplerRequest req) {
         return HttpResponses.redirectTo(req.getContextPath() + "/securityRealm/login");
     }
@@ -255,6 +257,8 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         return root + "/securityRealm/loginLogo?v=" + files[0].lastModified();
     }
 
+    // lgtm false positive: Serves the public login-page logo image to anonymous users (read-only). Must be reachable unauthenticated; no state change, so no crumb or permission check applies.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     public void doLoginLogo(org.kohsuke.stapler.StaplerRequest req,
                             org.kohsuke.stapler.StaplerResponse rsp) throws Exception {
         java.io.File dir = new java.io.File(jenkins.model.Jenkins.get().getRootDir(), "omniauth-branding");

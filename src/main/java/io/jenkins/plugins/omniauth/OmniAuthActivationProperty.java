@@ -22,6 +22,8 @@ import java.util.Base64;
  */
 public class OmniAuthActivationProperty extends UserProperty {
 
+    // lgtm false positive: Not a credential: stores only the SHA-256 hash of the one-time activation token (never the raw token), so encryption would add nothing.
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String tokenHash;      // SHA-256(raw token), Base64url; never the raw token
     private long   expiresAtEpoch; // epoch millis
 

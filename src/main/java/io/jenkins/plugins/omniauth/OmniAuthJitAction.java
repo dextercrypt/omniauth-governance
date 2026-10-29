@@ -28,6 +28,8 @@ public class OmniAuthJitAction implements RootAction {
      * Returns JSON describing the JIT state for the current user + job.
      * Called by the in-page banner script via AJAX.
      */
+    // lgtm false positive: Read-only JSON status for the current user's own JIT state (GET AJAX); rejects anonymous callers, returns no cross-user data -- so no crumb or permission check applies.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     public void doStatus(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins j = Jenkins.getInstanceOrNull();
         if (j == null) { writeJson(rsp, "{\"hasJit\":false}"); return; }
@@ -95,6 +97,8 @@ public class OmniAuthJitAction implements RootAction {
      * POST /omniauth-jit/request
      * Creates a new JIT request for the current user.
      */
+    // lgtm false positive: Acts only on the current (authenticated) user's own JIT request; rejects anonymous callers and (cancel) enforces an ownership check. A crumb-protected @POST -- there is no further permission to require.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     public void doRequest(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins j = Jenkins.getInstanceOrNull();
@@ -194,6 +198,8 @@ public class OmniAuthJitAction implements RootAction {
      * POST /omniauth-jit/cancel
      * Cancels the current user's own pending JIT request.
      */
+    // lgtm false positive: Acts only on the current (authenticated) user's own JIT request; rejects anonymous callers and (cancel) enforces an ownership check. A crumb-protected @POST -- there is no further permission to require.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     public void doCancel(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Authentication auth = Jenkins.getAuthentication2();

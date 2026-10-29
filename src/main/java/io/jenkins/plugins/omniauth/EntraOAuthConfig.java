@@ -121,6 +121,8 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
             return root + "/omniauth/finishLogin";
         }
 
+        // lgtm false positive: Stateless form-validation (doCheck) of a single typed field value; no state change and no sensitive data returned, so neither a POST nor a permission check applies.
+        @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
         public FormValidation doCheckTenantId(@QueryParameter String value) {
             if (value == null || value.trim().isEmpty()) {
                 return FormValidation.error("Tenant ID is required");
@@ -128,6 +130,8 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
             return FormValidation.ok();
         }
 
+        // lgtm false positive: Stateless form-validation (doCheck) of a single typed field value; no state change and no sensitive data returned, so neither a POST nor a permission check applies.
+        @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
         public FormValidation doCheckClientId(@QueryParameter String value) {
             if (value == null || value.trim().isEmpty()) {
                 return FormValidation.error("Client ID is required");
@@ -135,6 +139,8 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
             return FormValidation.ok();
         }
 
+        // lgtm false positive: Stateless form-validation (doCheck) of a single typed field value; no state change and no sensitive data returned, so neither a POST nor a permission check applies.
+        @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
         public FormValidation doCheckClientSecret(@QueryParameter Secret value) {
             if (value == null || Secret.toString(value).trim().isEmpty()) {
                 return FormValidation.error("Client Secret is required");

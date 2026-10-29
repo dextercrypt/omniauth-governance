@@ -18,6 +18,8 @@ public class OmniAuthAssignment {
     private String grantedBy;
     private String expiresAt;   // ISO-8601 UTC, null = no expiry
     private String reviewedAt;  // ISO-8601 UTC, null = never reviewed
+    // lgtm false positive: Not a credential: an enum-like marker holding "STANDING"/"JIT".
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String       accessType;  // STANDING (default) | JIT
     private String       approverGroup; // legacy — kept for XStream compat only; migrated to approvers on load
     private List<String> approvers = new ArrayList<>();

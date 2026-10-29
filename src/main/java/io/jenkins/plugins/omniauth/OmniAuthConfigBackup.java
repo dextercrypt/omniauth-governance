@@ -64,6 +64,8 @@ public final class OmniAuthConfigBackup {
 
     /** A single changed global setting, with its current and incoming values. */
     public static final class SettingChange {
+        // lgtm false positive: Not a credential: "key" is the name of a changed global setting in a diff view-model (shown next to from/to values).
+        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
         public final String key, from, to;
         SettingChange(String key, String from, String to) { this.key = key; this.from = from; this.to = to; }
     }

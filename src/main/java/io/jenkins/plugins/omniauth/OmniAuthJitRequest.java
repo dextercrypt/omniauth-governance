@@ -10,6 +10,8 @@ public class OmniAuthJitRequest {
 
     public static class ApprovalEntry {
         private String approverIdentity; // email or Jenkins username
+        // lgtm false positive: Not a credential: a random UUID used only to address the per-approver email action link; carries no secret.
+        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
         private String token;            // unique UUID — used in the email action link
         private String decision;         // null = pending, "APPROVED", "DENIED"
         private String remarks;

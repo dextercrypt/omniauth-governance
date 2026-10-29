@@ -62,6 +62,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      * Step 1 — redirect browser to Azure AD login page.
      * URL: GET /omniauth/commenceLogin[?from=…]
      */
+    // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     @StaplerDispatchable
     public HttpResponse doCommenceLogin(StaplerRequest2 req) throws Exception {
         OmniAuthSecurityRealm realm = getOmniAuthRealm();
@@ -76,6 +78,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      * Step 2 — Azure AD posts back with an authorization code.
      * URL: GET /omniauth/finishLogin?code=…&state=…
      */
+    // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     @StaplerDispatchable
     public HttpResponse doFinishLogin(StaplerRequest2 req) throws Exception {
         OmniAuthSecurityRealm realm = getOmniAuthRealm();
@@ -110,6 +114,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      *    with NO session;
      *  - bad credentials → record the failure and bounce to the styled error page.
      */
+    // lgtm false positive: Unauthenticated-by-design native sign-in / set-password endpoint: the caller has no identity yet, so there is no permission to check. A crumb-protected @POST secured by credentials and a single-use pending marker.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     @StaplerDispatchable
     public void doNativeLogin(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -167,6 +173,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
      * without ever handling a password. Invalid / expired / already-used → branded login error.
      * URL: /omniauth/activate?u=&lt;userId&gt;&amp;t=&lt;rawToken&gt;
      */
+    // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     @StaplerDispatchable
     public void doActivate(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         String ctx    = req.getContextPath();
@@ -189,6 +197,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
     }
 
     /** GET: serve the branded set-password page, but only to a user that has a valid pending marker. */
+    // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     @StaplerDispatchable
     public void doChangePassword(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         if (pendingUser(req) == null) {
@@ -221,6 +231,8 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
     }
 
     /** POST: set the new password for the pending user, clear the flag, send them to sign in. */
+    // lgtm false positive: Unauthenticated-by-design native sign-in / set-password endpoint: the caller has no identity yet, so there is no permission to check. A crumb-protected @POST secured by credentials and a single-use pending marker.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     @StaplerDispatchable
     public void doSubmitPasswordChange(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {

@@ -107,6 +107,8 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
     // ── Native request submission ─────────────────────────────────────────────
 
     /** POST from the native (username/password) request form. */
+    // lgtm false positive: Public access-request intake (provisioning portal) -- by design usable by people who have no account yet, so there is no permission to check. A crumb-protected @POST that only creates a PENDING request for an admin to approve.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     public void doSubmitNative(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         String ctx = req.getContextPath();
@@ -168,6 +170,8 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
      * Microsoft and stashed on the session; here we add their reason and create the PENDING
      * request. No account is created — an admin still approves.
      */
+    // lgtm false positive: Public access-request intake (provisioning portal) -- by design usable by people who have no account yet, so there is no permission to check. A crumb-protected @POST that only creates a PENDING request for an admin to approve.
+    @SuppressWarnings("lgtm[jenkins/no-permission-check]")
     @POST
     public void doSubmitEntraReason(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         String ctx = req.getContextPath();
