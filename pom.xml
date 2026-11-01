@@ -76,7 +76,7 @@
     <dependency>
       <groupId>com.microsoft.azure</groupId>
       <artifactId>msal4j</artifactId>
-      <version>1.17.0</version>
+      <version>1.26.0</version>
       <exclusions>
         <!-- Use the jackson2-api plugin's Jackson (2.22) instead of the older
              2.13 that msal4j pulls transitively, keeping one version on the path. -->
