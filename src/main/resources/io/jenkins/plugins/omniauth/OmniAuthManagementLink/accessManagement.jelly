@@ -1,6 +1,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:layout title="OmniAuth — Access Management" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
@@ -8,14 +11,7 @@
 
       <div class="jenkins-app-bar">
         <div class="jenkins-app-bar__content">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              &#8592; OmniAuth Management
-            </a>
-            <span style="color:var(--text-color-secondary,#ccc);">/</span>
-            <h1 class="jenkins-app-bar__heading">Access Management</h1>
-          </div>
+          <h1 class="jenkins-app-bar__heading">Access Management</h1>
         </div>
       </div>
 
