@@ -181,12 +181,19 @@ public class OmniAuthItemACL extends ACL {
     }
 
     private Set<String> getRolePermissions(OmniAuthAssignment assignment, OmniAuthRoleConfig roleConfig) {
+        Set<String> ids;
         if ("CUSTOM".equalsIgnoreCase(assignment.getRoleId())) {
-            return new HashSet<>(assignment.getCustomPermissions());
+            ids = new HashSet<>(assignment.getCustomPermissions());
+        } else if (roleConfig == null) {
+            return Collections.emptySet();
+        } else {
+            OmniAuthRoleConfig.RoleDefinition role = roleConfig.findRole(assignment.getRoleId());
+            if (role == null) return Collections.emptySet();
+            ids = new HashSet<>(role.getPermissionIds());
         }
-        if (roleConfig == null) return Collections.emptySet();
-        OmniAuthRoleConfig.RoleDefinition role = roleConfig.findRole(assignment.getRoleId());
-        if (role == null) return Collections.emptySet();
-        return new HashSet<>(role.getPermissionIds());
+        // Defence in depth: never let an admin-equivalent ("dangerous") permission be enforced via a
+        // scoped grant, even if one was stored directly in config.xml (bypassing the UI/constructor).
+        ids.removeIf(OmniAuthAuthorizationStrategy::isDangerousPermission);
+        return ids;
     }
 }

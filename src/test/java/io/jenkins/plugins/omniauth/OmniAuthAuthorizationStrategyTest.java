@@ -149,4 +149,44 @@ public class OmniAuthAuthorizationStrategyTest {
         // getPrePopulatedInstance returns a (non-null) OmniAuth strategy when a source exists.
         assertNotNull(d.getPrePopulatedInstance());
     }
+
+    // -------------------------------------------------------------------------
+    // Dangerous (admin-equivalent) permissions must never be grantable.
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void isDangerousPermission_flagsAdminEquivalentPermissions() {
+        assertTrue(OmniAuthAuthorizationStrategy.isDangerousPermission("hudson.model.Hudson.RunScripts"));
+        assertTrue(OmniAuthAuthorizationStrategy.isDangerousPermission("hudson.model.Hudson.ConfigureUpdateCenter"));
+        assertTrue(OmniAuthAuthorizationStrategy.isDangerousPermission("hudson.model.Hudson.UploadPlugins"));
+        // Ordinary permissions and junk are not dangerous.
+        assertFalse(OmniAuthAuthorizationStrategy.isDangerousPermission("hudson.model.Hudson.Administer"));
+        assertFalse(OmniAuthAuthorizationStrategy.isDangerousPermission("hudson.model.Hudson.Read"));
+        assertFalse(OmniAuthAuthorizationStrategy.isDangerousPermission("not.a.real.Permission"));
+        assertFalse(OmniAuthAuthorizationStrategy.isDangerousPermission(null));
+    }
+
+    @Test
+    public void roleDefinition_stripsDangerousPermissions() {
+        OmniAuthRoleConfig.RoleDefinition role = new OmniAuthRoleConfig.RoleDefinition(
+                "danger", "tries to grab admin-equivalent perms",
+                Arrays.asList(
+                        "hudson.model.Hudson.Read",
+                        "hudson.model.Hudson.RunScripts",
+                        "hudson.model.Hudson.ConfigureUpdateCenter",
+                        "hudson.model.Hudson.UploadPlugins",
+                        "hudson.model.Item.Build"));
+        // The three dangerous ids are dropped; the ordinary ones survive.
+        assertEquals(Arrays.asList("hudson.model.Hudson.Read", "hudson.model.Item.Build"),
+                role.getPermissionIds());
+    }
+
+    @Test
+    public void permissionGroups_doNotOfferDangerousPermissions() {
+        OmniAuthManagementLink link = j.jenkins.getExtensionList(OmniAuthManagementLink.class).get(0);
+        boolean anyDangerous = link.getAvailablePermissions().stream()
+                .flatMap(g -> g.getPermissions().stream())
+                .anyMatch(p -> OmniAuthAuthorizationStrategy.isDangerousPermission(p.getId()));
+        assertFalse(anyDangerous, "the permission picker must not offer admin-equivalent permissions");
+    }
 }

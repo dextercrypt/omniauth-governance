@@ -24,6 +24,22 @@ public class OmniAuthAuthorizationStrategy extends ProjectMatrixAuthorizationStr
         aclCache.clear();
     }
 
+    /**
+     * True when the permission id names an admin-equivalent ("dangerous") permission that must never
+     * be granted through OmniAuth — {@code RunScripts}, {@code ConfigureUpdateCenter} and
+     * {@code UploadPlugins}. Each is effectively full control of Jenkins (arbitrary code execution),
+     * which is why core/matrix-auth hide them from the normal permission matrix. We source the set
+     * from matrix-auth's own {@link GlobalMatrixAuthorizationStrategy#DANGEROUS_PERMISSIONS} so any
+     * future additions there are honoured automatically, rather than hard-coding a blocklist.
+     */
+    public static boolean isDangerousPermission(String permissionId) {
+        if (permissionId == null) {
+            return false;
+        }
+        Permission p = Permission.fromId(permissionId);
+        return p != null && GlobalMatrixAuthorizationStrategy.DANGEROUS_PERMISSIONS.contains(p);
+    }
+
     @Override
     public ACL getACL(AbstractItem item) {
         OmniAuthAssignmentConfig config = OmniAuthAssignmentConfig.get();

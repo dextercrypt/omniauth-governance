@@ -3050,14 +3050,15 @@ public class OmniAuthManagementLink extends ManagementLink {
 
         List<PermissionGroupInfo> result = new ArrayList<>();
 
+        // NOTE: the admin-equivalent "dangerous" permissions (RunScripts, ConfigureUpdateCenter,
+        // UploadPlugins) are deliberately NOT offered here — they grant effective full control of
+        // Jenkins and must never be configurable through OmniAuth. buildGroup() also filters them
+        // defensively, so they stay out even if re-added to this list by mistake.
         result.add(buildGroup("Overall", "System-wide access control", new String[]{
                 "hudson.model.Hudson.Read",
                 "hudson.model.Hudson.Administer",
                 "hudson.model.Hudson.Manage",
-                "hudson.model.Hudson.SystemRead",
-                "hudson.model.Hudson.RunScripts",
-                "hudson.model.Hudson.ConfigureUpdateCenter",
-                "hudson.model.Hudson.UploadPlugins"
+                "hudson.model.Hudson.SystemRead"
         }, labels));
 
         result.add(buildGroup("Credentials", "Stored passwords, API keys & certificates", new String[]{
@@ -3125,6 +3126,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                 if (!p.enabled) continue;
                 String pId = p.getId();
                 if (knownIds.contains(pId)) continue;
+                if (OmniAuthAuthorizationStrategy.isDangerousPermission(pId)) continue; // never offer admin-equivalent permissions
                 int last = pId.lastIndexOf('.');
                 int prev = last > 0 ? pId.lastIndexOf('.', last - 1) : -1;
                 String raw = prev >= 0 ? pId.substring(prev + 1) : (last >= 0 ? pId.substring(last + 1) : pId);
@@ -3147,6 +3149,9 @@ public class OmniAuthManagementLink extends ManagementLink {
     private PermissionGroupInfo buildGroup(String name, String subtitle, String[] ids, Map<String, String> labels) {
         List<PermissionInfo> perms = new ArrayList<>();
         for (String id : ids) {
+            if (OmniAuthAuthorizationStrategy.isDangerousPermission(id)) {
+                continue; // never offer admin-equivalent permissions
+            }
             Permission p = Permission.fromId(id);
             if (p != null && p.enabled) {
                 perms.add(new PermissionInfo(id, labels.getOrDefault(id, id)));
@@ -4552,6 +4557,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             OmniAuthAuthorizationStrategy omniStrat = (OmniAuthAuthorizationStrategy) strat;
             PermissionEntry entry = new PermissionEntry(atype, sid);
             for (String pid : permIds) {
+                if (OmniAuthAuthorizationStrategy.isDangerousPermission(pid)) continue; // never grant admin-equivalent permissions
                 Permission p = Permission.fromId(pid);
                 if (p != null) omniStrat.add(p, entry);
             }
@@ -5586,6 +5592,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             PermissionEntry entry = atype == AuthorizationType.GROUP
                     ? PermissionEntry.group(sid) : PermissionEntry.user(sid);
             for (String pid : permIds) {
+                if (OmniAuthAuthorizationStrategy.isDangerousPermission(pid)) continue; // never grant admin-equivalent permissions
                 Permission p = Permission.fromId(pid);
                 if (p != null) rebuilt.add(p, entry);
             }

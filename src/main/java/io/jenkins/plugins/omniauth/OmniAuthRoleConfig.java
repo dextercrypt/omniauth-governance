@@ -123,7 +123,18 @@ public class OmniAuthRoleConfig extends GlobalConfiguration {
         public RoleDefinition(String name, String description, List<String> permissionIds) {
             this.name = name;
             this.description = description;
-            this.permissionIds = permissionIds != null ? new ArrayList<>(permissionIds) : new ArrayList<>();
+            // Strip admin-equivalent ("dangerous") permissions (RunScripts, ConfigureUpdateCenter,
+            // UploadPlugins) so they can never be stored in a role — whether set via the UI, JCasC
+            // import, or programmatically. See OmniAuthAuthorizationStrategy#isDangerousPermission.
+            List<String> safe = new ArrayList<>();
+            if (permissionIds != null) {
+                for (String id : permissionIds) {
+                    if (!OmniAuthAuthorizationStrategy.isDangerousPermission(id)) {
+                        safe.add(id);
+                    }
+                }
+            }
+            this.permissionIds = safe;
         }
 
         public String getName() { return name != null ? name : ""; }
