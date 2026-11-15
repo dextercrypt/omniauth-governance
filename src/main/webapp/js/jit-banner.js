@@ -24,7 +24,7 @@
       for (var i = 0; i < parts.length; i++) {
         var s = parts[i];
         if (!s || s === "job") continue;
-        if (/^\d+$/.test(s) || ["build", "configure", "workspace", "changes", "lastBuild", "api", "console", "testReport", "cobertura", "robot"].indexOf(s) >= 0) break;
+        if (/^\d+$/.test(s) || ["build", "configure", "workspace", "changes", "lastBuild", "api", "console", "testReport", "cobertura", "robot", "newJob", "createItem", "copyJob", "newView", "createView", "move", "rename", "confirm-rename", "delete", "reload"].indexOf(s) >= 0) break;
         out.push(s);
       }
       return out.length ? out.join("/") : null;

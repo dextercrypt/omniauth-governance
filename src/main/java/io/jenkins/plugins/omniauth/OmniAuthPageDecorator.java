@@ -327,6 +327,12 @@ public class OmniAuthPageDecorator {
                 Jenkins jenkins = Jenkins.getInstanceOrNull();
                 if (jenkins == null)                                                  { chain.doFilter(req, res); return; }
                 if (!(jenkins.getAuthorizationStrategy() instanceof OmniAuthAuthorizationStrategy)) { chain.doFilter(req, res); return; }
+                // Only inject on a real buildable job. The JIT banner is about requesting access to
+                // BUILD a job, so it has no business on a folder, the "New Item" form, or other
+                // item-management pages — and buffering/rewriting those responses interferes with
+                // Jenkins' own form scripts (it left the folder "Create" button permanently
+                // disabled). Resolving the URL to a hudson.model.Job excludes all of those.
+                if (!resolvesToJob(jenkins, httpReq.getContextPath(), path))          { chain.doFilter(req, res); return; }
             } catch (Exception ignored) { chain.doFilter(req, res); return; }
 
             HttpServletRequest noGzipReq = new HttpServletRequestWrapper(httpReq) {
@@ -374,6 +380,48 @@ public class OmniAuthPageDecorator {
                    path.endsWith(".css")           ||
                    path.endsWith(".ico")           ||
                    path.endsWith(".png");
+        }
+
+        /**
+         * True when the request path points at a real buildable {@link hudson.model.Job}. The job's
+         * full name is read from the {@code /job/<name>} segments of the URL; anything that resolves
+         * to a folder (e.g. a folder's {@code newJob} / item-management page) or to nothing returns
+         * false, so the banner is never injected there.
+         */
+        private static boolean resolvesToJob(Jenkins jenkins, String ctx, String path) {
+            String fullName = jobFullNameFromPath(ctx, path);
+            if (fullName == null) {
+                return false;
+            }
+            try {
+                return jenkins.getItemByFullName(fullName) instanceof hudson.model.Job;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        /**
+         * Builds an item full name ("folder/sub/job") from the segment that follows each
+         * {@code /job/} in the URL. Trailing action segments (e.g. {@code newJob}, {@code build})
+         * are not preceded by {@code /job/}, so they are naturally ignored. Returns null when the
+         * path contains no {@code /job/<name>} pair.
+         */
+        private static String jobFullNameFromPath(String ctx, String path) {
+            String p = path;
+            if (ctx != null && !ctx.isEmpty() && p.startsWith(ctx)) {
+                p = p.substring(ctx.length());
+            }
+            String[] parts = p.split("/");
+            StringBuilder fn = new StringBuilder();
+            for (int i = 0; i + 1 < parts.length; i++) {
+                if ("job".equals(parts[i]) && !parts[i + 1].isEmpty()) {
+                    if (fn.length() > 0) {
+                        fn.append('/');
+                    }
+                    fn.append(java.net.URLDecoder.decode(parts[i + 1], StandardCharsets.UTF_8));
+                }
+            }
+            return fn.length() > 0 ? fn.toString() : null;
         }
     }
 
