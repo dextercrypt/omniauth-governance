@@ -133,6 +133,16 @@ public class OmniAuthSecurityRealmTest {
         @Override public int    getMaxInactiveInterval()                   { return 0; }
         @Override public void   invalidate()                               { attrs.clear(); }
         @Override public boolean isNew()                                   { return false; }
+
+        // Legacy javax-era methods that are still abstract in jakarta.servlet 5.0's HttpSession
+        // (the version Jenkins provides at runtime). No @Override so this fake also compiles against
+        // newer servlet APIs that dropped them; getValue/putValue/removeValue alias the attribute map.
+        @SuppressWarnings("removal")
+        public jakarta.servlet.http.HttpSessionContext getSessionContext() { return null; }
+        public Object   getValue(String name)                              { return attrs.get(name); }
+        public String[] getValueNames()                                    { return attrs.keySet().toArray(new String[0]); }
+        public void     putValue(String name, Object value)                { attrs.put(name, value); }
+        public void     removeValue(String name)                           { attrs.remove(name); }
     }
 
     // ─── FakeHelperRealm ──────────────────────────────────────────────────────

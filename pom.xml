@@ -112,17 +112,6 @@
       <artifactId>jackson2-api</artifactId>
     </dependency>
 
-    <!-- Jakarta Servlet API — pinned to the servlet 6.x line that matches the Jenkins
-         2.555.x runtime. NOT removed despite the hosting checker's hint: dropping it lets
-         an old transitive (servlet 5.0.0) win, which mismatches the runtime and breaks the
-         build. provided scope means it is compile-only; core supplies it at runtime. -->
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>6.1.0</version>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- Jakarta Mail API — depend on the jenkins plugin so its classloader is accessible at runtime -->
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
