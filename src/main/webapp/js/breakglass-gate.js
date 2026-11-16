@@ -71,7 +71,7 @@
         '<div style="display:flex;align-items:center;gap:8px;">' + BOLT_SVG +
         '<span><strong>Managed by OmniAuth</strong> &mdash; Authorization table is managed automatically. ' +
         'Configure access via <strong>Manage Jenkins &rarr; OmniAuth &rarr; Access Management</strong>.</span></div>' +
-        '<button type="button" id="omniauth-bg-open" style="white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:#fff;color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;">Emergency Override</button>';
+        '<button type="button" id="omniauth-bg-open" style="white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:var(--card-background, #fff);color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;">Emergency Override</button>';
       return b;
     }
 
@@ -92,7 +92,7 @@
         '<div style="display:flex;align-items:center;gap:8px;">' + LOCK_SVG_SM +
         '<span><strong>Emergency Override Active</strong> &mdash; Authorization table is unlocked. ' +
         'Expires in <strong id="omniauth-timer">--:--</strong>.</span></div>' +
-        '<button type="button" id="omniauth-bg-end" style="white-space:nowrap;padding:6px 12px;border:1px solid #856404;border-radius:4px;background:#fff;color:#856404;cursor:pointer;font-size:12px;font-weight:600;">End Override Now</button>';
+        '<button type="button" id="omniauth-bg-end" style="white-space:nowrap;padding:6px 12px;border:1px solid #856404;border-radius:4px;background:var(--card-background, #fff);color:#856404;cursor:pointer;font-size:12px;font-weight:600;">End Override Now</button>';
       wrapWithBanner(c, false, b);
       function tick() {
         var rem = Math.max(0, expiry - Date.now());
@@ -123,14 +123,14 @@
 
     if (mode === "notEnrolled") {
       modal.innerHTML =
-        '<div style="background:#fff;border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);">' +
+        '<div style="background:var(--card-background, #fff);border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);">' +
           '<h3 style="margin:0 0 20px;font-size:16px;color:#212529;">Emergency Override</h3>' +
           '<div style="text-align:center;padding:4px 0 16px;">' +
             '<div style="margin-bottom:12px;display:flex;justify-content:center;">' + LOCK_SVG_LG + '</div>' +
             '<div style="font-size:14px;font-weight:600;color:#495057;margin-bottom:8px;">No Authenticator Device Enrolled</div>' +
             '<div style="font-size:13px;color:#6c757d;margin-bottom:20px;">Enroll a TOTP device on the Break Glass page before you can activate Emergency Override.</div>' +
             '<div style="display:flex;gap:8px;justify-content:center;">' +
-              '<button type="button" id="omniauth-bg-cancel" style="padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">Cancel</button>' +
+              '<button type="button" id="omniauth-bg-cancel" style="padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
               '<a id="omniauth-bg-enroll-link" href="#" style="display:inline-flex;align-items:center;padding:8px 16px;border:none;border-radius:4px;background:#0d6efd;color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Set Up Break Glass &#8594;</a>' +
             '</div>' +
           '</div>' +
@@ -142,7 +142,7 @@
     } else {
       // enrolled
       modal.innerHTML =
-        '<div style="background:#fff;border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);">' +
+        '<div style="background:var(--card-background, #fff);border-radius:8px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);">' +
           '<h3 style="margin:0 0 16px;font-size:16px;color:#212529;">Emergency Override</h3>' +
           '<div id="omniauth-bg-form">' +
             '<p style="margin:0 0 16px;font-size:13px;color:#6c757d;">Unlocks the Authorization table for 15 minutes. All actions are fully logged in OmniAuth Audit Log.</p>' +
@@ -156,7 +156,7 @@
             '</div>' +
             '<div id="omniauth-bg-err" style="display:none;padding:8px 12px;background:#f8d7da;border:1px solid #f5c6cb;border-radius:4px;font-size:12px;color:#721c24;margin-bottom:12px;"></div>' +
             '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-              '<button type="button" id="omniauth-bg-cancel" style="padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">Cancel</button>' +
+              '<button type="button" id="omniauth-bg-cancel" style="padding:8px 16px;border:1px solid #ced4da;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
               '<button type="button" id="omniauth-bg-submit" style="padding:8px 16px;border:none;border-radius:4px;background:#dc3545;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Activate Override</button>' +
             '</div>' +
           '</div>' +

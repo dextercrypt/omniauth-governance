@@ -96,13 +96,13 @@
         removeGrayBuildNow();
         color = "#16a34a"; icon = SVG_CHECK;
         msg = '<strong>JIT Access active</strong> &mdash; approved by <strong>' + escHtml(d.approverId) + '</strong> &middot; expires in <strong id="oau-jit-countdown">' + fmtTime(d.secondsRemaining) + '</strong>';
-        actions = '<button type="button" class="oau-jit-act" data-action="revoke" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:#fff;color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;">End Access</button>';
+        actions = '<button type="button" class="oau-jit-act" data-action="revoke" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:var(--card-background, #fff);color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;">End Access</button>';
       } else if (d.status === "PENDING") {
         injectGrayBuildNow();
         color = "#d97706"; icon = SVG_CLOCK;
         var approvalInfo = d.totalApprovers > 0 ? " &middot; <strong>" + d.approvedCount + " of " + d.totalApprovers + "</strong> approved" : "";
         msg = '<strong>JIT request pending</strong>' + approvalInfo + ' &middot; requested ' + escHtml(d.timeAgo);
-        actions = '<button type="button" class="oau-jit-act" data-action="cancel" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #d97706;border-radius:4px;background:#fff;color:#d97706;cursor:pointer;font-size:12px;font-weight:600;">Cancel Request</button>';
+        actions = '<button type="button" class="oau-jit-act" data-action="cancel" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #d97706;border-radius:4px;background:var(--card-background, #fff);color:#d97706;cursor:pointer;font-size:12px;font-weight:600;">Cancel Request</button>';
       } else {
         injectGrayBuildNow();
         color = "#6366f1"; icon = SVG_BOLT;
@@ -113,8 +113,8 @@
         }
         actions = '<button type="button" class="oau-jit-act" data-action="open" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:12px;font-weight:600;">' + SVG_BOLT + ' Request JIT Access</button>';
       }
-      banner.style.cssText = "margin:8px 16px;padding:10px 14px;border-radius:6px;background:#fff;border:1px solid " + color + ";display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;";
-      banner.innerHTML = '<div style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="display:inline-flex;align-items:center;color:' + color + ';">' + icon + '</span><span style="color:#333;">' + msg + '</span></div><div style="display:flex;align-items:center;gap:8px;">' + actions + '</div>';
+      banner.style.cssText = "margin:8px 16px;padding:10px 14px;border-radius:6px;background:var(--card-background, #fff);border:1px solid " + color + ";display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;";
+      banner.innerHTML = '<div style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="display:inline-flex;align-items:center;color:' + color + ';">' + icon + '</span><span style="color:var(--text-color, #333);">' + msg + '</span></div><div style="display:flex;align-items:center;gap:8px;">' + actions + '</div>';
       // Wire the action button (CSP-safe: addEventListener, not an inline onclick attribute).
       var actBtn = banner.querySelector(".oau-jit-act");
       if (actBtn) {
@@ -143,21 +143,21 @@
           for (var h = 1; h <= d.maxDurationHours; h++) { durOpts += '<option value="' + h + '"' + (h === 1 ? " selected" : "") + ">" + h + " hour" + (h > 1 ? "s" : "") + "</option>"; }
           var scopeLabel = d.scope && d.scope !== jobPath ? "Folder" : "Pipeline";
           var scopeVal = d.scope || jobPath;
-          var scopeNote = d.scopeIsFolder ? '<br/><small style="color:#6b7280;">Approves access to all pipelines in this folder</small>' : "";
-          m.innerHTML = '<div style="background:#fff;border-radius:8px;padding:24px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
+          var scopeNote = d.scopeIsFolder ? '<br/><small style="color:var(--text-color-secondary, #6b7280);">Approves access to all pipelines in this folder</small>' : "";
+          m.innerHTML = '<div style="background:var(--card-background, #fff);border-radius:8px;padding:24px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
             '<div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:6px;">' + SVG_BOLT + ' Request JIT Access</div>' +
-            '<div style="font-size:12px;color:#888;margin-bottom:16px;padding:8px 12px;background:#f5f5f5;border-radius:4px;">' +
+            '<div style="font-size:12px;color:var(--text-color-secondary, #888);margin-bottom:16px;padding:8px 12px;background:var(--card-background, #f5f5f5);border-radius:4px;">' +
             '<strong>' + escHtml(scopeLabel) + ':</strong> ' + escHtml(scopeVal) + scopeNote + '<br/>' +
             '<strong>Approver:</strong> ' + escHtml(d.approverGroup || "Any admin") + '<br/>' +
             '<strong>Auto-deny after:</strong> ' + d.approvalTimeoutHours + ' hour(s)' +
             '</div>' +
-            '<div style="margin-bottom:12px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:4px;">Reason *</label>' +
+            '<div style="margin-bottom:12px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-color-secondary, #888);margin-bottom:4px;">Reason *</label>' +
             '<textarea id="oau-jit-reason" placeholder="Why do you need access? (e.g. Deploy v2.3.1, hotfix for JIRA-441)" style="width:100%;height:72px;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;resize:none;box-sizing:border-box;"></textarea></div>' +
-            '<div style="margin-bottom:16px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#888;margin-bottom:4px;">Duration</label>' +
+            '<div style="margin-bottom:16px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-color-secondary, #888);margin-bottom:4px;">Duration</label>' +
             '<select id="oau-jit-dur" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">' + durOpts + '</select></div>' +
             '<div id="oau-jit-err" style="display:none;padding:8px 12px;background:#fee;border:1px solid #fca;border-radius:4px;font-size:12px;color:#c00;margin-bottom:12px;"></div>' +
             '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-            '<button type="button" id="oau-jit-cancel-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">Cancel</button>' +
+            '<button type="button" id="oau-jit-cancel-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
             '<button type="button" id="oau-jit-submit" style="padding:8px 16px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Submit Request</button>' +
             '</div></div>';
           var cancelBtn = m.querySelector("#oau-jit-cancel-btn");
@@ -198,11 +198,11 @@
     function oauJitConfirm(opts) {
       var ov = document.createElement("div");
       ov.style.cssText = "display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:10000;align-items:center;justify-content:center;";
-      ov.innerHTML = '<div style="background:#fff;border-radius:8px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
-        '<div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:' + (opts.color || "#dc2626") + ';">' + (opts.icon || "") + '<span style="color:#111;">' + escHtml(opts.title) + '</span></div>' +
-        '<div style="font-size:13px;color:#444;margin-bottom:20px;line-height:1.5;">' + escHtml(opts.message) + '</div>' +
+      ov.innerHTML = '<div style="background:var(--card-background, #fff);border-radius:8px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
+        '<div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:' + (opts.color || "#dc2626") + ';">' + (opts.icon || "") + '<span style="color:var(--text-color, #111);">' + escHtml(opts.title) + '</span></div>' +
+        '<div style="font-size:13px;color:var(--text-color-secondary, #444);margin-bottom:20px;line-height:1.5;">' + escHtml(opts.message) + '</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-        '<button type="button" class="oau-cf-cancel" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">Cancel</button>' +
+        '<button type="button" class="oau-cf-cancel" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
         '<button type="button" class="oau-cf-ok" style="padding:8px 16px;border:none;border-radius:4px;background:' + (opts.color || "#dc2626") + ';color:#fff;cursor:pointer;font-size:13px;font-weight:600;">' + escHtml(opts.confirmLabel || "Confirm") + '</button>' +
         '</div></div>';
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }

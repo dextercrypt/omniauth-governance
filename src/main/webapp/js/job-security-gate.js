@@ -30,7 +30,7 @@
       w.appendChild(c);
       c.style.cssText = "opacity:0.4;pointer-events:none;user-select:none;";
       var b = document.createElement("div");
-      b.style.cssText = "padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;gap:8px;";
+      b.style.cssText = "padding:10px 14px;background:var(--alert-warning-bg-color, #fff8e1);border:1px solid var(--alert-warning-border-color, #ffcc02);border-radius:6px;margin-bottom:6px;font-size:13px;color:var(--alert-warning-text-color, #795600);display:flex;align-items:center;gap:8px;";
       b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span><strong>Managed by OmniAuth</strong> — Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → OmniAuth → Access Management</strong>.</span>';
       w.insertBefore(b, c);
     }

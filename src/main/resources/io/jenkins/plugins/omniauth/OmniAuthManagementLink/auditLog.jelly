@@ -62,7 +62,7 @@
           </select>
           <input id="alxIpFilter" type="text" placeholder="Filter by IP…"
                  class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
-          <span id="alxCount" style="font-size:0.8em;color:#999;margin-left:4px;"></span>
+          <span id="alxCount" style="font-size:0.8em;color:var(--text-color-secondary, #999);margin-left:4px;"></span>
           <div style="margin-left:auto;">
             <button type="button" id="oauPurgeOpen"
                     class="jenkins-button"
@@ -73,9 +73,9 @@
         </div>
         <!-- Date range row -->
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-          <label style="font-size:0.8em;color:#888;white-space:nowrap;">From</label>
+          <label style="font-size:0.8em;color:var(--text-color-secondary, #888);white-space:nowrap;">From</label>
           <input id="alxDateFrom" type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
-          <label style="font-size:0.8em;color:#888;white-space:nowrap;">To</label>
+          <label style="font-size:0.8em;color:var(--text-color-secondary, #888);white-space:nowrap;">To</label>
           <input id="alxDateTo"   type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <button type="button" id="oauClearFilters"
                   class="jenkins-button" style="font-size:0.8em;">Clear filters</button>
@@ -84,7 +84,7 @@
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
           <j:choose>
             <j:when test="${it.auditEvents.isEmpty()}">
-              <div style="padding:56px;text-align:center;color:#888;">
+              <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
                 <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></div>
                 <div style="font-size:0.9em;">No audit events recorded yet.</div>
               </div>
@@ -109,7 +109,7 @@
                         data-ts="${ev.get('ts')}"
                         data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')} ${ev.get('area')} ${ev.get('detail')}"
                         style="border-bottom:1px solid var(--oau-card-border);">
-                      <td style="padding:10px 16px;font-size:0.8em;color:#999;white-space:nowrap;">
+                      <td style="padding:10px 16px;font-size:0.8em;color:var(--text-color-secondary, #999);white-space:nowrap;">
                         <span class="alx-ts" data-ts="${ev.get('ts')}">${ev.get('ts')}</span>
                       </td>
                       <td style="padding:10px 16px;">
@@ -118,15 +118,15 @@
                       <td style="padding:10px 16px;font-size:0.88em;font-weight:600;">
                         ${ev.get('user')}
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;color:#777;">
+                      <td style="padding:10px 16px;font-size:0.82em;color:var(--text-color-secondary, #777);">
                         <j:if test="${ev.get('by') != null and ev.get('by') != ''}">
                           ${ev.get('by')}
                         </j:if>
                         <j:if test="${ev.get('by') == null or ev.get('by') == ''}">
-                          <span style="color:#ccc;">—</span>
+                          <span style="color:var(--text-color-secondary, #ccc);">—</span>
                         </j:if>
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;color:#555;">
+                      <td style="padding:10px 16px;font-size:0.82em;color:var(--text-color-secondary, #555);">
                         <j:if test="${ev.get('scope') != null and ev.get('scope') != ''}">
                           <span style="font-family:monospace;font-size:0.9em;">${ev.get('scope')}</span>
                         </j:if>
@@ -154,21 +154,21 @@
                           <span class="alx-role" style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);">${ev.get('area')}</span>
                         </j:if>
                         <j:if test="${ev.get('detail') != null and ev.get('detail') != ''}">
-                          &#8201;<span style="color:#666;">${ev.get('detail')}</span>
+                          &#8201;<span style="color:var(--text-color-secondary, #666);">${ev.get('detail')}</span>
                         </j:if>
                         <j:if test="${ev.get('count') != null and ev.get('count') != ''}">
-                          &#8201;<span style="color:#666;">${ev.get('count')} file(s) deleted</span>
+                          &#8201;<span style="color:var(--text-color-secondary, #666);">${ev.get('count')} file(s) deleted</span>
                         </j:if>
                         <j:if test="${ev.get('reason') != null and ev.get('reason') != ''}">
-                          &#8201;<span style="color:#888;font-style:italic;">&#8220;${ev.get('reason')}&#8221;</span>
+                          &#8201;<span style="color:var(--text-color-secondary, #888);font-style:italic;">&#8220;${ev.get('reason')}&#8221;</span>
                         </j:if>
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;font-family:monospace;color:#666;">
+                      <td style="padding:10px 16px;font-size:0.82em;font-family:monospace;color:var(--text-color-secondary, #666);">
                         <j:if test="${ev.get('ip') != null and ev.get('ip') != ''}">
                           ${ev.get('ip')}
                         </j:if>
                         <j:if test="${ev.get('ip') == null or ev.get('ip') == ''}">
-                          <span style="color:#ccc;">—</span>
+                          <span style="color:var(--text-color-secondary, #ccc);">—</span>
                         </j:if>
                       </td>
                     </tr>
@@ -185,7 +185,7 @@
     <div id="alxPurgeModal" data-sso="${it.currentUserSso}"
          style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,20,30,0.55);
                 backdrop-filter:blur(3px);align-items:center;justify-content:center;">
-      <div id="alxPurgeBox" style="background:#fff;border-radius:14px;width:420px;max-width:92vw;
+      <div id="alxPurgeBox" style="background:var(--card-background, #fff);border-radius:14px;width:420px;max-width:92vw;
                   box-shadow:0 32px 80px rgba(0,0,0,0.28);padding:32px 32px 28px;">
 
         <!-- Icon + title -->
@@ -196,19 +196,19 @@
           </div>
           <div>
             <div style="font-weight:700;font-size:1.05em;color:var(--text-color);">Purge All Audit Logs</div>
-            <div style="font-size:0.82em;color:#999;margin-top:2px;">This action is permanent and cannot be undone.</div>
+            <div style="font-size:0.82em;color:var(--text-color-secondary, #999);margin-top:2px;">This action is permanent and cannot be undone.</div>
           </div>
         </div>
 
         <j:choose>
           <!-- SSO/Entra admins have no local password — confirm with a typed phrase instead. -->
           <j:when test="${it.currentUserSso}">
-            <div style="font-size:0.87em;color:#555;margin-bottom:20px;line-height:1.5;">
+            <div style="font-size:0.87em;color:var(--text-color-secondary, #555);margin-bottom:20px;line-height:1.5;">
               All audit log files will be permanently deleted. Type <strong>DELETE</strong> to confirm.
             </div>
             <div style="margin-bottom:18px;">
               <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;
-                          letter-spacing:0.05em;color:#888;margin-bottom:6px;">Confirmation</div>
+                          letter-spacing:0.05em;color:var(--text-color-secondary, #888);margin-bottom:6px;">Confirmation</div>
               <input type="text" id="alxPurgePwd" autocomplete="off"
                      class="jenkins-input" style="width:100%;box-sizing:border-box;"
                      placeholder="Type DELETE"/>
@@ -217,12 +217,12 @@
             </div>
           </j:when>
           <j:otherwise>
-            <div style="font-size:0.87em;color:#555;margin-bottom:20px;line-height:1.5;">
+            <div style="font-size:0.87em;color:var(--text-color-secondary, #555);margin-bottom:20px;line-height:1.5;">
               All audit log files will be permanently deleted. Enter your password to confirm.
             </div>
             <div style="margin-bottom:18px;">
               <div style="font-size:0.75em;font-weight:700;text-transform:uppercase;
-                          letter-spacing:0.05em;color:#888;margin-bottom:6px;">Your Password</div>
+                          letter-spacing:0.05em;color:var(--text-color-secondary, #888);margin-bottom:6px;">Your Password</div>
               <input type="password" id="alxPurgePwd"
                      class="jenkins-input" style="width:100%;box-sizing:border-box;"
                      placeholder="Enter your password…"/>

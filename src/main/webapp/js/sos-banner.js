@@ -24,7 +24,7 @@
         '<strong style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>SOS Mode active</strong>' +
         '<span style="opacity:.9;">Emergency recovery is open at <code style="background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px;">/sos/recover</code>' +
         ' &middot; auto-closes in ' + mins + ' min</span></span>' +
-      '<button type="button" id="oau-sos-deact" style="white-space:nowrap;padding:5px 14px;border:1px solid #fff;border-radius:5px;background:#fff;color:#b91c1c;font-size:12px;font-weight:700;cursor:pointer;">Deactivate now</button>';
+      '<button type="button" id="oau-sos-deact" style="white-space:nowrap;padding:5px 14px;border:1px solid #fff;border-radius:5px;background:var(--card-background, #fff);color:#b91c1c;font-size:12px;font-weight:700;cursor:pointer;">Deactivate now</button>';
 
     function place() {
       document.body.insertBefore(bar, document.body.firstChild);

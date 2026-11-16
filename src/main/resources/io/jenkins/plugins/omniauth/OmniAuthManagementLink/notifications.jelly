@@ -136,14 +136,14 @@
           <!-- Email Preview Modal -->
           <div id="oauPreviewModal" style="display:none; position:fixed; inset:0; z-index:9999;
                background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
-            <div style="background:#fff; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
+            <div style="background:var(--card-background, #fff); border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
                         width:min(780px,95vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
               <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);
                           display:flex; align-items:center; gap:12px;">
                 <span style="font-weight:700; font-size:0.95em; white-space:nowrap;">Email Preview</span>
                 <select id="oauPreviewEventType"
                         style="flex:1; max-width:260px; font-size:0.85em; padding:4px 8px;
-                               border:1px solid var(--oau-card-border); border-radius:6px; background:#fff; cursor:pointer;">
+                               border:1px solid var(--oau-card-border); border-radius:6px; background:var(--card-background, #fff); cursor:pointer;">
                   <option value="configChanged">Config Changed</option>
                   <option value="bruteForce">Brute Force Alert</option>
                   <option value="userDeleted">User Deleted</option>
