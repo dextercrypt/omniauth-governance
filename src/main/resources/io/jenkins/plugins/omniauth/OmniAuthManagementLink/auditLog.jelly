@@ -78,7 +78,7 @@
           <label style="font-size:0.8em;color:var(--text-color-secondary, #888);white-space:nowrap;">To</label>
           <input id="alxDateTo"   type="date" class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <button type="button" id="oauClearFilters"
-                  class="jenkins-button" style="font-size:0.8em;">Clear filters</button>
+                  class="jenkins-button" >Clear filters</button>
         </div>
 
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
@@ -233,7 +233,7 @@
         </j:choose>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
           <button type="button" id="oauPurgeCancel"
-                  class="jenkins-button" style="font-size:0.88em;">Cancel</button>
+                  class="jenkins-button" >Cancel</button>
           <button type="button" id="alxPurgeBtn"
                   class="jenkins-button" disabled="disabled"
                   style="font-size:0.88em;background:var(--error-color);color:#fff;border-color:var(--error-color);">

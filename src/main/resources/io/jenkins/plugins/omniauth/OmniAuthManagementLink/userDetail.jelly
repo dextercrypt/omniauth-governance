@@ -149,7 +149,7 @@
                   ${tmpPwd}
                 </div>
                 <button type="button" id="udxCopyTmpBtn"
-                        class="jenkins-button" style="font-size:0.82em;padding:8px 14px;white-space:nowrap;">
+                        class="jenkins-button" style="padding:8px 14px;white-space:nowrap">
                   Copy
                 </button>
               </div>
@@ -157,7 +157,7 @@
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>This password will not be shown again. Copy it now.
               </div>
               <button type="button" id="udxTmpPwdDone"
-                      class="jenkins-button jenkins-button--primary" style="width:100%;font-size:0.88em;">
+                      class="jenkins-button jenkins-button--primary" style="width:100%">
                 Done — I've copied the password
               </button>
             </div>
@@ -198,10 +198,10 @@
             <!-- Native-account actions: reset password / edit details (local-password accounts only) -->
             <j:if test="${header.userEntry and it.isNativePasswordAccount(sid)}">
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
-                <button type="button" id="udxEditDetailsBtn" class="jenkins-button" style="font-size:0.82em;white-space:nowrap;">
+                <button type="button" id="udxEditDetailsBtn" class="jenkins-button" style="white-space:nowrap">
                   Edit details
                 </button>
-                <button type="button" id="udxResetPwBtn" class="jenkins-button" style="font-size:0.82em;white-space:nowrap;">
+                <button type="button" id="udxResetPwBtn" class="jenkins-button" style="white-space:nowrap">
                   Reset password
                 </button>
                 <!-- Submitted by the in-app confirm modal below (no browser confirm dialog) -->
@@ -235,8 +235,8 @@
                          class="jenkins-input" style="width:100%;box-sizing:border-box;"/>
                 </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
-                  <button type="button" id="udxEditCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
-                  <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Save changes</button>
+                  <button type="button" id="udxEditCancel" class="jenkins-button" >Cancel</button>
+                  <button type="submit" class="jenkins-button jenkins-button--primary" >Save changes</button>
                 </div>
               </form>
             </div>
@@ -255,8 +255,8 @@
                 the user will be forced to change it at next login, and their active sessions will be signed out.
               </div>
               <div style="display:flex;gap:10px;justify-content:flex-end;">
-                <button type="button" id="udxResetCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
-                <button type="button" id="udxResetConfirm" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Reset password</button>
+                <button type="button" id="udxResetCancel" class="jenkins-button" >Cancel</button>
+                <button type="button" id="udxResetConfirm" class="jenkins-button jenkins-button--primary" >Reset password</button>
               </div>
             </div>
           </div>
@@ -663,7 +663,7 @@
           Consider removing the global Admin role first if you intend to restrict this user to a specific scope.
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button type="button" id="udxConflictCancelBtn" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
+          <button type="button" id="udxConflictCancelBtn" class="jenkins-button" >Cancel</button>
           <button type="button" id="udxConflictProceedBtn"
                   style="font-size:0.88em;padding:7px 16px;border-radius:6px;cursor:pointer;
                          background:var(--warning-color);color:#fff;border:1px solid var(--warning-color);font-weight:600;">
@@ -722,7 +722,7 @@
           </div>
           <div style="display:flex;gap:8px;flex-shrink:0;">
             <button type="button" id="udxModalCancel"
-                    class="jenkins-button" style="font-size:0.88em;padding:8px 18px;">Cancel</button>
+                    class="jenkins-button" style="padding:8px 18px">Cancel</button>
             <button type="button" id="udxModalOk"
                     class="jenkins-button jenkins-button--primary"
                     style="font-size:0.88em;padding:8px 18px;" disabled="disabled">Select &#8594;</button>

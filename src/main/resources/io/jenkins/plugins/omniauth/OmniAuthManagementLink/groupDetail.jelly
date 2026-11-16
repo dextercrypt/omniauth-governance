@@ -300,8 +300,8 @@
             </div>
 
             <div style="display:flex;gap:10px;">
-              <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Grant Access</button>
-              <button type="button" id="udxAddCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
+              <button type="submit" class="jenkins-button jenkins-button--primary" >Grant Access</button>
+              <button type="button" id="udxAddCancel" class="jenkins-button" >Cancel</button>
             </div>
           </form>
         </div>
@@ -356,8 +356,8 @@
               <div id="udxEditExpiryHint" style="font-size:0.78em;color:var(--text-color-secondary, #999);margin-top:4px;">Access will be automatically revoked at end of this day.</div>
             </div>
             <div style="display:flex;gap:10px;">
-              <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Save Changes</button>
-              <button type="button" id="udxEditCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
+              <button type="submit" class="jenkins-button jenkins-button--primary" >Save Changes</button>
+              <button type="button" id="udxEditCancel" class="jenkins-button" >Cancel</button>
             </div>
           </form>
         </div>
@@ -438,8 +438,8 @@
               <div id="udxModalLbl" style="font-size:0.86em;color:var(--text-color-secondary, #aaa);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nothing selected</div>
             </div>
             <div style="display:flex;gap:8px;flex-shrink:0;">
-              <button type="button" id="udxModalCancel" class="jenkins-button" style="font-size:0.88em;padding:8px 18px;">Cancel</button>
-              <button type="button" id="udxModalOk" class="jenkins-button jenkins-button--primary" style="font-size:0.88em;padding:8px 18px;" disabled="disabled">Select &#8594;</button>
+              <button type="button" id="udxModalCancel" class="jenkins-button" style="padding:8px 18px">Cancel</button>
+              <button type="button" id="udxModalOk" class="jenkins-button jenkins-button--primary" style="padding:8px 18px" disabled="disabled">Select &#8594;</button>
             </div>
           </div>
         </div>

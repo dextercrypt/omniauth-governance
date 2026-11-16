@@ -39,7 +39,7 @@
               </span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <a href="notifications" class="jenkins-button" style="font-size: 0.85em;">
+              <a href="notifications" class="jenkins-button" >
                 ← Back to Notifications
               </a>
               <j:if test="${!entries.isEmpty()}">
@@ -120,11 +120,11 @@
                                         display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
               <span id="pageInfo" style="font-size: 0.82em; color: var(--text-color-secondary);"></span>
               <div style="display: flex; gap: 6px;">
-                <button id="btnFirst" class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">&#171; First</button>
-                <button id="btnPrev"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">&#8249; Prev</button>
+                <button id="btnFirst" class="jenkins-button" style="padding:4px 10px">&#171; First</button>
+                <button id="btnPrev"  class="jenkins-button" style="padding:4px 10px">&#8249; Prev</button>
                 <span id="pageButtons" style="display:flex; gap:4px;"></span>
-                <button id="btnNext"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">Next &#8250;</button>
-                <button id="btnLast"  class="jenkins-button" style="font-size:0.82em; padding:4px 10px;">Last &#187;</button>
+                <button id="btnNext"  class="jenkins-button" style="padding:4px 10px">Next &#8250;</button>
+                <button id="btnLast"  class="jenkins-button" style="padding:4px 10px">Last &#187;</button>
               </div>
             </div>
           </j:if>

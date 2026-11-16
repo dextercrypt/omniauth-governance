@@ -83,15 +83,17 @@
 .oau-badge--danger  { background: var(--oau-danger-bg);  color: var(--oau-danger-fg); }
 
 /* ── Status banner ─────────────────────────────────────────────────────────── */
+/* Match the Jenkins .jenkins-alert look (subtle ~10% border, 10px radius, 1.5px) rather than
+   the plugin's old stronger 42% border, so these read as standard Jenkins banners. */
 .oau-status-banner {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 16px; border-radius: 8px; margin: 16px 0;
-  font-size: 0.875em; border: 1px solid transparent;
+  padding: 11px 16px; border-radius: 10px; margin: 16px 0;
+  font-size: 0.875em; border: 1.5px solid transparent;
 }
-.oau-status-banner--healthy  { background: var(--oau-success-bg); border-color: var(--oau-success-border); color: var(--oau-success-fg); }
-.oau-status-banner--warning  { background: var(--oau-warning-bg); border-color: var(--oau-warning-border); color: var(--oau-warning-fg); }
-.oau-status-banner--critical { background: var(--oau-danger-bg);  border-color: var(--oau-danger-border);  color: var(--oau-danger-fg); }
-.oau-status-banner--info     { background: var(--oau-info-bg);    border-color: var(--oau-info-border);    color: var(--oau-info-fg); }
+.oau-status-banner--healthy  { background: var(--oau-success-bg); border-color: color-mix(in srgb, var(--success-color) 12%, transparent); color: var(--oau-success-fg); }
+.oau-status-banner--warning  { background: var(--oau-warning-bg); border-color: color-mix(in srgb, var(--warning-color) 12%, transparent); color: var(--oau-warning-fg); }
+.oau-status-banner--critical { background: var(--oau-danger-bg);  border-color: color-mix(in srgb, var(--error-color) 12%, transparent);   color: var(--oau-danger-fg); }
+.oau-status-banner--info     { background: var(--oau-info-bg);    border-color: color-mix(in srgb, var(--blue) 12%, transparent);          color: var(--oau-info-fg); }
 .oau-status-banner__icon { flex-shrink: 0; }
 .oau-status-banner__body { flex: 1; }
 .oau-status-banner__sep { margin: 0 4px; opacity: 0.6; }

@@ -165,7 +165,7 @@
               </div>
 
               <div style="margin-top:18px;">
-                <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;line-height:1.2;padding:7px 16px;min-height:0;height:auto;">Save Settings</button>
+                <button type="submit" class="jenkins-button jenkins-button--primary" style="line-height:1.2;padding:7px 16px;min-height:0;height:auto">Save Settings</button>
               </div>
             </form>
           </div>

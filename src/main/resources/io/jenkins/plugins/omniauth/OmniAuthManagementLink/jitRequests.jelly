@@ -274,7 +274,7 @@
             <div style="font-size:0.74em;color:var(--text-color-secondary, #aaa);margin-top:3px;">Optional but recommended — shown to the requester.</div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button type="button" id="jitDenyCancel" class="jenkins-button" style="font-size:0.88em;">Cancel</button>
+            <button type="button" id="jitDenyCancel" class="jenkins-button" >Cancel</button>
             <button type="submit" class="jenkins-button"
                     style="font-size:0.88em;color:var(--error-color);border-color:var(--error-color);">Confirm Deny</button>
           </div>

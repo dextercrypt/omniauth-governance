@@ -80,7 +80,7 @@
             </div>
             <j:if test="${it.omniAuthActive}">
               <button type="button"
-                      class="jenkins-button jenkins-button--primary js-oau-add-user" style="font-size:0.88em;">
+                      class="jenkins-button jenkins-button--primary js-oau-add-user" >
                 + Add User
               </button>
             </j:if>
@@ -94,7 +94,7 @@
                   <div style="font-size:0.92em;">No permissions configured yet.</div>
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
-                            class="jenkins-button jenkins-button--primary js-oau-add-user" style="margin-top:12px;font-size:0.88em;">
+                            class="jenkins-button jenkins-button--primary js-oau-add-user" style="margin-top:12px">
                       + Add User
                     </button>
                   </j:if>
@@ -151,7 +151,7 @@
                         </td>
                         <td style="padding:12px 16px;text-align:right;">
                           <button type="button"
-                                  class="jenkins-button js-oau-manage" style="font-size:0.78em;padding:3px 10px;">Manage</button>
+                                  class="jenkins-button js-oau-manage" style="padding:3px 10px">Manage</button>
                         </td>
                       </tr>
                     </j:forEach>
@@ -171,7 +171,7 @@
             </div>
             <j:if test="${it.omniAuthActive}">
               <button type="button"
-                      class="jenkins-button jenkins-button--primary js-oau-create-role" style="font-size:0.85em;margin-left:12px;">
+                      class="jenkins-button jenkins-button--primary js-oau-create-role" style="margin-left:12px">
                 + Create Role
               </button>
             </j:if>
@@ -226,8 +226,8 @@
                 </div>
               </div>
               <div style="display:flex;gap:10px;">
-                <button type="submit" class="jenkins-button jenkins-button--primary" style="font-size:0.85em;">Save Role</button>
-                <button type="button" id="oauRoleCancel" class="jenkins-button" style="font-size:0.85em;">Cancel</button>
+                <button type="submit" class="jenkins-button jenkins-button--primary" >Save Role</button>
+                <button type="button" id="oauRoleCancel" class="jenkins-button" >Cancel</button>
               </div>
             </form>
           </div>
@@ -241,7 +241,7 @@
                   <div style="font-size:0.9em;">No roles defined yet.</div>
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
-                            class="jenkins-button jenkins-button--primary js-oau-create-role" style="margin-top:12px;font-size:0.85em;">
+                            class="jenkins-button jenkins-button--primary js-oau-create-role" style="margin-top:12px">
                       + Create Role
                     </button>
                   </j:if>
@@ -271,7 +271,7 @@
                                     data-rname="${r.name}"
                                     data-rdesc="${r.description}"
                                     data-rperms="${r.permissionsJson}"
-                                    class="jenkins-button js-oau-edit-role" style="font-size:0.78em;padding:3px 10px;margin-right:4px;">
+                                    class="jenkins-button js-oau-edit-role" style="padding:3px 10px;margin-right:4px">
                               Edit
                             </button>
                             <form method="post" action="deleteRole" style="display:inline;">
@@ -411,7 +411,7 @@
             <div style="display:flex;gap:10px;margin-top:16px;">
               <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary"
                       style="font-size:0.88em;">Continue</button>
-              <button type="button" class="jenkins-button js-oau-close-drawer" style="font-size:0.88em;">Cancel</button>
+              <button type="button" class="jenkins-button js-oau-close-drawer" >Cancel</button>
             </div>
           </form>
         </div>
