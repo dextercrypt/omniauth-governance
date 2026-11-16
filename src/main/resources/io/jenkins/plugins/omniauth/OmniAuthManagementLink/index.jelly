@@ -521,20 +521,20 @@
                 </div>
               </j:when>
               <j:otherwise>
-                <table style="width:100%;border-collapse:collapse;font-size:0.82em;">
+                <table class="jenkins-table" style="width:100%;">
                   <thead>
-                    <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-card-border));">
-                      <th style="padding:7px 16px;text-align:left;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">User</th>
-                      <th style="padding:7px 8px;text-align:left;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">Role</th>
-                      <th style="padding:7px 16px;text-align:right;font-weight:600;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.88em;">Expires</th>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Expires</th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="g" items="${expiring14}" begin="0" end="5">
-                      <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-card-border));">
-                        <td style="padding:8px 16px;font-weight:600;">${g.userId}</td>
-                        <td style="padding:8px 8px;color:var(--text-color-secondary,var(--text-color-secondary));">${g.roleId}</td>
-                        <td style="padding:8px 16px;text-align:right;">
+                      <tr>
+                        <td style="font-weight:600;">${g.userId}</td>
+                        <td style="color:var(--text-color-secondary,var(--text-color-secondary));">${g.roleId}</td>
+                        <td style="text-align:right;">
                           <j:choose>
                             <j:when test="${g.daysLeft eq 0}"><span style="color:var(--error-color);font-weight:700;">Today</span></j:when>
                             <j:when test="${g.daysLeft eq 1}"><span style="color:var(--error-color);font-weight:600;">Tomorrow</span></j:when>

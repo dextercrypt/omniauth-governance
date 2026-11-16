@@ -128,20 +128,20 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table style="width:100%;border-collapse:collapse;">
+              <table class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
-                    <th class="udx-th">Scope</th>
-                    <th class="udx-th">Role</th>
-                    <th class="udx-th">Permissions</th>
-                    <th class="udx-th">Expires</th>
-                    <th class="udx-th" style="width:140px;"></th>
+                  <tr>
+                    <th>Scope</th>
+                    <th>Role</th>
+                    <th>Permissions</th>
+                    <th>Expires</th>
+                    <th style="width:140px;"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <j:forEach var="a" items="${assignments}">
-                    <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
-                      <td style="padding:12px 16px;">
+                    <tr>
+                      <td>
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
                             <j:choose>
@@ -158,13 +158,13 @@
                           </div>
                         </div>
                       </td>
-                      <td style="padding:12px 16px;">
+                      <td>
                         <span class="udx-role-badge">${a.roleName}</span>
                       </td>
-                      <td style="padding:12px 16px;font-size:0.82em;color:var(--text-color-secondary,#777);">
+                      <td style="font-size:0.82em;color:var(--text-color-secondary,#777);">
                         ${a.permissionSummary}
                       </td>
-                      <td style="padding:12px 16px;font-size:0.82em;">
+                      <td style="font-size:0.82em;">
                         <j:choose>
                           <j:when test="${a.expiresAt != null and a.expiresAt != ''}">
                             <span class="udx-expiry-badge" data-expires="${a.expiresAt}"></span>
@@ -172,7 +172,7 @@
                           <j:otherwise><span style="color:var(--text-color-secondary, #ccc);">—</span></j:otherwise>
                         </j:choose>
                       </td>
-                      <td style="padding:12px 16px;text-align:right;">
+                      <td style="text-align:right;">
                         <j:if test="${it.omniAuthActive}">
                           <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                             <j:if test="${!a.global}">
@@ -373,22 +373,22 @@
                 </div>
               </j:when>
               <j:otherwise>
-                <table style="width:100%;border-collapse:collapse;">
+                <table class="jenkins-table" style="width:100%;">
                   <thead>
-                    <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
-                      <th class="udx-th">User</th>
-                      <th class="udx-th">Last Login</th>
+                    <tr>
+                      <th>User</th>
+                      <th>Last Login</th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="m" items="${members}">
-                      <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
-                        <td style="padding:11px 16px;">
+                      <tr>
+                        <td>
                           <a href="checkAccess?sid=${m.userId}&amp;type=USER"
                              style="color:var(--blue);text-decoration:none;font-weight:600;">${m.fullName}</a>
                           <span style="font-size:0.8em;color:var(--text-color-secondary, #888);margin-left:6px;">${m.userId}</span>
                         </td>
-                        <td style="padding:11px 16px;font-size:0.82em;color:var(--text-color-secondary, #888);">
+                        <td style="font-size:0.82em;color:var(--text-color-secondary, #888);">
                           <j:choose>
                             <j:when test="${m.lastLoginAt == null}">Never</j:when>
                             <j:otherwise>${m.lastLoginAt}</j:otherwise>

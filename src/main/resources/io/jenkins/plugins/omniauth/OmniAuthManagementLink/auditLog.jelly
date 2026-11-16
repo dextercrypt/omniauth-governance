@@ -90,15 +90,15 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table id="alxTable" style="width:100%;border-collapse:collapse;">
+              <table id="alxTable" class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--oau-card-border);">
-                    <th class="alx-th">Time</th>
-                    <th class="alx-th">Action</th>
-                    <th class="alx-th">User</th>
-                    <th class="alx-th">By</th>
-                    <th class="alx-th">Details</th>
-                    <th class="alx-th">IP</th>
+                  <tr>
+                    <th>Time</th>
+                    <th>Action</th>
+                    <th>User</th>
+                    <th>By</th>
+                    <th>Details</th>
+                    <th>IP</th>
                   </tr>
                 </thead>
                 <tbody id="alxBody">
@@ -107,18 +107,17 @@
                         data-action="${ev.get('action')}"
                         data-ip="${ev.get('ip')}"
                         data-ts="${ev.get('ts')}"
-                        data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')} ${ev.get('area')} ${ev.get('detail')}"
-                        style="border-bottom:1px solid var(--oau-card-border);">
-                      <td style="padding:10px 16px;font-size:0.8em;color:var(--text-color-secondary, #999);white-space:nowrap;">
+                        data-text="${ev.get('user')} ${ev.get('by')} ${ev.get('scope')} ${ev.get('role')} ${ev.get('action')} ${ev.get('ip')} ${ev.get('authType')} ${ev.get('area')} ${ev.get('detail')}">
+                      <td style="font-size:0.8em;color:var(--text-color-secondary, #999);white-space:nowrap;">
                         <span class="alx-ts" data-ts="${ev.get('ts')}">${ev.get('ts')}</span>
                       </td>
-                      <td style="padding:10px 16px;">
+                      <td>
                         <span class="alx-badge alx-badge-${ev.get('action')}">${ev.get('action')}</span>
                       </td>
-                      <td style="padding:10px 16px;font-size:0.88em;font-weight:600;">
+                      <td style="font-size:0.88em;font-weight:600;">
                         ${ev.get('user')}
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;color:var(--text-color-secondary, #777);">
+                      <td style="font-size:0.82em;color:var(--text-color-secondary, #777);">
                         <j:if test="${ev.get('by') != null and ev.get('by') != ''}">
                           ${ev.get('by')}
                         </j:if>
@@ -126,7 +125,7 @@
                           <span style="color:var(--text-color-secondary, #ccc);">—</span>
                         </j:if>
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;color:var(--text-color-secondary, #555);">
+                      <td style="font-size:0.82em;color:var(--text-color-secondary, #555);">
                         <j:if test="${ev.get('scope') != null and ev.get('scope') != ''}">
                           <span style="font-family:monospace;font-size:0.9em;">${ev.get('scope')}</span>
                         </j:if>
@@ -163,7 +162,7 @@
                           &#8201;<span style="color:var(--text-color-secondary, #888);font-style:italic;">&#8220;${ev.get('reason')}&#8221;</span>
                         </j:if>
                       </td>
-                      <td style="padding:10px 16px;font-size:0.82em;font-family:monospace;color:var(--text-color-secondary, #666);">
+                      <td style="font-size:0.82em;font-family:monospace;color:var(--text-color-secondary, #666);">
                         <j:if test="${ev.get('ip') != null and ev.get('ip') != ''}">
                           ${ev.get('ip')}
                         </j:if>

@@ -286,21 +286,21 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table style="width:100%;border-collapse:collapse;">
+              <table class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
-                    <th class="udx-th">Scope</th>
-                    <th class="udx-th">Role</th>
-                    <th class="udx-th">Permissions</th>
-                    <th class="udx-th">Expires</th>
-                    <th class="udx-th" style="width:140px;"></th>
+                  <tr>
+                    <th>Scope</th>
+                    <th>Role</th>
+                    <th>Permissions</th>
+                    <th>Expires</th>
+                    <th style="width:140px;"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <j:forEach var="a" items="${assignments}">
-                    <tr style="border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));">
+                    <tr>
                       <!-- Scope -->
-                      <td style="padding:12px 16px;">
+                      <td>
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
                             <j:choose>
@@ -318,7 +318,7 @@
                         </div>
                       </td>
                       <!-- Role -->
-                      <td style="padding:12px 16px;">
+                      <td>
                         <span class="udx-role-badge">${a.roleName}</span>
                         <j:if test="${a.jit}">
                           <span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;
@@ -342,11 +342,11 @@
                         </j:if>
                       </td>
                       <!-- Permissions summary -->
-                      <td style="padding:12px 16px;font-size:0.82em;color:var(--text-color-secondary,#777);">
+                      <td style="font-size:0.82em;color:var(--text-color-secondary,#777);">
                         ${a.permissionSummary}
                       </td>
                       <!-- Expires -->
-                      <td style="padding:12px 16px;font-size:0.82em;">
+                      <td style="font-size:0.82em;">
                         <j:choose>
                           <j:when test="${a.expiresAt != null and a.expiresAt != ''}">
                             <span class="udx-expiry-badge" data-expires="${a.expiresAt}"></span>
@@ -357,7 +357,7 @@
                         </j:choose>
                       </td>
                       <!-- Edit + Confirm + Revoke -->
-                      <td style="padding:12px 16px;text-align:right;">
+                      <td style="text-align:right;">
                         <j:if test="${it.omniAuthActive}">
                           <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                             <j:if test="${!a.global and (header == null or !header.groupManaged)}">

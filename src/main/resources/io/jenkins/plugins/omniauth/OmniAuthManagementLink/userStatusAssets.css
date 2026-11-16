@@ -24,9 +24,11 @@
 
         /* Table */
         .us-card  { border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg); }
-        .us-table { width:100%;border-collapse:collapse;table-layout:fixed; }
-        .us-th    { padding:9px 14px;font-size:.7em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary);text-align:left;background:var(--oau-neutral-bg);border-bottom:2px solid var(--oau-card-border);white-space:nowrap; }
-        .us-td    { padding:12px 14px;vertical-align:middle;border-bottom:1px solid var(--oau-card-border);overflow:hidden; }
+        /* jenkins-table provides the frame (collapse, header, row borders, hover); these keep only
+           the fixed column layout and per-cell specifics so the data-grid look matches Jenkins. */
+        .us-table { table-layout:fixed; }
+        .us-th    { text-transform:uppercase;letter-spacing:.05em;white-space:nowrap; }
+        .us-td    { vertical-align:middle;overflow:hidden; }
         .us-row   { cursor:pointer;transition:background .1s; }
         .us-row:hover { background:var(--oau-neutral-bg); }
         .us-row:last-child td { border-bottom:none; }

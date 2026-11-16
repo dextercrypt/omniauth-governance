@@ -52,32 +52,32 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table style="width:100%;border-collapse:collapse;">
+              <table class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--oau-card-border);">
-                    <th class="jit-th">User</th>
-                    <th class="jit-th">Pipeline</th>
-                    <th class="jit-th">Reason</th>
-                    <th class="jit-th">Duration</th>
-                    <th class="jit-th">Approvals</th>
-                    <th class="jit-th">Requested</th>
-                    <th class="jit-th" style="width:160px;"></th>
+                  <tr>
+                    <th>User</th>
+                    <th>Pipeline</th>
+                    <th>Reason</th>
+                    <th>Duration</th>
+                    <th>Approvals</th>
+                    <th>Requested</th>
+                    <th style="width:160px;"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <j:forEach var="r" items="${it.pendingJitRequests}" varStatus="rs">
-                    <tr style="border-bottom:${rs.last ? '0' : '1px'} solid var(--oau-card-border);">
-                      <td style="padding:12px 16px;">
+                    <tr>
+                      <td>
                         <span style="font-weight:600;font-size:0.9em;">${r.requesterId}</span>
                       </td>
-                      <td style="padding:12px 16px;">
+                      <td>
                         <code style="font-size:0.82em;background:var(--oau-neutral-bg);padding:2px 6px;border-radius:3px;">${r.scope}</code>
                       </td>
-                      <td style="padding:12px 16px;font-size:0.85em;color:var(--text-color);max-width:200px;">
+                      <td style="font-size:0.85em;color:var(--text-color);max-width:200px;">
                         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;" title="${r.reason}">${r.reason}</div>
                       </td>
-                      <td style="padding:12px 16px;font-size:0.86em;white-space:nowrap;">${r.requestedDurationHours}h</td>
-                      <td style="padding:12px 16px;font-size:0.82em;">
+                      <td style="font-size:0.86em;white-space:nowrap;">${r.requestedDurationHours}h</td>
+                      <td style="font-size:0.82em;">
                         <!-- Per-approver status -->
                         <j:if test="${!r.approvalEntries.isEmpty()}">
                           <div style="font-size:0.78em;color:var(--text-color-secondary);margin-bottom:4px;">
@@ -110,8 +110,8 @@
                           <span style="color:var(--text-color-secondary);font-size:0.82em;">—</span>
                         </j:if>
                       </td>
-                      <td style="padding:12px 16px;font-size:0.82em;color:var(--text-color-secondary);white-space:nowrap;">${r.timeAgo()}</td>
-                      <td style="padding:12px 16px;white-space:nowrap;text-align:right;">
+                      <td style="font-size:0.82em;color:var(--text-color-secondary);white-space:nowrap;">${r.timeAgo()}</td>
+                      <td style="white-space:nowrap;text-align:right;">
                         <!-- Only show Approve/Deny if current admin is a listed pending approver -->
                         <j:if test="${r.isCurrentUserApprover(it.currentUserId)}">
                           <form method="post" action="approveJit" style="display:inline;">
@@ -167,27 +167,27 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table style="width:100%;border-collapse:collapse;">
+              <table class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--oau-card-border);">
-                    <th class="jit-th">User</th>
-                    <th class="jit-th">Pipeline</th>
-                    <th class="jit-th">Status</th>
-                    <th class="jit-th">Approver</th>
-                    <th class="jit-th">Duration</th>
-                    <th class="jit-th">Requested</th>
-                    <th class="jit-th" style="width:80px;"></th>
+                  <tr>
+                    <th>User</th>
+                    <th>Pipeline</th>
+                    <th>Status</th>
+                    <th>Approver</th>
+                    <th>Duration</th>
+                    <th>Requested</th>
+                    <th style="width:80px;"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <j:forEach var="r" items="${it.recentJitRequests}" varStatus="rs">
                     <j:if test="${!r.status.equals('PENDING')}">
-                      <tr style="border-bottom:${rs.last ? '0' : '1px'} solid var(--oau-card-border);">
-                        <td style="padding:11px 16px;font-size:0.88em;font-weight:600;">${r.requesterId}</td>
-                        <td style="padding:11px 16px;">
+                      <tr>
+                        <td style="font-size:0.88em;font-weight:600;">${r.requesterId}</td>
+                        <td>
                           <code style="font-size:0.8em;background:var(--oau-neutral-bg);padding:2px 6px;border-radius:3px;">${r.scope}</code>
                         </td>
-                        <td style="padding:11px 16px;">
+                        <td>
                           <j:choose>
                             <j:when test="${r.status.equals('ACTIVE')}">
                               <span style="font-size:0.75em;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--oau-success-bg);color:var(--oau-success-fg);">ACTIVE</span>
@@ -212,7 +212,7 @@
                             </j:otherwise>
                           </j:choose>
                         </td>
-                        <td style="padding:11px 16px;font-size:0.84em;color:var(--text-color-secondary);">
+                        <td style="font-size:0.84em;color:var(--text-color-secondary);">
                           <j:choose>
                             <j:when test="${!r.approverId.isEmpty()}">${r.approverId}</j:when>
                             <j:otherwise><span style="color:var(--text-color-secondary, #ccc);">—</span></j:otherwise>
@@ -221,7 +221,7 @@
                             <div style="font-size:0.88em;color:var(--text-color-secondary, #999);font-style:italic;">"${r.approverComment}"</div>
                           </j:if>
                         </td>
-                        <td style="padding:11px 16px;font-size:0.84em;">
+                        <td style="font-size:0.84em;">
                           <j:choose>
                             <j:when test="${r.status.equals('ACTIVE') or r.status.equals('EXPIRED') or r.status.equals('REVOKED')}">
                               ${r.effectiveGrantedDurationHours()}h<j:if test="${r.effectiveGrantedDurationHours() != r.requestedDurationHours}"><span style="color:var(--text-color-secondary);"> (of ${r.requestedDurationHours}h)</span></j:if>
@@ -229,8 +229,8 @@
                             <j:otherwise>${r.requestedDurationHours}h</j:otherwise>
                           </j:choose>
                         </td>
-                        <td style="padding:11px 16px;font-size:0.8em;color:var(--text-color-secondary);">${r.timeAgo()}</td>
-                        <td style="padding:11px 16px;text-align:right;">
+                        <td style="font-size:0.8em;color:var(--text-color-secondary);">${r.timeAgo()}</td>
+                        <td style="text-align:right;">
                           <j:if test="${r.status.equals('ACTIVE')}">
                             <form method="post" action="revokeActiveJit" style="display:inline;">
                               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>

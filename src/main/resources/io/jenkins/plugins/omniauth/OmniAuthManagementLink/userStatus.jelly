@@ -71,7 +71,7 @@
 
         <!-- Table -->
         <div class="us-card">
-          <table class="us-table">
+          <table class="jenkins-table us-table">
             <colgroup>
               <col style="width:34%"/>
               <col style="width:16%"/>

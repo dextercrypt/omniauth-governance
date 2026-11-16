@@ -102,22 +102,22 @@
           <!-- Table -->
           <j:if test="${!items.isEmpty()}">
             <div class="jenkins-card" style="padding:0; overflow:hidden;">
-              <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+              <table class="jenkins-table" style="width:100%;">
                 <thead>
-                  <tr style="border-bottom:1px solid var(--oau-card-border); background:var(--background,var(--oau-neutral-bg));">
-                    <th style="padding:10px 16px; text-align:left; font-weight:600; color:var(--text-color-secondary); font-size:0.85em;">User / Group</th>
-                    <th style="padding:10px 8px;  text-align:left; font-weight:600; color:var(--text-color-secondary); font-size:0.85em;">Role</th>
-                    <th style="padding:10px 8px;  text-align:left; font-weight:600; color:var(--text-color-secondary); font-size:0.85em;">Scope</th>
-                    <th style="padding:10px 8px;  text-align:center; font-weight:600; color:var(--text-color-secondary); font-size:0.85em;">Overdue</th>
-                    <th style="padding:10px 16px; text-align:right; font-weight:600; color:var(--text-color-secondary); font-size:0.85em;">Action</th>
+                  <tr>
+                    <th>User / Group</th>
+                    <th>Role</th>
+                    <th>Scope</th>
+                    <th>Overdue</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <j:forEach var="item" items="${items}">
-                    <tr class="js-ar-row" style="border-bottom:1px solid var(--oau-card-border); transition:background 0.1s;">
+                    <tr class="js-ar-row" style="transition:background 0.1s;">
 
                       <!-- User / Group cell -->
-                      <td style="padding:10px 16px;">
+                      <td>
                         <div style="display:flex; align-items:center; gap:10px;">
                           <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;
                                       background:${item.group ? 'color-mix(in srgb, #7c3aed 13%, transparent)' : 'var(--oau-info-bg)'};
@@ -140,14 +140,14 @@
                       </td>
 
                       <!-- Role cell -->
-                      <td style="padding:10px 8px;">
+                      <td>
                         <span style="background:var(--oau-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:10px;font-size:0.82em;font-weight:600;">
                           ${item.roleId}
                         </span>
                       </td>
 
                       <!-- Scope cell -->
-                      <td style="padding:10px 8px; color:var(--text-color-secondary); max-width:200px;">
+                      <td style="color:var(--text-color-secondary); max-width:200px;">
                         <div style="display:flex;align-items:center;gap:6px;">
                           <j:choose>
                             <j:when test="${item.scopeType eq 'GLOBAL'}">
@@ -178,7 +178,7 @@
                       </td>
 
                       <!-- Overdue cell -->
-                      <td style="padding:10px 8px; text-align:center;">
+                      <td style="text-align:center;">
                         <span style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);padding:3px 10px;border-radius:12px;font-size:0.78em;font-weight:700;white-space:nowrap;">
                           <j:choose>
                             <j:when test="${item.daysAgo == -1}">unknown age</j:when>
@@ -189,7 +189,7 @@
                       </td>
 
                       <!-- Action cell -->
-                      <td style="padding:10px 16px; text-align:right; white-space:nowrap;">
+                      <td style="text-align:right; white-space:nowrap;">
                         <form method="post" action="confirmAccess" style="display:inline;">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="sid"      value="${item.userId}"/>

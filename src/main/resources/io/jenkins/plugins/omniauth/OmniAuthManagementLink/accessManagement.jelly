@@ -101,22 +101,22 @@
                 </div>
               </j:when>
               <j:otherwise>
-                <table style="width:100%;border-collapse:collapse;">
+                <table class="jenkins-table" style="width:100%;">
                   <thead>
-                    <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
-                      <th class="oam-th">User / Group</th>
-                      <th class="oam-th">Type</th>
-                      <th class="oam-th">Role</th>
-                      <th class="oam-th">Last Login</th>
-                      <th class="oam-th" style="width:80px;"></th>
+                    <tr>
+                      <th>User / Group</th>
+                      <th>Type</th>
+                      <th>Role</th>
+                      <th>Last Login</th>
+                      <th style="width:80px;"></th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="u" items="${it.accessManagementUserList}">
                       <tr class="user-row"
                           data-sid="${u.sid}" data-type="${u.type.name()}" data-display="${u.displayName}"
-                          style="cursor:pointer;border-bottom:1px solid var(--panel-border-color,var(--oau-neutral-bg));transition:background 0.1s;">
-                        <td style="padding:12px 16px;">
+                          style="cursor:pointer;transition:background 0.1s;">
+                        <td>
                           <div style="display:flex;align-items:center;gap:11px;">
                             <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9em;font-weight:700;flex-shrink:0;color:#fff;background:var(--blue);">${u.avatarLetter}</div>
                             <div>
@@ -137,19 +137,19 @@
                             </div>
                           </div>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td>
                           <span class="oam-type-badge"><j:choose><j:when test="${u.userEntry}">User</j:when><j:otherwise>Group</j:otherwise></j:choose></span>
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td>
                           <span class="oam-role-badge">${u.roleName}</span>
                         </td>
-                        <td style="padding:12px 16px;font-size:0.86em;color:var(--text-color-secondary,#888);">
+                        <td style="font-size:0.86em;color:var(--text-color-secondary,#888);">
                           <j:choose>
                             <j:when test="${u.relativeLastLogin != null}">${u.relativeLastLogin}</j:when>
                             <j:otherwise><span style="color:#ccc;">—</span></j:otherwise>
                           </j:choose>
                         </td>
-                        <td style="padding:12px 16px;text-align:right;">
+                        <td style="text-align:right;">
                           <button type="button"
                                   class="jenkins-button js-oau-manage" style="padding:3px 10px">Manage</button>
                         </td>
@@ -248,24 +248,24 @@
                 </div>
               </j:when>
               <j:otherwise>
-                <table style="width:100%;border-collapse:collapse;">
+                <table class="jenkins-table" style="width:100%;">
                   <thead>
-                    <tr style="background:var(--oau-neutral-bg);border-bottom:2px solid var(--panel-border-color,var(--oau-card-border));">
-                      <th class="oam-th">Role Name</th>
-                      <th class="oam-th">Description</th>
-                      <th class="oam-th" style="text-align:center;">Permissions</th>
-                      <th class="oam-th" style="width:140px;"></th>
+                    <tr>
+                      <th>Role Name</th>
+                      <th>Description</th>
+                      <th>Permissions</th>
+                      <th style="width:140px;"></th>
                     </tr>
                   </thead>
                   <tbody>
                     <j:forEach var="r" items="${it.roles}" varStatus="rs">
-                      <tr style="border-bottom:${rs.last ? '0' : '1px'} solid var(--panel-border-color,var(--oau-neutral-bg));">
-                        <td style="padding:12px 16px;font-weight:600;font-size:0.9em;">${r.name}</td>
-                        <td style="padding:12px 16px;font-size:0.85em;color:var(--text-color-secondary,#777);">${r.description}</td>
-                        <td style="padding:12px 16px;text-align:center;">
+                      <tr>
+                        <td style="font-weight:600;font-size:0.9em;">${r.name}</td>
+                        <td style="font-size:0.85em;color:var(--text-color-secondary,#777);">${r.description}</td>
+                        <td style="text-align:center;">
                           <span style="font-size:0.8em;background:var(--oau-info-bg);color:var(--blue);padding:2px 9px;border-radius:10px;font-weight:700;">${r.permissionCount}</span>
                         </td>
-                        <td style="padding:12px 16px;text-align:right;white-space:nowrap;">
+                        <td style="text-align:right;white-space:nowrap;">
                           <j:if test="${it.omniAuthActive}">
                             <button type="button"
                                     data-rname="${r.name}"

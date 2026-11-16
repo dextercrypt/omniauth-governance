@@ -64,34 +64,34 @@
 
           <!-- Table (hidden initially — JS shows correct page) -->
           <j:if test="${!entries.isEmpty()}">
-            <table id="logTable" style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+            <table id="logTable" class="jenkins-table" style="width: 100%;">
               <thead>
-                <tr style="background: var(--panel-header-bg,var(--oau-neutral-bg)); border-bottom: 2px solid var(--oau-card-border);">
-                  <th style="padding: 9px 16px; text-align: left; font-weight: 600; color: var(--text-color-secondary); white-space: nowrap;">#</th>
-                  <th style="padding: 9px 16px; text-align: left; font-weight: 600; color: var(--text-color-secondary); white-space: nowrap;">Time</th>
-                  <th style="padding: 9px 16px; text-align: left; font-weight: 600; color: var(--text-color-secondary);">Event</th>
-                  <th style="padding: 9px 16px; text-align: left; font-weight: 600; color: var(--text-color-secondary);">Recipients</th>
-                  <th style="padding: 9px 16px; text-align: center; font-weight: 600; color: var(--text-color-secondary); white-space: nowrap;">Status</th>
-                  <th style="padding: 9px 16px; text-align: left; font-weight: 600; color: var(--text-color-secondary);">Details</th>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Recipients</th>
+                  <th>Status</th>
+                  <th>Details</th>
                 </tr>
               </thead>
               <tbody id="logBody">
                 <j:set var="idx" value="${0}"/>
                 <j:forEach var="entry" items="${entries}">
                   <j:set var="idx" value="${idx + 1}"/>
-                  <tr class="log-row" style="border-bottom: 1px solid var(--oau-card-border);">
-                    <td style="padding: 8px 16px; color: var(--text-color-secondary); font-size: 0.82em;">${idx}</td>
-                    <td style="padding: 8px 16px; white-space: nowrap; color: var(--text-color-secondary);"
+                  <tr class="log-row">
+                    <td style="color: var(--text-color-secondary); font-size: 0.82em;">${idx}</td>
+                    <td style="white-space: nowrap; color: var(--text-color-secondary);"
                         title="${entry.formattedTime}">
                       ${entry.relativeTime}
                     </td>
-                    <td style="padding: 8px 16px;">${entry.description}</td>
-                    <td style="padding: 8px 16px; color: var(--text-color-secondary);
+                    <td>${entry.description}</td>
+                    <td style="color: var(--text-color-secondary);
                                 max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
                         title="${entry.recipients}">
                       ${entry.recipients}
                     </td>
-                    <td style="padding: 8px 16px; text-align: center;">
+                    <td style="text-align: center;">
                       <j:choose>
                         <j:when test="${entry.success}">
                           <span style="color: var(--oau-success-fg); font-weight: 600;">&#10003; Sent</span>
@@ -101,7 +101,7 @@
                         </j:otherwise>
                       </j:choose>
                     </td>
-                    <td style="padding: 8px 16px; font-size: 0.82em; color: var(--text-color-secondary);
+                    <td style="font-size: 0.82em; color: var(--text-color-secondary);
                                 max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                       <j:choose>
                         <j:when test="${!entry.success and entry.errorMessage != null and entry.errorMessage != ''}">
