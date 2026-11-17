@@ -979,15 +979,6 @@ public class OmniAuthManagementLink extends ManagementLink {
             putParam(json, req, "smtpReplyTo");
             putParam(json, req, "notifyEmails");
             putParam(json, req, "notificationLogoUrl");
-            // preserve login branding (managed by Settings page)
-            json.put("loginHeading",          config.getLoginHeading());
-            json.put("loginTabTitle",         config.getLoginTabTitle());
-            json.put("loginAnnouncementText", config.getLoginAnnouncementText());
-            json.put("loginFooterText",       config.getLoginFooterText());
-            json.put("loginBackground",       config.getLoginBackground());
-            json.put("loginLogoPosition",     config.getLoginLogoPosition());
-            json.put("loginLogoSize",         config.getLoginLogoSize());
-            json.put("loginButler",           config.getLoginButler());
             putParam(json, req, "notificationFooterNote");
             // brute force
             String bft = req.getParameter("bruteForceThreshold");
@@ -1014,22 +1005,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             String[] te = req.getParameterValues("teamsEvents");
             if (te != null) for (String e : te) teamsEvtsArr.add(e);
             json.put("teamsEvents", teamsEvtsArr);
-            // preserve fields managed by other forms
-            net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
-            for (String u : config.getProtectedUsers()) arr.add(u);
-            json.put("protectedUsers", arr);
-            json.put("staleThresholdDays",  config.getStaleThresholdDays());
-            json.put("activeThresholdDays", config.getActiveThresholdDays());
-            json.put("cleanupEnabled",      config.isCleanupEnabled());
-            json.put("cleanupDryRun",       config.isCleanupDryRun());
-            json.put("cleanupCron",         config.getCleanupCron());
-            json.put("cleanupMaxDeletions", config.getCleanupMaxDeletions());
-            // Preserve Access Review settings (owned by the Settings page) — configure()
-            // reparses every field, so an omitted one would be reset to its default.
-            json.put("accessReviewEnabled",       config.isAccessReviewEnabled());
-            json.put("accessReviewThresholdDays", config.getAccessReviewThresholdDays());
-            // Preserve Emergency Recovery toggle (owned by the Settings page) for the same reason.
-            json.put("sosEnabled",  config.isSosEnabled());
+            // configure() is a partial update, so this handler sends only the fields the Notifications
+            // page owns; Settings-owned fields (login branding, thresholds, cleanup, access review,
+            // emergency recovery, protected users) are simply omitted and left untouched.
             config.configure(req, json);
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
@@ -1207,24 +1185,6 @@ public class OmniAuthManagementLink extends ManagementLink {
             String maxD = req.getParameter("cleanupMaxDeletions");
             if (cron != null) json.put("cleanupCron",         cron.trim());
             if (maxD != null) json.put("cleanupMaxDeletions", maxD.trim());
-            // SMTP
-            putParam(json, req, "smtpHost");
-            putParam(json, req, "smtpPort");
-            putParam(json, req, "smtpUsername");
-            putParam(json, req, "smtpPassword");
-            json.put("smtpTls", req.getParameter("smtpTls") != null);
-            putParam(json, req, "smtpFromAddress");
-            putParam(json, req, "smtpFromName");
-            putParam(json, req, "smtpReplyTo");
-            putParam(json, req, "notifyEmails");
-            // (bruteForceThreshold is owned by the Notifications page; this handler preserves
-            //  the stored value via the config re-injection below — there is no input here.)
-            // stale warning
-            json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
-            String swCron = req.getParameter("staleWarningCron");
-            String swWin  = req.getParameter("staleWarningWindowDays");
-            if (swCron != null) json.put("staleWarningCron",       swCron.trim());
-            if (swWin  != null) json.put("staleWarningWindowDays", swWin.trim());
             // emergency recovery
             json.put("sosEnabled", req.getParameter("sosEnabled") != null);
             // access review
@@ -1248,44 +1208,9 @@ public class OmniAuthManagementLink extends ManagementLink {
             if (llp != null) json.put("loginLogoPosition",     llp.trim());
             if (lls != null) json.put("loginLogoSize",         lls.trim());
             if (lbt != null) json.put("loginButler",           lbt.trim());
-            // preserve fields managed by the Notifications page
-            json.put("notificationsEnabled", config.isNotificationsEnabled());
-            json.put("smtpEnabled",          config.isSmtpEnabled());
-            json.put("smtpHost",             config.getSmtpHost());
-            json.put("smtpPort",             config.getSmtpPort());
-            json.put("smtpUsername",         config.getSmtpUsername());
-            json.put("smtpTls",              config.isSmtpTls());
-            json.put("smtpFromAddress",      config.getSmtpFromAddress());
-            json.put("smtpFromName",         config.getSmtpFromName());
-            json.put("smtpReplyTo",          config.getSmtpReplyTo());
-            json.put("notifyEmails",         config.getNotifyEmails());
-            json.put("slackEnabled",         config.isSlackEnabled());
-            json.put("slackWebhookUrl",      config.getSlackWebhookUrlPlain());
-            json.put("teamsEnabled",         config.isTeamsEnabled());
-            json.put("teamsWebhookUrl",      config.getTeamsWebhookUrlPlain());
-            json.put("bruteForceThreshold",  config.getBruteForceThreshold());
-            json.put("bruteForceLockoutEnabled", config.isBruteForceLockoutEnabled());
-            json.put("bruteForceLockoutMinutes", config.getBruteForceLockoutMinutes());
-            json.put("staleWarningEnabled",    config.isStaleWarningEnabled());
-            json.put("staleWarningCron",       config.getStaleWarningCron());
-            json.put("staleWarningWindowDays", config.getStaleWarningWindowDays());
-            net.sf.json.JSONArray smtpEvts = new net.sf.json.JSONArray();
-            for (String e : config.getSmtpEvents()) smtpEvts.add(e);
-            json.put("smtpEvents", smtpEvts);
-            net.sf.json.JSONArray slackEvts = new net.sf.json.JSONArray();
-            for (String e : config.getSlackEvents()) slackEvts.add(e);
-            json.put("slackEvents", slackEvts);
-            net.sf.json.JSONArray teamsEvts = new net.sf.json.JSONArray();
-            for (String e : config.getTeamsEvents()) teamsEvts.add(e);
-            json.put("teamsEvents", teamsEvts);
-            // preserve protected users
-            net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
-            for (String u : config.getProtectedUsers()) arr.add(u);
-            json.put("protectedUsers", arr);
-            // Preserve notification branding (owned by the Notifications page) — configure()
-            // reparses every field, so omitting these would wipe them to empty.
-            json.put("notificationLogoUrl",    config.getNotificationLogoUrl());
-            json.put("notificationFooterNote", config.getNotificationFooterNote());
+            // configure() is a partial update, so this handler sends only the fields the Settings
+            // page owns; everything else (notifications, SMTP/Slack/Teams, protected users, …) is
+            // omitted and left untouched.
             config.configure(req, json);
 
             // diff and notify
