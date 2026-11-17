@@ -52,21 +52,21 @@
         <div class="pr-kpis">
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-warning-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-warning-fg)"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-time-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-warning-fg);">${it.pendingProvisioningCount}</div>
             <div class="oau-kpi-card__label">Pending</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-success-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-success-fg)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-checkmark-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
             <div class="oau-kpi-card__label">Approved</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-danger-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-danger-fg)"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-close-circle-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
             <div class="oau-kpi-card__label">Rejected</div>

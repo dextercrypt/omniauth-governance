@@ -28,7 +28,7 @@
               <!-- Identity -->
               <div class="jenkins-card" style="flex:1;min-width:280px;padding:16px;">
                 <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                  <l:icon src="symbol-person-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
                   Identity
                 </h3>
                 <table style="width:100%;border-collapse:collapse;">
@@ -100,7 +100,7 @@
               <!-- Jenkins Permissions -->
               <div class="jenkins-card" style="flex:1;min-width:280px;padding:16px;">
                 <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
                   Global Permissions
                 </h3>
                 <table style="width:100%;border-collapse:collapse;">
@@ -150,7 +150,7 @@
             <!-- ─── OmniAuth Grants ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <l:icon src="symbol-shield-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
                 OmniAuth Grants
               </h3>
 
@@ -243,7 +243,7 @@
             <!-- ─── Job / Pipeline Access ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <l:icon src="symbol-grid-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
                 Job / Pipeline Access
               </h3>
 
@@ -322,7 +322,7 @@
             <!-- ─── Login History ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <l:icon src="symbol-time-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
                 Login History
                 <span style="font-size:0.75em;color:var(--text-color-secondary);font-weight:400;">(last 10)</span>
               </h3>

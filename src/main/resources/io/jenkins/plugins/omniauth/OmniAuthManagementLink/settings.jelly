@@ -28,9 +28,7 @@
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,var(--blue));flex-shrink:0;">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
+              <l:icon src="symbol-people-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">User Status</h3>
             </div>
             <div style="padding: 16px 20px;">
@@ -54,9 +52,7 @@
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
+              <l:icon src="symbol-warning-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Stale Users</h3>
             </div>
             <div style="padding: 16px 20px;">
@@ -113,9 +109,7 @@
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--error-color);flex-shrink:0;">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-              </svg>
+              <l:icon src="symbol-trash-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Automated Cleanup</h3>
             </div>
             <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
@@ -206,9 +200,7 @@
                ================================================================ -->
           <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
-                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
+              <l:icon src="symbol-checkmark-done-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
               <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Access Review</h3>
             </div>
             <div style="padding: 16px 20px;">

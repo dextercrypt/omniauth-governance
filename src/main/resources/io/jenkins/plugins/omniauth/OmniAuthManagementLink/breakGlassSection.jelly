@@ -11,9 +11,7 @@
   <j:set var="prop" value="${it.currentUserBreakGlassProp}"/>
 
   <div style="display:flex; align-items:center; gap:8px; margin:4px 0 12px;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-      <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 3a4 4 0 0 1 4 4v4H8V7a4 4 0 0 1 4-4z"/>
-    </svg>
+    <l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-18"/>
     <h2 style="margin:0; font-size:1.05em; font-weight:600;">Break Glass — authenticator (TOTP)</h2>
   </div>
   <p style="margin:0 0 16px; font-size:0.85em; color:var(--text-color-secondary); line-height:1.6;">
@@ -47,7 +45,7 @@
                 <tr style="border-bottom:1px solid var(--oau-card-border);">
                   <td style="padding:10px 8px; vertical-align:middle;">
                     <span style="display:inline-flex; align-items:center; gap:8px;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--oau-success-fg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <l:icon src="symbol-checkmark-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/>
                       <strong style="font-size:0.9em;">${device.name}</strong>
                     </span>
                   </td>
@@ -173,9 +171,7 @@
     <div style="background:var(--card-background, #fff); border-radius:8px; padding:24px; max-width:440px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
       <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
         <div style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:var(--oau-danger-bg); display:flex; align-items:center; justify-content:center;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
+          <l:icon src="symbol-trash-outline plugin-ionicons-api" class="oau-ico oau-ico-18"/>
         </div>
         <div>
           <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:var(--text-color);">Remove Device</h3>

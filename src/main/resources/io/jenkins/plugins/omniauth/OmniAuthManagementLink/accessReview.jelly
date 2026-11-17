@@ -35,11 +35,7 @@
         <!-- Feature disabled state -->
         <j:if test="${!cfg.accessReviewEnabled}">
           <div style="text-align:center; padding: 60px 0; color: var(--text-color-secondary);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
-                 stroke="var(--text-color-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                 style="display:block;margin:0 auto 16px;">
-              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-            </svg>
+            <l:icon src="symbol-checkmark-done-outline plugin-ionicons-api" class="oau-ico oau-ico-40"/>
             <div style="font-size: 1em; font-weight: 600; margin-bottom: 6px;">Access review is disabled</div>
             <div style="font-size: 0.85em; margin-bottom: 20px;">
               Enable it in Settings to start flagging stale access grants.
@@ -140,12 +136,7 @@
                         <div style="display:flex;align-items:center;gap:6px;">
                           <j:choose>
                             <j:when test="${item.scopeType eq 'GLOBAL'}">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                   stroke="var(--text-color-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="2" y1="12" x2="22" y2="12"/>
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                              </svg>
+                              <l:icon src="symbol-globe-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>
                             </j:when>
                             <j:when test="${item.scopeType eq 'FOLDER'}">
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -154,10 +145,7 @@
                               </svg>
                             </j:when>
                             <j:otherwise>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                   stroke="var(--text-color-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-                              </svg>
+                              <l:icon src="symbol-desktop-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>
                             </j:otherwise>
                           </j:choose>
                           <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.displayScope}">

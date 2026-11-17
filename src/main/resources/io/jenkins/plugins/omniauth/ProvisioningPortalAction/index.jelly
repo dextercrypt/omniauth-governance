@@ -109,18 +109,10 @@
                     <span class="sso-logo" style="display:flex;align-items:center;">
                       <j:choose>
                         <j:when test="${realm.ssoProvider.id == 'microsoft'}">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
-                            <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
-                            <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
-                            <rect x="1"  y="11" width="9" height="9" fill="#7fba00"/>
-                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
-                          </svg>
+                          <l:icon src="symbol-grid-outline plugin-ionicons-api" class="oau-ico oau-ico-20"/>
                         </j:when>
                         <j:otherwise>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                               stroke="#dde6f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                          </svg>
+                          <l:icon src="symbol-key-outline plugin-ionicons-api" class="oau-ico oau-ico-20"/>
                         </j:otherwise>
                       </j:choose>
                     </span>
