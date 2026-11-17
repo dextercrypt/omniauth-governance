@@ -89,16 +89,15 @@
           <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
             <j:choose>
               <j:when test="${it.accessManagementUserList.isEmpty()}">
-                <div style="padding:56px;text-align:center;color:var(--text-color-secondary,#888);">
-                  <div style="margin-bottom:10px;opacity:0.4;display:flex;justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                  <div style="font-size:0.92em;">No permissions configured yet.</div>
+                <l:notice title="No permissions yet" icon="symbol-people-outline plugin-ionicons-api">
+                  No permissions configured yet.
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
                             class="jenkins-button jenkins-button--primary js-oau-add-user" style="margin-top:12px">
                       + Add User
                     </button>
                   </j:if>
-                </div>
+                </l:notice>
               </j:when>
               <j:otherwise>
                 <table class="jenkins-table" style="width:100%;">
@@ -236,16 +235,15 @@
           <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
             <j:choose>
               <j:when test="${it.roles.isEmpty()}">
-                <div style="padding:56px;text-align:center;color:#888;">
-                  <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
-                  <div style="font-size:0.9em;">No roles defined yet.</div>
+                <l:notice title="No roles yet" icon="symbol-list-outline plugin-ionicons-api">
+                  No roles defined yet.
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
                             class="jenkins-button jenkins-button--primary js-oau-create-role" style="margin-top:12px">
                       + Create Role
                     </button>
                   </j:if>
-                </div>
+                </l:notice>
               </j:when>
               <j:otherwise>
                 <table class="jenkins-table" style="width:100%;">

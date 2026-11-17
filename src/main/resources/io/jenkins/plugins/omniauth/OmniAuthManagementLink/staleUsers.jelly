@@ -132,12 +132,9 @@
 
         <j:choose>
           <j:when test="${pendingUsers.isEmpty()}">
-            <div class="oau-su-empty oau-su-empty--danger">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+            <l:notice title="Nothing pending" icon="symbol-checkmark-circle-outline plugin-ionicons-api">
               No accounts pending deletion.
-            </div>
+            </l:notice>
           </j:when>
           <j:otherwise>
             <div class="jenkins-card oau-su-card oau-su-card--danger">
@@ -211,12 +208,9 @@
 
         <j:choose>
           <j:when test="${staleUsers.isEmpty()}">
-            <div class="oau-su-empty oau-su-empty--success">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+            <l:notice title="All users active" icon="symbol-shield-checkmark-outline plugin-ionicons-api">
               All users are active. No accounts have been inactive for more than ${threshold} days.
-            </div>
+            </l:notice>
           </j:when>
           <j:otherwise>
             <div class="jenkins-card oau-su-card oau-su-card--warn">
@@ -314,12 +308,9 @@
         <div id="oauHistoryBody" style="display:none;">
           <j:choose>
             <j:when test="${history.isEmpty()}">
-              <div class="oau-su-empty oau-su-empty--neutral" style="margin-top:8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
+              <l:notice title="No cleanup runs yet" icon="symbol-time-outline plugin-ionicons-api">
                 No cleanup runs yet. Use <em>Run Cleanup Now</em> above or enable auto-cleanup in <a href="settings">Settings</a>.
-              </div>
+              </l:notice>
             </j:when>
             <j:otherwise>
               <div class="jenkins-card oau-su-card oau-su-card--neutral" style="margin-top:8px;">

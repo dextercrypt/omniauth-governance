@@ -192,10 +192,9 @@
           </div>
           <j:choose>
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
-              <div class="pr-empty">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <div style="font-size:0.92em;">You're all caught up — no pending access requests.</div>
-              </div>
+              <l:notice title="All caught up" icon="symbol-checkmark-circle-outline plugin-ionicons-api">
+                You're all caught up — no pending access requests.
+              </l:notice>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table pr-table">
@@ -262,7 +261,9 @@
           <j:forEach var="r" items="${decided}"><j:if test="${!r.pending}"><j:set var="anyDecided" value="true"/></j:if></j:forEach>
           <j:choose>
             <j:when test="${anyDecided == 'false'}">
-              <div class="pr-empty"><div style="font-size:0.92em;">No decisions yet.</div></div>
+              <l:notice title="No decisions yet" icon="symbol-time-outline plugin-ionicons-api">
+                No decisions yet.
+              </l:notice>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table pr-table">

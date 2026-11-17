@@ -57,9 +57,9 @@
 
           <!-- Empty state -->
           <j:if test="${entries.isEmpty()}">
-            <div style="padding: 48px 20px; text-align: center; color: var(--text-color-secondary); font-size: 0.9em;">
+            <l:notice title="No notifications yet" icon="symbol-mail-outline plugin-ionicons-api">
               No notifications sent yet. Configure SMTP, enable events, and they will appear here.
-            </div>
+            </l:notice>
           </j:if>
 
           <!-- Table (hidden initially — JS shows correct page) -->

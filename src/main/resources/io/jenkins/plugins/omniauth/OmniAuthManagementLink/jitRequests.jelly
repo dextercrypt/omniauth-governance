@@ -44,12 +44,9 @@
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;margin-bottom:24px;">
           <j:choose>
             <j:when test="${it.pendingJitRequests.isEmpty()}">
-              <div style="padding:40px;text-align:center;color:var(--text-color-secondary);">
-                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="32" height="32"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
-                </div>
-                <div style="font-size:0.9em;">No pending JIT requests.</div>
-              </div>
+              <l:notice title="No pending requests" icon="symbol-checkmark-circle-outline plugin-ionicons-api">
+                No pending JIT requests.
+              </l:notice>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table" style="width:100%;">
@@ -162,9 +159,9 @@
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;">
           <j:choose>
             <j:when test="${it.recentJitRequests.isEmpty()}">
-              <div style="padding:40px;text-align:center;color:var(--text-color-secondary);">
-                <div style="font-size:0.9em;">No JIT request history yet.</div>
-              </div>
+              <l:notice title="No history yet" icon="symbol-time-outline plugin-ionicons-api">
+                No JIT request history yet.
+              </l:notice>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table" style="width:100%;">
