@@ -384,20 +384,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return files[files.length - 1];
     }
 
-    /** A restore point, as shown in the Revert list: its file name, a readable time, and what it holds. */
-    public static final class SnapshotInfo {
-        private final String fileName, displayTime;
-        private final int roles, assignments, groups;
-        SnapshotInfo(String fileName, String displayTime, int roles, int assignments, int groups) {
-            this.fileName = fileName; this.displayTime = displayTime;
-            this.roles = roles; this.assignments = assignments; this.groups = groups;
-        }
-        public String getFileName()    { return fileName; }
-        public String getDisplayTime() { return displayTime; }
-        public int getRoles()          { return roles; }
-        public int getAssignments()    { return assignments; }
-        public int getGroups()         { return groups; }
-    }
 
     /** The restore points (pre-import snapshots), newest first, for the Revert history list. */
     public List<SnapshotInfo> getSnapshots() {
@@ -437,17 +423,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     private static final int HISTORY_KEEP = 20;  // retained on disk
     private static final int HISTORY_SHOW = 5;    // surfaced in the UI
 
-    /** One entry in the import-history log shown below the Revert card. */
-    public static final class HistoryEntry {
-        private final String displayTime, user, action, summary;
-        HistoryEntry(String displayTime, String user, String action, String summary) {
-            this.displayTime = displayTime; this.user = user; this.action = action; this.summary = summary;
-        }
-        public String getDisplayTime() { return displayTime; }
-        public String getUser()        { return user; }
-        public String getAction()      { return action; }
-        public String getSummary()     { return summary; }
-    }
 
     private static java.io.File historyFile() {
         return new java.io.File(snapshotDir(), "import-history.json");
@@ -2177,23 +2152,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return count;
     }
 
-    // Access grants expiring within the next N days
-    public static final class ExpiringGrant {
-        public final String userId;
-        public final String roleId;
-        public final String scope;
-        public final String expiresAt;
-        public final long daysLeft;
-        public ExpiringGrant(String userId, String roleId, String scope, String expiresAt, long daysLeft) {
-            this.userId = userId; this.roleId = roleId; this.scope = scope;
-            this.expiresAt = expiresAt; this.daysLeft = daysLeft;
-        }
-        public String getUserId()   { return userId; }
-        public String getRoleId()   { return roleId; }
-        public String getScope()    { return scope == null || scope.isEmpty() ? "Global" : scope; }
-        public String getExpiresAt(){ return expiresAt; }
-        public long getDaysLeft()   { return daysLeft; }
-    }
 
     public List<ExpiringGrant> getExpiringGrants(int withinDays) {
         OmniAuthAssignmentConfig ac = OmniAuthAssignmentConfig.get();
@@ -2304,38 +2262,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return result;
     }
 
-    public static final class FailedLoginEntry {
-        public final String userId;
-        public final String fullName;
-        public final LoginEvent event;
-        public FailedLoginEntry(String userId, String fullName, LoginEvent event) {
-            this.userId = userId; this.fullName = fullName; this.event = event;
-        }
-        public String getUserId()    { return userId; }
-        public String getFullName()  { return fullName; }
-        public LoginEvent getEvent() { return event; }
-    }
 
-    public static final class BruteForceEntry {
-        public final String userId;
-        public final String fullName;
-        public final int failureCount;
-        public final String alertedAt;
-        public boolean locked;
-        public long lockRemainingMinutes;
-        public BruteForceEntry(String userId, String fullName, int failureCount, String alertedAt) {
-            this.userId = userId; this.fullName = fullName;
-            this.failureCount = failureCount; this.alertedAt = alertedAt;
-        }
-        public String getUserId()     { return userId; }
-        public String getFullName()   { return fullName; }
-        public int getFailureCount()  { return failureCount; }
-        public String getAlertedAt()  { return alertedAt; }
-        public boolean isAlerted()    { return alertedAt != null; }
-        public String getRelativeAlertedAt() { return alertedAt != null ? relativeTime(alertedAt) : null; }
-        public boolean isLocked()     { return locked; }
-        public long getLockRemainingMinutes() { return lockRemainingMinutes; }
-    }
 
     public List<RecentLoginEntry> getRecentLoginEvents() {
         List<RecentLoginEntry> all = new ArrayList<>();
@@ -2351,47 +2278,10 @@ public class OmniAuthManagementLink extends ManagementLink {
         return all.size() > 7 ? all.subList(0, 7) : all;
     }
 
-    public static final class RecentLoginEntry {
-        public final String userId;
-        public final String fullName;
-        public final LoginEvent event;
-        public RecentLoginEntry(String userId, String fullName, LoginEvent event) {
-            this.userId   = userId;
-            this.fullName = fullName;
-            this.event    = event;
-        }
-        public String getUserId()   { return userId; }
-        public String getFullName() { return fullName; }
-        public LoginEvent getEvent(){ return event; }
-    }
 
     // ── Overview dashboard: login-activity chart + live metrics ─────────────────
 
-    /** One day's login tally for the Overview activity chart (successes split SSO vs native). */
-    public static class DayActivity {
-        private final String label;
-        private final int ssoSuccess;
-        private final int nativeSuccess;
-        private final int failure;
-        DayActivity(String label, int ssoSuccess, int nativeSuccess, int failure) {
-            this.label = label; this.ssoSuccess = ssoSuccess;
-            this.nativeSuccess = nativeSuccess; this.failure = failure;
-        }
-        public String getLabel()       { return label; }
-        public int getSsoSuccess()     { return ssoSuccess; }
-        public int getNativeSuccess()  { return nativeSuccess; }
-        public int getSuccess()        { return ssoSuccess + nativeSuccess; }
-        public int getFailure()        { return failure; }
-    }
 
-    /** Full 14-day activity series plus the max value, so the Jelly can scale bars in one pass. */
-    public static class LoginActivity {
-        private final List<DayActivity> days;
-        private final int max;
-        LoginActivity(List<DayActivity> days, int max) { this.days = days; this.max = max; }
-        public List<DayActivity> getDays() { return days; }
-        public int getMax() { return max; }           // never 0 (floored at 1) so bar math is safe
-    }
 
     /** Builds the 14-day login-activity series (oldest-first) from the audit log in a single pass. */
     public LoginActivity getLoginActivity() {
@@ -4567,93 +4457,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // Data holders
     // -------------------------------------------------------------------------
 
-    public static final class UserStatusInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String lastLoginAt;
-        private final String lastJobName;
-        private final String lastJobTriggeredAt;
-        private final String status;
-
-        // Extended fields
-        private String provisioningSource; // NATIVE, INDIVIDUAL, VIA_ENTRA_GROUP
-        private String entraUpn;
-        private String groupName;          // effective group name if VIA_ENTRA_GROUP
-        private String groupOid;           // OID of the group
-        private boolean activeGroupUser;
-        private boolean staleWarning;
-
-        public UserStatusInfo(String userId, String fullName, String userType,
-                              String lastLoginAt, String lastJobName,
-                              String lastJobTriggeredAt, String status) {
-            this.userId            = userId;
-            this.fullName          = fullName;
-            this.userType          = userType;
-            this.lastLoginAt       = lastLoginAt;
-            this.lastJobName       = lastJobName;
-            this.lastJobTriggeredAt = lastJobTriggeredAt;
-            this.status            = status;
-        }
-
-        public String getUserId()                    { return userId; }
-        public String getFullName()                  { return fullName; }
-        public String getUserType()                  { return userType; }
-        public String getLastLoginAt()               { return lastLoginAt; }
-        public String getLastJobName()               { return lastJobName; }
-        public String getLastJobTriggeredAt()        { return lastJobTriggeredAt; }
-        public String getStatus()                    { return status; }
-        public boolean isNeverLoggedIn()             { return lastLoginAt == null; }
-        public boolean isNeverTriggered()            { return lastJobName == null; }
-        public String getRelativeLastLoginAt()        { return relativeTime(lastLoginAt); }
-        public String getRelativeLastJobTriggeredAt() { return relativeTime(lastJobTriggeredAt); }
-        public String getFormattedLastLoginAt()       { return formatDate(lastLoginAt); }
-        public String getFormattedLastJobTriggeredAt(){ return formatDate(lastJobTriggeredAt); }
-
-        public String getProvisioningSource()        { return provisioningSource != null ? provisioningSource : "NATIVE"; }
-        public void setProvisioningSource(String s)  { this.provisioningSource = s; }
-        public String getEntraUpn()                  { return entraUpn; }
-        public void setEntraUpn(String s)            { this.entraUpn = s; }
-        public String getGroupName()                 { return groupName; }
-        public void setGroupName(String s)           { this.groupName = s; }
-        public String getGroupOid()                  { return groupOid; }
-        public void setGroupOid(String s)            { this.groupOid = s; }
-        public boolean isActiveGroupUser()           { return activeGroupUser; }
-        public void setActiveGroupUser(boolean b)    { this.activeGroupUser = b; }
-        public boolean isStaleWarning()              { return staleWarning; }
-        public void setStaleWarning(boolean b)       { this.staleWarning = b; }
-
-        private boolean pendingDeletion;
-        public boolean isPendingDeletion()           { return pendingDeletion; }
-        public void setPendingDeletion(boolean b)    { this.pendingDeletion = b; }
-
-        private LoginEvent latestEvent;
-        public void setLatestEvent(LoginEvent e) { this.latestEvent = e; }
-        public LoginEvent getLatestEvent()        { return latestEvent; }
-
-        // Time-limited account expiry (from OmniAuthAccountExpiryProperty; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)        { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()             { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()           { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                       { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()       { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        /** Days until expiry, rounded UP so "5 days out" reads as 5 (negative if past); 0 when no expiry. */
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24; // ceil forward, floor when past
-            } catch (Exception e) { return 0; }
-        }
-    }
 
     static String relativeTime(String isoStr) {
         if (isoStr == null) return null;
@@ -4687,212 +4490,10 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class UserInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String lastLoginAt;
-        private final String entraOid;
-        private String pendingReason; // null = not pending; "Group access revoked" or "Manually marked"
 
-        public UserInfo(String userId, String fullName, String userType,
-                        String lastLoginAt, String entraOid) {
-            this.userId      = userId;
-            this.fullName    = fullName;
-            this.userType    = userType;
-            this.lastLoginAt = lastLoginAt;
-            this.entraOid    = entraOid;
-        }
 
-        public String getUserId()        { return userId; }
-        public String getFullName()      { return fullName; }
-        public String getUserType()      { return userType; }
-        public String getLastLoginAt()   { return lastLoginAt; }
-        public String getEntraOid()      { return entraOid; }
-        public boolean isNeverLoggedIn() { return lastLoginAt == null; }
-        public String getPendingReason() { return pendingReason; }
-        public void setPendingReason(String r) { this.pendingReason = r; }
-    }
 
-    public static final class AccessInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String entraOid;
-        private final String entraUpn;
-        private final String lastLoginAt;
-        private final List<JobAccessInfo> jobAccess;
-        private final String authStrategy;
-        private final boolean isAdmin;
-        private final boolean canRead;
-        private final boolean canBuild;
-        private final boolean canCreate;
-        private final boolean canConfigure;
-        private final List<LoginEvent> loginHistory;
-        private String groupName;
-        private String groupOid;
-        private String provisioningSource;
-        private List<GrantDisplay> omniAuthGrants;
 
-        public AccessInfo(String userId, String fullName, String userType,
-                          String entraOid, String entraUpn, String lastLoginAt,
-                          List<JobAccessInfo> jobAccess, String authStrategy,
-                          boolean isAdmin, boolean canRead, boolean canBuild,
-                          boolean canCreate, boolean canConfigure,
-                          List<LoginEvent> loginHistory) {
-            this.userId        = userId;
-            this.fullName      = fullName;
-            this.userType      = userType;
-            this.entraOid      = entraOid;
-            this.entraUpn      = entraUpn;
-            this.lastLoginAt   = lastLoginAt;
-            this.jobAccess     = jobAccess != null ? jobAccess : Collections.emptyList();
-            this.authStrategy  = authStrategy;
-            this.isAdmin       = isAdmin;
-            this.canRead       = canRead;
-            this.canBuild      = canBuild;
-            this.canCreate     = canCreate;
-            this.canConfigure  = canConfigure;
-            this.loginHistory  = loginHistory != null ? loginHistory : Collections.emptyList();
-        }
-
-        public String getUserId()                  { return userId; }
-        public String getFullName()                { return fullName; }
-        public String getUserType()                { return userType; }
-        public String getEntraOid()                { return entraOid; }
-        public String getEntraUpn()                { return entraUpn; }
-        public String getLastLoginAt()             { return lastLoginAt; }
-        public List<JobAccessInfo> getJobAccess()  { return jobAccess; }
-        public String getAuthStrategy()            { return authStrategy; }
-        public boolean isAdmin()                   { return isAdmin; }
-        public boolean isCanRead()                 { return canRead; }
-        public boolean isCanBuild()                { return canBuild; }
-        public boolean isCanCreate()               { return canCreate; }
-        public boolean isCanConfigure()            { return canConfigure; }
-        public List<LoginEvent> getLoginHistory()  { return loginHistory; }
-        public boolean isEntraUser()               { return "Entra".equals(userType); }
-        public String getGroupName()               { return groupName; }
-        public void setGroupName(String s)         { this.groupName = s; }
-        public String getGroupOid()                { return groupOid; }
-        public void setGroupOid(String s)          { this.groupOid = s; }
-        public String getProvisioningSource()      { return provisioningSource != null ? provisioningSource : "NATIVE"; }
-        public void setProvisioningSource(String s){ this.provisioningSource = s; }
-        public boolean isViaGroup()                { return "VIA_ENTRA_GROUP".equals(provisioningSource); }
-        public List<GrantDisplay> getOmniAuthGrants() { return omniAuthGrants != null ? omniAuthGrants : Collections.emptyList(); }
-        public void setOmniAuthGrants(List<GrantDisplay> grants) { this.omniAuthGrants = grants; }
-
-        // Time-limited account expiry (provisioning portal duration; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()              { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
-            } catch (Exception e) { return 0; }
-        }
-        public boolean isPerJobSupported() {
-            return authStrategy != null &&
-                   (authStrategy.toLowerCase().contains("projectmatrix") ||
-                    authStrategy.toLowerCase().contains("omniauth"));
-        }
-    }
-
-    public static final class JobAccessInfo {
-        private final String jobName;
-        private final boolean canRead;
-        private final boolean canBuild;
-        private final boolean canConfigure;
-        private final boolean canDelete;
-        private final boolean canWorkspace;
-        private final String source;
-
-        public JobAccessInfo(String jobName, boolean canRead, boolean canBuild, boolean canConfigure,
-                             boolean canDelete, boolean canWorkspace, String source) {
-            this.jobName      = jobName;
-            this.canRead      = canRead;
-            this.canBuild     = canBuild;
-            this.canConfigure = canConfigure;
-            this.canDelete    = canDelete;
-            this.canWorkspace = canWorkspace;
-            this.source       = source != null ? source : "Global";
-        }
-
-        public String getJobName()       { return jobName; }
-        public boolean isCanRead()       { return canRead; }
-        public boolean isCanBuild()      { return canBuild; }
-        public boolean isCanConfigure()  { return canConfigure; }
-        public boolean isCanDelete()     { return canDelete; }
-        public boolean isCanWorkspace()  { return canWorkspace; }
-        public String getSource()        { return source; }
-    }
-
-    public static final class GrantDisplay {
-        private final String principalType;
-        private final String principalId;
-        private final String principalName;
-        private final String roleId;
-        private final String roleName;
-        private final String scope;
-        private final String scopeType;
-        private final String expiresAt;
-        private final boolean expired;
-
-        public GrantDisplay(String principalType, String principalId, String principalName,
-                            String roleId, String roleName, String scope, String scopeType,
-                            String expiresAt, boolean expired) {
-            this.principalType = principalType;
-            this.principalId   = principalId;
-            this.principalName = principalName;
-            this.roleId        = roleId;
-            this.roleName      = roleName;
-            this.scope         = scope;
-            this.scopeType     = scopeType;
-            this.expiresAt     = expiresAt;
-            this.expired       = expired;
-        }
-
-        public String getPrincipalType() { return principalType; }
-        public String getPrincipalId()   { return principalId; }
-        public String getPrincipalName() { return principalName; }
-        public String getRoleId()        { return roleId; }
-        public String getRoleName()      { return roleName; }
-        public String getScope()         { return scope; }
-        public String getScopeType()     { return scopeType; }
-        public String getExpiresAt()     { return expiresAt; }
-        public boolean isExpired()       { return expired; }
-        public boolean isGlobal()        { return scope == null || scope.isEmpty(); }
-        public String getScopeDisplay()  {
-            if (scope == null || scope.isEmpty()) return "Global";
-            return scope;
-        }
-        public String getScopeTypeDisplay() {
-            if (scope == null || scope.isEmpty()) return "Global";
-            if ("FOLDER".equals(scopeType)) return "Folder";
-            if ("JOB".equals(scopeType)) return "Job";
-            return scopeType;
-        }
-    }
-
-    private static final class LastJobInfo {
-        final String jobName;
-        final String triggeredAt;
-        LastJobInfo(String jobName, String triggeredAt) {
-            this.jobName     = jobName;
-            this.triggeredAt = triggeredAt;
-        }
-    }
 
     public enum AccessRole {
         ADMIN(
@@ -4937,135 +4538,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class AccessManagementUserInfo {
-        private final String sid;
-        private final String displayName;
-        private final AuthorizationType type;
-        private final String roleName;
-        private final Set<String> permissionIds;
-        private final String lastLoginAt;
-        private String provisioningSource = "NATIVE";
-        private boolean hasReviewDue = false;
 
-        public AccessManagementUserInfo(String sid, String displayName, AuthorizationType type,
-                                        String roleName, Set<String> permissionIds, String lastLoginAt) {
-            this.sid           = sid;
-            this.displayName   = displayName;
-            this.type          = type;
-            this.roleName      = roleName;
-            this.permissionIds = permissionIds;
-            this.lastLoginAt   = lastLoginAt;
-        }
 
-        public String getSid()             { return sid; }
-        public String getDisplayName()     { return displayName; }
-        public AuthorizationType getType() { return type; }
-        public String getRoleName()        { return roleName; }
-        public Set<String> getPermissionIds() { return permissionIds; }
-        public String getLastLoginAt()     { return lastLoginAt; }
-        public boolean isUserEntry()       { return type == AuthorizationType.USER; }
-        public String getProvisioningSource()       { return provisioningSource; }
-        public void setProvisioningSource(String s) { this.provisioningSource = s != null ? s : "NATIVE"; }
-        public boolean isGroupManaged()             { return "VIA_ENTRA_GROUP".equals(provisioningSource); }
-        public boolean isHasReviewDue()             { return hasReviewDue; }
-        public void setHasReviewDue(boolean v)      { this.hasReviewDue = v; }
-
-        // Time-limited account expiry (provisioning portal duration; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()              { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
-            } catch (Exception e) { return 0; }
-        }
-
-        public String getAvatarLetter() {
-            String src = (displayName != null && !displayName.equals(sid)) ? displayName : sid;
-            return src != null && !src.isEmpty() ? src.substring(0, 1).toUpperCase() : "?";
-        }
-
-        public String getRelativeLastLogin() {
-            return lastLoginAt != null ? OmniAuthManagementLink.relativeTime(lastLoginAt) : null;
-        }
-
-        public String getPermissionsJson() {
-            StringBuilder sb = new StringBuilder("[");
-            boolean first = true;
-            for (String id : permissionIds) {
-                if (!first) sb.append(",");
-                sb.append("\"").append(id.replace("\\", "\\\\").replace("\"", "\\\"")).append("\"");
-                first = false;
-            }
-            return sb.append("]").toString();
-        }
-    }
-
-    public static final class PermissionGroupInfo {
-        private final String groupName;
-        private final String subtitle;
-        private final List<PermissionInfo> permissions;
-        public PermissionGroupInfo(String groupName, String subtitle, List<PermissionInfo> permissions) {
-            this.groupName = groupName;
-            this.subtitle = subtitle != null ? subtitle : "";
-            this.permissions = permissions;
-        }
-        public String getGroupName()                { return groupName; }
-        public String getSubtitle()                 { return subtitle; }
-        public List<PermissionInfo> getPermissions() { return permissions; }
-    }
-
-    public static final class PermissionInfo {
-        private final String id;
-        private final String name;
-        private final String shortId;
-        private final String description;
-        private final String impliedById;
-
-        public PermissionInfo(String id, String name, String shortId, String description, String impliedById) {
-            this.id = id;
-            this.name = name;
-            this.shortId = shortId;
-            this.description = description != null ? description : "";
-            this.impliedById = impliedById != null ? impliedById : "";
-        }
-
-        /** Build from a Jenkins {@link Permission}, qualified by its group's display title. */
-        static PermissionInfo of(String groupTitle, Permission p) {
-            String desc = "";
-            try {
-                if (p.description != null) {
-                    desc = p.description.toString();
-                }
-            } catch (RuntimeException ignore) {
-                // a plugin's Localizable can throw if its resource bundle is missing — skip the tooltip
-            }
-            // Shown as the de-emphasised qualifier, e.g. "Lockable Resources/Steal" — the form CasC
-            // understands, instead of a raw class name like "LockableResourcesManager.Steal".
-            String qualified = groupTitle + "/" + p.name;
-            String impliedBy = p.impliedBy != null ? p.impliedBy.getId() : "";
-            return new PermissionInfo(p.getId(), p.name, qualified, desc, impliedBy);
-        }
-
-        public String getId()          { return id; }
-        public String getName()        { return name; }
-        public String getShortId()     { return shortId; }
-        public String getDescription() { return description; }
-        /** Id of the permission that implies this one (grants it automatically), or "" if none. */
-        public String getImpliedById() { return impliedById; }
-    }
 
     // =========================================================================
     // User-centric hierarchy view
@@ -5633,116 +5107,8 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     // ─── Inner classes for hierarchy view ────────────────────────────────────
 
-    public static final class TreeNode {
-        public final String path;
-        public final String name;
-        public final String type;          // root | folder | job | other
-        public List<String> directPerms = new ArrayList<>();
-        public String directRole;          // ADMIN/DEVELOPER/VIEWER/CUSTOM (root) or CONFIGURE/BUILD/READ/CUSTOM (item)
-        public String effectiveRole;
-        public List<TreeNode> children = new ArrayList<>();
-        public TreeNode(String path, String name, String type) {
-            this.path = path; this.name = name; this.type = type;
-        }
-        public String getPath()          { return path; }
-        public String getName()          { return name; }
-        public String getType()          { return type; }
-        public String getDirectRole()    { return directRole; }
-        public String getEffectiveRole() { return effectiveRole; }
-        public List<String> getDirectPerms() { return directPerms; }
-        public List<TreeNode> getChildren() { return children; }
-        public boolean isHasDirect()     { return directRole != null; }
-        public int getChildCount()       { return children.size(); }
-    }
 
-    public static final class TreeRow {
-        public TreeNode node;
-        public int depth;
-        public String inheritedRole;       // null if direct grant exists at this node
-        public String inheritedFromPath;   // path of the ancestor node where the inherited role originates
-        public TreeNode getNode()         { return node; }
-        public int getDepth()             { return depth; }
-        public String getInheritedRole()  { return inheritedRole; }
-        public String getInheritedFromPath() { return inheritedFromPath; }
-        public int getIndentPx()          { return depth * 22; }
-        public String getDisplayName()    {
-            if ("root".equals(node.type)) return node.name;
-            return node.name;
-        }
-    }
 
-    public static final class UserAssignmentInfo {
-        private final String scope;
-        private final String displayScope;
-        private final String scopeType;
-        private final String roleName;
-        private final List<String> permissionIds;
-        private final String expiresAt;
-        private final List<String> customPermissions;
-
-        public UserAssignmentInfo(String scope, String displayScope, String scopeType,
-                                  String roleName, List<String> permissionIds,
-                                  String expiresAt, List<String> customPermissions) {
-            this.scope             = scope;
-            this.displayScope      = displayScope;
-            this.scopeType         = scopeType;
-            this.roleName          = roleName;
-            this.permissionIds     = permissionIds;
-            this.expiresAt         = expiresAt;
-            this.customPermissions = customPermissions != null ? customPermissions : Collections.emptyList();
-        }
-
-        public String getScope()                     { return scope; }
-        public String getDisplayScope()              { return displayScope; }
-        public String getScopeType()                 { return scopeType; }
-        public String getRoleName()                  { return roleName; }
-        public List<String> getPermissionIds()       { return permissionIds; }
-        public String getExpiresAt()                 { return expiresAt; }
-        public List<String> getCustomPermissions()   { return customPermissions; }
-        private boolean reviewDue = false;
-        // lgtm false positive: Not a credential: an enum-like marker holding "STANDING"/"JIT" on a view-model row.
-        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-        private String accessType;
-        private String approverGroup;
-        private int maxDurationHours;
-        private int approvalTimeoutHours;
-
-        public boolean isGlobal()                    { return scope == null || scope.isEmpty(); }
-        public int getPermissionCount()              { return permissionIds != null ? permissionIds.size() : 0; }
-        public boolean isReviewDue()                 { return reviewDue; }
-        public void setReviewDue(boolean v)          { this.reviewDue = v; }
-        public String getAccessType()                { return accessType != null ? accessType : "STANDING"; }
-        public void setAccessType(String v)          { this.accessType = v; }
-        public boolean isJit()                       { return "JIT".equalsIgnoreCase(accessType); }
-        public String getApproverGroup()             { return approverGroup != null ? approverGroup : ""; }
-        public void setApproverGroup(String v)       { this.approverGroup = v; }
-        public int getMaxDurationHours()             { return maxDurationHours > 0 ? maxDurationHours : 4; }
-        public void setMaxDurationHours(int v)       { this.maxDurationHours = v; }
-        public int getApprovalTimeoutHours()         { return approvalTimeoutHours > 0 ? approvalTimeoutHours : 4; }
-        public void setApprovalTimeoutHours(int v)   { this.approvalTimeoutHours = v; }
-
-        public String getCustomPermissionsJson() {
-            if (customPermissions == null || customPermissions.isEmpty()) return "[]";
-            StringBuilder sb = new StringBuilder("[");
-            for (int i = 0; i < customPermissions.size(); i++) {
-                if (i > 0) sb.append(",");
-                sb.append("\"").append(customPermissions.get(i).replace("\"", "\\\"")).append("\"");
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-
-        public String getPermissionSummary() {
-            if (permissionIds == null || permissionIds.isEmpty()) return "none";
-            List<String> names = new ArrayList<>();
-            for (String pid : permissionIds) {
-                int dot = pid.lastIndexOf('.');
-                names.add(dot >= 0 ? pid.substring(dot + 1) : pid);
-            }
-            if (names.size() <= 3) return String.join(", ", names);
-            return names.get(0) + ", " + names.get(1) + " + " + (names.size() - 2) + " more";
-        }
-    }
 
     public enum ScopedRole {
         READ(
@@ -5767,45 +5133,4 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class PendingReviewItem {
-        private final String userId;
-        private final String displayName;
-        private final String authType;
-        private final String roleId;
-        private final String scope;
-        private final String displayScope;
-        private final String scopeType;
-        private final int daysAgo;
-        private final boolean everReviewed;
-
-        public PendingReviewItem(String userId, String displayName, String authType,
-                                 String roleId, String scope, String displayScope,
-                                 String scopeType, int daysAgo, boolean everReviewed) {
-            this.userId       = userId;
-            this.displayName  = displayName;
-            this.authType     = authType;
-            this.roleId       = roleId;
-            this.scope        = scope;
-            this.displayScope = displayScope;
-            this.scopeType    = scopeType;
-            this.daysAgo      = daysAgo;
-            this.everReviewed = everReviewed;
-        }
-
-        public String getUserId()       { return userId; }
-        public String getDisplayName()  { return displayName; }
-        public String getAuthType()     { return authType; }
-        public String getRoleId()       { return roleId; }
-        public String getScope()        { return scope; }
-        public String getDisplayScope() { return displayScope; }
-        public String getScopeType()    { return scopeType; }
-        public int getDaysAgo()         { return daysAgo; }
-        public boolean isEverReviewed() { return everReviewed; }
-        public boolean isGroup()        { return "GROUP".equalsIgnoreCase(authType); }
-
-        public String getAvatarLetter() {
-            String src = (displayName != null && !displayName.equals(userId)) ? displayName : userId;
-            return (src != null && !src.isEmpty()) ? src.substring(0, 1).toUpperCase() : "?";
-        }
-    }
 }

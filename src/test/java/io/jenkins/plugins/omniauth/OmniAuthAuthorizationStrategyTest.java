@@ -209,11 +209,11 @@ public class OmniAuthAuthorizationStrategyTest {
         var all = link.getAvailablePermissions().stream()
                 .flatMap(g -> g.getPermissions().stream())
                 .toList();
-        OmniAuthManagementLink.PermissionInfo read = all.stream()
+        PermissionInfo read = all.stream()
                 .filter(p -> p.getId().equals("hudson.model.Item.Read")).findFirst().orElseThrow();
         assertFalse(read.getDescription().isEmpty(), "Item.Read should expose its description for the tooltip");
         // Discover is granted automatically by a stronger permission (Read), so it is implied-by something.
-        OmniAuthManagementLink.PermissionInfo discover = all.stream()
+        PermissionInfo discover = all.stream()
                 .filter(p -> p.getId().equals("hudson.model.Item.Discover")).findFirst().orElseThrow();
         assertFalse(discover.getImpliedById().isEmpty(), "Item.Discover should report the permission that implies it");
     }
