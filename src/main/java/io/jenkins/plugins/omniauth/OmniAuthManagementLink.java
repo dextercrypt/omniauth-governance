@@ -1233,57 +1233,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("settings?saved=true");
     }
 
-    @POST
-    public void doSendTestEmail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-
-        // Read current form values — no save needed
-        OmniAuthGlobalConfig saved = OmniAuthGlobalConfig.get();
-
-        String host     = param(req, "smtpHost",    saved != null ? saved.getSmtpHost()        : "");
-        String portStr  = param(req, "smtpPort",    saved != null ? String.valueOf(saved.getSmtpPort()) : "465");
-        String username = param(req, "smtpUsername",saved != null ? saved.getSmtpUsername()    : "");
-        String fromAddr = param(req, "smtpFromAddress", saved != null ? saved.getSmtpFromAddress() : "");
-        String fromName = param(req, "smtpFromName",saved != null ? saved.getSmtpFromName()    : "Jenkins OmniAuth");
-        String replyTo  = param(req, "smtpReplyTo", saved != null ? saved.getSmtpReplyTo()     : "");
-        String to       = param(req, "notifyEmails",saved != null ? saved.getNotifyEmails()    : "");
-        boolean tls     = "1".equals(req.getParameter("smtpTls"));
-
-        // Split host:port if user pasted a combined value (e.g. from Grafana config)
-        if (host.contains(":")) {
-            String[] parts = host.split(":", 2);
-            host = parts[0].trim();
-            if (portStr.isEmpty() || portStr.equals("465")) portStr = parts[1].trim();
-        }
-
-        // Password: use form value if provided, else fall back to saved
-        String password = req.getParameter("smtpPassword");
-        if (password == null || password.trim().isEmpty()) {
-            password = (saved != null && saved.getSmtpPassword() != null)
-                    ? saved.getSmtpPassword().getPlainText() : "";
-        } else {
-            password = password.trim(); // remove accidental trailing whitespace/newlines from paste
-        }
-
-        int port = 465;
-        try { port = Integer.parseInt(portStr.trim()); } catch (NumberFormatException ignored) {}
-
-        String json;
-        if (host.isEmpty() || fromAddr.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            json = "{\"ok\":false,\"msg\":\"Fill in host, username, password and from address first\"}";
-        } else if (to.isEmpty()) {
-            json = "{\"ok\":false,\"msg\":\"Fill in at least one notification recipient\"}";
-        } else {
-            try {
-                SmtpHelper.test(host, port, username, password, tls, fromAddr, fromName, replyTo, to);
-                json = "{\"ok\":true,\"msg\":\"Test email sent to " + escapeJson(to) + "\"}";
-            } catch (Exception e) {
-                String msg = e.getMessage() != null ? e.getMessage() : "Unknown error";
-                json = "{\"ok\":false,\"msg\":\"" + escapeJson(msg) + "\"}";
-            }
-        }
-
-        writeJson(rsp, json);
+    /**
+     * The descriptor that backs the Notifications test-email button. Exposed so notifications.jelly
+     * can give {@code f:validateButton} a descriptor context; the test logic lives on
+     * {@link OmniAuthGlobalConfig#doSendTestEmail} (the descriptor that owns the SMTP settings).
+     */
+    public OmniAuthGlobalConfig getSmtpTestDescriptor() {
+        return OmniAuthGlobalConfig.get();
     }
 
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.

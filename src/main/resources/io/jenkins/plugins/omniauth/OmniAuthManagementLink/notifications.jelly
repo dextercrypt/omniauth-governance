@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:oau="/lib/oau">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form" xmlns:oau="/lib/oau">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Notifications" norefresh="true">
     <l:side-panel>
@@ -318,12 +318,13 @@
                          placeholder="admin@example.com, team@example.com"/>
                 </label>
 
-                <!-- Test button -->
+                <!-- Test button — native f:validateButton; posts the SMTP fields to
+                     OmniAuthGlobalConfig#doSendTestEmail and renders its FormValidation result. -->
                 <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
-                  <button type="button" class="jenkins-button" id="oauSendTestEmailBtn">
-                    Send Test Email
-                  </button>
-                  <span id="smtpTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
+                  <j:set var="descriptor" value="${it.smtpTestDescriptor}"/>
+                  <f:validateButton title="Send Test Email" progress="Sending…"
+                                    method="sendTestEmail"
+                                    with="smtpHost,smtpPort,smtpUsername,smtpPassword,smtpTls,smtpFromAddress,smtpFromName,smtpReplyTo,notifyEmails"/>
                 </div>
 
                 <!-- SMTP event subscriptions -->

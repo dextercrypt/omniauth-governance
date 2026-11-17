@@ -2,12 +2,16 @@ package io.jenkins.plugins.omniauth;
 
 import hudson.Extension;
 import hudson.model.User;
+import hudson.util.FormValidation;
 import hudson.util.Secret;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -278,6 +282,68 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
     public String  getSmtpReplyTo()     { return smtpReplyTo; }
     @DataBoundSetter public void setSmtpReplyTo(String v)  { this.smtpReplyTo = v; }
     public String  getNotifyEmails()    { return notifyEmails; }
+
+    /**
+     * Send a test email using the values currently on the Notifications form (falling back to the
+     * stored config for any blank field). Wired from notifications.jelly via {@code f:validateButton},
+     * so the result renders as Jenkins' standard inline validation (green ok / red error).
+     */
+    @RequirePOST
+    public FormValidation doSendTestEmail(
+            @QueryParameter String smtpHost,
+            @QueryParameter String smtpPort,
+            @QueryParameter String smtpUsername,
+            @QueryParameter String smtpPassword,
+            @QueryParameter boolean smtpTls,
+            @QueryParameter String smtpFromAddress,
+            @QueryParameter String smtpFromName,
+            @QueryParameter String smtpReplyTo,
+            @QueryParameter String notifyEmails) {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
+        String host     = nonBlank(smtpHost)        ? smtpHost.trim()     : getSmtpHost();
+        String portStr  = nonBlank(smtpPort)        ? smtpPort.trim()     : String.valueOf(getSmtpPort());
+        String username = nonBlank(smtpUsername)    ? smtpUsername        : getSmtpUsername();
+        String fromAddr = nonBlank(smtpFromAddress) ? smtpFromAddress     : getSmtpFromAddress();
+        String fromName = nonBlank(smtpFromName)    ? smtpFromName        : getSmtpFromName();
+        String replyTo  = nonBlank(smtpReplyTo)     ? smtpReplyTo         : getSmtpReplyTo();
+        String to       = nonBlank(notifyEmails)    ? notifyEmails        : getNotifyEmails();
+
+        // Split host:port if a combined value was pasted (e.g. from another tool's config).
+        if (host != null && host.contains(":")) {
+            String[] parts = host.split(":", 2);
+            host = parts[0].trim();
+            if (portStr.isEmpty() || portStr.equals("465")) portStr = parts[1].trim();
+        }
+
+        // Use the submitted password if present, otherwise the stored secret.
+        String password = smtpPassword;
+        if (password == null || password.trim().isEmpty()) {
+            password = getSmtpPassword() != null ? getSmtpPassword().getPlainText() : "";
+        } else {
+            password = password.trim();
+        }
+
+        int port = 465;
+        try { port = Integer.parseInt(portStr.trim()); } catch (NumberFormatException ignored) { /* keep 465 */ }
+
+        if (host == null || host.isEmpty() || fromAddr == null || fromAddr.isEmpty()
+                || username == null || username.isEmpty() || password.isEmpty()) {
+            return FormValidation.error("Fill in host, username, password and from address first");
+        }
+        if (to == null || to.isEmpty()) {
+            return FormValidation.error("Fill in at least one notification recipient");
+        }
+        try {
+            SmtpHelper.test(host, port, username, password, smtpTls, fromAddr, fromName, replyTo, to);
+            return FormValidation.ok("Test email sent to " + to);
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "unknown error";
+            return FormValidation.error("Could not send: " + msg);
+        }
+    }
+
+    private static boolean nonBlank(String s) { return s != null && !s.trim().isEmpty(); }
     @DataBoundSetter public void setNotifyEmails(String v) { this.notifyEmails = v; }
 
     public boolean isSmtpConfigured() {
