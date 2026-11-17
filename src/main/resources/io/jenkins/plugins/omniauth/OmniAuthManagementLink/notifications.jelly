@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:oau="/lib/oau">
 
-  <l:layout title="OmniAuth — Notifications" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Notifications" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>

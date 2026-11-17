@@ -79,51 +79,9 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
     @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doUserStatus(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "userStatus.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doStaleUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "staleUsers.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
     public void doUserOverview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         req.getView(this, "access.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAccessManagement(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "accessManagement.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAccessReview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "accessReview.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doJitRequests(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "jitRequests.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAuditLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "auditLog.jelly").forward(req, rsp);
     }
 
     public List<Map<String, String>> getAuditEvents() {
@@ -198,13 +156,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     private static final java.util.logging.Logger BR_LOG =
             java.util.logging.Logger.getLogger(OmniAuthManagementLink.class.getName());
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doBackup(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "backup.jelly").forward(req, rsp);
-    }
 
     @POST
     public void doExportConfig(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -550,20 +501,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     /** True when there is at least one history event to show. */
     public boolean isHistoryAvailable() { return !getImportHistory().isEmpty(); }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSettings(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "settings.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAbout(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "about.jelly").forward(req, rsp);
-    }
-
     /** True when OmniAuth is the active security realm (native sign-in is then always available). */
     public boolean isOmniAuthRealm() {
         return Jenkins.get().getSecurityRealm() instanceof OmniAuthSecurityRealm;
@@ -588,13 +525,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
     @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doNotifications(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "notifications.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
     public void doSessions(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         jakarta.servlet.http.HttpSession s = req.getSession(false);
@@ -613,13 +543,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     /** Unified Emergency Access page: Break Glass (TOTP) + SOS recovery codes in one place. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doEmergencyAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
-    }
-
     /** Back-compat alias — the Break Glass enrollment now lives on the unified Emergency Access page. */
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
     @SuppressWarnings("lgtm[jenkins/csrf]")
@@ -977,13 +900,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return NotificationLog.get();
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doNotificationLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "notificationLog.jelly").forward(req, rsp);
-    }
-
     @POST
     public void doSendTestSlack(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -1250,13 +1166,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Notifications",
                 "notification channels / brute-force settings saved");
         rsp.sendRedirect("notifications?saved=true");
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doProtectedUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "protectedUsers.jelly").forward(req, rsp);
     }
 
     @POST
