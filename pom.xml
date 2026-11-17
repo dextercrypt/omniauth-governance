@@ -156,6 +156,13 @@
       <artifactId>snakeyaml-api</artifactId>
     </dependency>
 
+    <!-- Ionicons symbols — our jellies load <l:icon src="symbol-… plugin-ionicons-api"/> for
+         sidepanel/task icons, so depend on the plugin that provides those symbols at runtime. -->
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>ionicons-api</artifactId>
+    </dependency>
+
     <!-- TOTP for Break Glass authentication -->
     <dependency>
       <groupId>org.jboss.aerogear</groupId>

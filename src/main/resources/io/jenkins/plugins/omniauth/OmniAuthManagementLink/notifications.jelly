@@ -105,6 +105,7 @@
                   Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
                 </div>
                 <input type="url" id="oauLogoUrlInput" name="notificationLogoUrl"
+                       class="jenkins-input"
                        value=""
                        placeholder="https://your-domain.com/logo.png"
                        style="width:400px; max-width:100%;"/>
@@ -118,6 +119,7 @@
                 Optional line shown above the fine print in every notification email (e.g. "Contact IT: helpdesk@corp.com").
               </div>
               <input type="text" name="notificationFooterNote" value="${cfg.notificationFooterNote}"
+                     class="jenkins-input"
                      placeholder="e.g. For support contact helpdesk@corp.com"
                      style="width:440px; max-width:100%;"/>
             </div>

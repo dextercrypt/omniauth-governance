@@ -45,7 +45,7 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     // ── SMTP configuration ────────────────────────────────────────────────────
     private String  smtpHost        = "";
-    private int     smtpPort        = 587;
+    private int     smtpPort        = 465;
     private String  smtpUsername    = "";
     private Secret  smtpPassword    = null;
     private boolean smtpTls         = true;
@@ -457,10 +457,10 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
         if (rawHost.contains(":")) {
             String[] hp = rawHost.split(":", 2);
             smtpHost = hp[0].trim();
-            try { smtpPort = Integer.parseInt(hp[1].trim()); } catch (NumberFormatException ignored) { smtpPort = 587; }
+            try { smtpPort = Integer.parseInt(hp[1].trim()); } catch (NumberFormatException ignored) { smtpPort = 465; }
         } else {
             smtpHost = rawHost;
-            smtpPort = jsonInt(json, "smtpPort", 587);
+            smtpPort = jsonInt(json, "smtpPort", 465);
         }
         smtpUsername    = jsonStr(json, "smtpUsername",    "");
         String rawPass  = jsonStr(json, "smtpPassword",    "");

@@ -64,7 +64,7 @@
 
                 <j:if test="${it.loginAnnouncementText != null and it.loginAnnouncementText != ''}">
                   <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;
-                       background:var(--warning-color-bg,#fff8e1);
+                       background:color-mix(in srgb, var(--warning-color,#f0ad4e) 14%, transparent);
                        border:1px solid var(--warning-color,#f0ad4e);
                        border-radius:6px;margin-bottom:16px;font-size:13px;line-height:1.5;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"

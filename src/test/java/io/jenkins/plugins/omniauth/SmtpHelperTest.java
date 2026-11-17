@@ -132,4 +132,31 @@ public class SmtpHelperTest {
         // Disabled => returns before validation; no invalid-recipient warning either way.
         assertFalse(handler.sawInvalidRecipient());
     }
+
+    // ── TLS wiring (buildProps) ────────────────────────────────────────────────
+
+    @Test
+    public void buildProps_port465_usesImplicitSslNotStarttls() {
+        // Port 465 is implicit TLS (SMTPS): the connection is encrypted from the start, so SSL is
+        // enabled regardless of the STARTTLS toggle and STARTTLS must NOT be set.
+        java.util.Properties p = SmtpHelper.buildProps("mail.example.com", 465, true);
+        assertEquals("true", p.getProperty("mail.smtp.ssl.enable"));
+        assertEquals("true", p.getProperty("mail.smtp.ssl.checkserveridentity"));
+        assertNull(p.getProperty("mail.smtp.starttls.enable"));
+    }
+
+    @Test
+    public void buildProps_port587_usesStarttlsNotImplicitSsl() {
+        java.util.Properties p = SmtpHelper.buildProps("mail.example.com", 587, true);
+        assertEquals("true", p.getProperty("mail.smtp.starttls.enable"));
+        assertEquals("true", p.getProperty("mail.smtp.starttls.required"));
+        assertNull(p.getProperty("mail.smtp.ssl.enable"));
+    }
+
+    @Test
+    public void buildProps_port25_tlsOff_usesNeither() {
+        java.util.Properties p = SmtpHelper.buildProps("mail.example.com", 25, false);
+        assertNull(p.getProperty("mail.smtp.ssl.enable"));
+        assertNull(p.getProperty("mail.smtp.starttls.enable"));
+    }
 }

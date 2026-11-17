@@ -956,7 +956,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     @POST
     public void doRevokeSession(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         Jenkins.get().checkPermission(Jenkins.ADMINISTER); // CSRF already enforced via @POST
         String sessionId = req.getParameter("sessionId");
         String currentSessionId = req.getSession(false) != null ? req.getSession(false).getId() : null;
@@ -1432,7 +1431,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         OmniAuthGlobalConfig saved = OmniAuthGlobalConfig.get();
 
         String host     = param(req, "smtpHost",    saved != null ? saved.getSmtpHost()        : "");
-        String portStr  = param(req, "smtpPort",    saved != null ? String.valueOf(saved.getSmtpPort()) : "587");
+        String portStr  = param(req, "smtpPort",    saved != null ? String.valueOf(saved.getSmtpPort()) : "465");
         String username = param(req, "smtpUsername",saved != null ? saved.getSmtpUsername()    : "");
         String fromAddr = param(req, "smtpFromAddress", saved != null ? saved.getSmtpFromAddress() : "");
         String fromName = param(req, "smtpFromName",saved != null ? saved.getSmtpFromName()    : "Jenkins OmniAuth");
@@ -1444,7 +1443,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         if (host.contains(":")) {
             String[] parts = host.split(":", 2);
             host = parts[0].trim();
-            if (portStr.isEmpty() || portStr.equals("587")) portStr = parts[1].trim();
+            if (portStr.isEmpty() || portStr.equals("465")) portStr = parts[1].trim();
         }
 
         // Password: use form value if provided, else fall back to saved
@@ -1456,7 +1455,7 @@ public class OmniAuthManagementLink extends ManagementLink {
             password = password.trim(); // remove accidental trailing whitespace/newlines from paste
         }
 
-        int port = 587;
+        int port = 465;
         try { port = Integer.parseInt(portStr.trim()); } catch (NumberFormatException ignored) {}
 
         String json;
@@ -1540,7 +1539,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                     "403 Forbidden: Insufficient privileges to complete the operation."); break;
             case "smtpTest": {
                 String host = cfg != null ? cfg.getSmtpHost()        : "mail.corp.com";
-                int port    = cfg != null ? cfg.getSmtpPort()        : 587;
+                int port    = cfg != null ? cfg.getSmtpPort()        : 465;
                 String from = cfg != null ? cfg.getSmtpFromAddress() : "jenkins@corp.com";
                 String to   = cfg != null ? cfg.getNotifyEmails()    : "admin@corp.com";
                 html = SmtpHelper.buildSmtpTestHtml(host, port, from, to); break;
@@ -1549,7 +1548,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                 html = SmtpHelper.buildConfigChangedHtml(cfg, "admin", now,
                     java.util.Arrays.asList(
                         "smtpHost: old-mail.corp.com \u2192 mail.corp.com",
-                        "smtpPort: 25 \u2192 587",
+                        "smtpPort: 25 \u2192 465",
                         "smtpTls: false \u2192 true",
                         "staleThresholdDays: 60 \u2192 90"));
         }
