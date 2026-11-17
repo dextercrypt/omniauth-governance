@@ -9,11 +9,7 @@
 
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.backupAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Backup &amp; Restore</h1>
-        </div>
-      </div>
+      <l:app-bar title="Backup &amp; Restore"/>
 
       <div style="padding: 16px 24px; max-width: 860px;">
 

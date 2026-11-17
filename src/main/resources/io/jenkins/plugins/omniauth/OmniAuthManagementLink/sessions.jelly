@@ -8,11 +8,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.sessionsAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Active Sessions</h1>
-        </div>
-      </div>
+      <l:app-bar title="Active Sessions"/>
 
       <div style="padding: 16px 24px;">
 

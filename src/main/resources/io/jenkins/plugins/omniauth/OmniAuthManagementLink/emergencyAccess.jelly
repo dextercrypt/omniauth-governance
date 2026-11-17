@@ -7,11 +7,7 @@
     </l:side-panel>
     <l:main-panel>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Emergency Access</h1>
-        </div>
-      </div>
+      <l:app-bar title="Emergency Access"/>
 
       <div style="padding: 16px 24px; max-width: 680px;">
 

@@ -9,11 +9,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.notificationLogAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Notification Log</h1>
-        </div>
-      </div>
+      <l:app-bar title="Notification Log"/>
 
       <div style="padding: 16px 24px; max-width: 960px;">
 

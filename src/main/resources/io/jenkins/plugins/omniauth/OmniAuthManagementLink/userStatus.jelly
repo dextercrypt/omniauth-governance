@@ -5,11 +5,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.userStatusAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">User Status</h1>
-        </div>
-      </div>
+      <l:app-bar title="User Status"/>
 
       <div class="us-page">
         <j:set var="cfg"   value="${it.omniAuthGlobalConfig}"/>

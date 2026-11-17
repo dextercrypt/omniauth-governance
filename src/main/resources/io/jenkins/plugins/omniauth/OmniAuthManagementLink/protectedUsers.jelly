@@ -8,11 +8,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.protectedUsersAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Protected Users</h1>
-        </div>
-      </div>
+      <l:app-bar title="Protected Users"/>
 
       <div style="padding: 16px 24px; max-width: 960px;">
 
