@@ -19,28 +19,23 @@ function sosGenerate(isRegen) {
 
 function sosDoGenerate() {
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r){ return r.json(); })
-    .then(function(cd){
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', base + '/manage/omniauth-management/sosGenerateCodes', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader(cd.crumbRequestField, cd.crumb);
-      xhr.onload = function() {
-        try {
-          var r = JSON.parse(xhr.responseText);
-          if (r.success) {
-            sosCodes = r.codes;
-            renderCodes();
-          } else {
-            alert(r.error || 'Could not generate codes.');
-          }
-        } catch (e) { alert('Server error.'); }
-      };
-      xhr.onerror = function(){ alert('Network error.'); };
-      xhr.send('');
-    })
-    .catch(function(){ alert('Could not fetch security token.'); });
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', base + '/manage/omniauth-management/sosGenerateCodes', true);
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
+  Object.keys(headers).forEach(function(k){ xhr.setRequestHeader(k, headers[k]); });
+  xhr.onload = function() {
+    try {
+      var r = JSON.parse(xhr.responseText);
+      if (r.success) {
+        sosCodes = r.codes;
+        renderCodes();
+      } else {
+        alert(r.error || 'Could not generate codes.');
+      }
+    } catch (e) { alert('Server error.'); }
+  };
+  xhr.onerror = function(){ alert('Network error.'); };
+  xhr.send('');
 }
 
 function renderCodes() {

@@ -18,12 +18,7 @@ function oauRoot() {
 function sosDeactivateNow(btn){
   btn.disabled = true; btn.textContent = 'Deactivating...';
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r){return r.json();})
-    .then(function(cd){
-      var h = {'Content-Type':'application/x-www-form-urlencoded'}; h[cd.crumbRequestField]=cd.crumb;
-      return fetch(base + '/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:''});
-    })
+  fetch(base + '/manage/omniauth-management/sosDeactivate',{method:'POST',headers:crumb.wrap({'Content-Type':'application/x-www-form-urlencoded'}),body:''})
     .then(function(){ window.location.reload(); })
     .catch(function(){ btn.disabled=false; btn.textContent='Deactivate now'; });
 }

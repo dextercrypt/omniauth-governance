@@ -9,22 +9,18 @@
 // ── Skip (reminder mode) ──────────────────────────────────────────────
 function skipReminder() {
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r) { return r.json(); })
-    .then(function(cd) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', base + '/manage/omniauth-management/totpReminderSkip', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader(cd.crumbRequestField, cd.crumb);
-      xhr.onload = function() {
-        try {
-          var r = JSON.parse(xhr.responseText);
-          window.location.href = r.redirect || base + '/';
-        } catch(e) { window.location.href = base + '/'; }
-      };
-      xhr.onerror = function() { window.location.href = base + '/'; };
-      xhr.send('');
-    });
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', base + '/manage/omniauth-management/totpReminderSkip', true);
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
+  Object.keys(headers).forEach(function(k){ xhr.setRequestHeader(k, headers[k]); });
+  xhr.onload = function() {
+    try {
+      var r = JSON.parse(xhr.responseText);
+      window.location.href = r.redirect || base + '/';
+    } catch(e) { window.location.href = base + '/'; }
+  };
+  xhr.onerror = function() { window.location.href = base + '/'; };
+  xhr.send('');
 }
 
 // ── Inline enrollment (forced mode) ──────────────────────────────────
@@ -34,32 +30,28 @@ function generateQr() {
   document.getElementById('step-generate').style.display = 'none';
   document.getElementById('step-loading').style.display  = 'block';
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r) { return r.json(); })
-    .then(function(cd) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', base + '/manage/omniauth-management/breakGlassEnrollInit', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader(cd.crumbRequestField, cd.crumb);
-      xhr.onload = function() {
-        document.getElementById('step-loading').style.display = 'none';
-        try {
-          var r = JSON.parse(xhr.responseText);
-          pendingSecret = r.secret;
-          document.getElementById('qr-img').src = r.qr;
-          document.getElementById('secret-display').textContent = r.secret;
-          document.getElementById('step-qr').style.display = 'block';
-          document.getElementById('verify-code').focus();
-        } catch(e) {
-          document.getElementById('step-generate').style.display = 'block';
-        }
-      };
-      xhr.onerror = function() {
-        document.getElementById('step-loading').style.display  = 'none';
-        document.getElementById('step-generate').style.display = 'block';
-      };
-      xhr.send('');
-    });
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', base + '/manage/omniauth-management/breakGlassEnrollInit', true);
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
+  Object.keys(headers).forEach(function(k){ xhr.setRequestHeader(k, headers[k]); });
+  xhr.onload = function() {
+    document.getElementById('step-loading').style.display = 'none';
+    try {
+      var r = JSON.parse(xhr.responseText);
+      pendingSecret = r.secret;
+      document.getElementById('qr-img').src = r.qr;
+      document.getElementById('secret-display').textContent = r.secret;
+      document.getElementById('step-qr').style.display = 'block';
+      document.getElementById('verify-code').focus();
+    } catch(e) {
+      document.getElementById('step-generate').style.display = 'block';
+    }
+  };
+  xhr.onerror = function() {
+    document.getElementById('step-loading').style.display  = 'none';
+    document.getElementById('step-generate').style.display = 'block';
+  };
+  xhr.send('');
 }
 
 function verifyCode() {
@@ -72,44 +64,40 @@ function verifyCode() {
   var btn = document.getElementById('btn-verify');
   btn.disabled = true; btn.textContent = 'Verifying…';
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r) { return r.json(); })
-    .then(function(cd) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', base + '/manage/omniauth-management/breakGlassEnrollVerify', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader(cd.crumbRequestField, cd.crumb);
-      xhr.onload = function() {
-        btn.disabled = false; btn.textContent = 'Confirm & Save';
-        try {
-          var r = JSON.parse(xhr.responseText);
-          if (r.success) {
-            document.getElementById('step-qr').style.display      = 'none';
-            document.getElementById('step-success').style.display = 'block';
-            requestAnimationFrame(function() {
-              requestAnimationFrame(function() {
-                document.getElementById('success-bar').style.width = '0%';
-              });
-            });
-            setTimeout(function() { window.location.href = base + '/'; }, 1600);
-          } else {
-            errEl.textContent = r.error || 'Verification failed.';
-            errEl.style.display = 'block';
-            document.getElementById('verify-code').value = '';
-            document.getElementById('verify-code').focus();
-          }
-        } catch(e) {
-          errEl.textContent = 'Server error. Try again.'; errEl.style.display = 'block';
-        }
-      };
-      xhr.onerror = function() {
-        btn.disabled = false; btn.textContent = 'Confirm & Save';
-        errEl.textContent = 'Network error.'; errEl.style.display = 'block';
-      };
-      xhr.send('secret='     + encodeURIComponent(pendingSecret) +
-               '&code='      + encodeURIComponent(code)          +
-               '&deviceName='+ encodeURIComponent(deviceName));
-    });
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', base + '/manage/omniauth-management/breakGlassEnrollVerify', true);
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
+  Object.keys(headers).forEach(function(k){ xhr.setRequestHeader(k, headers[k]); });
+  xhr.onload = function() {
+    btn.disabled = false; btn.textContent = 'Confirm & Save';
+    try {
+      var r = JSON.parse(xhr.responseText);
+      if (r.success) {
+        document.getElementById('step-qr').style.display      = 'none';
+        document.getElementById('step-success').style.display = 'block';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            document.getElementById('success-bar').style.width = '0%';
+          });
+        });
+        setTimeout(function() { window.location.href = base + '/'; }, 1600);
+      } else {
+        errEl.textContent = r.error || 'Verification failed.';
+        errEl.style.display = 'block';
+        document.getElementById('verify-code').value = '';
+        document.getElementById('verify-code').focus();
+      }
+    } catch(e) {
+      errEl.textContent = 'Server error. Try again.'; errEl.style.display = 'block';
+    }
+  };
+  xhr.onerror = function() {
+    btn.disabled = false; btn.textContent = 'Confirm & Save';
+    errEl.textContent = 'Network error.'; errEl.style.display = 'block';
+  };
+  xhr.send('secret='     + encodeURIComponent(pendingSecret) +
+           '&code='      + encodeURIComponent(code)          +
+           '&deviceName='+ encodeURIComponent(deviceName));
 }
 
 document.addEventListener('keydown', function(e) {
