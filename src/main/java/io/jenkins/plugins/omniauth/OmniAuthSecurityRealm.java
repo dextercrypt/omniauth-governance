@@ -58,11 +58,16 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     /** Set when the OAuth flow was started as a provisioning-portal access request, not a login. */
     static final String SESSION_PROVISION_MODE = "omniauth_provision_mode";
 
-    /** Azure AD configuration — may be null when Entra login is not yet configured. */
-    private final EntraOAuthConfig entraConfig;
+    /**
+     * The configured SSO provider (an {@link OmniAuthSsoProvider}), or null when SSO is not set up.
+     * Today this is always an {@link EntraOAuthConfig}; modelling it as the extension-point type lets
+     * a future provider drop in without touching the realm. {@link #getEntraConfig()} narrows it for
+     * the Entra-specific login path that still lives here.
+     */
+    private final OmniAuthSsoProvider provider;
 
     /**
-     * Authoritative on/off switch for single sign-on, independent of whether {@link #entraConfig}
+     * Authoritative on/off switch for single sign-on, independent of whether {@link #provider}
      * is filled in. This lets an admin keep provider settings stored but dormant: turning SSO off
      * preserves the Entra config so it can be switched back on later without re-entering the client
      * secret, while sign-in stays native-only in the meantime.
@@ -93,16 +98,22 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     private transient volatile TokenHelper cachedHelper;
 
     @DataBoundConstructor
-    public OmniAuthSecurityRealm(boolean allowsSignup, EntraOAuthConfig entraConfig) {
+    public OmniAuthSecurityRealm(boolean allowsSignup, OmniAuthSsoProvider provider) {
         // allowsSignup is accepted for binding compatibility but always forced OFF: self-signup is
         // replaced by the governed provisioning portal. This holds for the UI, JCasC, and any
         // previously-persisted config that had it enabled.
         super(false, false, null);          // allowsSignup=false, enableCaptcha=false, captchaSupport=null
-        this.entraConfig = entraConfig;
+        this.provider = provider;
     }
 
+    /** The configured SSO provider (the extension-point type), for the realm config selector. */
+    public OmniAuthSsoProvider getProvider() {
+        return provider;
+    }
+
+    /** The Entra config when that is the configured provider, else null (narrowing convenience). */
     public EntraOAuthConfig getEntraConfig() {
-        return entraConfig;
+        return (provider instanceof EntraOAuthConfig) ? (EntraOAuthConfig) provider : null;
     }
 
     @org.kohsuke.stapler.DataBoundSetter
@@ -116,7 +127,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * configured, so upgrades keep working SSO switched on.
      */
     public boolean isSsoEnabled() {
-        return ssoEnabled == null ? (entraConfig != null) : ssoEnabled;
+        return ssoEnabled == null ? (provider != null) : ssoEnabled;
     }
 
     /**
@@ -126,7 +137,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * a dormant-but-preserved config never leaks SSO back on.
      */
     public boolean isSsoActive() {
-        return isSsoEnabled() && entraConfig != null;
+        return isSsoEnabled() && provider != null;
     }
 
     /**
@@ -323,7 +334,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     @Override
     public GroupDetails loadGroupByGroupname2(String groupname, boolean fetchMembers)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
-        if (isSsoActive() && entraConfig.isEnableGroupSync()) {
+        if (isSsoActive() && getEntraConfig().isEnableGroupSync()) {
             return new GroupDetails() {
                 @Override
                 public String getName() { return groupname; }
@@ -456,7 +467,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         // GROUP entities require group data at gate time regardless of the enableGroupSync flag.
         List<EntraGroupDetails> groups = new ArrayList<>();
         OmniAuthAssignmentConfig assignmentConfig = OmniAuthAssignmentConfig.get();
-        boolean needGroups = (entraConfig.isEnableGroupSync() || (assignmentConfig != null && assignmentConfig.hasAnyGroups()));
+        boolean needGroups = (getEntraConfig().isEnableGroupSync() || (assignmentConfig != null && assignmentConfig.hasAnyGroups()));
         if (needGroups && result.accessToken() != null) {
             try {
                 groups = new GraphApiHelper().getGroupMemberships(result.accessToken());
@@ -492,7 +503,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         // cross-tenant account slipping in through group membership). Empty list = allow all.
         String emailForDomain = (email != null && !email.isEmpty()) ? email
                 : (upn != null ? upn : "");
-        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, entraConfig.getAllowedDomains())) {
+        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, getEntraConfig().getAllowedDomains())) {
             String displayId = upn != null ? upn : oid;
             int at = emailForDomain.lastIndexOf('@');
             String domain = at >= 0 ? emailForDomain.substring(at + 1) : "(none)";
@@ -788,7 +799,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         if (cachedHelper == null) {
             synchronized (this) {
                 if (cachedHelper == null) {
-                    cachedHelper = new MsalTokenHelper(entraConfig);
+                    cachedHelper = new MsalTokenHelper(getEntraConfig());
                 }
             }
         }
@@ -851,28 +862,29 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             // provisioning portal (request + approval + audit), not an open /signup page.
             boolean allowsSignup = false;
 
-            // The SSO toggle is authoritative. The Entra fields are always parsed and kept (even when
-            // the toggle is off) so the provider settings are preserved and sign-in just goes native
-            // only; flipping the toggle back on later restores them without re-entering the secret.
+            // The SSO toggle is authoritative. The provider settings are always bound and kept (even
+            // when the toggle is off) so they are preserved and sign-in just goes native only;
+            // flipping the toggle back on later restores them without re-entering the secret.
             boolean ssoEnabled = formData.optBoolean("ssoEnabled", false);
 
-            EntraOAuthConfig entraConfig = null;
-            JSONObject entraData = formData.optJSONObject("entraConfig");
-            if (entraData != null && !entraData.isEmpty()) {
-                String tenantId  = entraData.optString("tenantId",  "").trim();
-                String clientId  = entraData.optString("clientId",  "").trim();
-                String secretStr = entraData.optString("clientSecret", "").trim();
-                if (!tenantId.isEmpty() && !clientId.isEmpty() && !secretStr.isEmpty()) {
-                    entraConfig = new EntraOAuthConfig(
-                            tenantId, clientId, hudson.util.Secret.fromString(secretStr));
-                    entraConfig.setEnableGroupSync(entraData.optBoolean("enableGroupSync", false));
+            // Bind the selected SSO provider from the dropdown-descriptor-selector. Databinding uses
+            // the provider's own @DataBoundConstructor/@DataBoundSetters, so each provider's full
+            // config round-trips without the realm knowing its fields. A half-configured provider
+            // (missing required settings) is treated as "no provider".
+            OmniAuthSsoProvider provider = null;
+            JSONObject providerData = formData.optJSONObject("provider");
+            if (providerData != null && !providerData.isEmpty()) {
+                provider = req.bindJSON(OmniAuthSsoProvider.class, providerData);
+                if (provider != null && !provider.isConfigured()) {
+                    provider = null;
                 }
             }
+            EntraOAuthConfig newEntra = (provider instanceof EntraOAuthConfig) ? (EntraOAuthConfig) provider : null;
 
             // Send config change notification
             OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
             if (cfg != null) {
-                List<String> diff = buildConfigDiff(oldAllowsSignup, allowsSignup, oldEntra, entraConfig,
+                List<String> diff = buildConfigDiff(oldAllowsSignup, allowsSignup, oldEntra, newEntra,
                         oldSsoEnabled, ssoEnabled);
                 if (!diff.isEmpty()) {
                     String changedBy = currentUserId();
@@ -880,7 +892,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
                 }
             }
 
-            OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(allowsSignup, entraConfig);
+            OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(allowsSignup, provider);
             realm.setSsoEnabled(ssoEnabled);
             return realm;
         }

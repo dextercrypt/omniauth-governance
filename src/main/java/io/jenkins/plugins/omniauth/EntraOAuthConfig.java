@@ -6,7 +6,6 @@ import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IClientSecret;
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
@@ -23,7 +22,7 @@ import java.util.Collections;
  * Holds Azure AD / Microsoft Entra configuration:
  * tenant ID, client ID, client secret, scopes, and optional group sync flag.
  */
-public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> {
+public class EntraOAuthConfig extends OmniAuthSsoProvider {
 
     private final String tenantId;
     private final String clientId;
@@ -36,6 +35,14 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
         this.tenantId = tenantId;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+    }
+
+    /** Entra can sign a user in once tenant, client and secret are all present. */
+    @Override
+    public boolean isConfigured() {
+        return tenantId != null && !tenantId.isBlank()
+                && clientId != null && !clientId.isBlank()
+                && clientSecret != null && !Secret.toString(clientSecret).isBlank();
     }
 
     public String getTenantId() {
@@ -102,11 +109,11 @@ public class EntraOAuthConfig extends AbstractDescribableImpl<EntraOAuthConfig> 
 
     @Extension
     @Symbol("entraConfig")
-    public static class DescriptorImpl extends Descriptor<EntraOAuthConfig> {
+    public static class DescriptorImpl extends Descriptor<OmniAuthSsoProvider> {
 
         @Override
         public String getDisplayName() {
-            return "Microsoft Entra (Azure AD) Configuration";
+            return "Microsoft Entra (Azure AD)";
         }
 
         /**
