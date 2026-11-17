@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout title="OmniAuth — Backup &amp; Restore" norefresh="true">
     <l:side-panel>
@@ -83,8 +83,9 @@
             </p>
             <form method="post" action="importConfig" id="bkImportForm">
               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-              <input type="file" id="bkFile" accept=".yaml,.yml,.txt"
-                     class="jenkins-input" style="margin-bottom: 12px; display: block;"/>
+              <div style="margin-bottom: 12px;">
+                <f:file name="bkFileUpload" id="bkFile" accept=".yaml,.yml,.txt"/>
+              </div>
               <textarea name="config" id="bkConfig" rows="8"
                         placeholder="Backup file contents appear here (or paste them)."
                         class="jenkins-input" style="width: 100%; font-family: monospace; font-size: 0.8em;"></textarea>

@@ -143,9 +143,8 @@
               <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);
                           display:flex; align-items:center; gap:12px;">
                 <span style="font-weight:700; font-size:0.95em; white-space:nowrap;">Email Preview</span>
-                <select id="oauPreviewEventType"
-                        style="flex:1; max-width:260px; font-size:0.85em; padding:4px 8px;
-                               border:1px solid var(--oau-card-border); border-radius:6px; background:var(--card-background, #fff); cursor:pointer;">
+                <div class="jenkins-select" style="flex:1; max-width:260px;">
+                <select id="oauPreviewEventType" class="jenkins-select__input" style="font-size:0.85em;">
                   <option value="configChanged">Config Changed</option>
                   <option value="bruteForce">Brute Force Alert</option>
                   <option value="userDeleted">User Deleted</option>
@@ -160,6 +159,7 @@
                   <option value="jitDenied">JIT Denied (to requester)</option>
                   <option value="smtpTest">SMTP Test Email</option>
                 </select>
+                </div>
                 <button type="button" id="oauPreviewCloseBtn"
                         style="background:none; border:none; font-size:1.3em; cursor:pointer; line-height:1;
                                color:var(--text-color-secondary); padding:2px 6px; border-radius:4px; margin-left:auto;"
