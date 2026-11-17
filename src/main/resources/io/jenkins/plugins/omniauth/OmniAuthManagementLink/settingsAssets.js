@@ -44,11 +44,7 @@ function oauUploadLoginLogo(input) {
   var fd = new FormData();
   fd.append('loginLogo', input.files[0]);
 
-  var head = document.querySelector('head');
-  var cf = head ? head.getAttribute('data-crumb-header') : '';
-  var cv = head ? head.getAttribute('data-crumb-value')  : '';
-  var headers = {};
-  if (cf) headers[cf] = cv;
+  var headers = crumb.wrap({});
 
   fetch(oauRoot() + '/manage/omniauth-management/uploadLoginLogo', {
     method: 'POST', credentials: 'same-origin', headers: headers, body: fd
@@ -76,11 +72,7 @@ function oauUploadLoginLogo(input) {
 
 function oauRemoveLoginLogo(btn) {
   btn.disabled = true;
-  var head = document.querySelector('head');
-  var cf = head ? head.getAttribute('data-crumb-header') : '';
-  var cv = head ? head.getAttribute('data-crumb-value')  : '';
-  var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-  if (cf) headers[cf] = cv;
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
 
   fetch(oauRoot() + '/manage/omniauth-management/removeLoginLogo', {
     method: 'POST', credentials: 'same-origin', headers: headers, body: ''
@@ -128,11 +120,7 @@ function oauResetLoginBranding() {
   // Remove logo if one is uploaded
   var preview = document.getElementById('oauLogoPreview');
   if (preview && preview.style.display !== 'none') {
-    var head = document.querySelector('head');
-    var cf = head ? head.getAttribute('data-crumb-header') : '';
-    var cv = head ? head.getAttribute('data-crumb-value')  : '';
-    var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    if (cf) headers[cf] = cv;
+    var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
     fetch(oauRoot() + '/manage/omniauth-management/removeLoginLogo', {
       method: 'POST', credentials: 'same-origin', headers: headers, body: ''
     })

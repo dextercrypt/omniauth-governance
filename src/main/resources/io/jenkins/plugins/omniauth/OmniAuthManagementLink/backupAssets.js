@@ -3,7 +3,7 @@
  * Loaded as a Jenkins adjunct:
  *   <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.backupAssets"/>
  * Externalised from backup.jelly's inline <script> for CSP compliance (Jenkins hosting).
- * Contains NO server EL — the crumb is read from the page <head> data attributes, as before.
+ * Contains NO server EL — the CSRF crumb is applied via Jenkins' global crumb.wrap() helper.
  * Adjuncts load in <head>, so DOM access is deferred until the document is parsed.
  */
 (function () {
@@ -18,12 +18,6 @@
   }
 
   function init() {
-    // Read the crumb from the page head (Jenkins renders it there) — reliable, unlike
-    // interpolating an EL expression into inline script.
-    var head = document.head;
-    var CRUMB_FIELD = (head && head.getAttribute('data-crumb-header')) || 'Jenkins-Crumb';
-    var CRUMB = (head && head.getAttribute('data-crumb-value')) || '';
-
     var fileInput = document.getElementById('bkFile');
     var configArea = document.getElementById('bkConfig');
     var importForm = document.getElementById('bkImportForm');
@@ -169,10 +163,8 @@
     // POST to a preview endpoint (crumb as header + body), parse the plan JSON, hand it back.
     function fetchPlan(url, params, onReady, onDone) {
       var body = new URLSearchParams();
-      body.append(CRUMB_FIELD, CRUMB);
       Object.keys(params).forEach(function (k) { body.append(k, params[k]); });
-      var headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'};
-      headers[CRUMB_FIELD] = CRUMB;
+      var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'});
       fetch(url, {method: 'POST', credentials: 'same-origin', headers: headers, body: body.toString()})
         .then(function (r) { return r.text().then(function (t) { return {status: r.status, text: t}; }); })
         .then(function (res) {
