@@ -85,18 +85,11 @@
             </j:if>
           </div>
 
-          <!-- All-clear empty state -->
+          <!-- All-clear empty state — Jenkins' standard empty-state notice -->
           <j:if test="${items.isEmpty()}">
-            <div class="jenkins-card" style="text-align:center; padding:60px 0; color:var(--text-color-secondary);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
-                   stroke="var(--oau-success-fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                   style="display:block;margin:0 auto 16px;">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                <polyline points="9 12 11 14 15 10"/>
-              </svg>
-              <div style="font-size:1em;font-weight:600;color:var(--oau-success-fg);margin-bottom:6px;">All caught up</div>
-              <div style="font-size:0.85em;">No assignments need review right now.</div>
-            </div>
+            <l:notice title="All caught up" icon="symbol-shield-checkmark-outline plugin-ionicons-api">
+              No assignments need review right now.
+            </l:notice>
           </j:if>
 
           <!-- Table -->
