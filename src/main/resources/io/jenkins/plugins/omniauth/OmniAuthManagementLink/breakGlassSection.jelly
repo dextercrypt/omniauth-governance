@@ -21,15 +21,15 @@
   </p>
 
   <!-- ── Device List ────────────────────────────────────────────── -->
-  <div class="jenkins-card" style="padding:0; margin-bottom:20px; overflow:hidden;">
+  <div class="jenkins-card oau-card-block">
     <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border); display:flex; align-items:center; justify-content:space-between;">
       <div style="display:flex; align-items:center; gap:10px;">
-        <h3 style="margin:0; font-size:0.95em; font-weight:600;">Your Enrolled Devices</h3>
+        <h3 class="oau-card-title">Your Enrolled Devices</h3>
       </div>
       <span style="font-size:0.78em; color:var(--text-color-secondary);">Max 3 devices</span>
     </div>
 
-    <div style="padding:16px 20px;">
+    <div class="oau-card-body">
       <j:choose>
         <j:when test="${prop != null and !prop.breakGlassDevices.isEmpty()}">
           <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
@@ -86,7 +86,7 @@
   <div id="enroll-panel" style="display:none;">
     <div class="jenkins-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
       <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);">
-        <h3 style="margin:0; font-size:0.95em; font-weight:600;">Add New Device</h3>
+        <h3 class="oau-card-title">Add New Device</h3>
       </div>
       <div style="padding:20px;">
 

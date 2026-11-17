@@ -49,11 +49,11 @@
         </div>
 
         <!-- Export -->
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Export</h3>
+            <h3 class="oau-card-title">Export</h3>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
             <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
               Download the current configuration as a YAML file.
             </p>
@@ -67,11 +67,11 @@
         </div>
 
         <!-- Import -->
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Import / Restore</h3>
+            <h3 class="oau-card-title">Import / Restore</h3>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
             <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
               Choose a backup file (or paste its contents), then review the plan. Importing
               <strong>replaces</strong> the current roles, assignments, groups and settings. A restore
@@ -96,11 +96,11 @@
 
         <!-- Revert / restore points -->
         <j:if test="${it.revertAvailable}">
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Restore points</h3>
+              <h3 class="oau-card-title">Restore points</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
                 A snapshot is saved automatically before each import. Roll back to any of the last five.
               </p>
@@ -137,11 +137,11 @@
 
         <!-- Import history -->
         <j:if test="${it.historyAvailable}">
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Recent activity</h3>
+              <h3 class="oau-card-title">Recent activity</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <table class="jenkins-table" style="width: 100%;">
                 <thead>
                   <tr>

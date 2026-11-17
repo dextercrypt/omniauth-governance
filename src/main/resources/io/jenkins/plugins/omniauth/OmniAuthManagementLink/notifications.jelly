@@ -34,7 +34,7 @@
           <!-- ================================================================
                MASTER TOGGLE
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
               <div style="flex: 1;">
                 <div style="font-weight: 700; font-size: 0.95em; margin-bottom: 4px;">Enable Notifications</div>
@@ -110,7 +110,7 @@
 
             <!-- Footer note -->
             <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--oau-card-border);">
-              <div style="font-weight:600; font-size:0.88em; margin-bottom:4px;">Footer Note</div>
+              <div class="oau-field-label">Footer Note</div>
               <div style="color:var(--text-color-secondary); font-size:0.82em; margin-bottom:6px;">
                 Optional line shown above the fine print in every notification email (e.g. "Contact IT: helpdesk@corp.com").
               </div>
@@ -185,7 +185,7 @@
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <l:icon src="symbol-mail-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Email (SMTP)</h3>
+                  <h3 class="oau-card-title">Email (SMTP)</h3>
                   <j:set var="smtpHealth" value="${it.notificationLog.lastSmtpEntry()}"/>
                   <j:choose>
                     <j:when test="${smtpHealth != null and smtpHealth.success}">
@@ -230,12 +230,12 @@
                 <!-- Host + Port -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 2; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Host</div>
+                    <div class="oau-field-label">SMTP Host</div>
                     <input type="text" name="smtpHost" value="${cfg.smtpHost}"
                            class="jenkins-input" style="width: 100%;" placeholder="smtp.example.com"/>
                   </label>
                   <label style="flex: 0 0 100px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Port</div>
+                    <div class="oau-field-label">SMTP Port</div>
                     <input type="number" name="smtpPort" min="1" max="65535"
                            value="${cfg.smtpPort}" class="jenkins-input js-oau-no-wheel" style="width: 100%;"/>
                   </label>
@@ -244,13 +244,13 @@
                 <!-- Username + Password -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Username</div>
+                    <div class="oau-field-label">SMTP Username</div>
                     <input type="text" name="smtpUsername" value="${cfg.smtpUsername}"
                            class="jenkins-input" style="width: 100%;"
                            autocomplete="off" placeholder="smtp-username"/>
                   </label>
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Password</div>
+                    <div class="oau-field-label">SMTP Password</div>
                     <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 4px;">
                       Leave blank to keep existing.
                     </div>
@@ -284,12 +284,12 @@
                 <!-- From address + name -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">From Address</div>
+                    <div class="oau-field-label">From Address</div>
                     <input type="email" name="smtpFromAddress" value="${cfg.smtpFromAddress}"
                            class="jenkins-input" style="width: 100%;" placeholder="no-reply@example.com"/>
                   </label>
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">From Name</div>
+                    <div class="oau-field-label">From Name</div>
                     <input type="text" name="smtpFromName" value="${cfg.smtpFromName}"
                            class="jenkins-input" style="width: 100%;" placeholder="Jenkins OmniAuth"/>
                   </label>
@@ -297,10 +297,10 @@
 
                 <!-- Reply-To -->
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">
+                  <div class="oau-field-label">
                     Reply-To Address <span style="font-weight:400; color:var(--text-color-secondary);">(Optional)</span>
                   </div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-hint">
                     Replies go here instead of the From address. Useful for no-reply senders.
                   </div>
                   <input type="email" name="smtpReplyTo" value="${cfg.smtpReplyTo}"
@@ -309,8 +309,8 @@
 
                 <!-- Recipients -->
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Notification Recipients</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Notification Recipients</div>
+                  <div class="oau-field-hint">
                     Comma-separated. All enabled event emails go to these addresses.
                   </div>
                   <input type="text" name="notifyEmails" value="${cfg.notifyEmails}"
@@ -352,7 +352,7 @@
                     <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
                     <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/>
                   </svg>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Slack</h3>
+                  <h3 class="oau-card-title">Slack</h3>
                   <j:set var="slackHealth" value="${it.notificationLog.lastSlackEntry()}"/>
                   <j:choose>
                     <j:when test="${slackHealth != null and slackHealth.success}">
@@ -385,8 +385,8 @@
               </div>
               <div id="slackConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Incoming Webhook URL</div>
+                  <div class="oau-field-hint">
                     Create one at Slack → Your App → Incoming Webhooks.
                   </div>
                   <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrlPlain}"
@@ -407,12 +407,12 @@
             </div>
 
             <!-- Teams -->
-            <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div class="jenkins-card oau-card-block">
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <l:icon src="symbol-people-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Microsoft Teams</h3>
+                  <h3 class="oau-card-title">Microsoft Teams</h3>
                   <j:set var="teamsHealth" value="${it.notificationLog.lastTeamsEntry()}"/>
                   <j:choose>
                     <j:when test="${teamsHealth != null and teamsHealth.success}">
@@ -445,8 +445,8 @@
               </div>
               <div id="teamsConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Incoming Webhook URL</div>
+                  <div class="oau-field-hint">
                     In Teams: channel → ... → Workflows → "Post to a channel when a webhook request is received".
                     Copy the generated webhook URL. O365 Connectors are retired and no longer work.
                   </div>
@@ -475,7 +475,7 @@
               Event Settings
             </div>
 
-            <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div class="jenkins-card oau-card-block">
               <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 0;">
 
                 <!-- Brute force threshold -->
@@ -582,7 +582,7 @@
           Notification Log
         </div>
 
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">Notification Audit Trail</div>

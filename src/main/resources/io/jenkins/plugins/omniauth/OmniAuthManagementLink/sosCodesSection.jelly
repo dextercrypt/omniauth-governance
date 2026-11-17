@@ -44,9 +44,9 @@
   </j:if>
 
   <!-- ── Status card ────────────────────────────────────────────── -->
-  <div class="jenkins-card" style="padding:0; margin-bottom:20px; overflow:hidden;">
+  <div class="jenkins-card oau-card-block">
     <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border); display:flex; align-items:center; justify-content:space-between;">
-      <h3 style="margin:0; font-size:0.95em; font-weight:600;">Your recovery codes</h3>
+      <h3 class="oau-card-title">Your recovery codes</h3>
       <j:choose>
         <j:when test="${it.sosEnrolled}">
           <span style="font-size:0.82em; color:var(--text-color-secondary);">
@@ -58,7 +58,7 @@
         </j:otherwise>
       </j:choose>
     </div>
-    <div style="padding:16px 20px;">
+    <div class="oau-card-body">
       <j:choose>
         <j:when test="${it.sosEnrolled}">
           <div style="margin:0 0 14px; font-size:0.9em; color:var(--text-color-secondary); line-height:1.6;">
@@ -81,9 +81,9 @@
   <!-- ── Codes display (shown after generation) ─────────────────── -->
   <div id="sos-codes-panel" class="jenkins-card" style="display:none; padding:0; margin-bottom:20px; overflow:hidden;">
     <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);">
-      <h3 style="margin:0; font-size:0.95em; font-weight:600;">Save these codes now</h3>
+      <h3 class="oau-card-title">Save these codes now</h3>
     </div>
-    <div style="padding:16px 20px;">
+    <div class="oau-card-body">
       <div class="jenkins-alert" style="margin:0 0 16px; background:var(--oau-warning-bg); border-color:var(--oau-warning-border); color:var(--oau-warning-fg);">
         These codes are shown <strong>once</strong>. They will not be displayed again. Copy or download
         them before you continue.

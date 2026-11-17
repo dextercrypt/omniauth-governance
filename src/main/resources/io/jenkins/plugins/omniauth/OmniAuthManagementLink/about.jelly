@@ -18,17 +18,17 @@
         <!-- Treat a dormant-but-preserved Entra config (SSO toggled off) the same as unconfigured
              here: the read-only details only make sense when SSO is actually active. -->
         <j:set var="entra" value="${it.ssoConfigured ? it.entraConfig : null}"/>
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Microsoft Entra (Azure AD) Configuration</h3>
+              <h3 class="oau-card-title">Microsoft Entra (Azure AD) Configuration</h3>
             </div>
             <a href="${rootURL}/manage/configureSecurity/" style="font-size: 0.8em; color: var(--blue,var(--blue)); text-decoration: none;">
               Edit in Configure Global Security &#8599;
             </a>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
 
             <!-- Sign-in methods: Native is always available on the OmniAuth realm; SSO only when a
                  provider is configured. Reflects actual state, not a fixed label. -->
@@ -127,9 +127,9 @@
               <circle class="oa-f-pri" cx="32" cy="29" r="5"/>
               <path class="oa-f-pri" d="M30 33 H34 L33.2 39.5 H30.8 Z"/>
             </svg>
-            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Plugin</h3>
+            <h3 class="oau-card-title">Plugin</h3>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
               <tr>
                 <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; border-bottom: 1px solid var(--oau-card-border);">Name</td>

@@ -15,7 +15,7 @@
         <form method="post" action="saveProtectedUsers" id="settingsForm">
           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
 
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
 
             <!-- Card header -->
             <div style="padding: 16px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
