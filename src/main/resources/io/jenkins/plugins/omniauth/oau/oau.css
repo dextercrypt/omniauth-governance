@@ -85,10 +85,13 @@
 /* ── Status banner ─────────────────────────────────────────────────────────── */
 /* Match the Jenkins .jenkins-alert look (subtle ~10% border, 10px radius, 1.5px) rather than
    the plugin's old stronger 42% border, so these read as standard Jenkins banners. */
+/* Matches Jenkins' .jenkins-alert metrics (padding, radius, font-size, subtle 1px border) so these
+   status banners read as the native alert component; the flex layout + variant colours below add the
+   icon / body / action row and the semantic tint. */
 .oau-status-banner {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 16px; border-radius: 10px; margin: 16px 0;
-  font-size: 0.875em; border: 1.5px solid transparent;
+  padding: 15px; border-radius: var(--form-input-border-radius); margin-bottom: var(--section-padding);
+  font-size: var(--font-size-sm); border: 1px solid transparent;
 }
 .oau-status-banner--healthy  { background: var(--oau-success-bg); border-color: color-mix(in srgb, var(--success-color) 12%, transparent); color: var(--oau-success-fg); }
 .oau-status-banner--warning  { background: var(--oau-warning-bg); border-color: color-mix(in srgb, var(--warning-color) 12%, transparent); color: var(--oau-warning-fg); }
