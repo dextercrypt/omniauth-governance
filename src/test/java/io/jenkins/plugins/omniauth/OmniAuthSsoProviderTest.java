@@ -1,4 +1,6 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
+import io.jenkins.plugins.omniauth.sso.OmniAuthSsoProvider;
 
 import hudson.util.Secret;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,6 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.SsoProvider;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import com.microsoft.aad.msal4j.IAccount;
 import com.microsoft.aad.msal4j.IAuthenticationResult;

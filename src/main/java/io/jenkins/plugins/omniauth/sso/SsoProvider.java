@@ -1,4 +1,4 @@
-package io.jenkins.plugins.omniauth;
+package io.jenkins.plugins.omniauth.sso;
 
 /**
  * Presets for the external SSO sign-in button shown on the login page.

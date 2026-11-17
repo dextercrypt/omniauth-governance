@@ -1,4 +1,4 @@
-package io.jenkins.plugins.omniauth;
+package io.jenkins.plugins.omniauth.sso;
 
 import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
@@ -7,7 +7,7 @@ import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
 
 /**
- * Extension point for a single sign-on provider that {@link OmniAuthSecurityRealm} can delegate to.
+ * Extension point for a single sign-on provider that {@link io.jenkins.plugins.omniauth.OmniAuthSecurityRealm} can delegate to.
  *
  * <p>Today the only implementation is {@link EntraOAuthConfig} (Microsoft Entra / Azure AD), but
  * modelling providers as an extension point means a new provider (Okta, Google, a generic OIDC/SAML

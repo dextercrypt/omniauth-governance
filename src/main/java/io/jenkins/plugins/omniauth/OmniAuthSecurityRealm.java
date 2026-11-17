@@ -1,4 +1,7 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.SsoProvider;
+import io.jenkins.plugins.omniauth.sso.OmniAuthSsoProvider;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.nimbusds.jwt.JWTClaimsSet;

@@ -1,4 +1,6 @@
-package io.jenkins.plugins.omniauth;
+package io.jenkins.plugins.omniauth.sso;
+
+import io.jenkins.plugins.omniauth.OmniAuthAssignmentConfig;
 
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;
