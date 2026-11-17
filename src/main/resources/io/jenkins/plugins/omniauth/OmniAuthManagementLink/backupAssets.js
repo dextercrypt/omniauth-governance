@@ -7,6 +7,16 @@
  * Adjuncts load in <head>, so DOM access is deferred until the document is parsed.
  */
 (function () {
+  // Informational popup via Jenkins' native dialog (consistent styling, theme-aware), falling
+  // back to window.alert only if core's dialog somehow isn't loaded.
+  function oauAlert(title, message) {
+    if (window.dialog && typeof window.dialog.alert === 'function') {
+      window.dialog.alert(title, { message: message });
+    } else {
+      window.alert(message);
+    }
+  }
+
   function init() {
     // Read the crumb from the page head (Jenkins renders it there) — reliable, unlike
     // interpolating an EL expression into inline script.
@@ -170,22 +180,21 @@
           var data;
           try { data = JSON.parse(res.text); }
           catch (e) {
-            alert('Could not compute the plan (server returned HTTP ' + res.status
-                  + '). Try reloading the page and trying again.');
+            oauAlert('Couldn't compute the plan', 'The server returned HTTP ' + res.status + '. Try reloading the page and trying again.');
             return;
           }
-          if (!data.ok) { alert('Could not read that configuration: ' + (data.error || 'unknown error')); return; }
+          if (!data.ok) { oauAlert('Couldn't read configuration', data.error || 'unknown error'); return; }
           onReady(data);
         }).catch(function (err) {
           if (onDone) onDone();
-          alert('Could not compute the plan: ' + err);
+          oauAlert('Couldn't compute the plan', String(err));
         });
     }
 
     if (previewBtn) {
       previewBtn.addEventListener('click', function () {
         if (!configArea.value.trim()) {
-          alert('Choose a backup file or paste its contents first.');
+          oauAlert('No backup selected', 'Choose a backup file or paste its contents first.');
           return;
         }
         previewBtn.disabled = true;
