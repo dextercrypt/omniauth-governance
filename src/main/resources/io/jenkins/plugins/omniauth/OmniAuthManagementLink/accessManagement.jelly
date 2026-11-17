@@ -83,7 +83,7 @@
             </j:if>
           </div>
 
-          <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
+          <div>
             <j:choose>
               <j:when test="${it.accessManagementUserList.isEmpty()}">
                 <l:notice title="No permissions yet" icon="symbol-oau-people plugin-omniauth-governance">
@@ -97,7 +97,7 @@
                 </l:notice>
               </j:when>
               <j:otherwise>
-                <table class="jenkins-table" style="width:100%;">
+                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                   <thead>
                     <tr>
                       <th>User / Group</th>
@@ -226,7 +226,7 @@
           </div>
 
           <!-- Roles list -->
-          <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
+          <div>
             <j:choose>
               <j:when test="${it.roles.isEmpty()}">
                 <l:notice title="No roles yet" icon="symbol-list-outline plugin-ionicons-api">
@@ -240,7 +240,7 @@
                 </l:notice>
               </j:when>
               <j:otherwise>
-                <table class="jenkins-table" style="width:100%;">
+                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                   <thead>
                     <tr>
                       <th>Role Name</th>
@@ -270,9 +270,9 @@
                               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                               <input type="hidden" name="roleName" value="${r.name}"/>
                               <button type="submit"
-                                      data-confirm="Delete role: ${r.name}?"
-                                      class="jenkins-button js-oau-confirm"
-                                      style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
+ data-confirm="Delete role: ${r.name}?"
+ class="jenkins-button js-oau-confirm"
+ style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Delete
                               </button>
                             </form>
@@ -401,8 +401,7 @@
             </div>
 
             <div style="display:flex;gap:10px;margin-top:16px;">
-              <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary"
-                      style="font-size:0.88em;">Continue</button>
+              <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary">Continue</button>
               <button type="button" class="jenkins-button js-oau-close-drawer" >Cancel</button>
             </div>
           </form>

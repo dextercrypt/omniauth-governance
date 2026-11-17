@@ -38,7 +38,7 @@
               <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>No users with active failure counters.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -124,7 +124,7 @@
               <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>No failed logins in this window.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table sortable" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium sortable" style="width:100%;">
                 <thead>
                   <tr>
                     <th>When</th>

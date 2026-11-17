@@ -37,15 +37,17 @@
           </div>
         </div>
 
-        <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;margin-bottom:24px;">
+        <div style="margin-bottom:24px;">
           <j:choose>
             <j:when test="${it.pendingJitRequests.isEmpty()}">
-              <l:notice title="No pending requests" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
-                No pending JIT requests.
-              </l:notice>
+              <div class="oau-notice--success">
+                <l:notice title="No pending requests" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
+                  No pending JIT requests.
+                </l:notice>
+              </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>User</th>
@@ -126,16 +128,16 @@
                             </select>
                             </div>
                             <button type="submit" class="jenkins-button jenkins-button--primary"
-                                    style="font-size:0.78em;padding:4px 12px;margin-right:4px;background:var(--oau-success-fg);border-color:var(--oau-success-fg);display:inline-flex;align-items:center;gap:4px;">
+ style="padding:4px 12px;margin-right:4px;background:var(--oau-success-fg);border-color:var(--oau-success-fg);display:inline-flex;align-items:center;gap:4px;">
                               <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-12"/>Approve
                             </button>
                           </form>
                           <button type="button"
-                                  class="jenkins-button js-jit-deny"
-                                  data-request-id="${r.requestId}"
-                                  data-requester-id="${r.requesterId}"
-                                  data-scope="${r.scope}"
-                                  style="font-size:0.78em;padding:4px 12px;color:var(--error-color);border-color:var(--error-color);display:inline-flex;align-items:center;gap:4px;">
+ class="jenkins-button js-jit-deny"
+ data-request-id="${r.requestId}"
+ data-requester-id="${r.requesterId}"
+ data-scope="${r.scope}"
+ style="padding:4px 12px;color:var(--error-color);border-color:var(--error-color);display:inline-flex;align-items:center;gap:4px;">
                             <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="oau-ico oau-ico-12"/>Deny
                           </button>
                         </j:if>
@@ -154,7 +156,7 @@
         <!-- ── RECENT ACTIVITY ────────────────────────────────────────────── -->
         <div style="font-weight:700;font-size:0.95em;margin-bottom:10px;">Recent Activity</div>
 
-        <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;">
+        <div>
           <j:choose>
             <j:when test="${it.recentJitRequests.isEmpty()}">
               <l:notice title="No history yet" icon="symbol-oau-time plugin-omniauth-governance">
@@ -162,7 +164,7 @@
               </l:notice>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>User</th>
@@ -231,8 +233,8 @@
                               <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
                               <button type="submit" class="jenkins-button js-jit-revoke"
-                                      data-confirm="Revoke active JIT access for ${r.requesterId}?"
-                                      style="font-size:0.75em;padding:3px 9px;color:var(--error-color);border-color:var(--error-color);">
+ data-confirm="Revoke active JIT access for ${r.requesterId}?"
+ style="padding:3px 9px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
                             </form>
@@ -271,7 +273,7 @@
           <div style="display:flex;gap:8px;justify-content:flex-end;">
             <button type="button" id="jitDenyCancel" class="jenkins-button" >Cancel</button>
             <button type="submit" class="jenkins-button"
-                    style="font-size:0.88em;color:var(--error-color);border-color:var(--error-color);">Confirm Deny</button>
+ style="color:var(--error-color);border-color:var(--error-color);">Confirm Deny</button>
           </div>
         </form>
       </div>

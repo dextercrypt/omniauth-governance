@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — Access Requests" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -190,12 +190,14 @@
           </div>
           <j:choose>
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
-              <l:notice title="All caught up" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
-                You're all caught up — no pending access requests.
-              </l:notice>
+              <div class="oau-notice--success">
+                <l:notice title="All caught up" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
+                  You're all caught up — no pending access requests.
+                </l:notice>
+              </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>
@@ -266,7 +268,7 @@
               </l:notice>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>

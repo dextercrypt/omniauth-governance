@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout title="OmniAuth — User Overview" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — User Overview" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -162,7 +162,7 @@
                   </p>
                 </j:when>
                 <j:otherwise>
-                  <table class="jenkins-table" style="width:100%;">
+                  <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                     <thead>
                       <tr>
                         <th style="width:90px;">Via</th>
@@ -261,7 +261,7 @@
                 </j:when>
                 <j:otherwise>
                   <div style="overflow-x:auto;">
-                    <table class="jenkins-table sortable" style="width:100%;min-width:600px;">
+                    <table class="jenkins-table jenkins-table--medium sortable" style="width:100%;min-width:600px;">
                       <thead>
                         <tr>
                           <th>Job / Pipeline</th>
@@ -333,7 +333,7 @@
                 </j:when>
                 <j:otherwise>
                   <div style="overflow-x:auto;">
-                    <table class="jenkins-table" style="width:100%;">
+                    <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                       <thead>
                         <tr>
                           <th>When</th>

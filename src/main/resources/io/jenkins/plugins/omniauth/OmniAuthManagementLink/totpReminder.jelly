@@ -5,17 +5,13 @@
   <j:set var="forced"   value="${it.breakGlassEnrollmentForced}"/>
   <j:set var="afterThis" value="${it.breakGlassSkipsAfterThis}"/>
 
-  <l:layout title="OmniAuth — Authenticator Setup" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Authenticator Setup" norefresh="true">
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.totpReminderAssets"/>
 
       <j:if test="${!forced}">
-        <div class="jenkins-app-bar">
-          <div class="jenkins-app-bar__content">
-            <h1 class="jenkins-app-bar__heading">Set Up Your Break Glass Authenticator</h1>
-          </div>
-        </div>
+        <l:app-bar title="Set Up Your Break Glass Authenticator"/>
       </j:if>
 
       <j:choose>

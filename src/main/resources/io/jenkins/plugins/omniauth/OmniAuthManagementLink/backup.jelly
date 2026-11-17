@@ -104,7 +104,7 @@
               <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
                 A snapshot is saved automatically before each import. Roll back to any of the last five.
               </p>
-              <table class="jenkins-table" style="width: 100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width: 100%;">
                 <thead>
                   <tr>
                     <th>Taken</th>
@@ -142,7 +142,7 @@
               <h3 class="oau-card-title">Recent activity</h3>
             </div>
             <div class="oau-card-body">
-              <table class="jenkins-table" style="width: 100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width: 100%;">
                 <thead>
                   <tr>
                     <th>When</th>

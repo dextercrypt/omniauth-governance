@@ -39,8 +39,8 @@
                 <form method="post" action="clearNotificationLog" style="margin: 0;">
                   <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                   <button type="submit" class="jenkins-button" id="oauClearLogBtn"
-                          style="font-size: 0.85em;"
-                          data-confirm="Clear all notification log entries?">
+ 
+ data-confirm="Clear all notification log entries?">
                     Clear log
                   </button>
                 </form>
@@ -57,7 +57,7 @@
 
           <!-- Table (hidden initially — JS shows correct page) -->
           <j:if test="${!entries.isEmpty()}">
-            <table id="logTable" class="jenkins-table" style="width: 100%;">
+            <table id="logTable" class="jenkins-table jenkins-table--medium" style="width: 100%;">
               <thead>
                 <tr>
                   <th>#</th>

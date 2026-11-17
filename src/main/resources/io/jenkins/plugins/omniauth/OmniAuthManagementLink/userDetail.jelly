@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — User Access" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — User Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -247,12 +247,11 @@
           <div style="font-size:1em;font-weight:700;">Access Assignments</div>
           <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
             <button type="button"
-                    class="jenkins-button jenkins-button--primary js-udx-add"
-                    style="font-size:0.85em;">+ Add Access</button>
+ class="jenkins-button jenkins-button--primary js-udx-add">+ Add Access</button>
           </j:if>
         </div>
 
-        <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
+        <div>
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
@@ -260,13 +259,13 @@
                 <div style="font-size:0.9em;">No access assigned to this user yet.</div>
                 <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
                   <button type="button"
-                          class="jenkins-button jenkins-button--primary js-udx-add"
-                          style="margin-top:12px;font-size:0.85em;">+ Add Access</button>
+ class="jenkins-button jenkins-button--primary js-udx-add"
+ style="margin-top:12px;">+ Add Access</button>
                 </j:if>
               </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Scope</th>
@@ -338,17 +337,17 @@
                           <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                             <j:if test="${!a.global and (header == null or !header.groupManaged)}">
                               <button type="button"
-                                      class="jenkins-button js-udx-edit"
-                                      data-scope="${a.scope}"
-                                      data-scope-display="${a.displayScope}"
-                                      data-role="${a.roleName}"
-                                      data-perms="${a.customPermissionsJson}"
-                                      data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
-                                      data-access-type="${a.accessType}"
-                                      data-approver-group="${a.approverGroup}"
-                                      data-max-duration="${a.maxDurationHours}"
-                                      data-approval-timeout="${a.approvalTimeoutHours}"
-                                      style="font-size:0.78em;padding:3px 10px;">
+ class="jenkins-button js-udx-edit"
+ data-scope="${a.scope}"
+ data-scope-display="${a.displayScope}"
+ data-role="${a.roleName}"
+ data-perms="${a.customPermissionsJson}"
+ data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
+ data-access-type="${a.accessType}"
+ data-approver-group="${a.approverGroup}"
+ data-max-duration="${a.maxDurationHours}"
+ data-approval-timeout="${a.approvalTimeoutHours}"
+ style="padding:3px 10px;">
                                 Edit
                               </button>
                             </j:if>
@@ -358,9 +357,9 @@
                               <input type="hidden" name="type"  value="${type}"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>
                               <button type="submit"
-                                      class="jenkins-button js-udx-revoke"
-                                      data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
-                                      style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
+ class="jenkins-button js-udx-revoke"
+ data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
+ style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
                             </form>
@@ -694,8 +693,8 @@
             <button type="button" id="udxModalCancel"
                     class="jenkins-button" style="padding:8px 18px">Cancel</button>
             <button type="button" id="udxModalOk"
-                    class="jenkins-button jenkins-button--primary"
-                    style="font-size:0.88em;padding:8px 18px;" disabled="disabled">Select &#8594;</button>
+ class="jenkins-button jenkins-button--primary"
+ style="padding:8px 18px;" disabled="disabled">Select &#8594;</button>
           </div>
         </div>
 

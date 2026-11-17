@@ -37,7 +37,7 @@
             </div>
           </j:when>
           <j:otherwise>
-            <table class="jenkins-table sortable">
+            <table class="jenkins-table jenkins-table--medium sortable">
               <thead>
                 <tr>
                   <th>Username</th>

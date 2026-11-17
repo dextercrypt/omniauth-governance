@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.staleUsersAssets"/>
 
       <l:app-bar title="Stale Users">
@@ -122,13 +123,15 @@
 
         <j:choose>
           <j:when test="${pendingUsers.isEmpty()}">
-            <l:notice title="Nothing pending" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
-              No accounts pending deletion.
-            </l:notice>
+            <div class="oau-notice--success">
+              <l:notice title="Nothing pending" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
+                No accounts pending deletion.
+              </l:notice>
+            </div>
           </j:when>
           <j:otherwise>
             <div class="jenkins-card oau-su-card oau-su-card--danger">
-              <table class="jenkins-table" style="margin:0;">
+              <table class="jenkins-table jenkins-table--medium" style="margin:0;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -198,13 +201,15 @@
 
         <j:choose>
           <j:when test="${staleUsers.isEmpty()}">
-            <l:notice title="All users active" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
-              All users are active. No accounts have been inactive for more than ${threshold} days.
-            </l:notice>
+            <div class="oau-notice--success">
+              <l:notice title="All users active" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
+                All users are active. No accounts have been inactive for more than ${threshold} days.
+              </l:notice>
+            </div>
           </j:when>
           <j:otherwise>
             <div class="jenkins-card oau-su-card oau-su-card--warn">
-              <table class="jenkins-table sortable" style="margin:0;">
+              <table class="jenkins-table jenkins-table--medium sortable" style="margin:0;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -300,7 +305,7 @@
             </j:when>
             <j:otherwise>
               <div class="jenkins-card oau-su-card oau-su-card--neutral" style="margin-top:8px;">
-                <table class="jenkins-table" style="margin:0;">
+                <table class="jenkins-table jenkins-table--medium" style="margin:0;">
                   <thead>
                     <tr>
                       <th>Run At</th>

@@ -267,3 +267,7 @@
 .oau-card-title { margin: 0; font-size: 0.95em; font-weight: 600; }
 .oau-field-label { display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px; }
 .oau-field-hint  { color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px; }
+
+/* "All-clear" empty states: keep Jenkins' native l:notice, tint only its icon green
+   (reviewer-endorsed — the title/body text stay default). */
+.oau-notice--success .jenkins-notice > svg { color: var(--oau-success-solid); }

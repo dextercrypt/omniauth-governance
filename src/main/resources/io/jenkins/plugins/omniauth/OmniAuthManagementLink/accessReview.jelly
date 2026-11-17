@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.accessReviewAssets"/>
 
@@ -79,15 +80,17 @@
 
           <!-- All-clear empty state — Jenkins' standard empty-state notice -->
           <j:if test="${items.isEmpty()}">
-            <l:notice title="All caught up" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
-              No assignments need review right now.
-            </l:notice>
+            <div class="oau-notice--success">
+              <l:notice title="All caught up" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
+                No assignments need review right now.
+              </l:notice>
+            </div>
           </j:if>
 
           <!-- Table -->
           <j:if test="${!items.isEmpty()}">
             <div class="jenkins-card" style="padding:0; overflow:hidden;">
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>User / Group</th>
