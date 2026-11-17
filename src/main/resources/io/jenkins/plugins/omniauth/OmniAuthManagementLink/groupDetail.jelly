@@ -7,6 +7,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.groupDetailAssets"/>
 
       <j:set var="oid"         value="${request2.getParameter('oid')}"/>
@@ -278,12 +279,9 @@
                     </summary>
                     <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                       <j:forEach var="perm" items="${permGroup.permissions}">
-                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
-                          <input type="checkbox" name="customPermissions" value="${perm.id}"/>
-                          <span style="display:flex;flex-direction:column;gap:1px;">
-                            <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
-                            <span style="font-size:0.68em;color:var(--text-color-secondary, #999);font-family:monospace;line-height:1.2;">${perm.shortId}</span>
-                          </span>
+                        <label class="udx-perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
+                          <input type="checkbox" name="customPermissions" value="${perm.id}" data-implied-by="${perm.impliedById}"/>
+                          <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
                         </label>
                       </j:forEach>
                     </div>
@@ -339,8 +337,8 @@
                     </summary>
                     <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                       <j:forEach var="perm" items="${permGroup.permissions}">
-                        <label class="udx-perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
-                          <input type="checkbox" name="customPermissions" value="${perm.id}" class="udx-edit-perm-cb"/>
+                        <label class="udx-perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
+                          <input type="checkbox" name="customPermissions" value="${perm.id}" class="udx-edit-perm-cb" data-implied-by="${perm.impliedById}"/>
                           <span style="font-size:0.82em;font-weight:500;">${perm.name}</span>
                         </label>
                       </j:forEach>

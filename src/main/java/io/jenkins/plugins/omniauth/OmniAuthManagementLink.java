@@ -2994,169 +2994,41 @@ public class OmniAuthManagementLink extends ManagementLink {
         return result;
     }
 
+    /**
+     * The permissions a role/grant can be built from, grouped exactly as Jenkins groups them.
+     *
+     * We iterate Jenkins' own {@link PermissionGroup}s rather than curating a hand-written list,
+     * so every permission appears under its real group (e.g. {@code Item.ExtendedRead} under "Job",
+     * {@code LockableResourcesManager.Steal} under "Lockable Resources") instead of being lumped
+     * into one "other" bucket, and each permission carries its own name, description (shown as a
+     * tooltip) and "implied by" relationship (so the UI can disable a checkbox that a stronger
+     * permission already grants). The admin-equivalent "dangerous" permissions (RunScripts,
+     * ConfigureUpdateCenter, UploadPlugins) are never offered.
+     */
     public List<PermissionGroupInfo> getAvailablePermissions() {
-        // Friendly label mapping: permission ID → display name
-        Map<String, String> labels = new LinkedHashMap<>();
-        // Job
-        labels.put("hudson.model.Item.Read",       "Read Jobs");
-        labels.put("hudson.model.Item.Discover",   "Discover Jobs");
-        labels.put("hudson.model.Item.Create",     "Create Jobs");
-        labels.put("hudson.model.Item.Configure",  "Configure Jobs");
-        labels.put("hudson.model.Item.Move",       "Move Jobs");
-        labels.put("hudson.model.Item.Delete",     "Delete Jobs");
-        labels.put("hudson.model.Item.Workspace",  "Access Workspace");
-        labels.put("hudson.model.Item.Build",      "Trigger Builds");
-        labels.put("hudson.model.Item.Cancel",     "Cancel Builds");
-        // Run
-        labels.put("hudson.model.Run.Replay",      "Replay Pipeline");
-        labels.put("hudson.model.Run.Delete",      "Delete Build History");
-        labels.put("hudson.model.Run.Update",      "Update Build Description");
-        // View
-        labels.put("hudson.model.View.Read",       "Read Views");
-        labels.put("hudson.model.View.Create",     "Create Views");
-        labels.put("hudson.model.View.Configure",  "Configure Views");
-        labels.put("hudson.model.View.Delete",     "Delete Views");
-        // SCM
-        labels.put("hudson.scm.SCM.Tag",           "Create SCM Tags");
-        // Overall
-        labels.put("hudson.model.Hudson.Administer",              "Full Admin");
-        labels.put("hudson.model.Hudson.Read",                    "Overall Read (Login)");
-        labels.put("hudson.model.Hudson.Manage",                  "Manage Jenkins");
-        labels.put("hudson.model.Hudson.SystemRead",              "Read System Config");
-        labels.put("hudson.model.Hudson.RunScripts",              "Run Groovy Scripts");
-        labels.put("hudson.model.Hudson.ConfigureUpdateCenter",   "Configure Update Center");
-        labels.put("hudson.model.Hudson.UploadPlugins",           "Upload Plugins");
-        // Agent
-        labels.put("hudson.model.Computer.Build",                 "Use Agent for Builds");
-        labels.put("hudson.model.Computer.Configure",             "Configure Agents");
-        labels.put("hudson.model.Computer.Connect",               "Connect Agents");
-        labels.put("hudson.model.Computer.Create",                "Create Agents");
-        labels.put("hudson.model.Computer.Delete",                "Delete Agents");
-        labels.put("hudson.model.Computer.Disconnect",            "Disconnect Agents");
-        labels.put("hudson.model.Computer.Provision",             "Provision Agents");
-        // Credentials
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Create",        "Add Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Delete",        "Delete Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains", "Manage Credential Domains");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Update",        "Update Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.View",          "View Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.UseItem",       "Use Credentials in Jobs");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.UseOwn",        "Use Own Credentials");
-        // Metrics
-        labels.put("jenkins.metrics.api.Metrics.HealthCheck", "Health Check");
-        labels.put("jenkins.metrics.api.Metrics.ThreadDump",  "Thread Dump");
-        labels.put("jenkins.metrics.api.Metrics.View",        "View Metrics");
-
         List<PermissionGroupInfo> result = new ArrayList<>();
-
-        // NOTE: the admin-equivalent "dangerous" permissions (RunScripts, ConfigureUpdateCenter,
-        // UploadPlugins) are deliberately NOT offered here — they grant effective full control of
-        // Jenkins and must never be configurable through OmniAuth. buildGroup() also filters them
-        // defensively, so they stay out even if re-added to this list by mistake.
-        result.add(buildGroup("Overall", "System-wide access control", new String[]{
-                "hudson.model.Hudson.Read",
-                "hudson.model.Hudson.Administer",
-                "hudson.model.Hudson.Manage",
-                "hudson.model.Hudson.SystemRead"
-        }, labels));
-
-        result.add(buildGroup("Credentials", "Stored passwords, API keys & certificates", new String[]{
-                "com.cloudbees.plugins.credentials.CredentialsProvider.View",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Create",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Update",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Delete",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.UseItem",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.UseOwn"
-        }, labels));
-
-        result.add(buildGroup("Agent", "Build nodes & executors", new String[]{
-                "hudson.model.Computer.Build",
-                "hudson.model.Computer.Configure",
-                "hudson.model.Computer.Connect",
-                "hudson.model.Computer.Create",
-                "hudson.model.Computer.Delete",
-                "hudson.model.Computer.Disconnect",
-                "hudson.model.Computer.Provision"
-        }, labels));
-
-        result.add(buildGroup("Job", "Pipelines, freestyle jobs & folders", new String[]{
-                "hudson.model.Item.Read",
-                "hudson.model.Item.Discover",
-                "hudson.model.Item.Create",
-                "hudson.model.Item.Configure",
-                "hudson.model.Item.Move",
-                "hudson.model.Item.Delete",
-                "hudson.model.Item.Build",
-                "hudson.model.Item.Cancel",
-                "hudson.model.Item.Workspace"
-        }, labels));
-
-        result.add(buildGroup("Run", "Individual build instances", new String[]{
-                "hudson.model.Run.Replay",
-                "hudson.model.Run.Delete",
-                "hudson.model.Run.Update"
-        }, labels));
-
-        result.add(buildGroup("View", "Dashboard views & layouts", new String[]{
-                "hudson.model.View.Read",
-                "hudson.model.View.Create",
-                "hudson.model.View.Configure",
-                "hudson.model.View.Delete"
-        }, labels));
-
-        result.add(buildGroup("SCM", "Source control management", new String[]{
-                "hudson.scm.SCM.Tag"
-        }, labels));
-
-        result.add(buildGroup("Metrics", "Health & monitoring endpoints", new String[]{
-                "jenkins.metrics.api.Metrics.View",
-                "jenkins.metrics.api.Metrics.HealthCheck",
-                "jenkins.metrics.api.Metrics.ThreadDump"
-        }, labels));
-
-        // Plugin Permissions — anything not already in a named group above.
-        // Excludes hudson.security.Permission.* (internal abstract base permissions, not user-facing).
-        Set<String> knownIds = new HashSet<>(labels.keySet());
-        List<PermissionInfo> pluginPerms = new ArrayList<>();
         for (PermissionGroup group : PermissionGroup.getAll()) {
-            if (group.owner == hudson.security.Permission.class) continue; // skip internal abstract perms
+            // The internal abstract base permissions (owner == Permission.class) are not user-facing.
+            if (group.owner == hudson.security.Permission.class) {
+                continue;
+            }
+            String groupTitle = group.title != null ? group.title.toString() : group.getId();
+            List<PermissionInfo> perms = new ArrayList<>();
             for (Permission p : group.getPermissions()) {
-                if (!p.enabled) continue;
-                String pId = p.getId();
-                if (knownIds.contains(pId)) continue;
-                if (OmniAuthAuthorizationStrategy.isDangerousPermission(pId)) continue; // never offer admin-equivalent permissions
-                int last = pId.lastIndexOf('.');
-                int prev = last > 0 ? pId.lastIndexOf('.', last - 1) : -1;
-                String raw = prev >= 0 ? pId.substring(prev + 1) : (last >= 0 ? pId.substring(last + 1) : pId);
-                pluginPerms.add(new PermissionInfo(pId, raw));
+                if (!p.enabled) {
+                    continue;
+                }
+                if (OmniAuthAuthorizationStrategy.isDangerousPermission(p.getId())) {
+                    continue; // never offer admin-equivalent permissions
+                }
+                perms.add(PermissionInfo.of(groupTitle, p));
+            }
+            if (!perms.isEmpty()) {
+                // Permission groups have no description in Jenkins, so there is no subtitle.
+                result.add(new PermissionGroupInfo(groupTitle, "", perms));
             }
         }
-        if (!pluginPerms.isEmpty()) {
-            result.add(new PermissionGroupInfo(
-                    "Other Plugin Permissions",
-                    "Permissions from installed plugins not covered above",
-                    pluginPerms));
-        }
-
-        // Remove empty groups (plugin absent or all permissions disabled)
-        result.removeIf(g -> g.getPermissions().isEmpty());
         return result;
-    }
-
-    /** Returns only permissions that exist in this Jenkins and are enabled. */
-    private PermissionGroupInfo buildGroup(String name, String subtitle, String[] ids, Map<String, String> labels) {
-        List<PermissionInfo> perms = new ArrayList<>();
-        for (String id : ids) {
-            if (OmniAuthAuthorizationStrategy.isDangerousPermission(id)) {
-                continue; // never offer admin-equivalent permissions
-            }
-            Permission p = Permission.fromId(id);
-            if (p != null && p.enabled) {
-                perms.add(new PermissionInfo(id, labels.getOrDefault(id, id)));
-            }
-        }
-        return new PermissionGroupInfo(name, subtitle, perms);
     }
 
     // -------------------------------------------------------------------------
@@ -5250,17 +5122,40 @@ public class OmniAuthManagementLink extends ManagementLink {
         private final String id;
         private final String name;
         private final String shortId;
-        public PermissionInfo(String id, String name) {
+        private final String description;
+        private final String impliedById;
+
+        public PermissionInfo(String id, String name, String shortId, String description, String impliedById) {
             this.id = id;
             this.name = name;
-            // e.g. "hudson.model.Item.Build" → "Item.Build"
-            int last = id.lastIndexOf('.');
-            int prev = last > 0 ? id.lastIndexOf('.', last - 1) : -1;
-            this.shortId = prev >= 0 ? id.substring(prev + 1) : id;
+            this.shortId = shortId;
+            this.description = description != null ? description : "";
+            this.impliedById = impliedById != null ? impliedById : "";
         }
-        public String getId()      { return id; }
-        public String getName()    { return name; }
-        public String getShortId() { return shortId; }
+
+        /** Build from a Jenkins {@link Permission}, qualified by its group's display title. */
+        static PermissionInfo of(String groupTitle, Permission p) {
+            String desc = "";
+            try {
+                if (p.description != null) {
+                    desc = p.description.toString();
+                }
+            } catch (RuntimeException ignore) {
+                // a plugin's Localizable can throw if its resource bundle is missing — skip the tooltip
+            }
+            // Shown as the de-emphasised qualifier, e.g. "Lockable Resources/Steal" — the form CasC
+            // understands, instead of a raw class name like "LockableResourcesManager.Steal".
+            String qualified = groupTitle + "/" + p.name;
+            String impliedBy = p.impliedBy != null ? p.impliedBy.getId() : "";
+            return new PermissionInfo(p.getId(), p.name, qualified, desc, impliedBy);
+        }
+
+        public String getId()          { return id; }
+        public String getName()        { return name; }
+        public String getShortId()     { return shortId; }
+        public String getDescription() { return description; }
+        /** Id of the permission that implies this one (grants it automatically), or "" if none. */
+        public String getImpliedById() { return impliedById; }
     }
 
     // =========================================================================

@@ -7,6 +7,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.accessManagementAssets"/>
 
       <div class="jenkins-app-bar">
@@ -211,12 +212,9 @@
                       </summary>
                       <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                         <j:forEach var="perm" items="${group.permissions}">
-                          <label class="perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;transition:background 0.1s,border-color 0.1s;">
-                            <input type="checkbox" class="perm-cb" name="rolePermissions" value="${perm.id}"/>
-                            <span style="display:flex;flex-direction:column;gap:1px;">
-                              <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
-                              <span style="font-size:0.68em;color:#999;font-family:monospace;line-height:1.2;">${perm.shortId}</span>
-                            </span>
+                          <label class="perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;transition:background 0.1s,border-color 0.1s;">
+                            <input type="checkbox" class="perm-cb" name="rolePermissions" value="${perm.id}" data-implied-by="${perm.impliedById}"/>
+                            <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
                           </label>
                         </j:forEach>
                       </div>

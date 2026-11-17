@@ -7,6 +7,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.userDetailAssets"/>
 
       <j:set var="sid"              value="${request2.getParameter('sid')}"/>
@@ -535,12 +536,12 @@
                           </summary>
                           <div class="udx-pbody">
                             <j:forEach var="perm" items="${group.permissions}">
-                              <label class="udx-perm">
+                              <label class="udx-perm" tooltip="${perm.description}">
                                 <input type="checkbox" class="udx-perm-cb" name="customPermissions" value="${perm.id}"
-                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"/>
+                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"
+                                       data-implied-by="${perm.impliedById}"/>
                                 <span class="udx-perm__tx">
                                   <span class="udx-perm__nm">${perm.name}</span>
-                                  <span class="udx-perm__id">${perm.shortId}</span>
                                 </span>
                               </label>
                             </j:forEach>
