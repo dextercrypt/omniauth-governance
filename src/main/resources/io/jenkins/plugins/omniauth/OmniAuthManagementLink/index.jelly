@@ -23,11 +23,8 @@
       <j:set var="teamsEntry" value="${nlog.lastTeamsEntry()}"/>
 
       <!-- ── App Bar ───────────────────────────────────────────────────────── -->
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Overview</h1>
-        </div>
-        <div class="jenkins-app-bar__controls" style="display:inline-flex;align-items:center;gap:12px;">
+      <l:app-bar title="Overview">
+        <div style="display:inline-flex;align-items:center;gap:12px;">
           <span class="oau-live-status" id="oauLiveStatus">
             <span class="oau-live-dot" id="oauLiveDot"></span>
             <span id="oauLiveText">Live</span>
@@ -42,7 +39,7 @@
             <span id="oauLiveBtnText">Pause</span>
           </button>
         </div>
-      </div>
+      </l:app-bar>
 
       <div style="padding:0 24px 24px;">
 

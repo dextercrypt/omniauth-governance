@@ -17,28 +17,7 @@
       <j:set var="members"     value="${it.getGroupMembers(oid)}"/>
 
       <!-- Breadcrumb -->
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              &#8592; OmniAuth Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <a href="accessManagement"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              Access Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <h1 class="jenkins-app-bar__heading">
-              <j:choose>
-                <j:when test="${group != null}">${group.effectiveName}</j:when>
-                <j:otherwise>Group</j:otherwise>
-              </j:choose>
-            </h1>
-          </div>
-        </div>
-      </div>
+      <l:app-bar title="${group != null ? group.effectiveName : 'Group'}"/>
 
       <j:if test="${group == null}">
         <div style="padding:40px;text-align:center;color:var(--text-color-secondary, #888);">Group not found.</div>
@@ -254,13 +233,14 @@
 
             <div style="margin-bottom:16px;">
               <div class="udx-label">Role</div>
-              <select name="role" id="udxRoleSelect" class="jenkins-input"
-                      style="width:100%;max-width:320px;">
+              <div class="jenkins-select" style="width:100%;max-width:320px;">
+              <select name="role" id="udxRoleSelect" class="jenkins-select__input">
                 <j:forEach var="r" items="${roles}">
                   <option value="${r.name}">${r.name} (${r.permissionCount} permissions)</option>
                 </j:forEach>
                 <option value="CUSTOM">— Custom (pick permissions manually) —</option>
               </select>
+              </div>
             </div>
 
             <div id="udxCustomPerms" style="display:none;margin-bottom:16px;">
@@ -318,13 +298,14 @@
             </div>
             <div style="margin-bottom:16px;">
               <div class="udx-label">Role</div>
-              <select name="role" id="udxEditRoleSelect" class="jenkins-input"
-                      style="width:100%;max-width:320px;">
+              <div class="jenkins-select" style="width:100%;max-width:320px;">
+              <select name="role" id="udxEditRoleSelect" class="jenkins-select__input">
                 <j:forEach var="r" items="${roles}">
                   <option value="${r.name}">${r.name} (${r.permissionCount} permissions)</option>
                 </j:forEach>
                 <option value="CUSTOM">— Custom (pick permissions manually) —</option>
               </select>
+              </div>
             </div>
             <div id="udxEditCustomPerms" style="display:none;margin-bottom:16px;">
               <div class="udx-label" style="margin-bottom:8px;">Permissions</div>

@@ -8,11 +8,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.provisioningAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Access Requests</h1>
-        </div>
-      </div>
+      <l:app-bar title="Access Requests"/>
 
       <div class="pr-wrap">
 
@@ -127,10 +123,12 @@
                 </div>
                 <div class="pr-field">
                   <label for="pset-expiry">On expiry</label>
-                  <select id="pset-expiry" name="provisioningExpiryAction">
+                  <div class="jenkins-select">
+                  <select id="pset-expiry" name="provisioningExpiryAction" class="jenkins-select__input">
                     <option value="DISABLE" selected="${cfg.getProvisioningExpiryAction() == 'DISABLE' ? 'selected' : null}">Disable the account (revoke access)</option>
                     <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
                   </select>
+                  </div>
                 </div>
                 <div class="pr-field">
                   <label for="pset-remind">Expiry reminder (days before, 0 = off)</label>
@@ -229,13 +227,15 @@
                         <form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
                           <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
-                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later"
-                                  style="font-size:0.82em;padding:4px 6px;border:1px solid var(--input-border,#ccc);border-radius:6px;max-width:150px;">
+                          <div class="jenkins-select" style="max-width:150px;">
+                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later" class="jenkins-select__input"
+                                  style="font-size:0.82em;">
                             <option value="NONE">Sign-in only</option>
                             <j:forEach var="role" items="${it.roles}">
                               <option value="${role.name}">+ ${role.name}</option>
                             </j:forEach>
                           </select>
+                          </div>
                           <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
                         </form>
                         <form method="post" action="rejectProvisioning" class="pr-reject">

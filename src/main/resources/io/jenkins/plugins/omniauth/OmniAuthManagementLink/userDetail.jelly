@@ -28,28 +28,7 @@
            data-scope-items="${it.allScopeNamesJson}"></div>
 
       <!-- Breadcrumb -->
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              &#8592; OmniAuth Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <a href="accessManagement"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              Access Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <h1 class="jenkins-app-bar__heading">
-              <j:choose>
-                <j:when test="${header != null}">${header.sid}</j:when>
-                <j:otherwise>User</j:otherwise>
-              </j:choose>
-            </h1>
-          </div>
-        </div>
-      </div>
+      <l:app-bar title="${header != null ? header.sid : 'User'}"/>
 
       <div style="padding:0 16px 60px;">
 
@@ -501,14 +480,13 @@
                   <!-- Role mode -->
                   <div id="udxRoleRow" style="display:none;margin-top:14px;">
                     <div class="udx-fieldlabel">Role</div>
-                    <div class="udx-select-wrap">
-                      <select name="role" id="udxRoleSelect" class="udx-select">
+                    <div class="jenkins-select" style="max-width:360px;">
+                      <select name="role" id="udxRoleSelect" class="jenkins-select__input" style="font-size:0.88em;">
                         <j:forEach var="r" items="${roles}">
                           <option value="${r.name}" data-perms="${r.permissionsJson}">${r.name} · ${r.permissionCount} permissions</option>
                         </j:forEach>
                         <option value="CUSTOM" id="udxCustomOpt" hidden="hidden">Custom</option>
                       </select>
-                      <svg class="udx-select-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
                     </div>
                     <j:if test="${roles.isEmpty()}">
                       <div class="udx-emptyroles">No saved roles yet — use <b>Custom permissions</b>, or create roles in the Roles tab.</div>

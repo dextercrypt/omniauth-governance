@@ -41,6 +41,10 @@ public class ManagementPagesRenderTest {
         "notifications",
         "sessions",
         "notificationLog",
+        "provisioning",
+        "security",
+        "protectedUsers",
+        "emergencyAccess",
     };
 
     @Test

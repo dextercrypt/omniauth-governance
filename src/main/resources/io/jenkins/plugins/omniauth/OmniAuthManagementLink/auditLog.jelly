@@ -8,11 +8,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.auditLogAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Audit Log</h1>
-        </div>
-      </div>
+      <l:app-bar title="Audit Log"/>
 
       <div style="padding:0 16px 60px;">
 
@@ -23,7 +19,8 @@
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
           <input id="alxSearch" type="text" placeholder="Filter by user, action, scope…"
                  class="jenkins-input" style="max-width:260px;font-size:0.88em;"/>
-          <select id="alxActionFilter" class="jenkins-input" style="max-width:180px;font-size:0.88em;">
+          <div class="jenkins-select" style="max-width:180px;">
+          <select id="alxActionFilter" class="jenkins-select__input" style="font-size:0.88em;">
             <option value="">All actions</option>
             <option value="grant">Grant</option>
             <option value="revoke">Revoke</option>
@@ -60,6 +57,7 @@
             <option value="jit_cancelled">JIT Cancelled</option>
             <option value="review_confirmed">Review Confirmed</option>
           </select>
+          </div>
           <input id="alxIpFilter" type="text" placeholder="Filter by IP…"
                  class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <span id="alxCount" style="font-size:0.8em;color:var(--text-color-secondary, #999);margin-left:4px;"></span>

@@ -8,29 +8,24 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.staleUsersAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Stale Users</h1>
-        </div>
-        <div class="jenkins-app-bar__controls">
-          <j:choose>
-            <j:when test="${it.omniAuthGlobalConfig.cleanupDryRun}">
-              <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
-                      data-dryrun="true"
-                      title="Dry-run mode is ON — no users will be deleted">
-                Run Cleanup Now
-                <span style="font-size:0.78em;font-weight:500;opacity:0.85;">(Dry-run)</span>
-              </button>
-            </j:when>
-            <j:otherwise>
-              <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
-                      data-dryrun="false">
-                Run Cleanup Now
-              </button>
-            </j:otherwise>
-          </j:choose>
-        </div>
-      </div>
+      <l:app-bar title="Stale Users">
+        <j:choose>
+          <j:when test="${it.omniAuthGlobalConfig.cleanupDryRun}">
+            <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
+                    data-dryrun="true"
+                    title="Dry-run mode is ON — no users will be deleted">
+              Run Cleanup Now
+              <span style="font-size:0.78em;font-weight:500;opacity:0.85;">(Dry-run)</span>
+            </button>
+          </j:when>
+          <j:otherwise>
+            <button type="button" class="jenkins-button jenkins-button--primary js-oau-cleanup"
+                    data-dryrun="false">
+              Run Cleanup Now
+            </button>
+          </j:otherwise>
+        </j:choose>
+      </l:app-bar>
 
       <!-- Hidden cleanup form -->
       <form id="oauCleanupForm" method="post" action="runCleanupNow" style="display:none;">

@@ -8,11 +8,7 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.settingsAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Settings</h1>
-        </div>
-      </div>
+      <l:app-bar title="Settings"/>
 
       <div style="padding: 16px 24px; max-width: 860px;">
 
@@ -316,11 +312,13 @@
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Background design shown behind the logo on the login page. Default: OmniAuth animation.
                 </div>
-                <select name="loginBackground" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginBackground" class="jenkins-select__input">
                   <j:set var="bg" value="${cfg.loginBackground}"/>
                   <option value="omniauth"  selected="${bg == 'omniauth'  ? 'selected' : null}">OmniAuth Animation (animated reactor)</option>
                   <option value="starburst" selected="${bg == 'starburst' ? 'selected' : null}">Starburst (Jenkins native)</option>
                 </select>
+                </div>
               </div>
 
               <!-- Butler Style -->
@@ -329,7 +327,8 @@
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Centre figure on the animated panel. Default: the native Jenkins butler.
                 </div>
-                <select name="loginButler" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginButler" class="jenkins-select__input">
                   <j:set var="btl" value="${cfg.loginButler}"/>
                   <option value="default" selected="${btl == 'default' ? 'selected' : null}">Jenkins Butler (native) — default</option>
                   <option value="austin"  selected="${btl == 'austin'  ? 'selected' : null}">Willie Nelson (Austin butler)</option>
@@ -345,6 +344,7 @@
                   <option value="daily"      selected="${btl == 'daily'      ? 'selected' : null}">Surprise: Butler of the Day</option>
                   <option value="random"     selected="${btl == 'random'     ? 'selected' : null}">Surprise: Random each visit</option>
                 </select>
+                </div>
               </div>
 
               <!-- Page Heading -->
@@ -429,12 +429,14 @@
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Where the company logo sits on the login form. Only applies when a logo is uploaded.
                 </div>
-                <select name="loginLogoPosition" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoPosition" class="jenkins-select__input">
                   <j:set var="llp" value="${cfg.loginLogoPosition}"/>
                   <option value="a" selected="${llp == 'a' ? 'selected' : null}">Top left (above the heading) — default</option>
                   <option value="e" selected="${llp == 'e' ? 'selected' : null}">Top-right corner of the panel</option>
                   <option value="f" selected="${llp == 'f' ? 'selected' : null}">Centered (above the heading)</option>
                 </select>
+                </div>
               </div>
 
               <!-- Logo Size -->
@@ -443,12 +445,14 @@
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
                   Height of the company logo on the login form. Only applies when a logo is uploaded.
                 </div>
-                <select name="loginLogoSize" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoSize" class="jenkins-select__input">
                   <j:set var="lls" value="${cfg.loginLogoSize}"/>
                   <option value="20" selected="${lls == '20' ? 'selected' : null}">Small (20px)</option>
                   <option value="30" selected="${lls == '30' ? 'selected' : null}">Medium (30px)</option>
                   <option value="40" selected="${lls == '40' ? 'selected' : null}">Large (40px) — default</option>
                 </select>
+                </div>
               </div>
 
               <!-- Announcement Banner -->
