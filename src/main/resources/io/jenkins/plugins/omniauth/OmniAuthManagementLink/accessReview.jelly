@@ -35,7 +35,7 @@
         <!-- Feature disabled state -->
         <j:if test="${!cfg.accessReviewEnabled}">
           <div style="text-align:center; padding: 60px 0; color: var(--text-color-secondary);">
-            <l:icon src="symbol-checkmark-done-outline plugin-ionicons-api" class="oau-ico oau-ico-40"/>
+            <l:icon src="symbol-oau-checkmark-done plugin-omniauth-governance" class="oau-ico oau-ico-40"/>
             <div style="font-size: 1em; font-weight: 600; margin-bottom: 6px;">Access review is disabled</div>
             <div style="font-size: 0.85em; margin-bottom: 20px;">
               Enable it in Settings to start flagging stale access grants.
@@ -79,7 +79,7 @@
 
           <!-- All-clear empty state — Jenkins' standard empty-state notice -->
           <j:if test="${items.isEmpty()}">
-            <l:notice title="All caught up" icon="symbol-shield-checkmark-outline plugin-ionicons-api">
+            <l:notice title="All caught up" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
               No assignments need review right now.
             </l:notice>
           </j:if>
@@ -136,16 +136,13 @@
                         <div style="display:flex;align-items:center;gap:6px;">
                           <j:choose>
                             <j:when test="${item.scopeType eq 'GLOBAL'}">
-                              <l:icon src="symbol-globe-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>
+                              <l:icon src="symbol-oau-globe plugin-omniauth-governance" class="oau-ico oau-ico-12"/>
                             </j:when>
                             <j:when test="${item.scopeType eq 'FOLDER'}">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                   stroke="var(--text-color-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                              </svg>
+                              <l:icon src="symbol-oau-x45 plugin-omniauth-governance" class="oau-ico oau-ico-12"/>
                             </j:when>
                             <j:otherwise>
-                              <l:icon src="symbol-desktop-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>
+                              <l:icon src="symbol-oau-desktop plugin-omniauth-governance" class="oau-ico oau-ico-12"/>
                             </j:otherwise>
                           </j:choose>
                           <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.displayScope}">

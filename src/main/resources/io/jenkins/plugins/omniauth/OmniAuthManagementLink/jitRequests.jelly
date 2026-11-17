@@ -40,7 +40,7 @@
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;margin-bottom:24px;">
           <j:choose>
             <j:when test="${it.pendingJitRequests.isEmpty()}">
-              <l:notice title="No pending requests" icon="symbol-checkmark-circle-outline plugin-ionicons-api">
+              <l:notice title="No pending requests" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
                 No pending JIT requests.
               </l:notice>
             </j:when>
@@ -81,17 +81,17 @@
                               <j:choose>
                                 <j:when test="${entry.approved}">
                                   <span style="color:var(--oau-success-fg);display:inline-flex;align-items:center;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    <l:icon src="symbol-oau-x58 plugin-omniauth-governance" class="oau-ico oau-ico-13"/>
                                   </span>
                                 </j:when>
                                 <j:when test="${entry.denied}">
                                   <span style="color:var(--error-color);display:inline-flex;align-items:center;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    <l:icon src="symbol-oau-x59 plugin-omniauth-governance" class="oau-ico oau-ico-13"/>
                                   </span>
                                 </j:when>
                                 <j:otherwise>
                                   <span style="color:var(--warning-color);display:inline-flex;align-items:center;">
-                                    <l:icon src="symbol-time-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>
+                                    <l:icon src="symbol-oau-time plugin-omniauth-governance" class="oau-ico oau-ico-13"/>
                                   </span>
                                 </j:otherwise>
                               </j:choose>
@@ -127,7 +127,7 @@
                             </div>
                             <button type="submit" class="jenkins-button jenkins-button--primary"
                                     style="font-size:0.78em;padding:4px 12px;margin-right:4px;background:var(--oau-success-fg);border-color:var(--oau-success-fg);display:inline-flex;align-items:center;gap:4px;">
-                              <l:icon src="symbol-checkmark-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>Approve
+                              <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-12"/>Approve
                             </button>
                           </form>
                           <button type="button"
@@ -136,7 +136,7 @@
                                   data-requester-id="${r.requesterId}"
                                   data-scope="${r.scope}"
                                   style="font-size:0.78em;padding:4px 12px;color:var(--error-color);border-color:var(--error-color);display:inline-flex;align-items:center;gap:4px;">
-                            <l:icon src="symbol-close-circle-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>Deny
+                            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="oau-ico oau-ico-12"/>Deny
                           </button>
                         </j:if>
                         <j:if test="${!r.isCurrentUserApprover(it.currentUserId)}">
@@ -157,7 +157,7 @@
         <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;">
           <j:choose>
             <j:when test="${it.recentJitRequests.isEmpty()}">
-              <l:notice title="No history yet" icon="symbol-time-outline plugin-ionicons-api">
+              <l:notice title="No history yet" icon="symbol-oau-time plugin-omniauth-governance">
                 No JIT request history yet.
               </l:notice>
             </j:when>

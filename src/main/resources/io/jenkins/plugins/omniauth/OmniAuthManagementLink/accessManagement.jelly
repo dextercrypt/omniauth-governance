@@ -71,7 +71,7 @@
         <div id="tabPanelUsers">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:8px;background:var(--oau-card-bg);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;padding:6px 12px;min-width:220px;">
-              <l:icon src="symbol-search-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>
+              <l:icon src="symbol-oau-search plugin-omniauth-governance" class="oau-ico oau-ico-13"/>
               <input id="oamSearch" type="text" placeholder="Search users and groups…"
                      style="border:none;outline:none;background:transparent;font-size:0.88em;color:var(--text-color,#333);width:180px;"/>
             </div>
@@ -86,7 +86,7 @@
           <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
             <j:choose>
               <j:when test="${it.accessManagementUserList.isEmpty()}">
-                <l:notice title="No permissions yet" icon="symbol-people-outline plugin-ionicons-api">
+                <l:notice title="No permissions yet" icon="symbol-oau-people plugin-omniauth-governance">
                   No permissions configured yet.
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
@@ -317,17 +317,17 @@
                 <label id="auTypeNativeLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--blue);color:#fff;font-weight:600;transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeNative" value="NATIVE" checked="checked"
-                         style="display:none;"/><l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/><span>Native / Local</span>
+                         style="display:none;"/><l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>Native / Local</span>
                 </label>
                 <label id="auTypeEntraLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeEntra" value="ENTRA"
-                         style="display:none;"/><l:icon src="symbol-cloud-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/><span>Entra / Microsoft</span>
+                         style="display:none;"/><l:icon src="symbol-oau-cloud plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>Entra / Microsoft</span>
                 </label>
                 <label id="auTypeGroupLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeGroup" value="GROUP"
-                         style="display:none;"/><l:icon src="symbol-people-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/><span>Entra Group</span>
+                         style="display:none;"/><l:icon src="symbol-oau-people plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>Entra Group</span>
                 </label>
               </div>
             </div>
@@ -365,13 +365,13 @@
                 </label>
               </div>
               <div style="font-size:0.78em;color:#666;padding:8px 10px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:4px;">
-                <l:icon src="symbol-key-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>A secure temporary password will be auto-generated and shown once after account creation.
+                <l:icon src="symbol-oau-key plugin-omniauth-governance" class="oau-ico oau-ico-13"/>A secure temporary password will be auto-generated and shown once after account creation.
               </div>
             </div>
 
             <!-- Entra: info banner -->
             <div id="auEntraInfo" style="display:none;margin-bottom:16px;padding:10px 12px;background:var(--oau-success-bg);border:1px solid var(--oau-success-border);border-radius:6px;font-size:0.83em;color:var(--oau-success-fg);">
-              <l:icon src="symbol-checkmark-circle-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>Access will be pre-provisioned. When this user logs in via Microsoft for the first time, their account will be created automatically and access will already be in place.
+              <l:icon src="symbol-oau-checkmark-circle plugin-omniauth-governance" class="oau-ico oau-ico-13"/>Access will be pre-provisioned. When this user logs in via Microsoft for the first time, their account will be created automatically and access will already be in place.
             </div>
 
             <!-- Group: OID + label fields -->
@@ -393,7 +393,7 @@
                 <div style="font-size:0.76em;color:#888;margin-top:4px;">Your own note — shown until display name resolves on first login.</div>
               </div>
               <div style="margin-bottom:16px;padding:10px 12px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:6px;font-size:0.82em;color:var(--warning-color);">
-                <l:icon src="symbol-people-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login — removing this group immediately revokes access.
+                <l:icon src="symbol-oau-people plugin-omniauth-governance" class="oau-ico oau-ico-13"/>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login — removing this group immediately revokes access.
               </div>
               <div style="padding:10px 12px;background:var(--oau-info-bg);border:1px solid var(--oau-info-border);border-radius:6px;font-size:0.82em;color:var(--oau-info-fg);">
                 &#8505; Display name will be resolved automatically when the first group member signs in with Microsoft.

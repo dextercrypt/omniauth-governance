@@ -35,7 +35,7 @@
           <j:set var="bfEntries" value="${it.bruteForceEntries}"/>
           <j:choose>
             <j:when test="${bfEntries.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/><span>No users with active failure counters.</span></div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>No users with active failure counters.</span></div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table" style="width:100%;">
@@ -67,7 +67,7 @@
                       <td>
                         <j:choose>
                           <j:when test="${bf.locked}">
-                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;display:inline-flex;align-items:center;gap:5px;"><l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>Locked · ~${bf.lockRemainingMinutes}m left</span>
+                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;display:inline-flex;align-items:center;gap:5px;"><l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-12"/>Locked · ~${bf.lockRemainingMinutes}m left</span>
                           </j:when>
                           <j:when test="${bf.failureCount >= cfg.bruteForceThreshold}">
                             <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
@@ -121,7 +121,7 @@
 
           <j:choose>
             <j:when test="${failedLogins.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark-outline plugin-ionicons-api" class="oau-ico oau-ico-14"/><span>No failed logins in this window.</span></div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-14"/><span>No failed logins in this window.</span></div>
             </j:when>
             <j:otherwise>
               <table class="jenkins-table sortable" style="width:100%;">

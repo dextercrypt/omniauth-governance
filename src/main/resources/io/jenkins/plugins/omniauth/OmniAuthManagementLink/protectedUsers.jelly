@@ -21,7 +21,7 @@
             <div style="padding: 16px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 200px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                  <l:icon src="symbol-shield-outline plugin-ionicons-api" class="oau-ico oau-ico-18"/>
+                  <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="oau-ico oau-ico-18"/>
                   <h3 style="margin: 0; font-size: 1em; font-weight: 600;">Protected Users</h3>
                 </div>
                 <p style="margin: 0; color: var(--text-color-secondary); font-size: 0.85em; line-height: 1.5;">
@@ -37,7 +37,7 @@
 
             <!-- Search bar -->
             <div style="padding: 10px 20px; border-bottom: 1px solid var(--oau-card-border); background: var(--oau-neutral-bg); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-search-outline plugin-ionicons-api" class="oau-ico oau-ico-15"/>
+              <l:icon src="symbol-oau-search plugin-omniauth-governance" class="oau-ico oau-ico-15"/>
               <input type="text" id="userFilter" placeholder="Search by username or full name…"
                      class="jenkins-input" style="flex: 1; box-sizing: border-box;"/>
               <button type="button" id="clearFilter"

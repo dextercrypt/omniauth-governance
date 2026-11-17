@@ -67,7 +67,7 @@
                        background:color-mix(in srgb, var(--warning-color,#f0ad4e) 14%, transparent);
                        border:1px solid var(--warning-color,#f0ad4e);
                        border-radius:6px;margin-bottom:16px;font-size:13px;line-height:1.5;">
-                    <l:icon src="symbol-warning-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
+                    <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
                     <span>${it.loginAnnouncementText}</span>
                   </div>
                 </j:if>
@@ -135,12 +135,12 @@
                       />
                       <button type="button" id="togglePw" class="pw-toggle" tabindex="-1"
                               aria-label="Show password" title="Show password">
-                        <l:icon src="symbol-eye-outline plugin-ionicons-api" class="oau-ico oau-ico-18 icon-eye"/>
-                        <l:icon src="symbol-eye-off-outline plugin-ionicons-api" class="oau-ico oau-ico-18 icon-eye-off"/>
+                        <l:icon src="symbol-oau-eye plugin-omniauth-governance" class="oau-ico oau-ico-18 icon-eye"/>
+                        <l:icon src="symbol-oau-eye-off plugin-omniauth-governance" class="oau-ico oau-ico-18 icon-eye-off"/>
                       </button>
                     </div>
                     <div id="capsWarn" class="caps-warn" aria-live="polite">
-                      <l:icon src="symbol-warning-outline plugin-ionicons-api" class="oau-ico oau-ico-13"/>
+                      <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-13"/>
                       <span>Caps Lock is on</span>
                     </div>
                   </div>
@@ -192,11 +192,17 @@
                     <span class="sso-logo" style="display:flex;align-items:center;">
                       <j:choose>
                         <j:when test="${it.ssoProvider.id == 'microsoft'}">
-                          <l:icon src="symbol-grid-outline plugin-ionicons-api" class="oau-ico oau-ico-20"/>
+                          <!-- Microsoft brand mark: a multi-colour logo, kept inline, not a monochrome symbol. -->
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
+                            <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
+                            <rect x="1"  y="11" width="9" height="9" fill="#7fba00"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                          </svg>
                         </j:when>
                         <j:otherwise>
                           <!-- Generic SSO fallback (key icon) for providers without a bespoke logo -->
-                          <l:icon src="symbol-key-outline plugin-ionicons-api" class="oau-ico oau-ico-20"/>
+                          <l:icon src="symbol-oau-key plugin-omniauth-governance" class="oau-ico oau-ico-20"/>
                         </j:otherwise>
                       </j:choose>
                     </span>

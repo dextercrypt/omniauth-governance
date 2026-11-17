@@ -50,7 +50,7 @@
 
           <!-- Empty state -->
           <j:if test="${entries.isEmpty()}">
-            <l:notice title="No notifications yet" icon="symbol-mail-outline plugin-ionicons-api">
+            <l:notice title="No notifications yet" icon="symbol-oau-mail plugin-omniauth-governance">
               No notifications sent yet. Configure SMTP, enable events, and they will appear here.
             </l:notice>
           </j:if>

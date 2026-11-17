@@ -75,13 +75,13 @@
         <!-- ── Warning Banners (state-of-system) ─────────────────────────── -->
         <j:if test="${!cfg.cleanupEnabled}">
           <div class="oau-su-notice oau-su-notice--info">
-            <l:icon src="symbol-close-circle-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
+            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
             <span><strong>Auto-cleanup is disabled.</strong> Users listed below will not be removed automatically. Use <em>Run Cleanup Now</em> for manual removal, or enable auto-cleanup in <a href="settings">Settings</a>.</span>
           </div>
         </j:if>
         <j:if test="${cfg.cleanupEnabled and cfg.cleanupDryRun}">
           <div class="oau-su-notice oau-su-notice--warn">
-            <l:icon src="symbol-warning-outline plugin-ionicons-api" class="oau-ico oau-ico-16"/>
+            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
             <span><strong>Dry-run mode is active.</strong> Scheduled cleanup runs will log which users would be deleted but no accounts will be removed. Disable dry-run in <a href="settings">Settings</a> to perform live deletions.</span>
           </div>
         </j:if>
@@ -122,7 +122,7 @@
 
         <j:choose>
           <j:when test="${pendingUsers.isEmpty()}">
-            <l:notice title="Nothing pending" icon="symbol-checkmark-circle-outline plugin-ionicons-api">
+            <l:notice title="Nothing pending" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
               No accounts pending deletion.
             </l:notice>
           </j:when>
@@ -198,7 +198,7 @@
 
         <j:choose>
           <j:when test="${staleUsers.isEmpty()}">
-            <l:notice title="All users active" icon="symbol-shield-checkmark-outline plugin-ionicons-api">
+            <l:notice title="All users active" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
               All users are active. No accounts have been inactive for more than ${threshold} days.
             </l:notice>
           </j:when>
@@ -223,7 +223,7 @@
                           <a href="userDetail?sid=${u.userId}&amp;type=USER" class="oau-su-ulink">${u.userId}</a>
                           <j:if test="${isProtected}">
                             <span class="oau-su-badge oau-su-badge--shield" title="Protected — cannot be deleted">
-                              <l:icon src="symbol-shield-outline plugin-ionicons-api" class="oau-ico oau-ico-9"/>
+                              <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="oau-ico oau-ico-9"/>
                               Protected
                             </span>
                           </j:if>
@@ -255,7 +255,7 @@
                         <j:choose>
                           <j:when test="${isProtected}">
                             <span class="oau-su-protected-lbl" title="Remove protection first">
-                              <l:icon src="symbol-lock-closed-outline plugin-ionicons-api" class="oau-ico oau-ico-12"/>
+                              <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-12"/>
                               Protected
                             </span>
                           </j:when>
@@ -289,14 +289,12 @@
           <span class="oau-su-sh-count">(${history.size()})</span>
           <span class="oau-su-sh-rule"></span>
           <span class="oau-su-sh-sub">last 10 runs</span>
-          <svg id="oauHistoryChevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-color-secondary);transition:transform 0.2s ease;">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+          <l:icon src="symbol-oau-x65 plugin-omniauth-governance" class="oau-ico oau-ico-14"/>
         </div>
         <div id="oauHistoryBody" style="display:none;">
           <j:choose>
             <j:when test="${history.isEmpty()}">
-              <l:notice title="No cleanup runs yet" icon="symbol-time-outline plugin-ionicons-api">
+              <l:notice title="No cleanup runs yet" icon="symbol-oau-time plugin-omniauth-governance">
                 No cleanup runs yet. Use <em>Run Cleanup Now</em> above or enable auto-cleanup in <a href="settings">Settings</a>.
               </l:notice>
             </j:when>
@@ -370,7 +368,7 @@
         <div class="oau-modal">
           <div id="oauModalDryRun">
             <div class="oau-modal-header oau-modal-header--warn">
-              <l:icon src="symbol-warning-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
               Run Cleanup — Dry-run Mode
             </div>
             <div class="oau-modal-body">
@@ -387,7 +385,7 @@
           </div>
           <div id="oauModalLive">
             <div class="oau-modal-header oau-modal-header--danger">
-              <l:icon src="symbol-trash-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
               Run Cleanup — Live Mode
             </div>
             <div class="oau-modal-body">
@@ -411,7 +409,7 @@
       <div id="oauDeleteModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div class="oau-modal-header oau-modal-header--danger">
-            <l:icon src="symbol-trash-outline plugin-ionicons-api" class="oau-ico oau-ico-22"/>
+            <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
             Delete User
           </div>
           <div class="oau-modal-body">
