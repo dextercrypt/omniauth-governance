@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:oau="/lib/oau">
 
   <l:layout title="OmniAuth — Notifications" norefresh="true">
     <l:side-panel>
@@ -334,23 +334,7 @@
                 <!-- SMTP event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send via Email</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="smtpEvents"/>
                 </div>
 
               </div>
@@ -422,23 +406,7 @@
                 <!-- Slack event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Slack</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="slackEvents"/>
                 </div>
               </div>
             </div>
@@ -506,23 +474,7 @@
                 <!-- Teams event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Microsoft Teams</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="teamsEvents"/>
                 </div>
               </div>
             </div>

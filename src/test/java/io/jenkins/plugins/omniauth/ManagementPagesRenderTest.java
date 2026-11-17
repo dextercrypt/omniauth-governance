@@ -7,6 +7,7 @@ import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -72,5 +73,19 @@ public class ManagementPagesRenderTest {
         if (!failures.isEmpty()) {
             fail("Management pages failed to render:\n  " + String.join("\n  ", failures));
         }
+    }
+
+    @Test
+    public void notificationEventGridTaglibRenders(JenkinsRule j) throws Exception {
+        j.jenkins.setSecurityRealm(new OmniAuthSecurityRealm(false, null));
+        JenkinsRule.WebClient wc = j.createWebClient();
+        wc.getOptions().setJavaScriptEnabled(false);
+        String html = wc.goTo(BASE + "notifications").getWebResponse().getContentAsString();
+        // The three channels share one oau:eventGrid taglib (lib/oau/eventGrid.jelly). Prove it
+        // expands: every channel's checkboxes and a native tooltip must be in the server HTML.
+        assertTrue(html.contains("name=\"smtpEvents\""), "email event checkboxes should render");
+        assertTrue(html.contains("name=\"slackEvents\""), "slack event checkboxes should render");
+        assertTrue(html.contains("name=\"teamsEvents\""), "teams event checkboxes should render");
+        assertTrue(html.contains("tooltip="), "event labels should carry native tooltips");
     }
 }

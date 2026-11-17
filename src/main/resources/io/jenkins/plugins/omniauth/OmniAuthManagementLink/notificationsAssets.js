@@ -91,21 +91,6 @@ function oauToggleCustomLogo(checkbox) {
   }
 }
 
-// Event label tooltips — set on the <label> so hover always works
-var oauEventTitles = {
-  cleanup:              'Report after each automated cleanup run (dry-run or live).',
-  userDeleted:          'Alert when an admin manually deletes a user via the OmniAuth UI.',
-  configChanged:        'Sent when OmniAuth settings are saved.',
-  protectedListChanged: 'Alert when users are added to or removed from the protected list.',
-  graphApiFailure:      'Alert when Microsoft Graph API calls fail, breaking Entra group sync.',
-  adminGranted:         'Alert when a user is granted Jenkins ADMINISTER permission.',
-  bruteForce:           'Alert when consecutive login failures hit the configured threshold.',
-  staleWarning:         'Periodic digest of users approaching the stale threshold.',
-  jitRequest:           'Sent to approvers when a user submits a JIT access request.',
-  jitApproved:          'Sent to the requester when their JIT request is approved.',
-  jitDenied:            'Sent to the requester when their JIT request is denied or times out.'
-};
-
 function oauPreviewUrl() {
   var type    = document.getElementById('oauPreviewEventType').value;
   var logoEl  = document.getElementById('oauLogoUrlInput');
@@ -211,13 +196,6 @@ function oauInitNotifications() {
       oauTeamsEvents = data.teamsEvents || '';
     } catch (e) { /* leave defaults */ }
   }
-
-  ['smtpEvents','slackEvents','teamsEvents'].forEach(function(ch) {
-    document.querySelectorAll('[name="' + ch + '"]').forEach(function(cb) {
-      var lbl = cb.closest('label');
-      if (lbl && oauEventTitles[cb.value]) lbl.setAttribute('data-tooltip', oauEventTitles[cb.value]);
-    });
-  });
 
   // Init on load
   oauInitEventCheckboxes('smtpEvents',  oauSmtpEvents);
