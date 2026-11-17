@@ -180,14 +180,14 @@
           var data;
           try { data = JSON.parse(res.text); }
           catch (e) {
-            oauAlert('Couldn't compute the plan', 'The server returned HTTP ' + res.status + '. Try reloading the page and trying again.');
+            oauAlert('Could not compute the plan', 'The server returned HTTP ' + res.status + '. Try reloading the page and trying again.');
             return;
           }
-          if (!data.ok) { oauAlert('Couldn't read configuration', data.error || 'unknown error'); return; }
+          if (!data.ok) { oauAlert('Could not read configuration', data.error || 'unknown error'); return; }
           onReady(data);
         }).catch(function (err) {
           if (onDone) onDone();
-          oauAlert('Couldn't compute the plan', String(err));
+          oauAlert('Could not compute the plan', String(err));
         });
     }
 
