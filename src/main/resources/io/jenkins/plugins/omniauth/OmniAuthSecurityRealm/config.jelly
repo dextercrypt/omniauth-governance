@@ -31,6 +31,15 @@
          config.jelly — this form needs no change. -->
     <f:dropdownDescriptorSelector field="provider" title="${%Single sign-on provider}"/>
 
+    <!-- Roadmap note. The dropdown above only lists providers that exist as a real extension
+         (Microsoft Entra today); this keeps the "more providers planned" signal the hand-built
+         selector used to carry, without putting non-functional options into the real selector. -->
+    <f:block>
+      <div class="jenkins-form-description">
+        More providers planned: Okta, Google Workspace, Generic OIDC, SAML 2.0. Microsoft Entra is available today.
+      </div>
+    </f:block>
+
   </div>
 
 </j:jelly>
