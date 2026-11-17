@@ -39,9 +39,6 @@
               </span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <a href="notifications" class="jenkins-button" >
-                ← Back to Notifications
-              </a>
               <j:if test="${!entries.isEmpty()}">
                 <form method="post" action="clearNotificationLog" style="margin: 0;">
                   <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>

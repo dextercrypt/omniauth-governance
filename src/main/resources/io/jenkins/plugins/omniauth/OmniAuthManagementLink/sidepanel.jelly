@@ -41,7 +41,11 @@
             title="Settings"/>
     <l:task icon="symbol-notifications-outline plugin-ionicons-api"
             href="${rootURL}/manage/omniauth-management/notifications"
-            title="Notifications"/>
+            title="Notifications">
+      <l:task icon="symbol-mail-outline plugin-ionicons-api"
+              href="${rootURL}/manage/omniauth-management/notificationLog"
+              title="Notification Log"/>
+    </l:task>
     <l:task icon="symbol-document-text"
             href="${rootURL}/manage/omniauth-management/auditLog"
             title="Audit Log"/>
