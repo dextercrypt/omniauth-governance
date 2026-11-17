@@ -435,79 +435,91 @@ public class OmniAuthGlobalConfig extends GlobalConfiguration {
 
     @Override
     public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
-        // Protected users
-        protectedUsers = new ArrayList<>();
-        Object raw = json.opt("protectedUsers");
-        if (raw instanceof JSONArray) {
-            for (Object o : (JSONArray) raw) protectedUsers.add(o.toString());
-        } else if (raw instanceof String && !((String) raw).isEmpty()) {
-            protectedUsers.add(raw.toString());
+        // Partial update: a field changes ONLY when its key is present in the submitted form. Each
+        // page's save handler therefore sends just the fields it owns and never has to re-inject the
+        // others to keep them; and a global "Manage Jenkins / System" save — which carries none of
+        // our fields — leaves everything untouched instead of resetting it to defaults.
+        if (json.has("protectedUsers")) {
+            protectedUsers = new ArrayList<>();
+            Object raw = json.opt("protectedUsers");
+            if (raw instanceof JSONArray) {
+                for (Object o : (JSONArray) raw) protectedUsers.add(o.toString());
+            } else if (raw instanceof String && !((String) raw).isEmpty()) {
+                protectedUsers.add(raw.toString());
+            }
         }
 
-        staleThresholdDays  = jsonInt(json, "staleThresholdDays",  90);
-        activeThresholdDays = jsonInt(json, "activeThresholdDays", 30);
-        auditRetentionDays  = Math.max(0, jsonInt(json, "auditRetentionDays", 365));
-        cleanupEnabled      = json.optBoolean("cleanupEnabled",  false);
-        cleanupDryRun       = !cleanupEnabled || json.optBoolean("cleanupDryRun", true);
-        cleanupCron         = jsonStr(json, "cleanupCron",         "0 2 * * 0");
-        cleanupMaxDeletions = jsonInt(json, "cleanupMaxDeletions", 50);
-
-        // SMTP — split host:port if user pasted a combined value
-        String rawHost  = jsonStr(json, "smtpHost", "");
-        if (rawHost.contains(":")) {
-            String[] hp = rawHost.split(":", 2);
-            smtpHost = hp[0].trim();
-            try { smtpPort = Integer.parseInt(hp[1].trim()); } catch (NumberFormatException ignored) { smtpPort = 465; }
-        } else {
-            smtpHost = rawHost;
-            smtpPort = jsonInt(json, "smtpPort", 465);
+        if (json.has("staleThresholdDays"))  staleThresholdDays  = jsonInt(json, "staleThresholdDays",  staleThresholdDays);
+        if (json.has("activeThresholdDays")) activeThresholdDays = jsonInt(json, "activeThresholdDays", activeThresholdDays);
+        if (json.has("auditRetentionDays"))  auditRetentionDays  = Math.max(0, jsonInt(json, "auditRetentionDays", auditRetentionDays));
+        if (json.has("cleanupEnabled")) {
+            cleanupEnabled = json.optBoolean("cleanupEnabled",  false);
+            cleanupDryRun  = !cleanupEnabled || json.optBoolean("cleanupDryRun", true);
         }
-        smtpUsername    = jsonStr(json, "smtpUsername",    "");
-        String rawPass  = jsonStr(json, "smtpPassword",    "");
-        if (!rawPass.isEmpty()) smtpPassword = Secret.fromString(rawPass);
-        smtpTls         = json.optBoolean("smtpTls", true);
-        smtpFromAddress = jsonStr(json, "smtpFromAddress", "");
-        smtpFromName    = jsonStr(json, "smtpFromName",    "Jenkins OmniAuth");
-        smtpReplyTo     = jsonStr(json, "smtpReplyTo",     "");
-        notifyEmails          = jsonStr(json, "notifyEmails",          "");
-        loginHeading          = jsonStr(json, "loginHeading",          "");
-        loginTabTitle         = jsonStr(json, "loginTabTitle",         "");
-        loginAnnouncementText = jsonStr(json, "loginAnnouncementText", "");
-        loginFooterText       = jsonStr(json, "loginFooterText",       "");
-        loginBackground       = jsonStr(json, "loginBackground",       "omniauth");
-        loginLogoPosition     = jsonStr(json, "loginLogoPosition",     "a");
-        loginLogoSize         = jsonStr(json, "loginLogoSize",         "40");
-        loginButler           = jsonStr(json, "loginButler",           "default");
-        notificationLogoUrl   = jsonStr(json, "notificationLogoUrl",   "");
-        notificationFooterNote = jsonStr(json, "notificationFooterNote", "");
+        if (json.has("cleanupCron"))         cleanupCron         = jsonStr(json, "cleanupCron",         cleanupCron);
+        if (json.has("cleanupMaxDeletions")) cleanupMaxDeletions = jsonInt(json, "cleanupMaxDeletions", cleanupMaxDeletions);
+
+        // SMTP — split host:port if the user pasted a combined value.
+        boolean portSetFromHost = false;
+        if (json.has("smtpHost")) {
+            String rawHost = jsonStr(json, "smtpHost", "");
+            if (rawHost.contains(":")) {
+                String[] hp = rawHost.split(":", 2);
+                smtpHost = hp[0].trim();
+                try { smtpPort = Integer.parseInt(hp[1].trim()); portSetFromHost = true; } catch (NumberFormatException ignored) { /* keep current port */ }
+            } else {
+                smtpHost = rawHost;
+            }
+        }
+        if (json.has("smtpPort") && !portSetFromHost) smtpPort = jsonInt(json, "smtpPort", smtpPort);
+        if (json.has("smtpUsername")) smtpUsername = jsonStr(json, "smtpUsername", "");
+        if (json.has("smtpPassword")) {
+            String rawPass = jsonStr(json, "smtpPassword", "");
+            if (!rawPass.isEmpty()) smtpPassword = Secret.fromString(rawPass);
+        }
+        if (json.has("smtpTls"))         smtpTls         = json.optBoolean("smtpTls", true);
+        if (json.has("smtpFromAddress")) smtpFromAddress = jsonStr(json, "smtpFromAddress", "");
+        if (json.has("smtpFromName"))    smtpFromName    = jsonStr(json, "smtpFromName",    "Jenkins OmniAuth");
+        if (json.has("smtpReplyTo"))     smtpReplyTo     = jsonStr(json, "smtpReplyTo",     "");
+        if (json.has("notifyEmails"))    notifyEmails    = jsonStr(json, "notifyEmails",    "");
+        if (json.has("loginHeading"))          loginHeading          = jsonStr(json, "loginHeading",          "");
+        if (json.has("loginTabTitle"))         loginTabTitle         = jsonStr(json, "loginTabTitle",         "");
+        if (json.has("loginAnnouncementText")) loginAnnouncementText = jsonStr(json, "loginAnnouncementText", "");
+        if (json.has("loginFooterText"))       loginFooterText       = jsonStr(json, "loginFooterText",       "");
+        if (json.has("loginBackground"))       loginBackground       = jsonStr(json, "loginBackground",       "omniauth");
+        if (json.has("loginLogoPosition"))     loginLogoPosition     = jsonStr(json, "loginLogoPosition",     "a");
+        if (json.has("loginLogoSize"))         loginLogoSize         = jsonStr(json, "loginLogoSize",         "40");
+        if (json.has("loginButler"))           loginButler           = jsonStr(json, "loginButler",           "default");
+        if (json.has("notificationLogoUrl"))    notificationLogoUrl    = jsonStr(json, "notificationLogoUrl",    "");
+        if (json.has("notificationFooterNote")) notificationFooterNote = jsonStr(json, "notificationFooterNote", "");
 
         // Notifications master + channels
-        notificationsEnabled = json.optBoolean("notificationsEnabled", false);
-        smtpEnabled          = json.optBoolean("smtpEnabled",          false);
-        slackEnabled         = json.optBoolean("slackEnabled",         false);
-        slackWebhookUrl      = Secret.fromString(jsonStr(json, "slackWebhookUrl", ""));
-        teamsEnabled         = json.optBoolean("teamsEnabled",         false);
-        teamsWebhookUrl      = Secret.fromString(jsonStr(json, "teamsWebhookUrl", ""));
+        if (json.has("notificationsEnabled")) notificationsEnabled = json.optBoolean("notificationsEnabled", false);
+        if (json.has("smtpEnabled"))          smtpEnabled          = json.optBoolean("smtpEnabled",          false);
+        if (json.has("slackEnabled"))         slackEnabled         = json.optBoolean("slackEnabled",         false);
+        if (json.has("slackWebhookUrl"))      slackWebhookUrl      = Secret.fromString(jsonStr(json, "slackWebhookUrl", ""));
+        if (json.has("teamsEnabled"))         teamsEnabled         = json.optBoolean("teamsEnabled",         false);
+        if (json.has("teamsWebhookUrl"))      teamsWebhookUrl      = Secret.fromString(jsonStr(json, "teamsWebhookUrl", ""));
 
         // Brute force
-        bruteForceThreshold = jsonInt(json, "bruteForceThreshold", 5);
-        bruteForceLockoutEnabled = json.optBoolean("bruteForceLockoutEnabled", true);
-        bruteForceLockoutMinutes = jsonInt(json, "bruteForceLockoutMinutes", 15);
-        sosEnabled = json.optBoolean("sosEnabled", true);
+        if (json.has("bruteForceThreshold"))      bruteForceThreshold      = jsonInt(json, "bruteForceThreshold", bruteForceThreshold);
+        if (json.has("bruteForceLockoutEnabled")) bruteForceLockoutEnabled = json.optBoolean("bruteForceLockoutEnabled", true);
+        if (json.has("bruteForceLockoutMinutes")) bruteForceLockoutMinutes = jsonInt(json, "bruteForceLockoutMinutes", bruteForceLockoutMinutes);
+        if (json.has("sosEnabled"))               sosEnabled               = json.optBoolean("sosEnabled", true);
 
         // Stale warning
-        staleWarningEnabled    = json.optBoolean("staleWarningEnabled", false);
-        staleWarningCron       = jsonStr(json, "staleWarningCron",       "0 9 * * 1");
-        staleWarningWindowDays = jsonInt(json, "staleWarningWindowDays", 14);
+        if (json.has("staleWarningEnabled"))    staleWarningEnabled    = json.optBoolean("staleWarningEnabled", false);
+        if (json.has("staleWarningCron"))       staleWarningCron       = jsonStr(json, "staleWarningCron",       "0 9 * * 1");
+        if (json.has("staleWarningWindowDays")) staleWarningWindowDays = jsonInt(json, "staleWarningWindowDays", staleWarningWindowDays);
 
         // Access review
-        accessReviewEnabled       = json.optBoolean("accessReviewEnabled", false);
-        accessReviewThresholdDays = jsonInt(json, "accessReviewThresholdDays", 90);
+        if (json.has("accessReviewEnabled"))       accessReviewEnabled       = json.optBoolean("accessReviewEnabled", false);
+        if (json.has("accessReviewThresholdDays")) accessReviewThresholdDays = jsonInt(json, "accessReviewThresholdDays", accessReviewThresholdDays);
 
         // Per-channel event subscriptions
-        smtpEvents  = jsonStringList(json, "smtpEvents");
-        slackEvents = jsonStringList(json, "slackEvents");
-        teamsEvents = jsonStringList(json, "teamsEvents");
+        if (json.has("smtpEvents"))  smtpEvents  = jsonStringList(json, "smtpEvents");
+        if (json.has("slackEvents")) slackEvents = jsonStringList(json, "slackEvents");
+        if (json.has("teamsEvents")) teamsEvents = jsonStringList(json, "teamsEvents");
 
         save();
         return true;
