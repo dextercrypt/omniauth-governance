@@ -109,10 +109,10 @@
                     <span class="sso-logo" style="display:flex;align-items:center;">
                       <j:choose>
                         <j:when test="${realm.ssoProvider.id == 'microsoft'}">
-                          <l:icon src="symbol-oau-grid plugin-omniauth-governance" class="oau-ico oau-ico-20"/>
+                          <l:icon src="symbol-oau-grid plugin-omniauth-governance" class="icon-md"/>
                         </j:when>
                         <j:otherwise>
-                          <l:icon src="symbol-oau-key plugin-omniauth-governance" class="oau-ico oau-ico-20"/>
+                          <l:icon src="symbol-oau-key plugin-omniauth-governance" class="icon-md"/>
                         </j:otherwise>
                       </j:choose>
                     </span>

@@ -23,7 +23,7 @@
 
             <!-- Action-required banner -->
             <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--oau-danger-bg); border:1px solid var(--oau-danger-border); border-radius:8px; margin-bottom:20px;">
-              <l:icon src="symbol-oau-information-circle plugin-omniauth-governance" class="oau-ico oau-ico-18"/>
+              <l:icon src="symbol-oau-information-circle plugin-omniauth-governance" class="icon-sm"/>
               <span style="font-size:0.88em; color:var(--oau-danger-fg);"><strong>Action Required</strong> — You've used all 3 reminders. Enroll a TOTP device to continue using Jenkins.</span>
             </div>
 
@@ -34,7 +34,7 @@
               <div style="padding:18px 24px; border-bottom:1px solid var(--oau-card-border); background:linear-gradient(135deg,var(--oau-danger-bg) 0%,#fff 100%);">
                 <div style="display:flex; align-items:center; gap:14px;">
                   <div style="flex-shrink:0; width:48px; height:48px; border-radius:50%; background:var(--oau-danger-bg); display:flex; align-items:center; justify-content:center;">
-                    <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-24"/>
+                    <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-md"/>
                   </div>
                   <div>
                     <div style="font-size:1em; font-weight:700; color:var(--text-color); margin-bottom:3px;">Enroll Your Authenticator</div>
@@ -111,7 +111,7 @@
                 <!-- Step 3: Success -->
                 <div id="step-success" style="display:none; text-align:center; padding:36px 0 20px;">
                   <div style="width:64px; height:64px; border-radius:50%; background:var(--oau-success-bg); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                    <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-32"/>
+                    <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="icon-lg"/>
                   </div>
                   <div style="font-size:1.05em; font-weight:700; color:var(--oau-success-fg); margin-bottom:6px;">Authenticator enrolled!</div>
                   <div style="font-size:0.85em; color:var(--text-color-secondary); margin-bottom:20px;">
@@ -140,7 +140,7 @@
               <!-- Icon -->
               <div style="display:flex; justify-content:center; margin-bottom:22px;">
                 <div style="width:68px; height:68px; border-radius:50%; background:var(--oau-warning-bg); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 8px var(--oau-warning-bg);">
-                  <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="oau-ico oau-ico-30"/>
+                  <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-lg"/>
                 </div>
               </div>
 
@@ -167,7 +167,7 @@
               <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
                 <a href="emergencyAccess"
                    style="display:inline-flex; align-items:center; gap:8px; padding:9px 20px; border:none; border-radius:6px; background:var(--blue); color:#fff; font-size:0.88em; font-weight:600; text-decoration:none; cursor:pointer;">
-                  <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-14"/>
+                  <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-sm"/>
                   Enroll Now
                 </a>
                 <j:choose>

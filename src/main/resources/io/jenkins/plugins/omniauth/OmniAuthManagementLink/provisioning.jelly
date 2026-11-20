@@ -52,21 +52,21 @@
         <div class="pr-kpis">
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-warning-bg);">
-              <l:icon src="symbol-oau-time plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-warning-fg);">${it.pendingProvisioningCount}</div>
             <div class="oau-kpi-card__label">Pending</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-success-bg);">
-              <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
             <div class="oau-kpi-card__label">Approved</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-danger-bg);">
-              <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
             <div class="oau-kpi-card__label">Rejected</div>

@@ -76,13 +76,13 @@
         <!-- ── Warning Banners (state-of-system) ─────────────────────────── -->
         <j:if test="${!cfg.cleanupEnabled}">
           <div class="oau-su-notice oau-su-notice--info">
-            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-sm"/>
             <span><strong>Auto-cleanup is disabled.</strong> Users listed below will not be removed automatically. Use <em>Run Cleanup Now</em> for manual removal, or enable auto-cleanup in <a href="settings">Settings</a>.</span>
           </div>
         </j:if>
         <j:if test="${cfg.cleanupEnabled and cfg.cleanupDryRun}">
           <div class="oau-su-notice oau-su-notice--warn">
-            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
             <span><strong>Dry-run mode is active.</strong> Scheduled cleanup runs will log which users would be deleted but no accounts will be removed. Disable dry-run in <a href="settings">Settings</a> to perform live deletions.</span>
           </div>
         </j:if>
@@ -228,7 +228,7 @@
                           <a href="userDetail?sid=${u.userId}&amp;type=USER" class="oau-su-ulink">${u.userId}</a>
                           <j:if test="${isProtected}">
                             <span class="oau-su-badge oau-su-badge--shield" title="Protected — cannot be deleted">
-                              <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="oau-ico oau-ico-9"/>
+                              <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-sm"/>
                               Protected
                             </span>
                           </j:if>
@@ -260,7 +260,7 @@
                         <j:choose>
                           <j:when test="${isProtected}">
                             <span class="oau-su-protected-lbl" title="Remove protection first">
-                              <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-12"/>
+                              <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-xs"/>
                               Protected
                             </span>
                           </j:when>
@@ -294,7 +294,7 @@
           <span class="oau-su-sh-count">(${history.size()})</span>
           <span class="oau-su-sh-rule"></span>
           <span class="oau-su-sh-sub">last 10 runs</span>
-          <l:icon src="symbol-oau-x65 plugin-omniauth-governance" class="oau-ico oau-ico-14"/>
+          <l:icon src="symbol-oau-x65 plugin-omniauth-governance" class="icon-sm"/>
         </div>
         <div id="oauHistoryBody" style="display:none;">
           <j:choose>
@@ -373,7 +373,7 @@
         <div class="oau-modal">
           <div id="oauModalDryRun">
             <div class="oau-modal-header oau-modal-header--warn">
-              <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-md"/>
               Run Cleanup — Dry-run Mode
             </div>
             <div class="oau-modal-body">
@@ -390,7 +390,7 @@
           </div>
           <div id="oauModalLive">
             <div class="oau-modal-header oau-modal-header--danger">
-              <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+              <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-md"/>
               Run Cleanup — Live Mode
             </div>
             <div class="oau-modal-body">
@@ -414,7 +414,7 @@
       <div id="oauDeleteModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div class="oau-modal-header oau-modal-header--danger">
-            <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+            <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-md"/>
             Delete User
           </div>
           <div class="oau-modal-body">

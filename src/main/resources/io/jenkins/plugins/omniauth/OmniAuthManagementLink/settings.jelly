@@ -28,7 +28,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-people plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-people plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">User Status</h3>
             </div>
             <div class="oau-card-body">
@@ -52,7 +52,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">Stale Users</h3>
             </div>
             <div class="oau-card-body">
@@ -75,7 +75,7 @@
           <j:set var="auditStore" value="${it.auditStorage}"/>
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-x61 plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-x61 plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">Audit Log Retention</h3>
             </div>
             <div class="oau-card-body">
@@ -107,7 +107,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">Automated Cleanup</h3>
             </div>
             <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
@@ -198,7 +198,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-checkmark-done plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-checkmark-done plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">Access Review</h3>
             </div>
             <div class="oau-card-body">
@@ -240,7 +240,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-x62 plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-x62 plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">SOS Mode (lockout recovery)</h3>
             </div>
             <div class="oau-card-body">
@@ -283,7 +283,7 @@
                ================================================================ -->
           <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-x63 plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+              <l:icon src="symbol-oau-x63 plugin-omniauth-governance" class="icon-sm"/>
               <h3 class="oau-card-title">Login Page</h3>
               <button type="button" class="jenkins-button" style="margin-left: auto"
                       id="oauResetBranding">

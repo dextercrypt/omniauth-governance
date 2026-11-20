@@ -76,7 +76,7 @@
         <!-- Group-managed notice -->
         <j:if test="${header != null and header.groupManaged}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:8px;font-size:0.88em;color:var(--warning-color);display:flex;align-items:flex-start;gap:10px;">
-            <span style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-16"/></span>
+            <span style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/></span>
             <span>
               <strong>Group-provisioned user.</strong>
               Access is controlled by the Azure AD group assignment — individual grants are not permitted.
@@ -88,7 +88,7 @@
         <!-- Pre-provisioned banner -->
         <j:if test="${isPreProvisioned}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-success-bg);border:1px solid var(--oau-success-border);border-radius:8px;font-size:0.88em;color:var(--oau-success-fg);">
-            <l:icon src="symbol-oau-checkmark-circle plugin-omniauth-governance" class="oau-ico oau-ico-15"/><strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
+            <l:icon src="symbol-oau-checkmark-circle plugin-omniauth-governance" class="icon-sm"/><strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
           </div>
         </j:if>
 
@@ -134,7 +134,7 @@
                 </button>
               </div>
               <div style="font-size:0.78em;color:var(--error-color);margin-bottom:18px;">
-                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-13"/>This password will not be shown again. Copy it now.
+                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-xs"/>This password will not be shown again. Copy it now.
               </div>
               <button type="button" id="udxTmpPwdDone"
                       class="jenkins-button jenkins-button--primary" style="width:100%">
@@ -227,7 +227,7 @@
                style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
             <div style="background:var(--oau-card-bg,#fff);border-radius:10px;padding:26px 30px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
               <div style="font-weight:700;font-size:1.05em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-18"/>
+                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
                 Reset password
               </div>
               <div style="font-size:0.85em;color:var(--text-color-secondary,#555);margin-bottom:20px;line-height:1.5;">
@@ -255,7 +255,7 @@
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
-                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="oau-ico oau-ico-30"/></div>
+                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-lg"/></div>
                 <div style="font-size:0.9em;">No access assigned to this user yet.</div>
                 <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
                   <button type="button"
@@ -283,9 +283,9 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
                             <j:choose>
-                              <j:when test="${a.global}"><l:icon src="symbol-oau-globe plugin-omniauth-governance" class="oau-ico oau-ico-15"/></j:when>
-                              <j:when test="${a.scopeType == 'folder'}"><l:icon src="symbol-oau-folder plugin-omniauth-governance" class="oau-ico oau-ico-15"/></j:when>
-                              <j:otherwise><l:icon src="symbol-oau-cube plugin-omniauth-governance" class="oau-ico oau-ico-15"/></j:otherwise>
+                              <j:when test="${a.global}"><l:icon src="symbol-oau-globe plugin-omniauth-governance" class="icon-sm"/></j:when>
+                              <j:when test="${a.scopeType == 'folder'}"><l:icon src="symbol-oau-folder plugin-omniauth-governance" class="icon-sm"/></j:when>
+                              <j:otherwise><l:icon src="symbol-oau-cube plugin-omniauth-governance" class="icon-sm"/></j:otherwise>
                             </j:choose>
                           </span>
                           <div>
@@ -303,7 +303,7 @@
                           <span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;
                                        font-size:0.72em;font-weight:700;padding:2px 7px;border-radius:10px;
                                        background:var(--oau-warning-bg);border:1px solid var(--warning-color);color:var(--warning-color);white-space:nowrap;">
-                            <l:icon src="symbol-oau-flash plugin-omniauth-governance" class="oau-ico oau-ico-11"/>JIT
+                            <l:icon src="symbol-oau-flash plugin-omniauth-governance" class="icon-xs"/>JIT
                           </span>
                         </j:if>
                         <j:if test="${userIsGlobalAdmin and !a.global}">
@@ -311,7 +311,7 @@
                                 style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;
                                        font-size:0.72em;font-weight:700;padding:2px 7px;border-radius:10px;
                                        background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);color:var(--warning-color);cursor:help;">
-                            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-10"/>
+                            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-xs"/>
                             Superseded
                           </span>
                         </j:if>
@@ -394,7 +394,7 @@
                 <div class="udx-drawer__sub">to <b>${sid}</b></div>
               </div>
               <button type="button" id="udxDrawerClose" class="udx-drawer__x" aria-label="Close" title="Close">
-                <l:icon src="symbol-oau-close plugin-omniauth-governance" class="oau-ico oau-ico-18"/>
+                <l:icon src="symbol-oau-close plugin-omniauth-governance" class="icon-sm"/>
               </button>
             </header>
 
@@ -414,14 +414,14 @@
                       <label class="udx-seg__opt">
                         <input type="radio" name="scopeType" value="global" checked="checked" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
-                          <l:icon src="symbol-oau-x66 plugin-omniauth-governance" class="oau-ico oau-ico-17"/>
+                          <l:icon src="symbol-oau-x66 plugin-omniauth-governance" class="icon-sm"/>
                           <b>Global</b><small>All of Jenkins</small>
                         </span>
                       </label>
                       <label class="udx-seg__opt">
                         <input type="radio" name="scopeType" value="item" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
-                          <l:icon src="symbol-oau-x67 plugin-omniauth-governance" class="oau-ico oau-ico-17"/>
+                          <l:icon src="symbol-oau-x67 plugin-omniauth-governance" class="icon-sm"/>
                           <b>Specific job or folder</b><small>One item + its parents</small>
                         </span>
                       </label>
@@ -431,10 +431,10 @@
                       <div style="display:flex;align-items:center;gap:8px;max-width:480px;">
                         <button type="button" id="udxScopeBtn" class="udx-scopebtn">
                           <span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-                            <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-oau-folder plugin-omniauth-governance" class="oau-ico oau-ico-16"/></span>
+                            <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-oau-folder plugin-omniauth-governance" class="icon-sm"/></span>
                             <span id="udxScopeLbl" class="udx-scopebtn__ph">Select a job or folder…</span>
                           </span>
-                          <l:icon src="symbol-oau-x68 plugin-omniauth-governance" class="oau-ico oau-ico-11"/>
+                          <l:icon src="symbol-oau-x68 plugin-omniauth-governance" class="icon-xs"/>
                         </button>
                         <button type="button" id="udxScopeClear" class="udx-scopeclear" title="Clear selection" style="display:none;">&#x2715;</button>
                       </div>
@@ -460,12 +460,12 @@
 
                   <div class="udx-cards">
                     <button type="button" id="udxModeRole" class="udx-card">
-                      <span class="udx-card__ic"><l:icon src="symbol-oau-x69 plugin-omniauth-governance" class="oau-ico oau-ico-20"/></span>
+                      <span class="udx-card__ic"><l:icon src="symbol-oau-x69 plugin-omniauth-governance" class="icon-md"/></span>
                       <span class="udx-card__tt">Use a role</span>
                       <span class="udx-card__ds">Pick a saved preset</span>
                     </button>
                     <button type="button" id="udxModeCustom" class="udx-card">
-                      <span class="udx-card__ic"><l:icon src="symbol-oau-x70 plugin-omniauth-governance" class="oau-ico oau-ico-20"/></span>
+                      <span class="udx-card__ic"><l:icon src="symbol-oau-x70 plugin-omniauth-governance" class="icon-md"/></span>
                       <span class="udx-card__tt">Custom permissions</span>
                       <span class="udx-card__ds">Hand-pick individually</span>
                     </button>
@@ -492,7 +492,7 @@
                   <div id="udxCustomPerms" style="display:none;margin-top:14px;">
                     <div class="udx-pickhead">
                       <div class="udx-search">
-                        <l:icon src="symbol-oau-search plugin-omniauth-governance" class="oau-ico oau-ico-15"/>
+                        <l:icon src="symbol-oau-search plugin-omniauth-governance" class="icon-sm"/>
                         <input type="text" id="udxPermFilter" placeholder="Filter permissions…" autocomplete="off"/>
                       </div>
                       <span class="udx-count" id="udxPermCount">0 selected</span>
@@ -552,7 +552,7 @@
                     <label class="udx-seg__opt">
                       <input type="radio" name="accessType" value="JIT" class="js-udx-accesstype"/>
                       <span class="udx-seg__face udx-seg__face--row">
-                        <b style="display:inline-flex;align-items:center;gap:4px;">JIT <l:icon src="symbol-oau-flash plugin-omniauth-governance" class="oau-ico oau-ico-12"/></b>
+                        <b style="display:inline-flex;align-items:center;gap:4px;">JIT <l:icon src="symbol-oau-flash plugin-omniauth-governance" class="icon-xs"/></b>
                         <small>User must request activation; an approver must approve before access is granted.</small>
                       </span>
                     </label>
@@ -617,7 +617,7 @@
                   max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.22);">
         <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
           <div style="flex-shrink:0;margin-top:2px;">
-            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="oau-ico oau-ico-22"/>
+            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-md"/>
           </div>
           <div>
             <div style="font-weight:700;font-size:1em;margin-bottom:6px;">User already has global Admin access</div>
@@ -668,7 +668,7 @@
         <!-- Search -->
         <div style="padding:14px 20px;border-bottom:1px solid var(--oau-neutral-bg);">
           <div style="position:relative;display:flex;align-items:center;">
-            <l:icon src="symbol-oau-search plugin-omniauth-governance" class="oau-ico oau-ico-16"/>
+            <l:icon src="symbol-oau-search plugin-omniauth-governance" class="icon-sm"/>
             <input id="udxModalSearch" type="text" placeholder="Search jobs and folders…"
                    style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;
                           border:1.5px solid var(--oau-card-border);border-radius:9px;font-size:0.93em;
