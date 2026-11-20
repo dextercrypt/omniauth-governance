@@ -71,7 +71,7 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
             return HttpResponses.error(503,
                     "Omni Auth security realm is not active.");
         }
-        return realm.startEntraLogin(req);
+        return realm.startLogin(req);
     }
 
     /**
@@ -87,7 +87,7 @@ public class OmniAuthRootAction implements UnprotectedRootAction {
             return HttpResponses.error(503,
                     "Omni Auth security realm is not active.");
         }
-        return realm.finishEntraLogin(req);
+        return realm.finishLogin(req);
     }
 
     // -------------------------------------------------------------------------

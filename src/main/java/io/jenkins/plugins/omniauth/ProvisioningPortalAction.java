@@ -35,10 +35,10 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
 
     // Session keys for the verified Entra identity awaiting a reason (written by
     // OmniAuthSecurityRealm#handleEntraProvisionRequest, read here on the reason page).
-    static final String SESSION_ENTRA_OID    = "omniauth.provision.entra.oid";
-    static final String SESSION_ENTRA_USERID = "omniauth.provision.entra.userId";
-    static final String SESSION_ENTRA_NAME   = "omniauth.provision.entra.name";
-    static final String SESSION_ENTRA_EMAIL  = "omniauth.provision.entra.email";
+    public static final String SESSION_ENTRA_OID    = "omniauth.provision.entra.oid";
+    public static final String SESSION_ENTRA_USERID = "omniauth.provision.entra.userId";
+    public static final String SESSION_ENTRA_NAME   = "omniauth.provision.entra.name";
+    public static final String SESSION_ENTRA_EMAIL  = "omniauth.provision.entra.email";
 
     @Override public String getUrlName()      { return "request-access"; }
     @Override public String getIconFileName() { return null; }
@@ -245,7 +245,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
     private static int clampDays(int d) { return Math.min(d, MAX_DURATION_DAYS); }
 
     /** True if {@code email}'s domain matches one of the allowed domains, or if none are configured. */
-    static boolean domainAllowed(String email, String allowedDomains) {
+    public static boolean domainAllowed(String email, String allowedDomains) {
         if (allowedDomains == null || allowedDomains.isBlank()) return true;
         int at = email.lastIndexOf('@');
         if (at < 0 || at == email.length() - 1) return false;

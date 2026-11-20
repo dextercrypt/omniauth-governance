@@ -19,6 +19,39 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import java.util.Collections;
+import com.microsoft.aad.msal4j.IAuthenticationResult;
+import com.nimbusds.jwt.JWTClaimsSet;
+import hudson.model.User;
+import io.jenkins.plugins.omniauth.EntraAuthenticationToken;
+import io.jenkins.plugins.omniauth.EntraGroupDetails;
+import io.jenkins.plugins.omniauth.EntraUserDetails;
+import io.jenkins.plugins.omniauth.NotificationService;
+import io.jenkins.plugins.omniauth.OmniAuthAuditLog;
+import io.jenkins.plugins.omniauth.OmniAuthGlobalConfig;
+import io.jenkins.plugins.omniauth.OmniAuthSecurityRealm;
+import io.jenkins.plugins.omniauth.ProvisioningPortalAction;
+import io.jenkins.plugins.omniauth.ProvisioningRequestConfig;
+import io.jenkins.plugins.omniauth.util.GraphApiHelper;
+import io.jenkins.plugins.omniauth.util.MsalTokenHelper;
+import io.jenkins.plugins.omniauth.util.TokenHelper;
+import jenkins.security.SecurityListener;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Holds Azure AD / Microsoft Entra configuration:
@@ -31,6 +64,17 @@ public class EntraOAuthConfig extends OmniAuthSsoProvider {
     private final Secret clientSecret;
     private boolean enableGroupSync;
     private String allowedDomains = "";   // comma/space separated; empty = allow all
+
+    // OAuth flow state kept on the HTTP session between commenceLogin and finishLogin.
+    public static final String SESSION_OAUTH_STATE    = "omniauth_oauth_state";
+    public static final String SESSION_FROM_URL       = "omniauth_from_url";
+    public static final String SESSION_CODE_VERIFIER  = "omniauth_code_verifier";
+    public static final String SESSION_NONCE          = "omniauth_nonce";
+    /** Set when the OAuth flow was started as a provisioning-portal access request, not a login. */
+    public static final String SESSION_PROVISION_MODE = "omniauth_provision_mode";
+
+    private static final java.util.logging.Logger LOGGER =
+            java.util.logging.Logger.getLogger(EntraOAuthConfig.class.getName());
 
     @DataBoundConstructor
     public EntraOAuthConfig(String tenantId, String clientId, Secret clientSecret) {
@@ -66,6 +110,272 @@ public class EntraOAuthConfig extends OmniAuthSsoProvider {
     @Override
     public boolean isGroupSyncEnabled() {
         return enableGroupSync;
+    }
+
+    /**
+     * Step 1 — redirect browser to Azure AD login page.
+     * Called by OmniAuthRootAction at GET /omniauth/commenceLogin[?from=…]
+     */
+    @Override
+    public HttpResponse startLogin(OmniAuthSecurityRealm realm, StaplerRequest2 req)
+            throws Exception {
+        String state = UUID.randomUUID().toString();
+        req.getSession().setAttribute(SESSION_OAUTH_STATE, state);
+
+        String from = req.getParameter("from");
+        if (from != null && !from.isEmpty() && OmniAuthSecurityRealm.isSafeRedirectUrl(from)) {
+            req.getSession().setAttribute(SESSION_FROM_URL, from);
+        }
+
+        // Provisioning portal: this OAuth flow is an access REQUEST, not a login. The flag is
+        // read back in finishEntraLogin to create a PENDING request instead of a session.
+        if ("1".equals(req.getParameter("provision"))) {
+            req.getSession().setAttribute(SESSION_PROVISION_MODE, Boolean.TRUE);
+        } else {
+            req.getSession().removeAttribute(SESSION_PROVISION_MODE);
+        }
+
+        // PKCE — generate a cryptographically random code verifier and derive its challenge
+        // The verifier stays in the session; only the SHA-256 hash (challenge) goes to Azure.
+        // On token exchange, Azure re-hashes the verifier and compares — proving the same
+        // server that started the login is completing it.
+        byte[] verifierBytes = new byte[32];
+        new SecureRandom().nextBytes(verifierBytes);
+        String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(verifierBytes);
+        byte[] challengeBytes = MessageDigest.getInstance("SHA-256")
+                .digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
+        String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(challengeBytes);
+        req.getSession().setAttribute(SESSION_CODE_VERIFIER, codeVerifier);
+
+        // Nonce — embedded in the ID token by Azure AD and validated on return.
+        // Prevents token replay attacks where an attacker tries to reuse a previously
+        // captured ID token to establish a new session.
+        String nonce = UUID.randomUUID().toString();
+        req.getSession().setAttribute(SESSION_NONCE, nonce);
+
+        TokenHelper helper = realm.createMsalTokenHelper();
+        String authUrl = helper.buildAuthorizationUrl(realm.buildRedirectUri(req), state, codeChallenge, nonce);
+
+        LOGGER.log(Level.FINE, "Redirecting to Azure AD for Entra login");
+        return HttpResponses.redirectTo(authUrl);
+    }
+
+    /**
+     * Step 2 — Azure AD posts back with an authorization code.
+     * Called by OmniAuthRootAction at GET /omniauth/finishLogin?code=…&state=…
+     */
+    @Override
+    public HttpResponse finishLogin(OmniAuthSecurityRealm realm, StaplerRequest2 req)
+            throws Exception {
+        // CSRF: validate state nonce
+        String returnedState = req.getParameter("state");
+        String sessionState  = (String) req.getSession().getAttribute(SESSION_OAUTH_STATE);
+        if (returnedState == null || !returnedState.equals(sessionState)) {
+            LOGGER.log(Level.WARNING, "OAuth2 state mismatch — session likely expired, redirecting to login");
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
+        }
+        req.getSession().removeAttribute(SESSION_OAUTH_STATE);
+
+        // Azure AD error (e.g. user cancelled)
+        String error = req.getParameter("error");
+        if (error != null) {
+            LOGGER.log(Level.WARNING, "Azure AD error: {0} — {1}",
+                    new Object[]{error, req.getParameter("error_description")});
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=entra");
+        }
+
+        String authCode = req.getParameter("code");
+        if (authCode == null || authCode.isEmpty()) {
+            return HttpResponses.error(400, "No authorization code received from Azure AD.");
+        }
+
+        // PKCE — retrieve the verifier stored during commenceLogin and send it to Azure.
+        // Azure hashes it and checks it matches the challenge sent earlier. An attacker
+        // who intercepted the authorization code cannot exchange it without this verifier.
+        String codeVerifier = (String) req.getSession().getAttribute(SESSION_CODE_VERIFIER);
+        req.getSession().removeAttribute(SESSION_CODE_VERIFIER);
+        if (codeVerifier == null) {
+            LOGGER.log(Level.WARNING, "PKCE code verifier missing from session — possible session expiry");
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
+        }
+
+        // Exchange code → tokens
+        TokenHelper helper = realm.createMsalTokenHelper();
+        IAuthenticationResult result = helper.exchangeCodeForTokens(authCode, realm.buildRedirectUri(req), codeVerifier);
+
+        JWTClaimsSet claims = helper.parseIdToken(result.idToken());
+
+        // Nonce validation — confirm the ID token was issued for this exact login attempt.
+        // Azure AD embeds the nonce we sent in the token; we verify it matches what we stored.
+        String sessionNonce = (String) req.getSession().getAttribute(SESSION_NONCE);
+        req.getSession().removeAttribute(SESSION_NONCE);
+        String tokenNonce = MsalTokenHelper.getStringClaim(claims, "nonce");
+        if (sessionNonce == null || !sessionNonce.equals(tokenNonce)) {
+            LOGGER.log(Level.SEVERE, "ID token nonce mismatch — possible token replay attack, rejecting login");
+            return HttpResponses.error(400, "Authentication failed: nonce validation error.");
+        }
+
+        String oid   = MsalTokenHelper.getStringClaim(claims, "oid");
+        String upn   = MsalTokenHelper.getStringClaim(claims, "preferred_username");
+        String name  = MsalTokenHelper.getStringClaim(claims, "name");
+        String email = MsalTokenHelper.getStringClaim(claims, "email");
+
+        if (oid == null) {
+            LOGGER.log(Level.SEVERE, "ID token missing 'oid' claim — cannot identify user");
+            return HttpResponses.error(500, "Microsoft did not return a valid user identifier.");
+        }
+
+        // Fetch groups if group sync is enabled OR if GROUP entities exist in Access Management.
+        // GROUP entities require group data at gate time regardless of the enableGroupSync flag.
+        List<EntraGroupDetails> groups = new ArrayList<>();
+        OmniAuthAssignmentConfig assignmentConfig = OmniAuthAssignmentConfig.get();
+        boolean needGroups = (isGroupSyncEnabled() || (assignmentConfig != null && assignmentConfig.hasAnyGroups()));
+        if (needGroups && result.accessToken() != null) {
+            try {
+                groups = new GraphApiHelper().getGroupMemberships(result.accessToken());
+            } catch (IOException | InterruptedException e) {
+                LOGGER.log(Level.WARNING, "Graph API group sync failed — continuing without groups", e);
+                NotificationService.sendGraphApiFailed(OmniAuthGlobalConfig.get(),
+                        upn != null ? upn : oid, e.getMessage());
+            }
+        }
+
+        // Provisioning portal: if this flow was started as an access REQUEST (provision=1),
+        // create a PENDING request from the Microsoft-verified identity instead of logging in.
+        boolean provisionMode = Boolean.TRUE.equals(req.getSession().getAttribute(SESSION_PROVISION_MODE));
+        req.getSession().removeAttribute(SESSION_PROVISION_MODE);
+        if (provisionMode) {
+            return handleEntraProvisionRequest(realm, oid, upn, name, email, groups);
+        }
+
+        // Gate: only individually pre-provisioned users or members of allowed groups can log in.
+        if (!realm.isPreProvisioned(oid, upn, groups)) {
+            String displayId = upn != null ? upn : oid;
+            LOGGER.log(Level.WARNING, "Rejected SSO login — not pre-provisioned: {0}", displayId);
+            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+            if (audit != null) audit.logLoginFailure(displayId, req.getRemoteAddr());
+            // If the rejected user was previously VIA_ENTRA_GROUP, clear their group OIDs
+            // and mark pending deletion so the orphaned account can be cleaned up.
+            realm.markOrphanedGroupAccount(oid, upn);
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=notProvisioned");
+        }
+
+        // Domain gate: even a pre-provisioned user or allowed-group member must present a
+        // Microsoft-verified email/UPN in an allowed domain (defence against e.g. a guest or
+        // cross-tenant account slipping in through group membership). Empty list = allow all.
+        String emailForDomain = (email != null && !email.isEmpty()) ? email
+                : (upn != null ? upn : "");
+        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, getAllowedDomains())) {
+            String displayId = upn != null ? upn : oid;
+            int at = emailForDomain.lastIndexOf('@');
+            String domain = at >= 0 ? emailForDomain.substring(at + 1) : "(none)";
+            LOGGER.log(Level.WARNING, "Rejected SSO login — domain not allowed: {0}", displayId);
+            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
+            if (audit != null) audit.logLoginDeniedDomain(displayId, domain, req.getRemoteAddr());
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=domainNotAllowed");
+        }
+
+        // Provision / update Jenkins user
+        User jenkinsUser = realm.getOrCreateEntraUser(oid, upn, name, groups);
+
+        // Establish Spring Security session
+        EntraUserDetails userDetails = new EntraUserDetails(
+                jenkinsUser.getId(), name, email, oid, groups);
+        EntraAuthenticationToken auth = new EntraAuthenticationToken(userDetails);
+
+        // Use SecurityContextImpl explicitly — Spring Security 6's holder may return
+        // a deferred/lazy wrapper that doesn't serialize cleanly into the HTTP session.
+        SecurityContext securityContext = new SecurityContextImpl(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Rotate the session id on this privilege change (session-fixation defence), mirroring
+        // the native path's establishSession(). The pre-auth stash (from URL, seed) survives the
+        // rotation because changeSessionId() keeps the session's attributes.
+        req.getSession(); // ensure a session exists before rotating
+        try { req.changeSessionId(); } catch (Exception ignore) { /* no session / unsupported */ }
+
+        // Persist the security context into the HTTP session.
+        req.getSession().setAttribute(
+                org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                securityContext);
+
+        // Jenkins's HttpSessionContextIntegrationFilter2 checks "_JENKINS_SESSION_SEED" on
+        // every request and wipes the security context if it is absent or stale.
+        // SecurityListener.fireAuthenticated2() tries to store it via Stapler.getCurrentRequest2()
+        // (the Jakarta-Servlet API), but doFinishLogin uses the old StaplerRequest API so
+        // getCurrentRequest2() returns null and the seed is never written.
+        // We store it directly here to guarantee the check passes.
+        jenkins.security.seed.UserSeedProperty seedProp =
+                jenkinsUser.getProperty(jenkins.security.seed.UserSeedProperty.class);
+        if (seedProp != null) {
+            req.getSession().setAttribute(
+                    jenkins.security.seed.UserSeedProperty.USER_SESSION_SEED,
+                    seedProp.getSeed());
+        }
+
+        // Notify Jenkins security listeners (audit log, active sessions tracker, etc.)
+        SecurityListener.fireAuthenticated2(userDetails);
+
+        LOGGER.log(Level.INFO, "Entra login successful: {0} (OID: {1})", new Object[]{upn, oid});
+
+        String from = (String) req.getSession().getAttribute(SESSION_FROM_URL);
+        req.getSession().removeAttribute(SESSION_FROM_URL);
+        String dest = (from != null && !from.isEmpty())
+                ? from
+                : (Jenkins.get().getRootUrl() != null ? Jenkins.get().getRootUrl() : "/");
+        return HttpResponses.redirectTo(dest);
+    }
+
+    /**
+     * Handle a provisioning-portal access request that came through the Microsoft sign-in flow.
+     * The caller has already proven the user's identity via OAuth; here we record a PENDING
+     * {@link ProvisioningRequest} (unless the user already has access or a request is pending),
+     * then send them back to the request page. Never establishes a session.
+     */
+    private HttpResponse handleEntraProvisionRequest(OmniAuthSecurityRealm realm, String oid, String upn, String name,
+                                                     String email, List<EntraGroupDetails> groups) {
+        String root = Jenkins.get().getRootUrl();
+        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
+
+        // Portal must be enabled with Entra requests allowed; otherwise behave like a normal
+        // not-provisioned rejection so we don't silently swallow the login.
+        if (cfg == null || !cfg.isProvisioningEnabled() || !cfg.isProvisioningAllowEntra()) {
+            return HttpResponses.redirectTo(root + "loginError?error=notProvisioned");
+        }
+
+        // The Jenkins user id mirrors the login flow: UPN (email) when present, else the OID.
+        String userId = (upn != null && !upn.isEmpty()) ? upn : oid;
+
+        // Already has access (individually or via group)? Don't create a request — tell them.
+        if (realm.isPreProvisioned(oid, upn, groups) || User.getById(userId, false) != null) {
+            return HttpResponses.redirectTo(root + "request-access/?already=1");
+        }
+
+        // Optional domain gate, against the verified UPN/email.
+        String emailForDomain = (email != null && !email.isEmpty()) ? email : userId;
+        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, cfg.getProvisioningAllowedDomains())) {
+            return HttpResponses.redirectTo(root + "request-access/?error=domain");
+        }
+
+        // Already a pending request for this identity? Don't ask for a reason again.
+        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
+        if (store != null && store.findPendingForUser(userId) != null) {
+            return HttpResponses.redirectTo(root + "request-access/?submitted=1");
+        }
+
+        // Identity is Microsoft-verified. Stash it on the session and collect a reason on the
+        // next page; the PENDING request is created from that submission (ProvisioningPortalAction
+        // #doSubmitEntraReason), bringing Entra to parity with the native form's reason field.
+        StaplerRequest2 cur = Stapler.getCurrentRequest2();
+        if (cur != null) {
+            jakarta.servlet.http.HttpSession s = cur.getSession(true);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_OID,    oid);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_USERID, userId);
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_NAME,   name  != null ? name  : "");
+            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_EMAIL,  email != null ? email : "");
+        }
+        LOGGER.log(Level.INFO, "Provisioning: Entra identity verified for {0}, collecting reason", userId);
+        return HttpResponses.redirectTo(root + "request-access/reason");
     }
 
     public String getTenantId() {

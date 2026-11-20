@@ -4,7 +4,10 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import io.jenkins.plugins.omniauth.OmniAuthSecurityRealm;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Extension point for a single sign-on provider that {@link io.jenkins.plugins.omniauth.OmniAuthSecurityRealm} can delegate to.
@@ -47,6 +50,21 @@ public abstract class OmniAuthSsoProvider extends AbstractDescribableImpl<OmniAu
      * provider-agnostic.
      */
     public abstract boolean isGroupSyncEnabled();
+
+    /**
+     * Step 1 of sign-in: begin the provider's login (e.g. redirect to its authorization endpoint).
+     * The realm forwards {@code /omniauth/commenceLogin} here so the provider owns its own login
+     * sequence and the realm needs no per-provider branching. The {@code realm} gives access to the
+     * shared helpers (token client, redirect URI, pre-provisioning gate, user creation).
+     */
+    public abstract HttpResponse startLogin(OmniAuthSecurityRealm realm, StaplerRequest2 req) throws Exception;
+
+    /**
+     * Step 2 of sign-in: complete the provider's login from the callback (e.g. exchange the code,
+     * validate the token, provision the user and establish the session). The realm forwards
+     * {@code /omniauth/finishLogin} here.
+     */
+    public abstract HttpResponse finishLogin(OmniAuthSecurityRealm realm, StaplerRequest2 req) throws Exception;
 
     /** All registered SSO provider descriptors — backs the provider selector on the realm config. */
     public static DescriptorExtensionList<OmniAuthSsoProvider, Descriptor<OmniAuthSsoProvider>> all() {
