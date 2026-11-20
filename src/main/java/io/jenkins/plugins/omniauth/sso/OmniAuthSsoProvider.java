@@ -28,6 +28,26 @@ public abstract class OmniAuthSsoProvider extends AbstractDescribableImpl<OmniAu
      */
     public abstract boolean isConfigured();
 
+    /**
+     * Stable key for this provider, used by {@code login.jelly} to pick the sign-in button's logo
+     * (e.g. {@code "microsoft"}). A provider owns its own identity here so the login markup never
+     * needs a per-provider branch maintained elsewhere.
+     */
+    public abstract String getId();
+
+    /** Text for the sign-in button on the login page, e.g. {@code "Sign in with Microsoft"}. */
+    public abstract String getButtonLabel();
+
+    /** Text shown on the button while redirecting to the provider, e.g. {@code "Redirecting to Microsoft…"}. */
+    public abstract String getLoadingLabel();
+
+    /**
+     * True when group memberships should be synced from the provider at login. The realm consults
+     * this instead of reaching into a specific provider's config, so group handling stays
+     * provider-agnostic.
+     */
+    public abstract boolean isGroupSyncEnabled();
+
     /** All registered SSO provider descriptors — backs the provider selector on the realm config. */
     public static DescriptorExtensionList<OmniAuthSsoProvider, Descriptor<OmniAuthSsoProvider>> all() {
         return Jenkins.get().getDescriptorList(OmniAuthSsoProvider.class);

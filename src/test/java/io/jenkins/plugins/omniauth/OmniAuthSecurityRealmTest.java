@@ -1,5 +1,4 @@
 package io.jenkins.plugins.omniauth;
-import io.jenkins.plugins.omniauth.sso.SsoProvider;
 import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import com.microsoft.aad.msal4j.IAccount;
@@ -365,7 +364,7 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         assertTrue(realm.isSsoEnabled(), "unset flag + configured provider → reported on");
         assertTrue(realm.isSsoActive(), "SSO should be active");
-        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+        assertEquals("microsoft", realm.getSsoProvider().getId());
     }
 
     /** No provider and no flag → native-only: SSO off and inactive, no login-button provider. */
@@ -402,7 +401,7 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         realm.setSsoEnabled(true);
         assertTrue(realm.isSsoActive());
-        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+        assertEquals("microsoft", realm.getSsoProvider().getId());
     }
 
     /** The toggle alone cannot activate SSO — a provider must also be configured. */

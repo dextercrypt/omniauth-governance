@@ -47,6 +47,27 @@ public class EntraOAuthConfig extends OmniAuthSsoProvider {
                 && clientSecret != null && !Secret.toString(clientSecret).isBlank();
     }
 
+    @Override
+    public String getId() {
+        return "microsoft";
+    }
+
+    @Override
+    public String getButtonLabel() {
+        return "Sign in with Microsoft";
+    }
+
+    @Override
+    public String getLoadingLabel() {
+        return "Redirecting to Microsoft…";
+    }
+
+    /** Group sync is driven by the {@code enableGroupSync} toggle on this provider. */
+    @Override
+    public boolean isGroupSyncEnabled() {
+        return enableGroupSync;
+    }
+
     public String getTenantId() {
         return tenantId;
     }

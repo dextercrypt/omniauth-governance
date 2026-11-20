@@ -160,8 +160,8 @@
                 </form>
 
                 <!-- ============================================================
-                     EXTERNAL SSO LOGIN — provider preset (see SsoProvider.java)
-                     Label + logo come from the configured provider; today: Microsoft.
+                     EXTERNAL SSO LOGIN — label + logo come from the configured
+                     provider (OmniAuthSsoProvider#getId/getButtonLabel); today: Microsoft.
                      ============================================================ -->
                 <j:if test="${it.ssoProvider != null}">
                   <div style="display:flex;align-items:center;margin:16px 0;gap:8px;">

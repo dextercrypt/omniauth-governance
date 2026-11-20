@@ -1,5 +1,4 @@
 package io.jenkins.plugins.omniauth;
-import io.jenkins.plugins.omniauth.sso.SsoProvider;
 import io.jenkins.plugins.omniauth.sso.OmniAuthSsoProvider;
 import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
@@ -203,12 +202,12 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     /**
-     * The configured external SSO provider preset, or {@code null} when no SSO is set up.
-     * Drives the sign-in button's label and logo on the login page. Today Entra maps to
-     * {@link SsoProvider#MICROSOFT}; add more mappings here as new providers are supported.
+     * The active SSO provider, or {@code null} when no SSO is set up. Drives the sign-in button's
+     * label and logo on the login page via the provider's own {@code getId}/{@code getButtonLabel}/
+     * {@code getLoadingLabel}, so a new provider needs no change here.
      */
-    public SsoProvider getSsoProvider() {
-        return isSsoActive() ? SsoProvider.MICROSOFT : null;
+    public OmniAuthSsoProvider getSsoProvider() {
+        return isSsoActive() ? provider : null;
     }
 
     public String getLoginHeading() {
@@ -337,7 +336,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     @Override
     public GroupDetails loadGroupByGroupname2(String groupname, boolean fetchMembers)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
-        if (isSsoActive() && getEntraConfig().isEnableGroupSync()) {
+        if (isSsoActive() && provider.isGroupSyncEnabled()) {
             return new GroupDetails() {
                 @Override
                 public String getName() { return groupname; }
