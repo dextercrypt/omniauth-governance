@@ -44,9 +44,10 @@
     <!-- Modern dependency/code hygiene enforced for Jenkins hosting (CD). -->
     <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <!-- Third-party libraries we intentionally bundle (not provided by core or
-         another plugin): MSAL4J + its transitive OAuth/JOSE/JSON deps, Nimbus,
-         and ZXing for Break Glass QR codes. -->
-    <hpi.bundledArtifacts>accessors-smart,aerogear-otp-java,asm,content-type,core,jai-imageio-core,javase,jcommander,json-smart,lang-tag,msal4j,nimbus-jose-jwt,oauth2-oidc-sdk</hpi.bundledArtifacts>
+         another plugin): MSAL4J + its azure-json runtime dep, aerogear-otp-java for
+         TOTP, and ZXing for Break Glass QR codes. Nimbus comes from the
+         nimbus-jose-jwt-api plugin, so it is not bundled here. -->
+    <hpi.bundledArtifacts>aerogear-otp-java,azure-json,core,jai-imageio-core,javase,jcommander,msal4j</hpi.bundledArtifacts>
     <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     <ban-deprecated-stapler.skip>false</ban-deprecated-stapler.skip>
@@ -72,37 +73,29 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- MSAL4J: Microsoft Authentication Library for Java -->
+    <!-- MSAL4J: Microsoft Authentication Library for Java. 1.26+ was rewritten onto
+         azure-json and no longer drags in oauth2-oidc-sdk / nimbus-jose-jwt / json-smart
+         at runtime, so the only thing we bundle alongside it is azure-json. -->
     <dependency>
       <groupId>com.microsoft.azure</groupId>
       <artifactId>msal4j</artifactId>
-      <version>1.17.0</version>
+      <version>1.26.0</version>
       <exclusions>
-        <!-- Use the jackson2-api plugin's Jackson (2.22) instead of the older
-             2.13 that msal4j pulls transitively, keeping one version on the path. -->
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
         <!-- slf4j-api is provided by Jenkins core; don't bundle a second copy. -->
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
         </exclusion>
-        <!-- jcip-annotations (pulled transitively via oauth2-oidc-sdk) is provided
-             by Jenkins core; don't bundle a second copy. -->
-        <exclusion>
-          <groupId>com.github.stephenc.jcip</groupId>
-          <artifactId>jcip-annotations</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
 
-    <!-- Nimbus JOSE+JWT for ID token parsing/validation -->
+    <!-- Nimbus JOSE+JWT for ID token parsing/validation — consumed from the
+         nimbus-jose-jwt-api plugin rather than bundled, so a Jenkins install that
+         already has it (e.g. alongside oic-auth) carries a single shared copy. -->
     <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.40</version>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>nimbus-jose-jwt-api</artifactId>
+      <version>10.10-12.vd4e6d651b_7f7</version>
     </dependency>
 
     <!-- Jackson for JSON parsing of Graph API responses — supplied by the Jenkins
