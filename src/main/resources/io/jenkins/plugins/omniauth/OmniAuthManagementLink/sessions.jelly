@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Active Sessions" norefresh="true">
     <l:side-panel>
@@ -7,6 +7,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.sessionsAssets"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
 
       <l:app-bar title="Active Sessions"/>
 
@@ -83,14 +84,15 @@
                           <span style="background:var(--oau-success-bg);color:var(--oau-success-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Current</span>
                         </j:when>
                         <j:otherwise>
-                          <button type="button"
-                                  class="jenkins-button jenkins-button--danger jenkins-button--small js-oau-revoke"
-                                  data-sessionid="${s.sessionId}"
-                                  data-userid="${s.userId}"
-                                  data-crumb-field="${app.crumbRequestField}"
-                                  data-crumb-value="${app.crumb}">
-                            Revoke
-                          </button>
+                          <f:form method="post" action="revokeSession" name="revoke-${s.sessionId}">
+                            <input type="hidden" name="sessionId" value="${s.sessionId}"/>
+                            <button type="submit"
+                                    class="jenkins-button jenkins-button--danger jenkins-button--small"
+                                    data-confirm="This will immediately log out ${s.userId}. They will need to log in again to access Jenkins."
+                                    data-confirm-title="Revoke session">
+                              Revoke
+                            </button>
+                          </f:form>
                         </j:otherwise>
                       </j:choose>
                     </td>
@@ -102,32 +104,6 @@
         </j:choose>
 
       </div>
-
-      <!-- REVOKE MODAL -->
-      <div id="oauRevokeModal" class="oau-modal-backdrop" style="display:none;">
-        <div class="oau-modal">
-          <div class="oau-modal-header oau-modal-header--danger">
-            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-md"/>
-            Revoke Session
-          </div>
-          <div class="oau-modal-body">
-            <p style="margin:0;">
-              This will immediately log out <strong id="oauRevokeUserId"></strong>.
-              They will need to log in again to access Jenkins.
-            </p>
-          </div>
-          <div class="oau-modal-footer">
-            <button type="button" class="jenkins-button" id="oauRevokeCancelBtn">Cancel</button>
-            <button type="button" class="jenkins-button jenkins-button--danger" id="oauRevokeConfirmBtn">Revoke</button>
-          </div>
-        </div>
-      </div>
-
-      <form id="oauRevokeForm" method="post" action="revokeSession" style="display:none;">
-        <input type="hidden" name="sessionId" id="oauRevokeSessionIdInput"/>
-        <input type="hidden" id="oauRevokeCrumbField"/>
-        <input type="hidden" id="oauRevokeCrumbValue"/>
-      </form>
 
     </l:main-panel>
   </l:layout>
