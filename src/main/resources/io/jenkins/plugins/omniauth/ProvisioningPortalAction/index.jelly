@@ -109,7 +109,13 @@
                     <span class="sso-logo" style="display:flex;align-items:center;">
                       <j:choose>
                         <j:when test="${realm.ssoProvider.id == 'microsoft'}">
-                          <l:icon src="symbol-grid plugin-ionicons-api" class="icon-md"/>
+                          <!-- Microsoft brand mark: a multi-colour logo, kept inline, not a monochrome symbol. -->
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
+                            <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
+                            <rect x="1"  y="11" width="9" height="9" fill="#7fba00"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                          </svg>
                         </j:when>
                         <j:otherwise>
                           <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
