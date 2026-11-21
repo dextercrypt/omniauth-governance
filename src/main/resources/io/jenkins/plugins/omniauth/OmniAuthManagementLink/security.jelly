@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout title="OmniAuth — Security" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Security" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -116,8 +116,8 @@
             </div>
           </div>
 
-          <j:set var="windowHours" value="${request2.getAttribute('windowHours')}"/>
-          <j:set var="failedLogins" value="${request2.getAttribute('failedLogins')}"/>
+          <j:set var="windowHours" value="${it.securityWindowHours}"/>
+          <j:set var="failedLogins" value="${it.failedLoginsForWindow}"/>
 
           <j:choose>
             <j:when test="${failedLogins.isEmpty()}">

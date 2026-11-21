@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout title="OmniAuth — Active Sessions" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Active Sessions" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -79,7 +79,7 @@
                     <td>${s.os}</td>
                     <td>
                       <j:choose>
-                        <j:when test="${s.sessionId == request2.getAttribute('currentSessionId')}">
+                        <j:when test="${s.sessionId == it.currentSessionId}">
                           <span style="background:var(--oau-success-bg);color:var(--oau-success-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Current</span>
                         </j:when>
                         <j:otherwise>

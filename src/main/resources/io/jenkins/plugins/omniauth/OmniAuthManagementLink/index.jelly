@@ -53,7 +53,7 @@
                 Activated by <strong>${it.breakGlassActivatedBy}</strong>.
                 Direct access to the authorization matrix is enabled.
               </div>
-              <a href="breakGlass" class="oau-status-banner__action">Manage Override →</a>
+              <a href="emergencyAccess" class="oau-status-banner__action">Manage Override →</a>
             </div>
           </j:when>
           <j:when test="${failed24h gt 0 or !bfEntries.isEmpty()}">

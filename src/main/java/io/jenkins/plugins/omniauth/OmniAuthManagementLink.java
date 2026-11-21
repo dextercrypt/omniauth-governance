@@ -17,6 +17,7 @@ import hudson.security.PermissionGroup;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.matrixauth.AuthorizationType;
 import org.jenkinsci.plugins.matrixauth.PermissionEntry;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
@@ -41,11 +42,10 @@ import java.util.logging.Logger;
 /**
  * Adds "OmniAuth — Entra User Management" under Manage Jenkins → Security.
  *
- * Sub-pages (served via Stapler view forwarding):
- *   /manage/omniauth-management/           → index.jelly   (overview)
- *   /manage/omniauth-management/userStatus → userStatus.jelly
- *   /manage/omniauth-management/staleUsers → staleUsers.jelly
- *   /manage/omniauth-management/access     → access.jelly
+ * Sub-pages are served by Stapler's automatic view routing: a GET to
+ * {@code /manage/omniauth-management/<name>} renders {@code <name>.jelly} with no routing method, and
+ * each page's {@code <l:layout permission="${app.ADMINISTER}">} enforces access. Only pages that need
+ * to run logic before rendering (e.g. {@code doCheckAccess}) keep a {@code do*} method.
  */
 @Extension
 public class OmniAuthManagementLink extends ManagementLink {
@@ -77,13 +77,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // -------------------------------------------------------------------------
     // Sub-page routing
     // -------------------------------------------------------------------------
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doUserOverview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "access.jelly").forward(req, rsp);
-    }
 
     public List<Map<String, String>> getAuditEvents() {
         OmniAuthAuditLog log = OmniAuthAuditLog.get();
@@ -499,13 +492,11 @@ public class OmniAuthManagementLink extends ManagementLink {
         return sp > 0 ? v.substring(0, sp) : v;
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSessions(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        jakarta.servlet.http.HttpSession s = req.getSession(false);
-        if (s != null) req.setAttribute("currentSessionId", s.getId());
-        req.getView(this, "sessions.jelly").forward(req, rsp);
+    /** The caller's own HTTP session id, so sessions.jelly can flag "this is you" (no routing method needed). */
+    public String getCurrentSessionId() {
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
+        jakarta.servlet.http.HttpSession s = (req != null) ? req.getSession(false) : null;
+        return (s != null) ? s.getId() : null;
     }
 
     public java.util.List<ActiveSessionManager.ActiveSession> getActiveSessions() {
@@ -516,15 +507,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         User current = User.current();
         if (current == null) return null;
         return current.getProperty(OmniAuthUserProperty.class);
-    }
-
-    /** Unified Emergency Access page: Break Glass (TOTP) + SOS recovery codes in one place. */
-    /** Back-compat alias — the Break Glass enrollment now lives on the unified Emergency Access page. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doBreakGlass(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     @POST
@@ -686,13 +668,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.getWriter().write("{\"success\":true}");
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doTotpReminder(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "totpReminder.jelly").forward(req, rsp);
-    }
-
     @POST
     public void doTotpReminderSkip(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -731,13 +706,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ── SOS Mode (lockout recovery) ────────────────────────────────────────────
 
     /** Back-compat alias — SOS recovery codes now live on the unified Emergency Access page. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSosRecoveryCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
-    }
-
     /** Generate a fresh set of SOS recovery codes for the current admin; returns the raw codes once. */
     @POST
     public void doSosGenerateCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -1572,13 +1540,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return pwd.toString();
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "provisioning.jelly").forward(req, rsp);
-    }
-
     /** Approve a pending request — create the account (mirroring doAddUser) and mark it approved. */
     @POST
     public void doApproveProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -1975,18 +1936,19 @@ public class OmniAuthManagementLink extends ManagementLink {
         return count;
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSecurity(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        int hours = 24;
-        try {
-            String w = req.getParameter("window");
-            if (w != null) hours = Integer.parseInt(w);
-        } catch (Exception ignored) {}
-        req.setAttribute("failedLogins", getFailedLogins(hours));
-        req.setAttribute("windowHours", String.valueOf(hours));
-        req.getView(this, "security.jelly").forward(req, rsp);
+    /** The security page's selected window in hours (from {@code ?window=}, default 24), for security.jelly. */
+    public String getSecurityWindowHours() {
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
+        String w = (req != null) ? req.getParameter("window") : null;
+        if (w != null) {
+            try { return String.valueOf(Integer.parseInt(w)); } catch (NumberFormatException ignored) { /* fall through to default */ }
+        }
+        return "24";
+    }
+
+    /** Failed logins within the selected window — backs security.jelly without a routing method. */
+    public List<FailedLoginEntry> getFailedLoginsForWindow() {
+        return getFailedLogins(Integer.parseInt(getSecurityWindowHours()));
     }
 
     public List<FailedLoginEntry> getFailedLogins(int hours) {
@@ -2318,7 +2280,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     // -------------------------------------------------------------------------
-    // Access detail (used by access.jelly)
+    // Access detail (used by userOverview.jelly)
     // -------------------------------------------------------------------------
 
     public AccessInfo getAccessInfo() {
@@ -4347,13 +4309,6 @@ public class OmniAuthManagementLink extends ManagementLink {
             }
         }
         req.getView(this, "userDetail.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doGroupDetail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "groupDetail.jelly").forward(req, rsp);
     }
 
     /** Returns all GROUP entities for display in Access Management. */
