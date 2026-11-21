@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — JIT Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
@@ -109,8 +109,7 @@
                       <td style="white-space:nowrap;text-align:right;">
                         <!-- Only show Approve/Deny if current admin is a listed pending approver -->
                         <j:if test="${r.isCurrentUserApprover(it.currentUserId)}">
-                          <form method="post" action="approveJit" style="display:inline;">
-                            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                          <f:form method="post" action="approveJit" style="display:inline;">
                             <input type="hidden" name="requestId" value="${r.requestId}"/>
                             <div class="jenkins-select" style="margin-right:4px;vertical-align:middle;">
                             <select name="durationHours" title="Grant duration — up to the ${r.requestedDurationHours}h requested" class="jenkins-select__input"
@@ -131,7 +130,7 @@
  style="padding:4px 12px;margin-right:4px;background:var(--oau-success-fg);border-color:var(--oau-success-fg);display:inline-flex;align-items:center;gap:4px;">
                               <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-xs"/>Approve
                             </button>
-                          </form>
+                          </f:form>
                           <button type="button"
  class="jenkins-button js-jit-deny"
  data-request-id="${r.requestId}"
@@ -229,15 +228,14 @@
                         <td style="font-size:0.8em;color:var(--text-color-secondary);">${r.timeAgo()}</td>
                         <td style="text-align:right;">
                           <j:if test="${r.status.equals('ACTIVE')}">
-                            <form method="post" action="revokeActiveJit" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="revokeActiveJit" style="display:inline;">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
                               <button type="submit" class="jenkins-button js-jit-revoke"
  data-confirm="Revoke active JIT access for ${r.requesterId}?"
  style="padding:3px 9px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
-                            </form>
+                            </f:form>
                           </j:if>
                         </td>
                       </tr>
@@ -260,8 +258,7 @@
                   max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
         <div style="font-weight:700;font-size:1em;margin-bottom:4px;">Deny JIT Request</div>
         <div id="jitDenyMeta" style="font-size:0.82em;color:var(--text-color-secondary, #888);margin-bottom:16px;"></div>
-        <form method="post" action="denyJit">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form method="post" action="denyJit">
           <input type="hidden" id="jitDenyRequestId" name="requestId" value=""/>
           <div style="margin-bottom:12px;">
             <label style="display:block;font-size:0.75em;font-weight:700;text-transform:uppercase;color:var(--text-color-secondary, #888);margin-bottom:5px;">Denial Reason</label>
@@ -275,7 +272,7 @@
             <button type="submit" class="jenkins-button"
  style="color:var(--error-color);border-color:var(--error-color);">Confirm Deny</button>
           </div>
-        </form>
+        </f:form>
       </div>
 
     </l:main-panel>

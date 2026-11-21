@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Settings" norefresh="true">
     <l:side-panel>
@@ -18,8 +18,7 @@
           </div>
         </j:if>
 
-        <form id="oauSettingsForm" method="post" action="saveSettings" data-rooturl="${rootURL}">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form name="oauSettingsForm" method="post" action="saveSettings" data-rooturl="${rootURL}">
 
           <j:set var="cfg" value="${it.omniAuthGlobalConfig}"/>
 
@@ -474,7 +473,7 @@
             <a href="." class="jenkins-button">Cancel</a>
           </div>
 
-        </form>
+        </f:form>
       </div>
 
     </l:main-panel>

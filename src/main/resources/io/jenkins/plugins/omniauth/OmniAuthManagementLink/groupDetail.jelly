@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Group Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
@@ -72,16 +72,15 @@
               </div>
             </div>
           </div>
-          <form method="post" action="removeGroup" style="margin:0;"
-                id="udxRemoveGroupForm"
+          <f:form method="post" action="removeGroup" style="margin:0;"
+                name="udxRemoveGroupForm"
                 data-confirm="Remove this group? All members with no other allowed group will lose access immediately.">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
             <input type="hidden" name="oid" value="${group.groupOid}"/>
             <button type="submit" class="jenkins-button"
  style="color:var(--oau-danger-fg);border-color:var(--oau-danger-border);">
               <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>Remove Group
             </button>
-          </form>
+          </f:form>
         </div>
 
         <!-- Assignments section -->
@@ -164,8 +163,7 @@
  data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
  style="padding:3px 10px;">Edit</button>
                             </j:if>
-                            <form method="post" action="revokeAssignment" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="revokeAssignment" style="display:inline;">
                               <input type="hidden" name="sid"   value="${group.groupOid}"/>
                               <input type="hidden" name="type"  value="GROUP"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>
@@ -175,7 +173,7 @@
  style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
-                            </form>
+                            </f:form>
                           </div>
                         </j:if>
                       </td>
@@ -190,8 +188,7 @@
         <!-- Add Access panel -->
         <div id="udxAddPanel" style="display:none;margin-top:20px;border:1px solid var(--oau-info-border);border-radius:8px;padding:20px 22px;background:var(--oau-info-bg);">
           <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Add Access</div>
-          <form method="post" action="grantAssignment">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+          <f:form method="post" action="grantAssignment">
             <input type="hidden" name="sid"  value="${group.groupOid}"/>
             <input type="hidden" name="type" value="GROUP"/>
 
@@ -280,14 +277,13 @@
               <button type="submit" class="jenkins-button jenkins-button--primary" >Grant Access</button>
               <button type="button" id="udxAddCancel" class="jenkins-button" >Cancel</button>
             </div>
-          </form>
+          </f:form>
         </div>
 
         <!-- Edit Access panel -->
         <div id="udxEditPanel" style="display:none;margin-top:20px;border:1px solid var(--oau-success-bg);border-radius:8px;padding:20px 22px;background:var(--oau-success-bg);">
           <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Edit Access</div>
-          <form method="post" action="editAssignment">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+          <f:form method="post" action="editAssignment">
             <input type="hidden" name="sid"  value="${group.groupOid}"/>
             <input type="hidden" name="type" value="GROUP"/>
             <input type="hidden" name="scope" id="udxEditScope" value=""/>
@@ -337,7 +333,7 @@
               <button type="submit" class="jenkins-button jenkins-button--primary" >Save Changes</button>
               <button type="button" id="udxEditCancel" class="jenkins-button" >Cancel</button>
             </div>
-          </form>
+          </f:form>
         </div>
 
         <!-- Members section -->

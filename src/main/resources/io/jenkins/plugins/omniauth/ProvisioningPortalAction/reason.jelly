@@ -7,7 +7,7 @@
   as index.jelly (the request page), which is itself the login-page twin.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
   <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
     <st:setHeader name="Expires" value="0" />
     <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
@@ -80,7 +80,7 @@
                   <div class="pa-banner pa-err">Please enter a reason and what access you need.</div>
                 </j:if>
 
-                <form method="post" action="${rootURL}/request-access/submitEntraReason">
+                <f:form method="post" action="${rootURL}/request-access/submitEntraReason">
                   <div>
                     <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
                     <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
@@ -96,9 +96,8 @@
                     <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
                            min="0" value="${it.defaultDurationDays}"/>
                   </div>
-                  <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
                   <button type="submit" class="pa-btn">Submit request</button>
-                </form>
+                </f:form>
 
                 <div class="pa-foot"><a href="${rootURL}/">Cancel</a></div>
               </j:otherwise>

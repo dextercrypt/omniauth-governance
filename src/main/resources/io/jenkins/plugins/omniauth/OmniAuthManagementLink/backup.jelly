@@ -57,12 +57,11 @@
             <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
               Download the current configuration as a YAML file.
             </p>
-            <form method="post" action="exportConfig">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="exportConfig">
               <button type="submit" class="jenkins-button jenkins-button--primary">
                 Export configuration
               </button>
-            </form>
+            </f:form>
           </div>
         </div>
 
@@ -77,8 +76,7 @@
               <strong>replaces</strong> the current roles, assignments, groups and settings. A restore
               point is saved first, so you can roll back.
             </p>
-            <form method="post" action="importConfig" id="bkImportForm">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="importConfig" name="bkImportForm">
               <div style="margin-bottom: 12px;">
                 <f:file name="bkFileUpload" id="bkFile" accept=".yaml,.yml,.txt"/>
               </div>
@@ -90,7 +88,7 @@
                   Review changes &amp; import
                 </button>
               </div>
-            </form>
+            </f:form>
           </div>
         </div>
 
@@ -120,12 +118,11 @@
                         ${s.roles} role(s), ${s.assignments} assignment(s), ${s.groups} group(s)
                       </td>
                       <td style="text-align: right;">
-                        <form method="post" action="revertImport" class="bkRevertForm"
+                        <f:form method="post" action="revertImport" class="bkRevertForm"
                               style="display: inline;" data-when="${s.displayTime}">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="snapshot" value="${s.fileName}"/>
                           <button type="submit" class="jenkins-button">Roll back to this</button>
-                        </form>
+                        </f:form>
                       </td>
                     </tr>
                   </j:forEach>

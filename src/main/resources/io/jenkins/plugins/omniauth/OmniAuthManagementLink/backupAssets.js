@@ -20,7 +20,7 @@
   function init() {
     var fileInput = document.getElementById('bkFile');
     var configArea = document.getElementById('bkConfig');
-    var importForm = document.getElementById('bkImportForm');
+    var importForm = document.querySelector('form[name="bkImportForm"]');
     var previewBtn = document.getElementById('bkPreviewBtn');
     var overlay = document.getElementById('bkPlanOverlay');
     var planBody = document.getElementById('bkPlanBody');

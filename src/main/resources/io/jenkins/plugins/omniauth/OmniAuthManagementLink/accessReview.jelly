@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Review" norefresh="true">
     <l:side-panel>
@@ -67,14 +67,13 @@
               </j:choose>
             </div>
             <j:if test="${!items.isEmpty()}">
-              <form method="post" action="confirmAllAccess" style="margin:0;">
-                <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+              <f:form method="post" action="confirmAllAccess" style="margin:0;">
                 <button type="submit" class="jenkins-button js-ar-keepall"
                         style="background:var(--warning-color);color:#fff;border-color:var(--warning-color);font-weight:600;"
                         data-confirm="Keep all ${items.size()} overdue assignments?">
                   &#10003; Keep All
                 </button>
-              </form>
+              </f:form>
             </j:if>
           </div>
 
@@ -167,8 +166,7 @@
 
                       <!-- Action cell -->
                       <td style="text-align:right; white-space:nowrap;">
-                        <form method="post" action="confirmAccess" style="display:inline;">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                        <f:form method="post" action="confirmAccess" style="display:inline;">
                           <input type="hidden" name="sid"      value="${item.userId}"/>
                           <input type="hidden" name="type"     value="${item.authType}"/>
                           <input type="hidden" name="scope"    value="${item.scope}"/>
@@ -177,10 +175,9 @@
                                   style="background:var(--oau-warning-bg);color:var(--oau-warning-fg);border:1px solid var(--oau-warning-border);border-radius:6px;padding:4px 12px;font-size:0.82em;font-weight:600;cursor:pointer;">
                             &#10003; Keep
                           </button>
-                        </form>
-                        <form method="post" action="revokeFromReview" style="display:inline;margin-left:4px;"
+                        </f:form>
+                        <f:form method="post" action="revokeFromReview" style="display:inline;margin-left:4px;"
                               class="js-ar-revoke" data-confirm="Revoke access for ${item.displayName}?">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="sid"   value="${item.userId}"/>
                           <input type="hidden" name="type"  value="${item.authType}"/>
                           <input type="hidden" name="scope" value="${item.scope}"/>
@@ -188,7 +185,7 @@
                                   style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);border:1px solid var(--oau-danger-border);border-radius:6px;padding:4px 12px;font-size:0.82em;font-weight:600;cursor:pointer;">
                             &#10005; Revoke
                           </button>
-                        </form>
+                        </f:form>
                         <j:choose>
                           <j:when test="${item.group}">
                             <a href="groupDetail?oid=${item.userId}"

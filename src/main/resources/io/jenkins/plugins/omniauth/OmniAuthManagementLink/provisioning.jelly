@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
@@ -84,8 +84,7 @@
             </j:choose>
           </summary>
           <div class="pr-set-body">
-            <form method="post" action="saveProvisioningSettings">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="saveProvisioningSettings">
 
               <!-- Group 1: what requests are accepted -->
               <div class="pr-subhead">Requests</div>
@@ -165,7 +164,7 @@
               <div style="margin-top:18px;">
                 <button type="submit" class="jenkins-button jenkins-button--primary" style="line-height:1.2;padding:7px 16px;min-height:0;height:auto">Save Settings</button>
               </div>
-            </form>
+            </f:form>
           </div>
         </details>
 
@@ -173,10 +172,9 @@
         <j:if test="${it.provisioningBreakerTripped}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <span>Native request intake is paused by the circuit breaker (too many requests).</span>
-            <form method="post" action="resetProvisioningBreaker" style="margin:0;">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="resetProvisioningBreaker" style="margin:0;">
               <button type="submit" class="jenkins-button jenkins-button--small">Re-open now</button>
-            </form>
+            </f:form>
           </div>
         </j:if>
 
@@ -226,8 +224,7 @@
                       <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
                       <td class="pr-td pr-when">${r.timeAgo()}</td>
                       <td class="pr-td" style="text-align:right;white-space:nowrap;">
-                        <form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                        <f:form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
                           <div class="jenkins-select" style="max-width:150px;">
                           <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later" class="jenkins-select__input"
@@ -239,13 +236,12 @@
                           </select>
                           </div>
                           <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
-                        </form>
-                        <form method="post" action="rejectProvisioning" class="pr-reject">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                        </f:form>
+                        <f:form method="post" action="rejectProvisioning" class="pr-reject">
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
                           <input type="text" name="comment" placeholder="reason (optional)"/>
                           <button type="submit" class="jenkins-button jenkins-button--small">Reject</button>
-                        </form>
+                        </f:form>
                       </td>
                     </tr>
                   </j:forEach>
@@ -291,11 +287,10 @@
                             <j:otherwise><span class="oau-pill oau-pill--amber">${r.statusLabel()}</span></j:otherwise>
                           </j:choose>
                           <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
-                            <form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
+                            <f:form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                               <button type="submit" class="jenkins-button jenkins-button--small" title="Email a fresh one-time activation link">Resend link</button>
-                            </form>
+                            </f:form>
                           </j:if>
                         </td>
                         <td class="pr-td pr-sub" style="max-width:280px;">

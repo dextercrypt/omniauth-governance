@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Management" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
@@ -176,8 +176,7 @@
           <!-- Inline Create/Edit form (hidden by default) -->
           <div id="roleFormPanel" style="display:none;border:1px solid var(--oau-info-border);border-radius:8px;padding:20px 22px;background:var(--oau-info-bg);margin-bottom:16px;">
             <div id="roleFormTitle" style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Create Role</div>
-            <form method="post" action="saveRole">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="saveRole">
               <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:16px;">
                 <div>
                   <div class="oam-label">Role Name *</div>
@@ -222,7 +221,7 @@
                 <button type="submit" class="jenkins-button jenkins-button--primary" >Save Role</button>
                 <button type="button" id="oauRoleCancel" class="jenkins-button" >Cancel</button>
               </div>
-            </form>
+            </f:form>
           </div>
 
           <!-- Roles list -->
@@ -266,8 +265,7 @@
                                     class="jenkins-button js-oau-edit-role" style="padding:3px 10px;margin-right:4px">
                               Edit
                             </button>
-                            <form method="post" action="deleteRole" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="deleteRole" style="display:inline;">
                               <input type="hidden" name="roleName" value="${r.name}"/>
                               <button type="submit"
  data-confirm="Delete role: ${r.name}?"
@@ -275,7 +273,7 @@
  style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Delete
                               </button>
-                            </form>
+                            </f:form>
                           </j:if>
                         </td>
                       </tr>
@@ -306,8 +304,7 @@
         </div>
 
         <div style="padding:22px 20px 32px;">
-          <form id="addUserForm" method="post" action="addUser">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+          <f:form name="addUserForm" method="post" action="addUser">
             <input type="hidden" id="auAction" name="action" value="existing"/>
 
             <!-- User Type -->
@@ -404,7 +401,7 @@
               <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary">Continue</button>
               <button type="button" class="jenkins-button js-oau-close-drawer" >Cancel</button>
             </div>
-          </form>
+          </f:form>
         </div>
       </div>
 

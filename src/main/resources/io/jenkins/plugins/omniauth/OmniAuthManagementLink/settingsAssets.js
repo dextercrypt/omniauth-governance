@@ -3,7 +3,7 @@
  * reset-to-defaults, cleanup field toggling, and cron validation.
  * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.settingsAssets"/>
  * Externalised from settings.jelly's inline <script> blocks for CSP compliance (Jenkins hosting).
- * The Jenkins root URL is read from the data-rooturl attribute on #oauSettingsForm
+ * The Jenkins root URL is read from the data-rooturl attribute on form[name="oauSettingsForm"]
  * instead of being inlined as EL. Functions called from inline on* handlers are
  * declared at top level (global). Adjuncts load in <head>, so DOM-access on load
  * is deferred until the document is parsed.
@@ -11,7 +11,7 @@
 
 // Jenkins root URL, sourced from the form's data-rooturl attribute (was inline EL).
 function oauRoot() {
-  var f = document.getElementById('oauSettingsForm');
+  var f = document.querySelector('form[name="oauSettingsForm"]');
   return f ? (f.getAttribute('data-rooturl') || '') : '';
 }
 
@@ -167,7 +167,7 @@ function validateCron(input) {
 
     // ── Event wiring (was inline on* handlers; moved here for CSP) ──────
     // Number inputs: blur on wheel so scrolling the page doesn't change values.
-    document.querySelectorAll('#oauSettingsForm input[type="number"]').forEach(function(el) {
+    document.querySelectorAll('form[name="oauSettingsForm"] input[type="number"]').forEach(function(el) {
       el.addEventListener('wheel', function() { this.blur(); });
     });
 

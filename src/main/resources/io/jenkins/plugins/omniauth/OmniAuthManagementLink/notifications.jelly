@@ -28,8 +28,7 @@
           "teamsEvents": "${cfg.teamsEventsJoined}"
         }</script>
 
-        <form method="post" action="saveNotifications">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form method="post" action="saveNotifications">
 
           <!-- ================================================================
                MASTER TOGGLE
@@ -562,7 +561,7 @@
             <a href="." class="jenkins-button">Cancel</a>
           </div>
 
-        </form>
+        </f:form>
 
         <!-- ================================================================
              NOTIFICATION LOG

@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — User Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
@@ -351,8 +351,7 @@
                                 Edit
                               </button>
                             </j:if>
-                            <form method="post" action="revokeAssignment" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="revokeAssignment" style="display:inline;">
                               <input type="hidden" name="sid"   value="${sid}"/>
                               <input type="hidden" name="type"  value="${type}"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>
@@ -362,7 +361,7 @@
  style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
-                            </form>
+                            </f:form>
                           </div>
                         </j:if>
                       </td>
@@ -381,9 +380,8 @@
         <j:if test="${header == null or !header.groupManaged}">
         <div id="udxDrawer" class="udx-drawer" aria-hidden="true">
           <div id="udxDrawerScrim" class="udx-drawer__scrim"></div>
-          <form id="udxGrantForm" method="post" action="grantAssignment"
+          <f:form name="udxGrantForm" method="post" action="grantAssignment"
                 class="udx-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="udxDrawerTitle">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
             <input type="hidden" name="sid"  value="${sid}"/>
             <input type="hidden" name="type" value="${type}"/>
 
@@ -599,7 +597,7 @@
                 <button type="submit" class="jenkins-button jenkins-button--primary" id="udxSubmitBtn">Grant access</button>
               </div>
             </footer>
-          </form>
+          </f:form>
         </div>
         </j:if>
 

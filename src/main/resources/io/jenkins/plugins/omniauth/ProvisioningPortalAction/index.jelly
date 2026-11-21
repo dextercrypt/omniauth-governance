@@ -11,7 +11,7 @@
   provider getters live on the realm (app.securityRealm), exactly as on login.jelly.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
   <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
     <st:setHeader name="Expires" value="0" />
     <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
@@ -132,7 +132,7 @@
                 <j:if test="${it.nativeAllowed}">
                   <j:choose>
                     <j:when test="${it.nativeAvailable}">
-                      <form method="post" action="${rootURL}/request-access/submitNative">
+                      <f:form method="post" action="${rootURL}/request-access/submitNative">
                         <div>
                           <label class="app-sign-in-register__form-label" for="pa-user">Username</label>
                           <input id="pa-user" class="jenkins-input" type="text" name="username"
@@ -166,9 +166,8 @@
                           <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
                                  min="0" value="${it.defaultDurationDays}"/>
                         </div>
-                        <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
                         <button type="submit" class="pa-btn">Submit request</button>
-                      </form>
+                      </f:form>
                     </j:when>
                     <j:otherwise>
                       <div class="pa-banner pa-warn">

@@ -34,7 +34,7 @@ function udxConflictCancel() {
 function udxConflictProceed() {
   document.getElementById('udxConflictModal').style.display = 'none';
   udxConflictConfirmed = true;
-  document.getElementById('udxGrantForm').submit();
+  document.querySelector('form[name="udxGrantForm"]').submit();
 }
 
 // ── open / close ────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ function udxDrawerKey(e) { if (e.key === 'Escape') udxCloseDrawer(); }
 function udxShowAdd() {
   udxIsEdit = false;
   udxConflictConfirmed = false;
-  document.getElementById('udxGrantForm').action = 'grantAssignment';
+  document.querySelector('form[name="udxGrantForm"]').action = 'grantAssignment';
   document.getElementById('udxDrawerTitle').textContent = 'Grant access';
   document.getElementById('udxSubmitBtn').textContent   = 'Grant access';
 
@@ -86,7 +86,7 @@ function udxShowAdd() {
 function udxShowEdit(scope, scopeDisplay, roleId, customPermsArr, expiresAt, accessType, approverGroup, maxDuration, approvalTimeout) {
   udxIsEdit = true;
   udxConflictConfirmed = true; // edits never trip the global-admin conflict guard
-  document.getElementById('udxGrantForm').action = 'editAssignment';
+  document.querySelector('form[name="udxGrantForm"]').action = 'editAssignment';
   document.getElementById('udxDrawerTitle').textContent = 'Edit access';
   document.getElementById('udxSubmitBtn').textContent   = 'Save changes';
 
@@ -778,14 +778,14 @@ function udxInit() {
   });
 
   // Block a scoped grant for a user who already has global Admin (add only).
-  var form = document.getElementById('udxGrantForm');
+  var form = document.querySelector('form[name="udxGrantForm"]');
   if (form) {
     form.addEventListener('submit', function(e) {
       if (udxConflictConfirmed || udxIsEdit) return;
       var scopeType = document.querySelector('input[name="scopeType"]:checked');
       if (scopeType && scopeType.value === 'item' && udxUserIsGlobalAdmin) {
         e.preventDefault();
-        var sidEl = document.querySelector('#udxGrantForm input[name="sid"]');
+        var sidEl = document.querySelector('form[name="udxGrantForm"] input[name="sid"]');
         document.getElementById('udxConflictSid').textContent = sidEl ? sidEl.value : '';
         document.getElementById('udxConflictModal').style.display = 'flex';
       }

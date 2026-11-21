@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Security" norefresh="true">
     <l:side-panel>
@@ -90,11 +90,10 @@
                       </td>
                       <td>
                         <j:if test="${bf.alerted or bf.locked}">
-                          <form method="post" action="clearBruteForce" style="display:inline;">
+                          <f:form method="post" action="clearBruteForce" style="display:inline;">
                             <input type="hidden" name="userId" value="${bf.userId}"/>
-                            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                             <button type="submit" class="jenkins-button jenkins-button--small">${bf.locked ? 'Unlock' : 'Clear'}</button>
-                          </form>
+                          </f:form>
                         </j:if>
                       </td>
                     </tr>

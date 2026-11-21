@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Stale Users" norefresh="true">
     <l:side-panel>
@@ -29,9 +29,8 @@
       </l:app-bar>
 
       <!-- Hidden cleanup form -->
-      <form id="oauCleanupForm" method="post" action="runCleanupNow" style="display:none;">
-        <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-      </form>
+      <f:form name="oauCleanupForm" method="post" action="runCleanupNow" style="display:none;">
+      </f:form>
 
       <div class="oau-su-page">
 
