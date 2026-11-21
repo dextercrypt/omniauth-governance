@@ -242,6 +242,33 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         return cfg != null ? cfg.getResolvedLoginButler() : "default";
     }
 
+    /**
+     * The symbol basename for the resolved butler, so animated-branding.jelly can render every butler
+     * with a single {@code <l:icon>} instead of a per-butler branch. A couple of ids have a hyphenated
+     * symbol file name.
+     */
+    public String getResolvedButlerSymbol() {
+        switch (getResolvedLoginButler()) {
+            case "santaclaus": return "santa-claus";
+            case "sandiego":   return "san-diego";
+            default:           return getResolvedLoginButler();
+        }
+    }
+
+    /** The height class for the resolved butler, so the single {@code <l:icon>} sizes each correctly. */
+    public String getResolvedButlerHeightClass() {
+        switch (getResolvedLoginButler()) {
+            case "austin":     return "oau-butler--h30";
+            case "nerd":       return "oau-butler--h56";
+            case "santaclaus": return "oau-butler--h44";
+            case "superhero":
+            case "raleigh":
+            case "sandiego":
+            case "cowboy":     return "oau-butler--h45";
+            default:           return "oau-butler--h40"; // general, jenkinsx, ninja
+        }
+    }
+
     public String getLoginLogoUrl() {
         java.io.File dir = new java.io.File(jenkins.model.Jenkins.get().getRootDir(), "omniauth-branding");
         java.io.File[] files = dir.listFiles(f -> f.getName().startsWith("login-logo."));

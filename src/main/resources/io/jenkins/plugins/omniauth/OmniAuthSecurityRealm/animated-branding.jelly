@@ -24,41 +24,14 @@
 
     
     <j:choose>
-      <j:when test="${it.resolvedLoginButler =='jenkinsx'}">
-        <l:icon src="symbol-oau-butler-jenkinsx plugin-omniauth-governance" class="oau-butler oau-butler--h40"/>
-      
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='austin'}">
-        <l:icon src="symbol-oau-butler-austin plugin-omniauth-governance" class="oau-butler oau-butler--h30"/>
-      
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='general'}">
-        <l:icon src="symbol-oau-butler-general plugin-omniauth-governance" class="oau-butler oau-butler--h40"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='nerd'}">
-        <l:icon src="symbol-oau-butler-nerd plugin-omniauth-governance" class="oau-butler oau-butler--h56"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='ninja'}">
-        <l:icon src="symbol-oau-butler-ninja plugin-omniauth-governance" class="oau-butler oau-butler--h40"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='santaclaus'}">
-        <l:icon src="symbol-oau-butler-santa-claus plugin-omniauth-governance" class="oau-butler oau-butler--h44"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='superhero'}">
-        <l:icon src="symbol-oau-butler-superhero plugin-omniauth-governance" class="oau-butler oau-butler--h45"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='raleigh'}">
-        <l:icon src="symbol-oau-butler-raleigh plugin-omniauth-governance" class="oau-butler oau-butler--h45"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='sandiego'}">
-        <l:icon src="symbol-oau-butler-san-diego plugin-omniauth-governance" class="oau-butler oau-butler--h45"/>
-      </j:when>
-      <j:when test="${it.resolvedLoginButler =='cowboy'}">
-        <l:icon src="symbol-oau-butler-cowboy plugin-omniauth-governance" class="oau-butler oau-butler--h45"/>
+      <j:when test="${it.resolvedLoginButler == 'default'}">
+        <!-- Native / default branding shows Jenkins' own logo, not a butler illustration. -->
+        <img src="${resURL}/images/svgs/logo.svg" alt="Jenkins" class="oau-butler oau-butler--h40"/>
       </j:when>
       <j:otherwise>
-        <img src="${resURL}/images/svgs/logo.svg" alt="Jenkins"
-             style="position:relative;z-index:1;filter:drop-shadow(0 0 28px rgba(34,211,238,0.45));"/>
+        <!-- Every butler renders from one symbol; the id maps to its symbol name and height class. -->
+        <l:icon src="symbol-oau-butler-${it.resolvedButlerSymbol} plugin-omniauth-governance"
+                class="oau-butler ${it.resolvedButlerHeightClass}"/>
       </j:otherwise>
     </j:choose>
 
