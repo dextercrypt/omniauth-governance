@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Protected Users" norefresh="true">
     <l:side-panel>
@@ -12,8 +12,7 @@
 
       <div style="padding: 16px 24px; max-width: 960px;">
 
-        <form method="post" action="saveProtectedUsers" id="settingsForm">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form method="post" action="saveProtectedUsers" name="settingsForm">
 
           <div class="jenkins-card oau-card-block">
 
@@ -252,7 +251,7 @@
             <a href="." class="jenkins-button">Cancel</a>
           </div>
 
-        </form>
+        </f:form>
       </div>
 
 
