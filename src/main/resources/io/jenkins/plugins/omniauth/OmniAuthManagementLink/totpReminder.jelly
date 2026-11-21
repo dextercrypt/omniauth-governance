@@ -173,13 +173,13 @@
                 <j:choose>
                   <j:when test="${skips eq 2}">
                     <button type="button" class="js-oau-skip-reminder"
-                            style="padding:9px 20px; border:1px solid var(--oau-warning-border); border-radius:6px; background:var(--card-background, #fff); color:var(--oau-warning-fg); font-size:0.88em; font-weight:600; cursor:pointer;">
+                            style="padding:9px 20px; border:1px solid var(--oau-warning-border); border-radius:6px; background:var(--oau-card-bg); color:var(--oau-warning-fg); font-size:0.88em; font-weight:600; cursor:pointer;">
                       Last reminder — Dismiss
                     </button>
                   </j:when>
                   <j:otherwise>
                     <button type="button" class="js-oau-skip-reminder"
-                            style="padding:9px 20px; border:1px solid var(--oau-card-border); border-radius:6px; background:var(--card-background, #fff); color:var(--text-color-secondary); font-size:0.88em; cursor:pointer;">
+                            style="padding:9px 20px; border:1px solid var(--oau-card-border); border-radius:6px; background:var(--oau-card-bg); color:var(--text-color-secondary); font-size:0.88em; cursor:pointer;">
                       Remind me later (${afterThis} more after this)
                     </button>
                   </j:otherwise>

@@ -103,7 +103,7 @@
         <j:if test="${tmpPwd != null}">
           <div id="tmpPwdOverlay"
                style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;">
-            <div style="background:var(--card-background, #fff);border-radius:10px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="background:var(--oau-card-bg);border-radius:10px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
               <div style="font-weight:700;font-size:1.05em;margin-bottom:6px;">
                 <j:choose>
                   <j:when test="${isPwReset}">Password Reset</j:when>
@@ -645,7 +645,7 @@
          style="display:flex;opacity:0;pointer-events:none;position:fixed;inset:0;z-index:9999;
                 background:rgba(15,20,30,0.5);backdrop-filter:blur(3px);
                 align-items:center;justify-content:center;transition:opacity 0.32s;">
-      <div data-modal-box="1" style="background:var(--card-background, #fff);border-radius:14px;width:660px;max-width:94vw;
+      <div data-modal-box="1" style="background:var(--oau-card-bg);border-radius:14px;width:660px;max-width:94vw;
                   box-shadow:0 32px 80px rgba(0,0,0,0.24);animation:udxModalIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
                   transform-origin:50% 50%;will-change:transform,opacity;
                   display:flex;flex-direction:column;max-height:84vh;overflow:hidden;">

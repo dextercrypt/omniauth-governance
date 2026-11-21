@@ -174,7 +174,7 @@
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <span class="oau-tlabel" style="font-size:0.78em;font-weight:600;color:var(--blue);min-width:54px;text-align:right;">Protected</span>
                         <div class="oau-track oau-track--on" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--blue);">
-                          <div class="oau-thumb" style="width:18px;height:18px;background:var(--card-background, #fff);border-radius:50%;position:absolute;top:2px;left:22px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                          <div class="oau-thumb" style="width:18px;height:18px;background:var(--oau-card-bg);border-radius:50%;position:absolute;top:2px;left:22px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                         </div>
                       </div>
                     </label>
@@ -231,7 +231,7 @@
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <span class="oau-tlabel" style="font-size:0.78em;font-weight:600;color:transparent;min-width:54px;text-align:right;">Protected</span>
                         <div class="oau-track" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--oau-card-border);">
-                          <div class="oau-thumb" style="width:18px;height:18px;background:var(--card-background, #fff);border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                          <div class="oau-thumb" style="width:18px;height:18px;background:var(--oau-card-bg);border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                         </div>
                       </div>
                     </label>

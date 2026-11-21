@@ -219,7 +219,7 @@
                     <span style="font-size:0.6em;color:var(--text-color-secondary, #aaa);flex-shrink:0;margin-left:4px;">&#9660;</span>
                   </button>
                   <button type="button" id="udxScopeClear"
-                          style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid var(--oau-card-border);border-radius:6px;background:var(--card-background, #fff);cursor:pointer;font-size:0.8em;color:var(--text-color-secondary, #999);flex-shrink:0;padding:0;"
+                          style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid var(--oau-card-border);border-radius:6px;background:var(--oau-card-bg);cursor:pointer;font-size:0.8em;color:var(--text-color-secondary, #999);flex-shrink:0;padding:0;"
                           title="Clear">&#x2715;</button>
                 </div>
                 <div style="font-size:0.76em;color:var(--text-color-secondary, #666);margin-top:5px;">Parent folders automatically receive Read access.</div>
@@ -388,7 +388,7 @@
            style="display:flex;opacity:0;pointer-events:none;position:fixed;inset:0;z-index:9999;
                   background:rgba(15,20,30,0.5);backdrop-filter:blur(3px);
                   align-items:center;justify-content:center;transition:opacity 0.32s;">
-        <div data-modal-box="1" style="background:var(--card-background, #fff);border-radius:14px;width:660px;max-width:94vw;
+        <div data-modal-box="1" style="background:var(--oau-card-bg);border-radius:14px;width:660px;max-width:94vw;
                     box-shadow:0 32px 80px rgba(0,0,0,0.24);transform-origin:50% 50%;will-change:transform,opacity;
                     display:flex;flex-direction:column;max-height:84vh;overflow:hidden;">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;border-bottom:1px solid var(--oau-neutral-bg);">
