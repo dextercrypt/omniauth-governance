@@ -43,7 +43,7 @@
         <!-- ── Status Banner ────────────────────────────────────────────────── -->
         <j:choose>
           <j:when test="${bgActive}">
-            <div class="oau-status-banner oau-status-banner--critical">
+            <div class="oau-status-banner jenkins-alert jenkins-alert-danger">
               <div class="oau-status-banner__icon">
                 <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
               </div>
@@ -57,7 +57,7 @@
             </div>
           </j:when>
           <j:when test="${failed24h gt 0 or !bfEntries.isEmpty()}">
-            <div id="oau-warning-banner" class="oau-status-banner oau-status-banner--warning">
+            <div id="oau-warning-banner" class="oau-status-banner jenkins-alert jenkins-alert-warning">
               <div class="oau-status-banner__icon">
                 <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
               </div>
@@ -74,7 +74,7 @@
             </div>
           </j:when>
           <j:otherwise>
-            <div class="oau-status-banner oau-status-banner--healthy">
+            <div class="oau-status-banner jenkins-alert jenkins-alert-success">
               <div class="oau-status-banner__icon">
                 <l:icon src="symbol-shield-checkmark plugin-ionicons-api" class="icon-sm"/>
               </div>
@@ -89,7 +89,7 @@
 
         <!-- ── Weekly Info Banners ───────────────────────────────────────── -->
         <j:if test="${!cfg.notificationsEnabled}">
-          <div id="oau_notif_dismiss_banner" class="oau-status-banner oau-status-banner--info">
+          <div id="oau_notif_dismiss_banner" class="oau-status-banner jenkins-alert jenkins-alert-info">
             <div class="oau-status-banner__icon">
               <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
             </div>
@@ -105,7 +105,7 @@
           </div>
         </j:if>
         <j:if test="${!cfg.cleanupEnabled}">
-          <div id="oau_cleanup_dismiss_banner" class="oau-status-banner oau-status-banner--info">
+          <div id="oau_cleanup_dismiss_banner" class="oau-status-banner jenkins-alert jenkins-alert-info">
             <div class="oau-status-banner__icon">
               <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
             </div>
@@ -123,7 +123,7 @@
 
         <j:set var="pendingReview" value="${it.pendingReviewCount}"/>
         <j:if test="${pendingReview gt 0}">
-          <div id="oau_review_dismiss_banner" class="oau-status-banner oau-status-banner--info">
+          <div id="oau_review_dismiss_banner" class="oau-status-banner jenkins-alert jenkins-alert-info">
             <div class="oau-status-banner__icon">
               <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-sm"/>
             </div>
