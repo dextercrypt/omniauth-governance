@@ -1,8 +1,5 @@
-<!-- Company butler: Jenkins 'raleigh' logo, inlined fragment for pre-auth render.
-     Source: https://www.jenkins.io/artwork/  | CC BY-SA 3.0 (Jenkins project).
-     Butler as Raleigh, on a tan badge (r=110.6 @ 113,150). Framing 226x312. height:45vh. -->
-<svg viewBox="0 0 226 312" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg-raleigh" style="position:relative;z-index:1;height:45vh;width:auto;overflow:visible;filter:drop-shadow(0 0 28px rgba(34,211,238,0.45));"><circle cx="113" cy="150" r="110.6" fill="#c9a36a" stroke="#1a1a1a" stroke-width="7"></circle><g transform="translate(113,150) scale(0.62) translate(-150,-165)">
-
+<!-- Jenkins artwork, CC BY-SA 3.0 — https://www.jenkins.io/artwork/ -->
+<svg viewBox="0 0 226 312" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><circle cx="113" cy="150" r="110.6" fill="#c9a36a" stroke="#1a1a1a" stroke-width="7"></circle><g transform="translate(113,150) scale(0.62) translate(-150,-165)">
 <g xmlns:cc="https://creativecommons.org/ns#" xmlns:dc="https://purl.org/dc/elements/1.1/" xmlns:inkscape="https://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="https://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" id="svg2">
 &#x9;<polygon points="15.5,56.9 41.5,360.1 194.2,274.2 67.6,309.7 &#x9;" fill="#81B0C4" stroke="#000000" stroke-width="4" stroke-miterlimit="10"></polygon>
 &#x9;<polygon points="48.7,369.5 301.3,264.2 64.4,115.3 248,258.8 &#x9;" fill="#D33833" stroke="#000000" stroke-width="4" stroke-miterlimit="10"></polygon>

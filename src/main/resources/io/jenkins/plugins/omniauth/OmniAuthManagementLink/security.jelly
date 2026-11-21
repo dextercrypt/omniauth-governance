@@ -1,18 +1,14 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout title="OmniAuth — Security" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Security" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.securityAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Security</h1>
-        </div>
-      </div>
+      <l:app-bar title="Security"/>
 
       <div style="padding: 16px 24px;">
 
@@ -39,10 +35,10 @@
           <j:set var="bfEntries" value="${it.bruteForceEntries}"/>
           <j:choose>
             <j:when test="${bfEntries.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg><span>No users with active failure counters.</span></div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-sm"/><span>No users with active failure counters.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -71,7 +67,7 @@
                       <td>
                         <j:choose>
                           <j:when test="${bf.locked}">
-                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Locked · ~${bf.lockRemainingMinutes}m left</span>
+                            <span style="background:var(--oau-danger-fg);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.82em;display:inline-flex;align-items:center;gap:5px;"><l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-xs"/>Locked · ~${bf.lockRemainingMinutes}m left</span>
                           </j:when>
                           <j:when test="${bf.failureCount >= cfg.bruteForceThreshold}">
                             <span style="background:var(--oau-danger-bg);color:var(--oau-danger-fg);padding:2px 8px;border-radius:4px;font-size:0.82em;">Threshold reached</span>
@@ -94,11 +90,10 @@
                       </td>
                       <td>
                         <j:if test="${bf.alerted or bf.locked}">
-                          <form method="post" action="clearBruteForce" style="display:inline;">
+                          <f:form method="post" action="clearBruteForce" style="display:inline;">
                             <input type="hidden" name="userId" value="${bf.userId}"/>
-                            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                             <button type="submit" class="jenkins-button jenkins-button--small">${bf.locked ? 'Unlock' : 'Clear'}</button>
-                          </form>
+                          </f:form>
                         </j:if>
                       </td>
                     </tr>
@@ -120,15 +115,15 @@
             </div>
           </div>
 
-          <j:set var="windowHours" value="${request2.getAttribute('windowHours')}"/>
-          <j:set var="failedLogins" value="${request2.getAttribute('failedLogins')}"/>
+          <j:set var="windowHours" value="${it.securityWindowHours}"/>
+          <j:set var="failedLogins" value="${it.failedLoginsForWindow}"/>
 
           <j:choose>
             <j:when test="${failedLogins.isEmpty()}">
-              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg><span>No failed logins in this window.</span></div>
+              <div style="color:var(--oau-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-sm"/><span>No failed logins in this window.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table sortable" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium sortable" style="width:100%;">
                 <thead>
                   <tr>
                     <th>When</th>

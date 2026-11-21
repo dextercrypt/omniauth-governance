@@ -7,7 +7,7 @@
   as index.jelly (the request page), which is itself the login-page twin.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
   <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
     <st:setHeader name="Expires" value="0" />
     <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
@@ -71,7 +71,7 @@
                     </j:if>
                   </div>
                   <span class="pa-whoami__badge">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-xs"/>
                     Verified
                   </span>
                 </div>
@@ -80,7 +80,7 @@
                   <div class="pa-banner pa-err">Please enter a reason and what access you need.</div>
                 </j:if>
 
-                <form method="post" action="${rootURL}/request-access/submitEntraReason">
+                <f:form method="post" action="${rootURL}/request-access/submitEntraReason">
                   <div>
                     <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
                     <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
@@ -96,9 +96,8 @@
                     <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
                            min="0" value="${it.defaultDurationDays}"/>
                   </div>
-                  <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
                   <button type="submit" class="pa-btn">Submit request</button>
-                </form>
+                </f:form>
 
                 <div class="pa-foot"><a href="${rootURL}/">Cancel</a></div>
               </j:otherwise>

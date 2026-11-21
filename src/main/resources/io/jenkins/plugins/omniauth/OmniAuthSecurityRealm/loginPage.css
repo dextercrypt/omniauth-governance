@@ -60,12 +60,16 @@ body.app-sign-in-register { background: #0a1226; }
   outline: none;
 }
 
-/* sign-in button — gentle lift, no bloom */
+/* sign-in button — gentle lift, no bloom. !important on colour overrides
+   jenkins-button--primary, which sets a dark text colour with !important. */
 .app-sign-in-register__content-inner button[type=submit] {
   background: #1f57e0;
-  color: #fff;
+  color: #fff !important;
   box-shadow: 0 0 0 1px rgba(80,150,255,.22), 0 6px 18px rgba(31,87,224,0.32);
 }
+/* jenkins-button--primary paints its lighter accent on a ::before layer over
+   our #1f57e0; drop it so the real brand blue shows (hover handled below). */
+.app-sign-in-register__content-inner button[type=submit]::before { display: none !important; }
 .app-sign-in-register__content-inner button[type=submit]:hover { background: #2a63ee; }
 
 /* checkbox label */
@@ -115,3 +119,4 @@ body.app-sign-in-register { background: #0a1226; }
 .sso-btn.loading .sso-logo { display: none; }
 .sso-btn.loading { pointer-events: none; opacity: 0.85; cursor: default; }
 @keyframes sso-spin { to { transform: rotate(360deg); } }
+

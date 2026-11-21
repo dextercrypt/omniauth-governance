@@ -1,4 +1,5 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import hudson.util.FormValidation;
 import hudson.util.Secret;

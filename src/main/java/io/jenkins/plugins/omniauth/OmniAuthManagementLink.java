@@ -1,4 +1,5 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import hudson.Extension;
 import hudson.model.Item;
@@ -16,6 +17,7 @@ import hudson.security.PermissionGroup;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.matrixauth.AuthorizationType;
 import org.jenkinsci.plugins.matrixauth.PermissionEntry;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
@@ -40,11 +42,10 @@ import java.util.logging.Logger;
 /**
  * Adds "OmniAuth — Entra User Management" under Manage Jenkins → Security.
  *
- * Sub-pages (served via Stapler view forwarding):
- *   /manage/omniauth-management/           → index.jelly   (overview)
- *   /manage/omniauth-management/userStatus → userStatus.jelly
- *   /manage/omniauth-management/staleUsers → staleUsers.jelly
- *   /manage/omniauth-management/access     → access.jelly
+ * Sub-pages are served by Stapler's automatic view routing: a GET to
+ * {@code /manage/omniauth-management/<name>} renders {@code <name>.jelly} with no routing method, and
+ * each page's {@code <l:layout permission="${app.ADMINISTER}">} enforces access. Only pages that need
+ * to run logic before rendering (e.g. {@code doCheckAccess}) keep a {@code do*} method.
  */
 @Extension
 public class OmniAuthManagementLink extends ManagementLink {
@@ -76,55 +77,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // -------------------------------------------------------------------------
     // Sub-page routing
     // -------------------------------------------------------------------------
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doUserStatus(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "userStatus.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doStaleUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "staleUsers.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doUserOverview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "access.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAccessManagement(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "accessManagement.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAccessReview(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "accessReview.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doJitRequests(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "jitRequests.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAuditLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "auditLog.jelly").forward(req, rsp);
-    }
 
     public List<Map<String, String>> getAuditEvents() {
         OmniAuthAuditLog log = OmniAuthAuditLog.get();
@@ -198,13 +150,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     private static final java.util.logging.Logger BR_LOG =
             java.util.logging.Logger.getLogger(OmniAuthManagementLink.class.getName());
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doBackup(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "backup.jelly").forward(req, rsp);
-    }
 
     @POST
     public void doExportConfig(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -433,20 +378,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return files[files.length - 1];
     }
 
-    /** A restore point, as shown in the Revert list: its file name, a readable time, and what it holds. */
-    public static final class SnapshotInfo {
-        private final String fileName, displayTime;
-        private final int roles, assignments, groups;
-        SnapshotInfo(String fileName, String displayTime, int roles, int assignments, int groups) {
-            this.fileName = fileName; this.displayTime = displayTime;
-            this.roles = roles; this.assignments = assignments; this.groups = groups;
-        }
-        public String getFileName()    { return fileName; }
-        public String getDisplayTime() { return displayTime; }
-        public int getRoles()          { return roles; }
-        public int getAssignments()    { return assignments; }
-        public int getGroups()         { return groups; }
-    }
 
     /** The restore points (pre-import snapshots), newest first, for the Revert history list. */
     public List<SnapshotInfo> getSnapshots() {
@@ -486,17 +417,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     private static final int HISTORY_KEEP = 20;  // retained on disk
     private static final int HISTORY_SHOW = 5;    // surfaced in the UI
 
-    /** One entry in the import-history log shown below the Revert card. */
-    public static final class HistoryEntry {
-        private final String displayTime, user, action, summary;
-        HistoryEntry(String displayTime, String user, String action, String summary) {
-            this.displayTime = displayTime; this.user = user; this.action = action; this.summary = summary;
-        }
-        public String getDisplayTime() { return displayTime; }
-        public String getUser()        { return user; }
-        public String getAction()      { return action; }
-        public String getSummary()     { return summary; }
-    }
 
     private static java.io.File historyFile() {
         return new java.io.File(snapshotDir(), "import-history.json");
@@ -550,20 +470,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     /** True when there is at least one history event to show. */
     public boolean isHistoryAvailable() { return !getImportHistory().isEmpty(); }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSettings(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "settings.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doAbout(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "about.jelly").forward(req, rsp);
-    }
-
     /** True when OmniAuth is the active security realm (native sign-in is then always available). */
     public boolean isOmniAuthRealm() {
         return Jenkins.get().getSecurityRealm() instanceof OmniAuthSecurityRealm;
@@ -586,20 +492,11 @@ public class OmniAuthManagementLink extends ManagementLink {
         return sp > 0 ? v.substring(0, sp) : v;
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doNotifications(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "notifications.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSessions(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        jakarta.servlet.http.HttpSession s = req.getSession(false);
-        if (s != null) req.setAttribute("currentSessionId", s.getId());
-        req.getView(this, "sessions.jelly").forward(req, rsp);
+    /** The caller's own HTTP session id, so sessions.jelly can flag "this is you" (no routing method needed). */
+    public String getCurrentSessionId() {
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
+        jakarta.servlet.http.HttpSession s = (req != null) ? req.getSession(false) : null;
+        return (s != null) ? s.getId() : null;
     }
 
     public java.util.List<ActiveSessionManager.ActiveSession> getActiveSessions() {
@@ -610,22 +507,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         User current = User.current();
         if (current == null) return null;
         return current.getProperty(OmniAuthUserProperty.class);
-    }
-
-    /** Unified Emergency Access page: Break Glass (TOTP) + SOS recovery codes in one place. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doEmergencyAccess(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
-    }
-
-    /** Back-compat alias — the Break Glass enrollment now lives on the unified Emergency Access page. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doBreakGlass(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
     }
 
     @POST
@@ -787,13 +668,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.getWriter().write("{\"success\":true}");
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doTotpReminder(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "totpReminder.jelly").forward(req, rsp);
-    }
-
     @POST
     public void doTotpReminderSkip(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -832,13 +706,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // ── SOS Mode (lockout recovery) ────────────────────────────────────────────
 
     /** Back-compat alias — SOS recovery codes now live on the unified Emergency Access page. */
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSosRecoveryCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "emergencyAccess.jelly").forward(req, rsp);
-    }
-
     /** Generate a fresh set of SOS recovery codes for the current admin; returns the raw codes once. */
     @POST
     public void doSosGenerateCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -956,7 +823,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     @POST
     public void doRevokeSession(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         Jenkins.get().checkPermission(Jenkins.ADMINISTER); // CSRF already enforced via @POST
         String sessionId = req.getParameter("sessionId");
         String currentSessionId = req.getSession(false) != null ? req.getSession(false).getId() : null;
@@ -976,13 +842,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     public NotificationLog getNotificationLog() {
         return NotificationLog.get();
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doNotificationLog(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "notificationLog.jelly").forward(req, rsp);
     }
 
     @POST
@@ -1070,77 +929,13 @@ public class OmniAuthManagementLink extends ManagementLink {
             final String snapTeamsUrl   = config.getTeamsWebhookUrlPlain();
             final String snapLogoUrl    = config.getNotificationLogoUrl();
 
-            net.sf.json.JSONObject json = new net.sf.json.JSONObject();
-            // master + channels
-            json.put("notificationsEnabled", req.getParameter("notificationsEnabled") != null);
-            json.put("smtpEnabled",          req.getParameter("smtpEnabled")          != null);
-            json.put("slackEnabled",         req.getParameter("slackEnabled")         != null);
-            putParam(json, req, "slackWebhookUrl");
-            json.put("teamsEnabled",         req.getParameter("teamsEnabled")         != null);
-            putParam(json, req, "teamsWebhookUrl");
-            // SMTP fields
-            putParam(json, req, "smtpHost");
-            putParam(json, req, "smtpPort");
-            putParam(json, req, "smtpUsername");
-            putParam(json, req, "smtpPassword");
-            json.put("smtpTls", req.getParameter("smtpTls") != null);
-            putParam(json, req, "smtpFromAddress");
-            putParam(json, req, "smtpFromName");
-            putParam(json, req, "smtpReplyTo");
-            putParam(json, req, "notifyEmails");
-            putParam(json, req, "notificationLogoUrl");
-            // preserve login branding (managed by Settings page)
-            json.put("loginHeading",          config.getLoginHeading());
-            json.put("loginTabTitle",         config.getLoginTabTitle());
-            json.put("loginAnnouncementText", config.getLoginAnnouncementText());
-            json.put("loginFooterText",       config.getLoginFooterText());
-            json.put("loginBackground",       config.getLoginBackground());
-            json.put("loginLogoPosition",     config.getLoginLogoPosition());
-            json.put("loginLogoSize",         config.getLoginLogoSize());
-            json.put("loginButler",           config.getLoginButler());
-            putParam(json, req, "notificationFooterNote");
-            // brute force
-            String bft = req.getParameter("bruteForceThreshold");
-            if (bft != null) json.put("bruteForceThreshold", bft.trim());
-            json.put("bruteForceLockoutEnabled", req.getParameter("bruteForceLockoutEnabled") != null);
-            String bfm = req.getParameter("bruteForceLockoutMinutes");
-            if (bfm != null) json.put("bruteForceLockoutMinutes", bfm.trim());
-            // stale warning
-            json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
-            String swCron = req.getParameter("staleWarningCron");
-            String swWin  = req.getParameter("staleWarningWindowDays");
-            if (swCron != null) json.put("staleWarningCron",       swCron.trim());
-            if (swWin  != null) json.put("staleWarningWindowDays", swWin.trim());
-            // per-channel event subscriptions
-            net.sf.json.JSONArray smtpEvtsArr = new net.sf.json.JSONArray();
-            String[] se = req.getParameterValues("smtpEvents");
-            if (se != null) for (String e : se) smtpEvtsArr.add(e);
-            json.put("smtpEvents", smtpEvtsArr);
-            net.sf.json.JSONArray slackEvtsArr = new net.sf.json.JSONArray();
-            String[] sle = req.getParameterValues("slackEvents");
-            if (sle != null) for (String e : sle) slackEvtsArr.add(e);
-            json.put("slackEvents", slackEvtsArr);
-            net.sf.json.JSONArray teamsEvtsArr = new net.sf.json.JSONArray();
-            String[] te = req.getParameterValues("teamsEvents");
-            if (te != null) for (String e : te) teamsEvtsArr.add(e);
-            json.put("teamsEvents", teamsEvtsArr);
-            // preserve fields managed by other forms
-            net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
-            for (String u : config.getProtectedUsers()) arr.add(u);
-            json.put("protectedUsers", arr);
-            json.put("staleThresholdDays",  config.getStaleThresholdDays());
-            json.put("activeThresholdDays", config.getActiveThresholdDays());
-            json.put("cleanupEnabled",      config.isCleanupEnabled());
-            json.put("cleanupDryRun",       config.isCleanupDryRun());
-            json.put("cleanupCron",         config.getCleanupCron());
-            json.put("cleanupMaxDeletions", config.getCleanupMaxDeletions());
-            // Preserve Access Review settings (owned by the Settings page) — configure()
-            // reparses every field, so an omitted one would be reset to its default.
-            json.put("accessReviewEnabled",       config.isAccessReviewEnabled());
-            json.put("accessReviewThresholdDays", config.getAccessReviewThresholdDays());
-            // Preserve Emergency Recovery toggle (owned by the Settings page) for the same reason.
-            json.put("sosEnabled",  config.isSosEnabled());
-            config.configure(req, json);
+            // Each area holder binds its own fields from the form. The Notifications page owns the
+            // channels/SMTP plus the brute-force and stale-warning controls shown on it; every other
+            // setting lives on a holder this page never touches, so it is left untouched.
+            config.getNotifications().updateFrom(req);
+            config.getSecurity().updateBruteForceFrom(req);
+            config.getLifecycle().updateStaleWarningFrom(req);
+            config.save();
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
             // but no longer does — using PRE-SAVE credentials so disabling SMTP/master cannot silence it.
@@ -1253,13 +1048,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("notifications?saved=true");
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doProtectedUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "protectedUsers.jelly").forward(req, rsp);
-    }
-
     @POST
     public void doSaveProtectedUsers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -1306,104 +1094,13 @@ public class OmniAuthManagementLink extends ManagementLink {
             int    oldAuditRet       = config.getAuditRetentionDays();
             boolean oldSosEnabled = config.isSosEnabled();
 
-            net.sf.json.JSONObject json = new net.sf.json.JSONObject();
-            // thresholds
-            String stale  = req.getParameter("staleThresholdDays");
-            String active = req.getParameter("activeThresholdDays");
-            if (stale  != null) json.put("staleThresholdDays",  stale.trim());
-            if (active != null) json.put("activeThresholdDays", active.trim());
-            // audit log retention (days; 0 = keep forever)
-            String auditRet = req.getParameter("auditRetentionDays");
-            if (auditRet != null) json.put("auditRetentionDays", auditRet.trim());
-            // cleanup
-            boolean cleanupEnabled = req.getParameter("cleanupEnabled") != null;
-            json.put("cleanupEnabled", cleanupEnabled);
-            boolean dryRun = !cleanupEnabled || req.getParameter("cleanupDryRun") != null;
-            json.put("cleanupDryRun", dryRun);
-            String cron = req.getParameter("cleanupCron");
-            String maxD = req.getParameter("cleanupMaxDeletions");
-            if (cron != null) json.put("cleanupCron",         cron.trim());
-            if (maxD != null) json.put("cleanupMaxDeletions", maxD.trim());
-            // SMTP
-            putParam(json, req, "smtpHost");
-            putParam(json, req, "smtpPort");
-            putParam(json, req, "smtpUsername");
-            putParam(json, req, "smtpPassword");
-            json.put("smtpTls", req.getParameter("smtpTls") != null);
-            putParam(json, req, "smtpFromAddress");
-            putParam(json, req, "smtpFromName");
-            putParam(json, req, "smtpReplyTo");
-            putParam(json, req, "notifyEmails");
-            // (bruteForceThreshold is owned by the Notifications page; this handler preserves
-            //  the stored value via the config re-injection below — there is no input here.)
-            // stale warning
-            json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
-            String swCron = req.getParameter("staleWarningCron");
-            String swWin  = req.getParameter("staleWarningWindowDays");
-            if (swCron != null) json.put("staleWarningCron",       swCron.trim());
-            if (swWin  != null) json.put("staleWarningWindowDays", swWin.trim());
-            // emergency recovery
-            json.put("sosEnabled", req.getParameter("sosEnabled") != null);
-            // access review
-            json.put("accessReviewEnabled", req.getParameter("accessReviewEnabled") != null);
-            String arDays = req.getParameter("accessReviewThresholdDays");
-            if (arDays != null) json.put("accessReviewThresholdDays", arDays.trim());
-            // login page branding (managed by this page)
-            String lh  = req.getParameter("loginHeading");
-            String ltt = req.getParameter("loginTabTitle");
-            String lat = req.getParameter("loginAnnouncementText");
-            String lft = req.getParameter("loginFooterText");
-            String lbg = req.getParameter("loginBackground");
-            String llp = req.getParameter("loginLogoPosition");
-            String lls = req.getParameter("loginLogoSize");
-            String lbt = req.getParameter("loginButler");
-            if (lh  != null) json.put("loginHeading",          lh.trim());
-            if (ltt != null) json.put("loginTabTitle",          ltt.trim());
-            if (lat != null) json.put("loginAnnouncementText", lat.trim());
-            if (lft != null) json.put("loginFooterText",       lft.trim());
-            if (lbg != null) json.put("loginBackground",       lbg.trim());
-            if (llp != null) json.put("loginLogoPosition",     llp.trim());
-            if (lls != null) json.put("loginLogoSize",         lls.trim());
-            if (lbt != null) json.put("loginButler",           lbt.trim());
-            // preserve fields managed by the Notifications page
-            json.put("notificationsEnabled", config.isNotificationsEnabled());
-            json.put("smtpEnabled",          config.isSmtpEnabled());
-            json.put("smtpHost",             config.getSmtpHost());
-            json.put("smtpPort",             config.getSmtpPort());
-            json.put("smtpUsername",         config.getSmtpUsername());
-            json.put("smtpTls",              config.isSmtpTls());
-            json.put("smtpFromAddress",      config.getSmtpFromAddress());
-            json.put("smtpFromName",         config.getSmtpFromName());
-            json.put("smtpReplyTo",          config.getSmtpReplyTo());
-            json.put("notifyEmails",         config.getNotifyEmails());
-            json.put("slackEnabled",         config.isSlackEnabled());
-            json.put("slackWebhookUrl",      config.getSlackWebhookUrlPlain());
-            json.put("teamsEnabled",         config.isTeamsEnabled());
-            json.put("teamsWebhookUrl",      config.getTeamsWebhookUrlPlain());
-            json.put("bruteForceThreshold",  config.getBruteForceThreshold());
-            json.put("bruteForceLockoutEnabled", config.isBruteForceLockoutEnabled());
-            json.put("bruteForceLockoutMinutes", config.getBruteForceLockoutMinutes());
-            json.put("staleWarningEnabled",    config.isStaleWarningEnabled());
-            json.put("staleWarningCron",       config.getStaleWarningCron());
-            json.put("staleWarningWindowDays", config.getStaleWarningWindowDays());
-            net.sf.json.JSONArray smtpEvts = new net.sf.json.JSONArray();
-            for (String e : config.getSmtpEvents()) smtpEvts.add(e);
-            json.put("smtpEvents", smtpEvts);
-            net.sf.json.JSONArray slackEvts = new net.sf.json.JSONArray();
-            for (String e : config.getSlackEvents()) slackEvts.add(e);
-            json.put("slackEvents", slackEvts);
-            net.sf.json.JSONArray teamsEvts = new net.sf.json.JSONArray();
-            for (String e : config.getTeamsEvents()) teamsEvts.add(e);
-            json.put("teamsEvents", teamsEvts);
-            // preserve protected users
-            net.sf.json.JSONArray arr = new net.sf.json.JSONArray();
-            for (String u : config.getProtectedUsers()) arr.add(u);
-            json.put("protectedUsers", arr);
-            // Preserve notification branding (owned by the Notifications page) — configure()
-            // reparses every field, so omitting these would wipe them to empty.
-            json.put("notificationLogoUrl",    config.getNotificationLogoUrl());
-            json.put("notificationFooterNote", config.getNotificationFooterNote());
-            config.configure(req, json);
+            // Each area holder binds its own fields from the form. The Settings page owns the
+            // thresholds / cleanup / access-review (lifecycle), the SOS switch (security) and the
+            // login branding; every other setting lives on a holder this page never touches.
+            config.getLifecycle().updateSettingsFrom(req);
+            config.getSecurity().updateSosFrom(req);
+            config.getBranding().updateFrom(req);
+            config.save();
 
             // diff and notify
             List<String> diff = new ArrayList<>();
@@ -1424,57 +1121,13 @@ public class OmniAuthManagementLink extends ManagementLink {
         rsp.sendRedirect("settings?saved=true");
     }
 
-    @POST
-    public void doSendTestEmail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-
-        // Read current form values — no save needed
-        OmniAuthGlobalConfig saved = OmniAuthGlobalConfig.get();
-
-        String host     = param(req, "smtpHost",    saved != null ? saved.getSmtpHost()        : "");
-        String portStr  = param(req, "smtpPort",    saved != null ? String.valueOf(saved.getSmtpPort()) : "587");
-        String username = param(req, "smtpUsername",saved != null ? saved.getSmtpUsername()    : "");
-        String fromAddr = param(req, "smtpFromAddress", saved != null ? saved.getSmtpFromAddress() : "");
-        String fromName = param(req, "smtpFromName",saved != null ? saved.getSmtpFromName()    : "Jenkins OmniAuth");
-        String replyTo  = param(req, "smtpReplyTo", saved != null ? saved.getSmtpReplyTo()     : "");
-        String to       = param(req, "notifyEmails",saved != null ? saved.getNotifyEmails()    : "");
-        boolean tls     = "1".equals(req.getParameter("smtpTls"));
-
-        // Split host:port if user pasted a combined value (e.g. from Grafana config)
-        if (host.contains(":")) {
-            String[] parts = host.split(":", 2);
-            host = parts[0].trim();
-            if (portStr.isEmpty() || portStr.equals("587")) portStr = parts[1].trim();
-        }
-
-        // Password: use form value if provided, else fall back to saved
-        String password = req.getParameter("smtpPassword");
-        if (password == null || password.trim().isEmpty()) {
-            password = (saved != null && saved.getSmtpPassword() != null)
-                    ? saved.getSmtpPassword().getPlainText() : "";
-        } else {
-            password = password.trim(); // remove accidental trailing whitespace/newlines from paste
-        }
-
-        int port = 587;
-        try { port = Integer.parseInt(portStr.trim()); } catch (NumberFormatException ignored) {}
-
-        String json;
-        if (host.isEmpty() || fromAddr.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            json = "{\"ok\":false,\"msg\":\"Fill in host, username, password and from address first\"}";
-        } else if (to.isEmpty()) {
-            json = "{\"ok\":false,\"msg\":\"Fill in at least one notification recipient\"}";
-        } else {
-            try {
-                SmtpHelper.test(host, port, username, password, tls, fromAddr, fromName, replyTo, to);
-                json = "{\"ok\":true,\"msg\":\"Test email sent to " + escapeJson(to) + "\"}";
-            } catch (Exception e) {
-                String msg = e.getMessage() != null ? e.getMessage() : "Unknown error";
-                json = "{\"ok\":false,\"msg\":\"" + escapeJson(msg) + "\"}";
-            }
-        }
-
-        writeJson(rsp, json);
+    /**
+     * The descriptor that backs the Notifications test-email button. Exposed so notifications.jelly
+     * can give {@code f:validateButton} a descriptor context; the test logic lives on
+     * {@link OmniAuthGlobalConfig#doSendTestEmail} (the descriptor that owns the SMTP settings).
+     */
+    public OmniAuthGlobalConfig getSmtpTestDescriptor() {
+        return OmniAuthGlobalConfig.get();
     }
 
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
@@ -1540,7 +1193,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                     "403 Forbidden: Insufficient privileges to complete the operation."); break;
             case "smtpTest": {
                 String host = cfg != null ? cfg.getSmtpHost()        : "mail.corp.com";
-                int port    = cfg != null ? cfg.getSmtpPort()        : 587;
+                int port    = cfg != null ? cfg.getSmtpPort()        : 465;
                 String from = cfg != null ? cfg.getSmtpFromAddress() : "jenkins@corp.com";
                 String to   = cfg != null ? cfg.getNotifyEmails()    : "admin@corp.com";
                 html = SmtpHelper.buildSmtpTestHtml(host, port, from, to); break;
@@ -1549,7 +1202,7 @@ public class OmniAuthManagementLink extends ManagementLink {
                 html = SmtpHelper.buildConfigChangedHtml(cfg, "admin", now,
                     java.util.Arrays.asList(
                         "smtpHost: old-mail.corp.com \u2192 mail.corp.com",
-                        "smtpPort: 25 \u2192 587",
+                        "smtpPort: 25 \u2192 465",
                         "smtpTls: false \u2192 true",
                         "staleThresholdDays: 60 \u2192 90"));
         }
@@ -1591,11 +1244,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     private static String escapeJson(String s) {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-    }
-
-    private static void putParam(net.sf.json.JSONObject json, StaplerRequest2 req, String name) {
-        String v = req.getParameter(name);
-        if (v != null) json.put(name, v.trim());
     }
 
     private static String mgmtCta(String label, String page) {
@@ -1892,13 +1540,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return pwd.toString();
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "provisioning.jelly").forward(req, rsp);
-    }
-
     /** Approve a pending request — create the account (mirroring doAddUser) and mark it approved. */
     @POST
     public void doApproveProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -2027,18 +1668,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get();
         if (c != null) {
-            c.setProvisioningEnabled(req.getParameter("provisioningEnabled") != null);
-            c.setProvisioningAllowEntra(req.getParameter("provisioningAllowEntra") != null);
-            c.setProvisioningAllowNative(req.getParameter("provisioningAllowNative") != null);
-            c.setProvisioningAllowedDomains(req.getParameter("provisioningAllowedDomains"));
-            c.setProvisioningDefaultDurationDays(parseIntOr(req.getParameter("provisioningDefaultDurationDays"), 0));
-            c.setProvisioningExpiryAction(req.getParameter("provisioningExpiryAction"));
-            c.setProvisioningMaxPendingPerUser(parseIntOr(req.getParameter("provisioningMaxPendingPerUser"), 1));
-            c.setProvisioningBreakerMax(parseIntOr(req.getParameter("provisioningBreakerMax"), 100));
-            c.setProvisioningBreakerWindowMin(parseIntOr(req.getParameter("provisioningBreakerWindowMin"), 10));
-            c.setProvisioningBreakerCooldownMin(parseIntOr(req.getParameter("provisioningBreakerCooldownMin"), 30));
-            c.setProvisioningExpiryReminderDays(parseIntOr(req.getParameter("provisioningExpiryReminderDays"), 7));
-            c.setActivationLinkTtlHours(parseIntOr(req.getParameter("activationLinkTtlHours"), 72));
+            c.getProvisioning().updateFrom(req);
             c.save();
             OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Provisioning",
                     "provisioning intake settings saved");
@@ -2269,23 +1899,6 @@ public class OmniAuthManagementLink extends ManagementLink {
         return count;
     }
 
-    // Access grants expiring within the next N days
-    public static final class ExpiringGrant {
-        public final String userId;
-        public final String roleId;
-        public final String scope;
-        public final String expiresAt;
-        public final long daysLeft;
-        public ExpiringGrant(String userId, String roleId, String scope, String expiresAt, long daysLeft) {
-            this.userId = userId; this.roleId = roleId; this.scope = scope;
-            this.expiresAt = expiresAt; this.daysLeft = daysLeft;
-        }
-        public String getUserId()   { return userId; }
-        public String getRoleId()   { return roleId; }
-        public String getScope()    { return scope == null || scope.isEmpty() ? "Global" : scope; }
-        public String getExpiresAt(){ return expiresAt; }
-        public long getDaysLeft()   { return daysLeft; }
-    }
 
     public List<ExpiringGrant> getExpiringGrants(int withinDays) {
         OmniAuthAssignmentConfig ac = OmniAuthAssignmentConfig.get();
@@ -2323,18 +1936,19 @@ public class OmniAuthManagementLink extends ManagementLink {
         return count;
     }
 
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doSecurity(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        int hours = 24;
-        try {
-            String w = req.getParameter("window");
-            if (w != null) hours = Integer.parseInt(w);
-        } catch (Exception ignored) {}
-        req.setAttribute("failedLogins", getFailedLogins(hours));
-        req.setAttribute("windowHours", String.valueOf(hours));
-        req.getView(this, "security.jelly").forward(req, rsp);
+    /** The security page's selected window in hours (from {@code ?window=}, default 24), for security.jelly. */
+    public String getSecurityWindowHours() {
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
+        String w = (req != null) ? req.getParameter("window") : null;
+        if (w != null) {
+            try { return String.valueOf(Integer.parseInt(w)); } catch (NumberFormatException ignored) { /* fall through to default */ }
+        }
+        return "24";
+    }
+
+    /** Failed logins within the selected window — backs security.jelly without a routing method. */
+    public List<FailedLoginEntry> getFailedLoginsForWindow() {
+        return getFailedLogins(Integer.parseInt(getSecurityWindowHours()));
     }
 
     public List<FailedLoginEntry> getFailedLogins(int hours) {
@@ -2396,38 +2010,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         return result;
     }
 
-    public static final class FailedLoginEntry {
-        public final String userId;
-        public final String fullName;
-        public final LoginEvent event;
-        public FailedLoginEntry(String userId, String fullName, LoginEvent event) {
-            this.userId = userId; this.fullName = fullName; this.event = event;
-        }
-        public String getUserId()    { return userId; }
-        public String getFullName()  { return fullName; }
-        public LoginEvent getEvent() { return event; }
-    }
 
-    public static final class BruteForceEntry {
-        public final String userId;
-        public final String fullName;
-        public final int failureCount;
-        public final String alertedAt;
-        public boolean locked;
-        public long lockRemainingMinutes;
-        public BruteForceEntry(String userId, String fullName, int failureCount, String alertedAt) {
-            this.userId = userId; this.fullName = fullName;
-            this.failureCount = failureCount; this.alertedAt = alertedAt;
-        }
-        public String getUserId()     { return userId; }
-        public String getFullName()   { return fullName; }
-        public int getFailureCount()  { return failureCount; }
-        public String getAlertedAt()  { return alertedAt; }
-        public boolean isAlerted()    { return alertedAt != null; }
-        public String getRelativeAlertedAt() { return alertedAt != null ? relativeTime(alertedAt) : null; }
-        public boolean isLocked()     { return locked; }
-        public long getLockRemainingMinutes() { return lockRemainingMinutes; }
-    }
 
     public List<RecentLoginEntry> getRecentLoginEvents() {
         List<RecentLoginEntry> all = new ArrayList<>();
@@ -2443,47 +2026,10 @@ public class OmniAuthManagementLink extends ManagementLink {
         return all.size() > 7 ? all.subList(0, 7) : all;
     }
 
-    public static final class RecentLoginEntry {
-        public final String userId;
-        public final String fullName;
-        public final LoginEvent event;
-        public RecentLoginEntry(String userId, String fullName, LoginEvent event) {
-            this.userId   = userId;
-            this.fullName = fullName;
-            this.event    = event;
-        }
-        public String getUserId()   { return userId; }
-        public String getFullName() { return fullName; }
-        public LoginEvent getEvent(){ return event; }
-    }
 
     // ── Overview dashboard: login-activity chart + live metrics ─────────────────
 
-    /** One day's login tally for the Overview activity chart (successes split SSO vs native). */
-    public static class DayActivity {
-        private final String label;
-        private final int ssoSuccess;
-        private final int nativeSuccess;
-        private final int failure;
-        DayActivity(String label, int ssoSuccess, int nativeSuccess, int failure) {
-            this.label = label; this.ssoSuccess = ssoSuccess;
-            this.nativeSuccess = nativeSuccess; this.failure = failure;
-        }
-        public String getLabel()       { return label; }
-        public int getSsoSuccess()     { return ssoSuccess; }
-        public int getNativeSuccess()  { return nativeSuccess; }
-        public int getSuccess()        { return ssoSuccess + nativeSuccess; }
-        public int getFailure()        { return failure; }
-    }
 
-    /** Full 14-day activity series plus the max value, so the Jelly can scale bars in one pass. */
-    public static class LoginActivity {
-        private final List<DayActivity> days;
-        private final int max;
-        LoginActivity(List<DayActivity> days, int max) { this.days = days; this.max = max; }
-        public List<DayActivity> getDays() { return days; }
-        public int getMax() { return max; }           // never 0 (floored at 1) so bar math is safe
-    }
 
     /** Builds the 14-day login-activity series (oldest-first) from the audit log in a single pass. */
     public LoginActivity getLoginActivity() {
@@ -2734,7 +2280,7 @@ public class OmniAuthManagementLink extends ManagementLink {
     }
 
     // -------------------------------------------------------------------------
-    // Access detail (used by access.jelly)
+    // Access detail (used by userOverview.jelly)
     // -------------------------------------------------------------------------
 
     public AccessInfo getAccessInfo() {
@@ -2995,169 +2541,41 @@ public class OmniAuthManagementLink extends ManagementLink {
         return result;
     }
 
+    /**
+     * The permissions a role/grant can be built from, grouped exactly as Jenkins groups them.
+     *
+     * We iterate Jenkins' own {@link PermissionGroup}s rather than curating a hand-written list,
+     * so every permission appears under its real group (e.g. {@code Item.ExtendedRead} under "Job",
+     * {@code LockableResourcesManager.Steal} under "Lockable Resources") instead of being lumped
+     * into one "other" bucket, and each permission carries its own name, description (shown as a
+     * tooltip) and "implied by" relationship (so the UI can disable a checkbox that a stronger
+     * permission already grants). The admin-equivalent "dangerous" permissions (RunScripts,
+     * ConfigureUpdateCenter, UploadPlugins) are never offered.
+     */
     public List<PermissionGroupInfo> getAvailablePermissions() {
-        // Friendly label mapping: permission ID → display name
-        Map<String, String> labels = new LinkedHashMap<>();
-        // Job
-        labels.put("hudson.model.Item.Read",       "Read Jobs");
-        labels.put("hudson.model.Item.Discover",   "Discover Jobs");
-        labels.put("hudson.model.Item.Create",     "Create Jobs");
-        labels.put("hudson.model.Item.Configure",  "Configure Jobs");
-        labels.put("hudson.model.Item.Move",       "Move Jobs");
-        labels.put("hudson.model.Item.Delete",     "Delete Jobs");
-        labels.put("hudson.model.Item.Workspace",  "Access Workspace");
-        labels.put("hudson.model.Item.Build",      "Trigger Builds");
-        labels.put("hudson.model.Item.Cancel",     "Cancel Builds");
-        // Run
-        labels.put("hudson.model.Run.Replay",      "Replay Pipeline");
-        labels.put("hudson.model.Run.Delete",      "Delete Build History");
-        labels.put("hudson.model.Run.Update",      "Update Build Description");
-        // View
-        labels.put("hudson.model.View.Read",       "Read Views");
-        labels.put("hudson.model.View.Create",     "Create Views");
-        labels.put("hudson.model.View.Configure",  "Configure Views");
-        labels.put("hudson.model.View.Delete",     "Delete Views");
-        // SCM
-        labels.put("hudson.scm.SCM.Tag",           "Create SCM Tags");
-        // Overall
-        labels.put("hudson.model.Hudson.Administer",              "Full Admin");
-        labels.put("hudson.model.Hudson.Read",                    "Overall Read (Login)");
-        labels.put("hudson.model.Hudson.Manage",                  "Manage Jenkins");
-        labels.put("hudson.model.Hudson.SystemRead",              "Read System Config");
-        labels.put("hudson.model.Hudson.RunScripts",              "Run Groovy Scripts");
-        labels.put("hudson.model.Hudson.ConfigureUpdateCenter",   "Configure Update Center");
-        labels.put("hudson.model.Hudson.UploadPlugins",           "Upload Plugins");
-        // Agent
-        labels.put("hudson.model.Computer.Build",                 "Use Agent for Builds");
-        labels.put("hudson.model.Computer.Configure",             "Configure Agents");
-        labels.put("hudson.model.Computer.Connect",               "Connect Agents");
-        labels.put("hudson.model.Computer.Create",                "Create Agents");
-        labels.put("hudson.model.Computer.Delete",                "Delete Agents");
-        labels.put("hudson.model.Computer.Disconnect",            "Disconnect Agents");
-        labels.put("hudson.model.Computer.Provision",             "Provision Agents");
-        // Credentials
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Create",        "Add Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Delete",        "Delete Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains", "Manage Credential Domains");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.Update",        "Update Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.View",          "View Credentials");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.UseItem",       "Use Credentials in Jobs");
-        labels.put("com.cloudbees.plugins.credentials.CredentialsProvider.UseOwn",        "Use Own Credentials");
-        // Metrics
-        labels.put("jenkins.metrics.api.Metrics.HealthCheck", "Health Check");
-        labels.put("jenkins.metrics.api.Metrics.ThreadDump",  "Thread Dump");
-        labels.put("jenkins.metrics.api.Metrics.View",        "View Metrics");
-
         List<PermissionGroupInfo> result = new ArrayList<>();
-
-        // NOTE: the admin-equivalent "dangerous" permissions (RunScripts, ConfigureUpdateCenter,
-        // UploadPlugins) are deliberately NOT offered here — they grant effective full control of
-        // Jenkins and must never be configurable through OmniAuth. buildGroup() also filters them
-        // defensively, so they stay out even if re-added to this list by mistake.
-        result.add(buildGroup("Overall", "System-wide access control", new String[]{
-                "hudson.model.Hudson.Read",
-                "hudson.model.Hudson.Administer",
-                "hudson.model.Hudson.Manage",
-                "hudson.model.Hudson.SystemRead"
-        }, labels));
-
-        result.add(buildGroup("Credentials", "Stored passwords, API keys & certificates", new String[]{
-                "com.cloudbees.plugins.credentials.CredentialsProvider.View",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Create",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Update",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.Delete",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.ManageDomains",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.UseItem",
-                "com.cloudbees.plugins.credentials.CredentialsProvider.UseOwn"
-        }, labels));
-
-        result.add(buildGroup("Agent", "Build nodes & executors", new String[]{
-                "hudson.model.Computer.Build",
-                "hudson.model.Computer.Configure",
-                "hudson.model.Computer.Connect",
-                "hudson.model.Computer.Create",
-                "hudson.model.Computer.Delete",
-                "hudson.model.Computer.Disconnect",
-                "hudson.model.Computer.Provision"
-        }, labels));
-
-        result.add(buildGroup("Job", "Pipelines, freestyle jobs & folders", new String[]{
-                "hudson.model.Item.Read",
-                "hudson.model.Item.Discover",
-                "hudson.model.Item.Create",
-                "hudson.model.Item.Configure",
-                "hudson.model.Item.Move",
-                "hudson.model.Item.Delete",
-                "hudson.model.Item.Build",
-                "hudson.model.Item.Cancel",
-                "hudson.model.Item.Workspace"
-        }, labels));
-
-        result.add(buildGroup("Run", "Individual build instances", new String[]{
-                "hudson.model.Run.Replay",
-                "hudson.model.Run.Delete",
-                "hudson.model.Run.Update"
-        }, labels));
-
-        result.add(buildGroup("View", "Dashboard views & layouts", new String[]{
-                "hudson.model.View.Read",
-                "hudson.model.View.Create",
-                "hudson.model.View.Configure",
-                "hudson.model.View.Delete"
-        }, labels));
-
-        result.add(buildGroup("SCM", "Source control management", new String[]{
-                "hudson.scm.SCM.Tag"
-        }, labels));
-
-        result.add(buildGroup("Metrics", "Health & monitoring endpoints", new String[]{
-                "jenkins.metrics.api.Metrics.View",
-                "jenkins.metrics.api.Metrics.HealthCheck",
-                "jenkins.metrics.api.Metrics.ThreadDump"
-        }, labels));
-
-        // Plugin Permissions — anything not already in a named group above.
-        // Excludes hudson.security.Permission.* (internal abstract base permissions, not user-facing).
-        Set<String> knownIds = new HashSet<>(labels.keySet());
-        List<PermissionInfo> pluginPerms = new ArrayList<>();
         for (PermissionGroup group : PermissionGroup.getAll()) {
-            if (group.owner == hudson.security.Permission.class) continue; // skip internal abstract perms
+            // The internal abstract base permissions (owner == Permission.class) are not user-facing.
+            if (group.owner == hudson.security.Permission.class) {
+                continue;
+            }
+            String groupTitle = group.title != null ? group.title.toString() : group.getId();
+            List<PermissionInfo> perms = new ArrayList<>();
             for (Permission p : group.getPermissions()) {
-                if (!p.enabled) continue;
-                String pId = p.getId();
-                if (knownIds.contains(pId)) continue;
-                if (OmniAuthAuthorizationStrategy.isDangerousPermission(pId)) continue; // never offer admin-equivalent permissions
-                int last = pId.lastIndexOf('.');
-                int prev = last > 0 ? pId.lastIndexOf('.', last - 1) : -1;
-                String raw = prev >= 0 ? pId.substring(prev + 1) : (last >= 0 ? pId.substring(last + 1) : pId);
-                pluginPerms.add(new PermissionInfo(pId, raw));
+                if (!p.enabled) {
+                    continue;
+                }
+                if (OmniAuthAuthorizationStrategy.isDangerousPermission(p.getId())) {
+                    continue; // never offer admin-equivalent permissions
+                }
+                perms.add(PermissionInfo.of(groupTitle, p));
+            }
+            if (!perms.isEmpty()) {
+                // Permission groups have no description in Jenkins, so there is no subtitle.
+                result.add(new PermissionGroupInfo(groupTitle, "", perms));
             }
         }
-        if (!pluginPerms.isEmpty()) {
-            result.add(new PermissionGroupInfo(
-                    "Other Plugin Permissions",
-                    "Permissions from installed plugins not covered above",
-                    pluginPerms));
-        }
-
-        // Remove empty groups (plugin absent or all permissions disabled)
-        result.removeIf(g -> g.getPermissions().isEmpty());
         return result;
-    }
-
-    /** Returns only permissions that exist in this Jenkins and are enabled. */
-    private PermissionGroupInfo buildGroup(String name, String subtitle, String[] ids, Map<String, String> labels) {
-        List<PermissionInfo> perms = new ArrayList<>();
-        for (String id : ids) {
-            if (OmniAuthAuthorizationStrategy.isDangerousPermission(id)) {
-                continue; // never offer admin-equivalent permissions
-            }
-            Permission p = Permission.fromId(id);
-            if (p != null && p.enabled) {
-                perms.add(new PermissionInfo(id, labels.getOrDefault(id, id)));
-            }
-        }
-        return new PermissionGroupInfo(name, subtitle, perms);
     }
 
     // -------------------------------------------------------------------------
@@ -4787,93 +4205,6 @@ public class OmniAuthManagementLink extends ManagementLink {
     // Data holders
     // -------------------------------------------------------------------------
 
-    public static final class UserStatusInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String lastLoginAt;
-        private final String lastJobName;
-        private final String lastJobTriggeredAt;
-        private final String status;
-
-        // Extended fields
-        private String provisioningSource; // NATIVE, INDIVIDUAL, VIA_ENTRA_GROUP
-        private String entraUpn;
-        private String groupName;          // effective group name if VIA_ENTRA_GROUP
-        private String groupOid;           // OID of the group
-        private boolean activeGroupUser;
-        private boolean staleWarning;
-
-        public UserStatusInfo(String userId, String fullName, String userType,
-                              String lastLoginAt, String lastJobName,
-                              String lastJobTriggeredAt, String status) {
-            this.userId            = userId;
-            this.fullName          = fullName;
-            this.userType          = userType;
-            this.lastLoginAt       = lastLoginAt;
-            this.lastJobName       = lastJobName;
-            this.lastJobTriggeredAt = lastJobTriggeredAt;
-            this.status            = status;
-        }
-
-        public String getUserId()                    { return userId; }
-        public String getFullName()                  { return fullName; }
-        public String getUserType()                  { return userType; }
-        public String getLastLoginAt()               { return lastLoginAt; }
-        public String getLastJobName()               { return lastJobName; }
-        public String getLastJobTriggeredAt()        { return lastJobTriggeredAt; }
-        public String getStatus()                    { return status; }
-        public boolean isNeverLoggedIn()             { return lastLoginAt == null; }
-        public boolean isNeverTriggered()            { return lastJobName == null; }
-        public String getRelativeLastLoginAt()        { return relativeTime(lastLoginAt); }
-        public String getRelativeLastJobTriggeredAt() { return relativeTime(lastJobTriggeredAt); }
-        public String getFormattedLastLoginAt()       { return formatDate(lastLoginAt); }
-        public String getFormattedLastJobTriggeredAt(){ return formatDate(lastJobTriggeredAt); }
-
-        public String getProvisioningSource()        { return provisioningSource != null ? provisioningSource : "NATIVE"; }
-        public void setProvisioningSource(String s)  { this.provisioningSource = s; }
-        public String getEntraUpn()                  { return entraUpn; }
-        public void setEntraUpn(String s)            { this.entraUpn = s; }
-        public String getGroupName()                 { return groupName; }
-        public void setGroupName(String s)           { this.groupName = s; }
-        public String getGroupOid()                  { return groupOid; }
-        public void setGroupOid(String s)            { this.groupOid = s; }
-        public boolean isActiveGroupUser()           { return activeGroupUser; }
-        public void setActiveGroupUser(boolean b)    { this.activeGroupUser = b; }
-        public boolean isStaleWarning()              { return staleWarning; }
-        public void setStaleWarning(boolean b)       { this.staleWarning = b; }
-
-        private boolean pendingDeletion;
-        public boolean isPendingDeletion()           { return pendingDeletion; }
-        public void setPendingDeletion(boolean b)    { this.pendingDeletion = b; }
-
-        private LoginEvent latestEvent;
-        public void setLatestEvent(LoginEvent e) { this.latestEvent = e; }
-        public LoginEvent getLatestEvent()        { return latestEvent; }
-
-        // Time-limited account expiry (from OmniAuthAccountExpiryProperty; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)        { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()             { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()           { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                       { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()       { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        /** Days until expiry, rounded UP so "5 days out" reads as 5 (negative if past); 0 when no expiry. */
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24; // ceil forward, floor when past
-            } catch (Exception e) { return 0; }
-        }
-    }
 
     static String relativeTime(String isoStr) {
         if (isoStr == null) return null;
@@ -4907,212 +4238,10 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class UserInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String lastLoginAt;
-        private final String entraOid;
-        private String pendingReason; // null = not pending; "Group access revoked" or "Manually marked"
 
-        public UserInfo(String userId, String fullName, String userType,
-                        String lastLoginAt, String entraOid) {
-            this.userId      = userId;
-            this.fullName    = fullName;
-            this.userType    = userType;
-            this.lastLoginAt = lastLoginAt;
-            this.entraOid    = entraOid;
-        }
 
-        public String getUserId()        { return userId; }
-        public String getFullName()      { return fullName; }
-        public String getUserType()      { return userType; }
-        public String getLastLoginAt()   { return lastLoginAt; }
-        public String getEntraOid()      { return entraOid; }
-        public boolean isNeverLoggedIn() { return lastLoginAt == null; }
-        public String getPendingReason() { return pendingReason; }
-        public void setPendingReason(String r) { this.pendingReason = r; }
-    }
 
-    public static final class AccessInfo {
-        private final String userId;
-        private final String fullName;
-        private final String userType;
-        private final String entraOid;
-        private final String entraUpn;
-        private final String lastLoginAt;
-        private final List<JobAccessInfo> jobAccess;
-        private final String authStrategy;
-        private final boolean isAdmin;
-        private final boolean canRead;
-        private final boolean canBuild;
-        private final boolean canCreate;
-        private final boolean canConfigure;
-        private final List<LoginEvent> loginHistory;
-        private String groupName;
-        private String groupOid;
-        private String provisioningSource;
-        private List<GrantDisplay> omniAuthGrants;
 
-        public AccessInfo(String userId, String fullName, String userType,
-                          String entraOid, String entraUpn, String lastLoginAt,
-                          List<JobAccessInfo> jobAccess, String authStrategy,
-                          boolean isAdmin, boolean canRead, boolean canBuild,
-                          boolean canCreate, boolean canConfigure,
-                          List<LoginEvent> loginHistory) {
-            this.userId        = userId;
-            this.fullName      = fullName;
-            this.userType      = userType;
-            this.entraOid      = entraOid;
-            this.entraUpn      = entraUpn;
-            this.lastLoginAt   = lastLoginAt;
-            this.jobAccess     = jobAccess != null ? jobAccess : Collections.emptyList();
-            this.authStrategy  = authStrategy;
-            this.isAdmin       = isAdmin;
-            this.canRead       = canRead;
-            this.canBuild      = canBuild;
-            this.canCreate     = canCreate;
-            this.canConfigure  = canConfigure;
-            this.loginHistory  = loginHistory != null ? loginHistory : Collections.emptyList();
-        }
-
-        public String getUserId()                  { return userId; }
-        public String getFullName()                { return fullName; }
-        public String getUserType()                { return userType; }
-        public String getEntraOid()                { return entraOid; }
-        public String getEntraUpn()                { return entraUpn; }
-        public String getLastLoginAt()             { return lastLoginAt; }
-        public List<JobAccessInfo> getJobAccess()  { return jobAccess; }
-        public String getAuthStrategy()            { return authStrategy; }
-        public boolean isAdmin()                   { return isAdmin; }
-        public boolean isCanRead()                 { return canRead; }
-        public boolean isCanBuild()                { return canBuild; }
-        public boolean isCanCreate()               { return canCreate; }
-        public boolean isCanConfigure()            { return canConfigure; }
-        public List<LoginEvent> getLoginHistory()  { return loginHistory; }
-        public boolean isEntraUser()               { return "Entra".equals(userType); }
-        public String getGroupName()               { return groupName; }
-        public void setGroupName(String s)         { this.groupName = s; }
-        public String getGroupOid()                { return groupOid; }
-        public void setGroupOid(String s)          { this.groupOid = s; }
-        public String getProvisioningSource()      { return provisioningSource != null ? provisioningSource : "NATIVE"; }
-        public void setProvisioningSource(String s){ this.provisioningSource = s; }
-        public boolean isViaGroup()                { return "VIA_ENTRA_GROUP".equals(provisioningSource); }
-        public List<GrantDisplay> getOmniAuthGrants() { return omniAuthGrants != null ? omniAuthGrants : Collections.emptyList(); }
-        public void setOmniAuthGrants(List<GrantDisplay> grants) { this.omniAuthGrants = grants; }
-
-        // Time-limited account expiry (provisioning portal duration; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()              { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
-            } catch (Exception e) { return 0; }
-        }
-        public boolean isPerJobSupported() {
-            return authStrategy != null &&
-                   (authStrategy.toLowerCase().contains("projectmatrix") ||
-                    authStrategy.toLowerCase().contains("omniauth"));
-        }
-    }
-
-    public static final class JobAccessInfo {
-        private final String jobName;
-        private final boolean canRead;
-        private final boolean canBuild;
-        private final boolean canConfigure;
-        private final boolean canDelete;
-        private final boolean canWorkspace;
-        private final String source;
-
-        public JobAccessInfo(String jobName, boolean canRead, boolean canBuild, boolean canConfigure,
-                             boolean canDelete, boolean canWorkspace, String source) {
-            this.jobName      = jobName;
-            this.canRead      = canRead;
-            this.canBuild     = canBuild;
-            this.canConfigure = canConfigure;
-            this.canDelete    = canDelete;
-            this.canWorkspace = canWorkspace;
-            this.source       = source != null ? source : "Global";
-        }
-
-        public String getJobName()       { return jobName; }
-        public boolean isCanRead()       { return canRead; }
-        public boolean isCanBuild()      { return canBuild; }
-        public boolean isCanConfigure()  { return canConfigure; }
-        public boolean isCanDelete()     { return canDelete; }
-        public boolean isCanWorkspace()  { return canWorkspace; }
-        public String getSource()        { return source; }
-    }
-
-    public static final class GrantDisplay {
-        private final String principalType;
-        private final String principalId;
-        private final String principalName;
-        private final String roleId;
-        private final String roleName;
-        private final String scope;
-        private final String scopeType;
-        private final String expiresAt;
-        private final boolean expired;
-
-        public GrantDisplay(String principalType, String principalId, String principalName,
-                            String roleId, String roleName, String scope, String scopeType,
-                            String expiresAt, boolean expired) {
-            this.principalType = principalType;
-            this.principalId   = principalId;
-            this.principalName = principalName;
-            this.roleId        = roleId;
-            this.roleName      = roleName;
-            this.scope         = scope;
-            this.scopeType     = scopeType;
-            this.expiresAt     = expiresAt;
-            this.expired       = expired;
-        }
-
-        public String getPrincipalType() { return principalType; }
-        public String getPrincipalId()   { return principalId; }
-        public String getPrincipalName() { return principalName; }
-        public String getRoleId()        { return roleId; }
-        public String getRoleName()      { return roleName; }
-        public String getScope()         { return scope; }
-        public String getScopeType()     { return scopeType; }
-        public String getExpiresAt()     { return expiresAt; }
-        public boolean isExpired()       { return expired; }
-        public boolean isGlobal()        { return scope == null || scope.isEmpty(); }
-        public String getScopeDisplay()  {
-            if (scope == null || scope.isEmpty()) return "Global";
-            return scope;
-        }
-        public String getScopeTypeDisplay() {
-            if (scope == null || scope.isEmpty()) return "Global";
-            if ("FOLDER".equals(scopeType)) return "Folder";
-            if ("JOB".equals(scopeType)) return "Job";
-            return scopeType;
-        }
-    }
-
-    private static final class LastJobInfo {
-        final String jobName;
-        final String triggeredAt;
-        LastJobInfo(String jobName, String triggeredAt) {
-            this.jobName     = jobName;
-            this.triggeredAt = triggeredAt;
-        }
-    }
 
     public enum AccessRole {
         ADMIN(
@@ -5157,112 +4286,8 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class AccessManagementUserInfo {
-        private final String sid;
-        private final String displayName;
-        private final AuthorizationType type;
-        private final String roleName;
-        private final Set<String> permissionIds;
-        private final String lastLoginAt;
-        private String provisioningSource = "NATIVE";
-        private boolean hasReviewDue = false;
 
-        public AccessManagementUserInfo(String sid, String displayName, AuthorizationType type,
-                                        String roleName, Set<String> permissionIds, String lastLoginAt) {
-            this.sid           = sid;
-            this.displayName   = displayName;
-            this.type          = type;
-            this.roleName      = roleName;
-            this.permissionIds = permissionIds;
-            this.lastLoginAt   = lastLoginAt;
-        }
 
-        public String getSid()             { return sid; }
-        public String getDisplayName()     { return displayName; }
-        public AuthorizationType getType() { return type; }
-        public String getRoleName()        { return roleName; }
-        public Set<String> getPermissionIds() { return permissionIds; }
-        public String getLastLoginAt()     { return lastLoginAt; }
-        public boolean isUserEntry()       { return type == AuthorizationType.USER; }
-        public String getProvisioningSource()       { return provisioningSource; }
-        public void setProvisioningSource(String s) { this.provisioningSource = s != null ? s : "NATIVE"; }
-        public boolean isGroupManaged()             { return "VIA_ENTRA_GROUP".equals(provisioningSource); }
-        public boolean isHasReviewDue()             { return hasReviewDue; }
-        public void setHasReviewDue(boolean v)      { this.hasReviewDue = v; }
-
-        // Time-limited account expiry (provisioning portal duration; null = permanent)
-        private String  accountExpiresAt;
-        private boolean accountDisabledByExpiry;
-        public void setAccountExpiresAt(String s)         { this.accountExpiresAt = s; }
-        public void setAccountDisabledByExpiry(boolean b) { this.accountDisabledByExpiry = b; }
-        public String  getAccountExpiresAt()              { return accountExpiresAt; }
-        public String  getFormattedExpiresAt()            { return formatDate(accountExpiresAt); }
-        public boolean hasExpiry()                        { return accountExpiresAt != null && !accountExpiresAt.isBlank(); }
-        public boolean isAccountDisabledByExpiry()        { return accountDisabledByExpiry; }
-        public boolean isAccountExpired() {
-            if (!hasExpiry()) return false;
-            try { return Instant.parse(accountExpiresAt).isBefore(Instant.now()); }
-            catch (Exception e) { return false; }
-        }
-        public long getExpiresInDays() {
-            if (!hasExpiry()) return 0;
-            try {
-                long hours = java.time.Duration.between(Instant.now(), Instant.parse(accountExpiresAt)).toHours();
-                return hours >= 0 ? (hours + 23) / 24 : hours / 24;
-            } catch (Exception e) { return 0; }
-        }
-
-        public String getAvatarLetter() {
-            String src = (displayName != null && !displayName.equals(sid)) ? displayName : sid;
-            return src != null && !src.isEmpty() ? src.substring(0, 1).toUpperCase() : "?";
-        }
-
-        public String getRelativeLastLogin() {
-            return lastLoginAt != null ? OmniAuthManagementLink.relativeTime(lastLoginAt) : null;
-        }
-
-        public String getPermissionsJson() {
-            StringBuilder sb = new StringBuilder("[");
-            boolean first = true;
-            for (String id : permissionIds) {
-                if (!first) sb.append(",");
-                sb.append("\"").append(id.replace("\\", "\\\\").replace("\"", "\\\"")).append("\"");
-                first = false;
-            }
-            return sb.append("]").toString();
-        }
-    }
-
-    public static final class PermissionGroupInfo {
-        private final String groupName;
-        private final String subtitle;
-        private final List<PermissionInfo> permissions;
-        public PermissionGroupInfo(String groupName, String subtitle, List<PermissionInfo> permissions) {
-            this.groupName = groupName;
-            this.subtitle = subtitle != null ? subtitle : "";
-            this.permissions = permissions;
-        }
-        public String getGroupName()                { return groupName; }
-        public String getSubtitle()                 { return subtitle; }
-        public List<PermissionInfo> getPermissions() { return permissions; }
-    }
-
-    public static final class PermissionInfo {
-        private final String id;
-        private final String name;
-        private final String shortId;
-        public PermissionInfo(String id, String name) {
-            this.id = id;
-            this.name = name;
-            // e.g. "hudson.model.Item.Build" → "Item.Build"
-            int last = id.lastIndexOf('.');
-            int prev = last > 0 ? id.lastIndexOf('.', last - 1) : -1;
-            this.shortId = prev >= 0 ? id.substring(prev + 1) : id;
-        }
-        public String getId()      { return id; }
-        public String getName()    { return name; }
-        public String getShortId() { return shortId; }
-    }
 
     // =========================================================================
     // User-centric hierarchy view
@@ -5284,13 +4309,6 @@ public class OmniAuthManagementLink extends ManagementLink {
             }
         }
         req.getView(this, "userDetail.jelly").forward(req, rsp);
-    }
-
-    // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
-    @SuppressWarnings("lgtm[jenkins/csrf]")
-    public void doGroupDetail(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-        req.getView(this, "groupDetail.jelly").forward(req, rsp);
     }
 
     /** Returns all GROUP entities for display in Access Management. */
@@ -5597,6 +4615,17 @@ public class OmniAuthManagementLink extends ManagementLink {
                 if (p != null) rebuilt.add(p, entry);
             }
         }
+        // Global Hudson.Read is the login prerequisite; the folder/job ACLs then decide what the user
+        // actually sees. A root-scope role that omits Read (e.g. a job-only role) would otherwise wipe
+        // the Read granted at account creation and lock the user out, so re-assert it on every grant.
+        if (!removing && !permIds.isEmpty()) {
+            Permission read = Permission.fromId("hudson.model.Hudson.Read");
+            if (read != null) {
+                PermissionEntry readEntry = atype == AuthorizationType.GROUP
+                        ? PermissionEntry.group(sid) : PermissionEntry.user(sid);
+                rebuilt.add(read, readEntry);
+            }
+        }
         Set<PermissionEntry> adminSet = rebuilt.getGrantedPermissionEntries().get(Jenkins.ADMINISTER);
         if (adminSet == null || adminSet.isEmpty()) {
             rsp.sendRedirect(detailUrl(sid, atype, "error=lastAdmin"));
@@ -5830,116 +4859,8 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     // ─── Inner classes for hierarchy view ────────────────────────────────────
 
-    public static final class TreeNode {
-        public final String path;
-        public final String name;
-        public final String type;          // root | folder | job | other
-        public List<String> directPerms = new ArrayList<>();
-        public String directRole;          // ADMIN/DEVELOPER/VIEWER/CUSTOM (root) or CONFIGURE/BUILD/READ/CUSTOM (item)
-        public String effectiveRole;
-        public List<TreeNode> children = new ArrayList<>();
-        public TreeNode(String path, String name, String type) {
-            this.path = path; this.name = name; this.type = type;
-        }
-        public String getPath()          { return path; }
-        public String getName()          { return name; }
-        public String getType()          { return type; }
-        public String getDirectRole()    { return directRole; }
-        public String getEffectiveRole() { return effectiveRole; }
-        public List<String> getDirectPerms() { return directPerms; }
-        public List<TreeNode> getChildren() { return children; }
-        public boolean isHasDirect()     { return directRole != null; }
-        public int getChildCount()       { return children.size(); }
-    }
 
-    public static final class TreeRow {
-        public TreeNode node;
-        public int depth;
-        public String inheritedRole;       // null if direct grant exists at this node
-        public String inheritedFromPath;   // path of the ancestor node where the inherited role originates
-        public TreeNode getNode()         { return node; }
-        public int getDepth()             { return depth; }
-        public String getInheritedRole()  { return inheritedRole; }
-        public String getInheritedFromPath() { return inheritedFromPath; }
-        public int getIndentPx()          { return depth * 22; }
-        public String getDisplayName()    {
-            if ("root".equals(node.type)) return node.name;
-            return node.name;
-        }
-    }
 
-    public static final class UserAssignmentInfo {
-        private final String scope;
-        private final String displayScope;
-        private final String scopeType;
-        private final String roleName;
-        private final List<String> permissionIds;
-        private final String expiresAt;
-        private final List<String> customPermissions;
-
-        public UserAssignmentInfo(String scope, String displayScope, String scopeType,
-                                  String roleName, List<String> permissionIds,
-                                  String expiresAt, List<String> customPermissions) {
-            this.scope             = scope;
-            this.displayScope      = displayScope;
-            this.scopeType         = scopeType;
-            this.roleName          = roleName;
-            this.permissionIds     = permissionIds;
-            this.expiresAt         = expiresAt;
-            this.customPermissions = customPermissions != null ? customPermissions : Collections.emptyList();
-        }
-
-        public String getScope()                     { return scope; }
-        public String getDisplayScope()              { return displayScope; }
-        public String getScopeType()                 { return scopeType; }
-        public String getRoleName()                  { return roleName; }
-        public List<String> getPermissionIds()       { return permissionIds; }
-        public String getExpiresAt()                 { return expiresAt; }
-        public List<String> getCustomPermissions()   { return customPermissions; }
-        private boolean reviewDue = false;
-        // lgtm false positive: Not a credential: an enum-like marker holding "STANDING"/"JIT" on a view-model row.
-        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-        private String accessType;
-        private String approverGroup;
-        private int maxDurationHours;
-        private int approvalTimeoutHours;
-
-        public boolean isGlobal()                    { return scope == null || scope.isEmpty(); }
-        public int getPermissionCount()              { return permissionIds != null ? permissionIds.size() : 0; }
-        public boolean isReviewDue()                 { return reviewDue; }
-        public void setReviewDue(boolean v)          { this.reviewDue = v; }
-        public String getAccessType()                { return accessType != null ? accessType : "STANDING"; }
-        public void setAccessType(String v)          { this.accessType = v; }
-        public boolean isJit()                       { return "JIT".equalsIgnoreCase(accessType); }
-        public String getApproverGroup()             { return approverGroup != null ? approverGroup : ""; }
-        public void setApproverGroup(String v)       { this.approverGroup = v; }
-        public int getMaxDurationHours()             { return maxDurationHours > 0 ? maxDurationHours : 4; }
-        public void setMaxDurationHours(int v)       { this.maxDurationHours = v; }
-        public int getApprovalTimeoutHours()         { return approvalTimeoutHours > 0 ? approvalTimeoutHours : 4; }
-        public void setApprovalTimeoutHours(int v)   { this.approvalTimeoutHours = v; }
-
-        public String getCustomPermissionsJson() {
-            if (customPermissions == null || customPermissions.isEmpty()) return "[]";
-            StringBuilder sb = new StringBuilder("[");
-            for (int i = 0; i < customPermissions.size(); i++) {
-                if (i > 0) sb.append(",");
-                sb.append("\"").append(customPermissions.get(i).replace("\"", "\\\"")).append("\"");
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-
-        public String getPermissionSummary() {
-            if (permissionIds == null || permissionIds.isEmpty()) return "none";
-            List<String> names = new ArrayList<>();
-            for (String pid : permissionIds) {
-                int dot = pid.lastIndexOf('.');
-                names.add(dot >= 0 ? pid.substring(dot + 1) : pid);
-            }
-            if (names.size() <= 3) return String.join(", ", names);
-            return names.get(0) + ", " + names.get(1) + " + " + (names.size() - 2) + " more";
-        }
-    }
 
     public enum ScopedRole {
         READ(
@@ -5964,45 +4885,4 @@ public class OmniAuthManagementLink extends ManagementLink {
         }
     }
 
-    public static final class PendingReviewItem {
-        private final String userId;
-        private final String displayName;
-        private final String authType;
-        private final String roleId;
-        private final String scope;
-        private final String displayScope;
-        private final String scopeType;
-        private final int daysAgo;
-        private final boolean everReviewed;
-
-        public PendingReviewItem(String userId, String displayName, String authType,
-                                 String roleId, String scope, String displayScope,
-                                 String scopeType, int daysAgo, boolean everReviewed) {
-            this.userId       = userId;
-            this.displayName  = displayName;
-            this.authType     = authType;
-            this.roleId       = roleId;
-            this.scope        = scope;
-            this.displayScope = displayScope;
-            this.scopeType    = scopeType;
-            this.daysAgo      = daysAgo;
-            this.everReviewed = everReviewed;
-        }
-
-        public String getUserId()       { return userId; }
-        public String getDisplayName()  { return displayName; }
-        public String getAuthType()     { return authType; }
-        public String getRoleId()       { return roleId; }
-        public String getScope()        { return scope; }
-        public String getDisplayScope() { return displayScope; }
-        public String getScopeType()    { return scopeType; }
-        public int getDaysAgo()         { return daysAgo; }
-        public boolean isEverReviewed() { return everReviewed; }
-        public boolean isGroup()        { return "GROUP".equalsIgnoreCase(authType); }
-
-        public String getAvatarLetter() {
-            String src = (displayName != null && !displayName.equals(userId)) ? displayName : userId;
-            return (src != null && !src.isEmpty()) ? src.substring(0, 1).toUpperCase() : "?";
-        }
-    }
 }

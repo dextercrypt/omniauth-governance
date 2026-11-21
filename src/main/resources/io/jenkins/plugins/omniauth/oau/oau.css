@@ -85,15 +85,14 @@
 /* ── Status banner ─────────────────────────────────────────────────────────── */
 /* Match the Jenkins .jenkins-alert look (subtle ~10% border, 10px radius, 1.5px) rather than
    the plugin's old stronger 42% border, so these read as standard Jenkins banners. */
+/* The status banners use Jenkins' native .jenkins-alert component (jenkins-alert-success/-warning/
+   -danger/-info in the markup) for the colour, border and padding, so they match every other alert
+   in Jenkins. This class only adds the icon / body / action flex row on top; it loads after core, so
+   display:flex wins over the alert's block layout. */
 .oau-status-banner {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 16px; border-radius: 10px; margin: 16px 0;
-  font-size: 0.875em; border: 1.5px solid transparent;
+  margin-bottom: var(--section-padding);
 }
-.oau-status-banner--healthy  { background: var(--oau-success-bg); border-color: color-mix(in srgb, var(--success-color) 12%, transparent); color: var(--oau-success-fg); }
-.oau-status-banner--warning  { background: var(--oau-warning-bg); border-color: color-mix(in srgb, var(--warning-color) 12%, transparent); color: var(--oau-warning-fg); }
-.oau-status-banner--critical { background: var(--oau-danger-bg);  border-color: color-mix(in srgb, var(--error-color) 12%, transparent);   color: var(--oau-danger-fg); }
-.oau-status-banner--info     { background: var(--oau-info-bg);    border-color: color-mix(in srgb, var(--blue) 12%, transparent);          color: var(--oau-info-fg); }
 .oau-status-banner__icon { flex-shrink: 0; }
 .oau-status-banner__body { flex: 1; }
 .oau-status-banner__sep { margin: 0 4px; opacity: 0.6; }
@@ -236,3 +235,14 @@
   font-weight: 600; color: var(--oau-text);
 }
 .oau-modal-header--danger { color: var(--oau-danger-fg); background: var(--oau-danger-bg); }
+
+/* ── Repeated component styles (deduped from inline style=) ─────────────────── */
+.oau-card-block { padding: 0; margin-bottom: 20px; overflow: hidden; }
+.oau-card-body  { padding: 16px 20px; }
+.oau-card-title { margin: 0; font-size: 0.95em; font-weight: 600; }
+.oau-field-label { display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px; }
+.oau-field-hint  { color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px; }
+
+/* "All-clear" empty states: keep Jenkins' native l:notice, tint only its icon green
+   (reviewer-endorsed — the title/body text stay default). */
+.oau-notice--success .jenkins-notice > svg { color: var(--oau-success-solid); }

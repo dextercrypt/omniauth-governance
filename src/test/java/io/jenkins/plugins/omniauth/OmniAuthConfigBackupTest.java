@@ -6,7 +6,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -271,9 +270,13 @@ public class OmniAuthConfigBackupTest {
         assertTrue(d.summary().contains("+1"), d.summary());
     }
 
-    private static void setSecret(OmniAuthGlobalConfig cfg, String field, String value) throws Exception {
-        Field f = OmniAuthGlobalConfig.class.getDeclaredField(field);
-        f.setAccessible(true);
-        f.set(cfg, Secret.fromString(value));
+    private static void setSecret(OmniAuthGlobalConfig cfg, String field, String value) {
+        Secret s = Secret.fromString(value);
+        switch (field) {
+            case "slackWebhookUrl": cfg.setSlackWebhookUrl(s); break;
+            case "teamsWebhookUrl": cfg.setTeamsWebhookUrl(s); break;
+            case "smtpPassword":    cfg.setSmtpPassword(s);    break;
+            default: throw new IllegalArgumentException("unknown secret field: " + field);
+        }
     }
 }

@@ -1,17 +1,13 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout title="OmniAuth — Emergency Access" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Emergency Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Emergency Access</h1>
-        </div>
-      </div>
+      <l:app-bar title="Emergency Access"/>
 
       <div style="padding: 16px 24px; max-width: 680px;">
 

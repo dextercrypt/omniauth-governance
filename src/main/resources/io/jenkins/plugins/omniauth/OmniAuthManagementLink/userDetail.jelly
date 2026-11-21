@@ -1,12 +1,13 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — User Access" norefresh="true">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — User Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.userDetailAssets"/>
 
       <j:set var="sid"              value="${request2.getParameter('sid')}"/>
@@ -27,28 +28,7 @@
            data-scope-items="${it.allScopeNamesJson}"></div>
 
       <!-- Breadcrumb -->
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <a href="${rootURL}/manage/omniauth-management/"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              &#8592; OmniAuth Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <a href="accessManagement"
-               style="color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.82em;text-decoration:none;">
-              Access Management
-            </a>
-            <span style="color:var(--text-color-secondary, #ccc);">/</span>
-            <h1 class="jenkins-app-bar__heading">
-              <j:choose>
-                <j:when test="${header != null}">${header.sid}</j:when>
-                <j:otherwise>User</j:otherwise>
-              </j:choose>
-            </h1>
-          </div>
-        </div>
-      </div>
+      <l:app-bar title="${header != null ? header.sid : 'User'}"/>
 
       <div style="padding:0 16px 60px;">
 
@@ -96,7 +76,7 @@
         <!-- Group-managed notice -->
         <j:if test="${header != null and header.groupManaged}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:8px;font-size:0.88em;color:var(--warning-color);display:flex;align-items:flex-start;gap:10px;">
-            <span style="flex-shrink:0;display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+            <span style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/></span>
             <span>
               <strong>Group-provisioned user.</strong>
               Access is controlled by the Azure AD group assignment — individual grants are not permitted.
@@ -108,7 +88,7 @@
         <!-- Pre-provisioned banner -->
         <j:if test="${isPreProvisioned}">
           <div style="margin-bottom:16px;padding:12px 16px;background:var(--oau-success-bg);border:1px solid var(--oau-success-border);border-radius:8px;font-size:0.88em;color:var(--oau-success-fg);">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
+            <l:icon src="symbol-checkmark-circle plugin-ionicons-api" class="icon-sm"/><strong>${sid}</strong> has been pre-provisioned. Their account will be created automatically when they log in via Microsoft for the first time. Assign access below so it's ready when they arrive.
           </div>
         </j:if>
 
@@ -123,7 +103,7 @@
         <j:if test="${tmpPwd != null}">
           <div id="tmpPwdOverlay"
                style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;">
-            <div style="background:var(--card-background, #fff);border-radius:10px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="background:var(--oau-card-bg);border-radius:10px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
               <div style="font-weight:700;font-size:1.05em;margin-bottom:6px;">
                 <j:choose>
                   <j:when test="${isPwReset}">Password Reset</j:when>
@@ -154,7 +134,7 @@
                 </button>
               </div>
               <div style="font-size:0.78em;color:var(--error-color);margin-bottom:18px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>This password will not be shown again. Copy it now.
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-xs"/>This password will not be shown again. Copy it now.
               </div>
               <button type="button" id="udxTmpPwdDone"
                       class="jenkins-button jenkins-button--primary" style="width:100%">
@@ -247,7 +227,7 @@
                style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
             <div style="background:var(--oau-card-bg,#fff);border-radius:10px;padding:26px 30px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
               <div style="font-weight:700;font-size:1.05em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
                 Reset password
               </div>
               <div style="font-size:0.85em;color:var(--text-color-secondary,#555);margin-bottom:20px;line-height:1.5;">
@@ -267,26 +247,25 @@
           <div style="font-size:1em;font-weight:700;">Access Assignments</div>
           <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
             <button type="button"
-                    class="jenkins-button jenkins-button--primary js-udx-add"
-                    style="font-size:0.85em;">+ Add Access</button>
+ class="jenkins-button jenkins-button--primary js-udx-add">+ Add Access</button>
           </j:if>
         </div>
 
-        <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
+        <div>
           <j:choose>
             <j:when test="${assignments.isEmpty()}">
               <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
-                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
+                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-lg"/></div>
                 <div style="font-size:0.9em;">No access assigned to this user yet.</div>
                 <j:if test="${it.omniAuthActive and (header == null or !header.groupManaged)}">
                   <button type="button"
-                          class="jenkins-button jenkins-button--primary js-udx-add"
-                          style="margin-top:12px;font-size:0.85em;">+ Add Access</button>
+ class="jenkins-button jenkins-button--primary js-udx-add"
+ style="margin-top:12px;">+ Add Access</button>
                 </j:if>
               </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Scope</th>
@@ -304,9 +283,9 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:1em;">
                             <j:choose>
-                              <j:when test="${a.global}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></j:when>
-                              <j:when test="${a.scopeType == 'folder'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></j:when>
-                              <j:otherwise><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></j:otherwise>
+                              <j:when test="${a.global}"><l:icon src="symbol-globe plugin-ionicons-api" class="icon-sm"/></j:when>
+                              <j:when test="${a.scopeType == 'folder'}"><l:icon src="symbol-folder plugin-ionicons-api" class="icon-sm"/></j:when>
+                              <j:otherwise><l:icon src="symbol-cube plugin-ionicons-api" class="icon-sm"/></j:otherwise>
                             </j:choose>
                           </span>
                           <div>
@@ -324,7 +303,7 @@
                           <span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;
                                        font-size:0.72em;font-weight:700;padding:2px 7px;border-radius:10px;
                                        background:var(--oau-warning-bg);border:1px solid var(--warning-color);color:var(--warning-color);white-space:nowrap;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="11" height="11" style="vertical-align:middle;margin-right:2px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT
+                            <l:icon src="symbol-flash plugin-ionicons-api" class="icon-xs"/>JIT
                           </span>
                         </j:if>
                         <j:if test="${userIsGlobalAdmin and !a.global}">
@@ -332,11 +311,7 @@
                                 style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;
                                        font-size:0.72em;font-weight:700;padding:2px 7px;border-radius:10px;
                                        background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);color:var(--warning-color);cursor:help;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                              <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>
-                            </svg>
+                            <l:icon src="symbol-warning plugin-ionicons-api" class="icon-xs"/>
                             Superseded
                           </span>
                         </j:if>
@@ -362,32 +337,31 @@
                           <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                             <j:if test="${!a.global and (header == null or !header.groupManaged)}">
                               <button type="button"
-                                      class="jenkins-button js-udx-edit"
-                                      data-scope="${a.scope}"
-                                      data-scope-display="${a.displayScope}"
-                                      data-role="${a.roleName}"
-                                      data-perms="${a.customPermissionsJson}"
-                                      data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
-                                      data-access-type="${a.accessType}"
-                                      data-approver-group="${a.approverGroup}"
-                                      data-max-duration="${a.maxDurationHours}"
-                                      data-approval-timeout="${a.approvalTimeoutHours}"
-                                      style="font-size:0.78em;padding:3px 10px;">
+ class="jenkins-button js-udx-edit"
+ data-scope="${a.scope}"
+ data-scope-display="${a.displayScope}"
+ data-role="${a.roleName}"
+ data-perms="${a.customPermissionsJson}"
+ data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
+ data-access-type="${a.accessType}"
+ data-approver-group="${a.approverGroup}"
+ data-max-duration="${a.maxDurationHours}"
+ data-approval-timeout="${a.approvalTimeoutHours}"
+ style="padding:3px 10px;">
                                 Edit
                               </button>
                             </j:if>
-                            <form method="post" action="revokeAssignment" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="revokeAssignment" style="display:inline;">
                               <input type="hidden" name="sid"   value="${sid}"/>
                               <input type="hidden" name="type"  value="${type}"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>
                               <button type="submit"
-                                      class="jenkins-button js-udx-revoke"
-                                      data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
-                                      style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
+ class="jenkins-button js-udx-revoke"
+ data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
+ style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Revoke
                               </button>
-                            </form>
+                            </f:form>
                           </div>
                         </j:if>
                       </td>
@@ -406,9 +380,8 @@
         <j:if test="${header == null or !header.groupManaged}">
         <div id="udxDrawer" class="udx-drawer" aria-hidden="true">
           <div id="udxDrawerScrim" class="udx-drawer__scrim"></div>
-          <form id="udxGrantForm" method="post" action="grantAssignment"
+          <f:form name="udxGrantForm" method="post" action="grantAssignment"
                 class="udx-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="udxDrawerTitle">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
             <input type="hidden" name="sid"  value="${sid}"/>
             <input type="hidden" name="type" value="${type}"/>
 
@@ -419,8 +392,7 @@
                 <div class="udx-drawer__sub">to <b>${sid}</b></div>
               </div>
               <button type="button" id="udxDrawerClose" class="udx-drawer__x" aria-label="Close" title="Close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
               </button>
             </header>
 
@@ -440,14 +412,14 @@
                       <label class="udx-seg__opt">
                         <input type="radio" name="scopeType" value="global" checked="checked" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18 15 15 0 010-18z"/></svg>
+                          <l:icon src="symbol-globe plugin-ionicons-api" class="icon-sm"/>
                           <b>Global</b><small>All of Jenkins</small>
                         </span>
                       </label>
                       <label class="udx-seg__opt">
                         <input type="radio" name="scopeType" value="item" class="js-udx-scopetype"/>
                         <span class="udx-seg__face">
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+                          <l:icon src="symbol-folder plugin-ionicons-api" class="icon-sm"/>
                           <b>Specific job or folder</b><small>One item + its parents</small>
                         </span>
                       </label>
@@ -457,10 +429,10 @@
                       <div style="display:flex;align-items:center;gap:8px;max-width:480px;">
                         <button type="button" id="udxScopeBtn" class="udx-scopebtn">
                           <span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-                            <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
+                            <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-folder plugin-ionicons-api" class="icon-sm"/></span>
                             <span id="udxScopeLbl" class="udx-scopebtn__ph">Select a job or folder…</span>
                           </span>
-                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.5;"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
+                          <l:icon src="symbol-chevron-down plugin-ionicons-api" class="icon-xs"/>
                         </button>
                         <button type="button" id="udxScopeClear" class="udx-scopeclear" title="Clear selection" style="display:none;">&#x2715;</button>
                       </div>
@@ -486,12 +458,12 @@
 
                   <div class="udx-cards">
                     <button type="button" id="udxModeRole" class="udx-card">
-                      <span class="udx-card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
+                      <span class="udx-card__ic"><l:icon src="symbol-layers plugin-ionicons-api" class="icon-md"/></span>
                       <span class="udx-card__tt">Use a role</span>
                       <span class="udx-card__ds">Pick a saved preset</span>
                     </button>
                     <button type="button" id="udxModeCustom" class="udx-card">
-                      <span class="udx-card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
+                      <span class="udx-card__ic"><l:icon src="symbol-options plugin-ionicons-api" class="icon-md"/></span>
                       <span class="udx-card__tt">Custom permissions</span>
                       <span class="udx-card__ds">Hand-pick individually</span>
                     </button>
@@ -500,14 +472,13 @@
                   <!-- Role mode -->
                   <div id="udxRoleRow" style="display:none;margin-top:14px;">
                     <div class="udx-fieldlabel">Role</div>
-                    <div class="udx-select-wrap">
-                      <select name="role" id="udxRoleSelect" class="udx-select">
+                    <div class="jenkins-select" style="max-width:360px;">
+                      <select name="role" id="udxRoleSelect" class="jenkins-select__input" style="font-size:0.88em;">
                         <j:forEach var="r" items="${roles}">
                           <option value="${r.name}" data-perms="${r.permissionsJson}">${r.name} · ${r.permissionCount} permissions</option>
                         </j:forEach>
                         <option value="CUSTOM" id="udxCustomOpt" hidden="hidden">Custom</option>
                       </select>
-                      <svg class="udx-select-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5L6 7.5 9 4.5"/></svg>
                     </div>
                     <j:if test="${roles.isEmpty()}">
                       <div class="udx-emptyroles">No saved roles yet — use <b>Custom permissions</b>, or create roles in the Roles tab.</div>
@@ -519,7 +490,7 @@
                   <div id="udxCustomPerms" style="display:none;margin-top:14px;">
                     <div class="udx-pickhead">
                       <div class="udx-search">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                        <l:icon src="symbol-search plugin-ionicons-api" class="icon-sm"/>
                         <input type="text" id="udxPermFilter" placeholder="Filter permissions…" autocomplete="off"/>
                       </div>
                       <span class="udx-count" id="udxPermCount">0 selected</span>
@@ -535,12 +506,12 @@
                           </summary>
                           <div class="udx-pbody">
                             <j:forEach var="perm" items="${group.permissions}">
-                              <label class="udx-perm">
+                              <label class="udx-perm" tooltip="${perm.description}">
                                 <input type="checkbox" class="udx-perm-cb" name="customPermissions" value="${perm.id}"
-                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"/>
+                                       data-name="${perm.name}" data-group="${group.groupName}" data-short="${perm.shortId}"
+                                       data-implied-by="${perm.impliedById}"/>
                                 <span class="udx-perm__tx">
                                   <span class="udx-perm__nm">${perm.name}</span>
-                                  <span class="udx-perm__id">${perm.shortId}</span>
                                 </span>
                               </label>
                             </j:forEach>
@@ -579,7 +550,7 @@
                     <label class="udx-seg__opt">
                       <input type="radio" name="accessType" value="JIT" class="js-udx-accesstype"/>
                       <span class="udx-seg__face udx-seg__face--row">
-                        <b style="display:inline-flex;align-items:center;gap:4px;">JIT <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg></b>
+                        <b style="display:inline-flex;align-items:center;gap:4px;">JIT <l:icon src="symbol-flash plugin-ionicons-api" class="icon-xs"/></b>
                         <small>User must request activation; an approver must approve before access is granted.</small>
                       </span>
                     </label>
@@ -626,7 +597,7 @@
                 <button type="submit" class="jenkins-button jenkins-button--primary" id="udxSubmitBtn">Grant access</button>
               </div>
             </footer>
-          </form>
+          </f:form>
         </div>
         </j:if>
 
@@ -644,11 +615,7 @@
                   max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.22);">
         <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
           <div style="flex-shrink:0;margin-top:2px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="var(--warning-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="var(--warning-color)" stroke="none"/>
-            </svg>
+            <l:icon src="symbol-warning plugin-ionicons-api" class="icon-md"/>
           </div>
           <div>
             <div style="font-weight:700;font-size:1em;margin-bottom:6px;">User already has global Admin access</div>
@@ -678,7 +645,7 @@
          style="display:flex;opacity:0;pointer-events:none;position:fixed;inset:0;z-index:9999;
                 background:rgba(15,20,30,0.5);backdrop-filter:blur(3px);
                 align-items:center;justify-content:center;transition:opacity 0.32s;">
-      <div data-modal-box="1" style="background:var(--card-background, #fff);border-radius:14px;width:660px;max-width:94vw;
+      <div data-modal-box="1" style="background:var(--oau-card-bg);border-radius:14px;width:660px;max-width:94vw;
                   box-shadow:0 32px 80px rgba(0,0,0,0.24);animation:udxModalIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
                   transform-origin:50% 50%;will-change:transform,opacity;
                   display:flex;flex-direction:column;max-height:84vh;overflow:hidden;">
@@ -699,7 +666,7 @@
         <!-- Search -->
         <div style="padding:14px 20px;border-bottom:1px solid var(--oau-neutral-bg);">
           <div style="position:relative;display:flex;align-items:center;">
-            <svg style="position:absolute;left:13px;color:var(--text-color-secondary, #bbb);pointer-events:none;flex-shrink:0;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+            <l:icon src="symbol-search plugin-ionicons-api" class="icon-sm"/>
             <input id="udxModalSearch" type="text" placeholder="Search jobs and folders…"
                    style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;
                           border:1.5px solid var(--oau-card-border);border-radius:9px;font-size:0.93em;
@@ -724,8 +691,8 @@
             <button type="button" id="udxModalCancel"
                     class="jenkins-button" style="padding:8px 18px">Cancel</button>
             <button type="button" id="udxModalOk"
-                    class="jenkins-button jenkins-button--primary"
-                    style="font-size:0.88em;padding:8px 18px;" disabled="disabled">Select &#8594;</button>
+ class="jenkins-button jenkins-button--primary"
+ style="padding:8px 18px;" disabled="disabled">Select &#8594;</button>
           </div>
         </div>
 

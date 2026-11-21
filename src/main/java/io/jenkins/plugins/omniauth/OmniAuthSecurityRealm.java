@@ -1,7 +1,7 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.OmniAuthSsoProvider;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
-import com.microsoft.aad.msal4j.IAuthenticationResult;
-import com.nimbusds.jwt.JWTClaimsSet;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.User;
@@ -9,7 +9,6 @@ import hudson.security.GroupDetails;
 import hudson.security.HudsonPrivateSecurityRealm;
 import hudson.security.SecurityRealm;
 import org.jenkinsci.Symbol;
-import io.jenkins.plugins.omniauth.util.GraphApiHelper;
 import io.jenkins.plugins.omniauth.util.MsalTokenHelper;
 import io.jenkins.plugins.omniauth.util.TokenHelper;
 import jenkins.model.Jenkins;
@@ -18,19 +17,12 @@ import org.kohsuke.stapler.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UserDetails;
-import jenkins.security.SecurityListener;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,18 +43,17 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
 
     private static final Logger LOGGER = Logger.getLogger(OmniAuthSecurityRealm.class.getName());
 
-    static final String SESSION_OAUTH_STATE    = "omniauth_oauth_state";
-    static final String SESSION_FROM_URL       = "omniauth_from_url";
-    static final String SESSION_CODE_VERIFIER  = "omniauth_code_verifier";
-    static final String SESSION_NONCE          = "omniauth_nonce";
-    /** Set when the OAuth flow was started as a provisioning-portal access request, not a login. */
-    static final String SESSION_PROVISION_MODE = "omniauth_provision_mode";
-
-    /** Azure AD configuration — may be null when Entra login is not yet configured. */
-    private final EntraOAuthConfig entraConfig;
 
     /**
-     * Authoritative on/off switch for single sign-on, independent of whether {@link #entraConfig}
+     * The configured SSO provider (an {@link OmniAuthSsoProvider}), or null when SSO is not set up.
+     * Today this is always an {@link EntraOAuthConfig}; modelling it as the extension-point type lets
+     * a future provider drop in without touching the realm. {@link #getEntraConfig()} narrows it for
+     * the Entra-specific login path that still lives here.
+     */
+    private final OmniAuthSsoProvider provider;
+
+    /**
+     * Authoritative on/off switch for single sign-on, independent of whether {@link #provider}
      * is filled in. This lets an admin keep provider settings stored but dormant: turning SSO off
      * preserves the Entra config so it can be switched back on later without re-entering the client
      * secret, while sign-in stays native-only in the meantime.
@@ -93,16 +84,22 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     private transient volatile TokenHelper cachedHelper;
 
     @DataBoundConstructor
-    public OmniAuthSecurityRealm(boolean allowsSignup, EntraOAuthConfig entraConfig) {
+    public OmniAuthSecurityRealm(boolean allowsSignup, OmniAuthSsoProvider provider) {
         // allowsSignup is accepted for binding compatibility but always forced OFF: self-signup is
         // replaced by the governed provisioning portal. This holds for the UI, JCasC, and any
         // previously-persisted config that had it enabled.
         super(false, false, null);          // allowsSignup=false, enableCaptcha=false, captchaSupport=null
-        this.entraConfig = entraConfig;
+        this.provider = provider;
     }
 
+    /** The configured SSO provider (the extension-point type), for the realm config selector. */
+    public OmniAuthSsoProvider getProvider() {
+        return provider;
+    }
+
+    /** The Entra config when that is the configured provider, else null (narrowing convenience). */
     public EntraOAuthConfig getEntraConfig() {
-        return entraConfig;
+        return (provider instanceof EntraOAuthConfig) ? (EntraOAuthConfig) provider : null;
     }
 
     @org.kohsuke.stapler.DataBoundSetter
@@ -116,7 +113,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * configured, so upgrades keep working SSO switched on.
      */
     public boolean isSsoEnabled() {
-        return ssoEnabled == null ? (entraConfig != null) : ssoEnabled;
+        return ssoEnabled == null ? (provider != null) : ssoEnabled;
     }
 
     /**
@@ -126,7 +123,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * a dormant-but-preserved config never leaks SSO back on.
      */
     public boolean isSsoActive() {
-        return isSsoEnabled() && entraConfig != null;
+        return isSsoEnabled() && provider != null;
     }
 
     /**
@@ -189,12 +186,12 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     /**
-     * The configured external SSO provider preset, or {@code null} when no SSO is set up.
-     * Drives the sign-in button's label and logo on the login page. Today Entra maps to
-     * {@link SsoProvider#MICROSOFT}; add more mappings here as new providers are supported.
+     * The active SSO provider, or {@code null} when no SSO is set up. Drives the sign-in button's
+     * label and logo on the login page via the provider's own {@code getId}/{@code getButtonLabel}/
+     * {@code getLoadingLabel}, so a new provider needs no change here.
      */
-    public SsoProvider getSsoProvider() {
-        return isSsoActive() ? SsoProvider.MICROSOFT : null;
+    public OmniAuthSsoProvider getSsoProvider() {
+        return isSsoActive() ? provider : null;
     }
 
     public String getLoginHeading() {
@@ -243,6 +240,33 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     public String getResolvedLoginButler() {
         OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
         return cfg != null ? cfg.getResolvedLoginButler() : "default";
+    }
+
+    /**
+     * The symbol basename for the resolved butler, so animated-branding.jelly can render every butler
+     * with a single {@code <l:icon>} instead of a per-butler branch. A couple of ids have a hyphenated
+     * symbol file name.
+     */
+    public String getResolvedButlerSymbol() {
+        switch (getResolvedLoginButler()) {
+            case "santaclaus": return "santa-claus";
+            case "sandiego":   return "san-diego";
+            default:           return getResolvedLoginButler();
+        }
+    }
+
+    /** The height class for the resolved butler, so the single {@code <l:icon>} sizes each correctly. */
+    public String getResolvedButlerHeightClass() {
+        switch (getResolvedLoginButler()) {
+            case "austin":     return "oau-butler--h30";
+            case "nerd":       return "oau-butler--h56";
+            case "santaclaus": return "oau-butler--h44";
+            case "superhero":
+            case "raleigh":
+            case "sandiego":
+            case "cowboy":     return "oau-butler--h45";
+            default:           return "oau-butler--h40"; // general, jenkinsx, ninja
+        }
     }
 
     public String getLoginLogoUrl() {
@@ -323,7 +347,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     @Override
     public GroupDetails loadGroupByGroupname2(String groupname, boolean fetchMembers)
             throws org.springframework.security.core.userdetails.UsernameNotFoundException {
-        if (isSsoActive() && entraConfig.isEnableGroupSync()) {
+        if (isSsoActive() && provider.isGroupSyncEnabled()) {
             return new GroupDetails() {
                 @Override
                 public String getName() { return groupname; }
@@ -333,283 +357,37 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     // -------------------------------------------------------------------------
-    // Entra OAuth2 endpoints
+    // SSO login — forwarded to the configured provider
     // -------------------------------------------------------------------------
 
     /**
-     * Step 1 — redirect browser to Azure AD login page.
-     * Called by OmniAuthRootAction at GET /omniauth/commenceLogin[?from=…]
+     * Step 1 — begin SSO sign-in. Forwards to the configured provider's {@code startLogin}.
+     * Called by OmniAuthRootAction at GET /omniauth/commenceLogin[?from=\u2026].
      */
-    HttpResponse startEntraLogin(StaplerRequest2 req)
-            throws Exception {
+    public HttpResponse startLogin(StaplerRequest2 req) throws Exception {
         if (!isSsoActive()) {
             return HttpResponses.error(503,
                     "Single sign-on is not enabled on this Jenkins. Ask your administrator to turn it on.");
         }
-
-        String state = UUID.randomUUID().toString();
-        req.getSession().setAttribute(SESSION_OAUTH_STATE, state);
-
-        String from = req.getParameter("from");
-        if (from != null && !from.isEmpty() && isSafeRedirectUrl(from)) {
-            req.getSession().setAttribute(SESSION_FROM_URL, from);
-        }
-
-        // Provisioning portal: this OAuth flow is an access REQUEST, not a login. The flag is
-        // read back in finishEntraLogin to create a PENDING request instead of a session.
-        if ("1".equals(req.getParameter("provision"))) {
-            req.getSession().setAttribute(SESSION_PROVISION_MODE, Boolean.TRUE);
-        } else {
-            req.getSession().removeAttribute(SESSION_PROVISION_MODE);
-        }
-
-        // PKCE — generate a cryptographically random code verifier and derive its challenge
-        // The verifier stays in the session; only the SHA-256 hash (challenge) goes to Azure.
-        // On token exchange, Azure re-hashes the verifier and compares — proving the same
-        // server that started the login is completing it.
-        byte[] verifierBytes = new byte[32];
-        new SecureRandom().nextBytes(verifierBytes);
-        String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(verifierBytes);
-        byte[] challengeBytes = MessageDigest.getInstance("SHA-256")
-                .digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
-        String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(challengeBytes);
-        req.getSession().setAttribute(SESSION_CODE_VERIFIER, codeVerifier);
-
-        // Nonce — embedded in the ID token by Azure AD and validated on return.
-        // Prevents token replay attacks where an attacker tries to reuse a previously
-        // captured ID token to establish a new session.
-        String nonce = UUID.randomUUID().toString();
-        req.getSession().setAttribute(SESSION_NONCE, nonce);
-
-        TokenHelper helper = createMsalTokenHelper();
-        String authUrl = helper.buildAuthorizationUrl(buildRedirectUri(req), state, codeChallenge, nonce);
-
-        LOGGER.log(Level.FINE, "Redirecting to Azure AD for Entra login");
-        return HttpResponses.redirectTo(authUrl);
+        return provider.startLogin(this, req);
     }
 
     /**
-     * Step 2 — Azure AD posts back with an authorization code.
-     * Called by OmniAuthRootAction at GET /omniauth/finishLogin?code=…&state=…
+     * Step 2 — complete SSO sign-in from the provider callback. Forwards to the configured
+     * provider's {@code finishLogin}. Called by OmniAuthRootAction at GET /omniauth/finishLogin.
      */
-    HttpResponse finishEntraLogin(StaplerRequest2 req)
-            throws Exception {
-        // CSRF: validate state nonce
-        String returnedState = req.getParameter("state");
-        String sessionState  = (String) req.getSession().getAttribute(SESSION_OAUTH_STATE);
-        if (returnedState == null || !returnedState.equals(sessionState)) {
-            LOGGER.log(Level.WARNING, "OAuth2 state mismatch — session likely expired, redirecting to login");
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
+    public HttpResponse finishLogin(StaplerRequest2 req) throws Exception {
+        if (provider == null) {
+            return HttpResponses.error(503, "Single sign-on is not enabled on this Jenkins.");
         }
-        req.getSession().removeAttribute(SESSION_OAUTH_STATE);
-
-        // Azure AD error (e.g. user cancelled)
-        String error = req.getParameter("error");
-        if (error != null) {
-            LOGGER.log(Level.WARNING, "Azure AD error: {0} — {1}",
-                    new Object[]{error, req.getParameter("error_description")});
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=entra");
-        }
-
-        String authCode = req.getParameter("code");
-        if (authCode == null || authCode.isEmpty()) {
-            return HttpResponses.error(400, "No authorization code received from Azure AD.");
-        }
-
-        // PKCE — retrieve the verifier stored during commenceLogin and send it to Azure.
-        // Azure hashes it and checks it matches the challenge sent earlier. An attacker
-        // who intercepted the authorization code cannot exchange it without this verifier.
-        String codeVerifier = (String) req.getSession().getAttribute(SESSION_CODE_VERIFIER);
-        req.getSession().removeAttribute(SESSION_CODE_VERIFIER);
-        if (codeVerifier == null) {
-            LOGGER.log(Level.WARNING, "PKCE code verifier missing from session — possible session expiry");
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
-        }
-
-        // Exchange code → tokens
-        TokenHelper helper = createMsalTokenHelper();
-        IAuthenticationResult result = helper.exchangeCodeForTokens(authCode, buildRedirectUri(req), codeVerifier);
-
-        JWTClaimsSet claims = helper.parseIdToken(result.idToken());
-
-        // Nonce validation — confirm the ID token was issued for this exact login attempt.
-        // Azure AD embeds the nonce we sent in the token; we verify it matches what we stored.
-        String sessionNonce = (String) req.getSession().getAttribute(SESSION_NONCE);
-        req.getSession().removeAttribute(SESSION_NONCE);
-        String tokenNonce = MsalTokenHelper.getStringClaim(claims, "nonce");
-        if (sessionNonce == null || !sessionNonce.equals(tokenNonce)) {
-            LOGGER.log(Level.SEVERE, "ID token nonce mismatch — possible token replay attack, rejecting login");
-            return HttpResponses.error(400, "Authentication failed: nonce validation error.");
-        }
-
-        String oid   = MsalTokenHelper.getStringClaim(claims, "oid");
-        String upn   = MsalTokenHelper.getStringClaim(claims, "preferred_username");
-        String name  = MsalTokenHelper.getStringClaim(claims, "name");
-        String email = MsalTokenHelper.getStringClaim(claims, "email");
-
-        if (oid == null) {
-            LOGGER.log(Level.SEVERE, "ID token missing 'oid' claim — cannot identify user");
-            return HttpResponses.error(500, "Microsoft did not return a valid user identifier.");
-        }
-
-        // Fetch groups if group sync is enabled OR if GROUP entities exist in Access Management.
-        // GROUP entities require group data at gate time regardless of the enableGroupSync flag.
-        List<EntraGroupDetails> groups = new ArrayList<>();
-        OmniAuthAssignmentConfig assignmentConfig = OmniAuthAssignmentConfig.get();
-        boolean needGroups = (entraConfig.isEnableGroupSync() || (assignmentConfig != null && assignmentConfig.hasAnyGroups()));
-        if (needGroups && result.accessToken() != null) {
-            try {
-                groups = new GraphApiHelper().getGroupMemberships(result.accessToken());
-            } catch (IOException | InterruptedException e) {
-                LOGGER.log(Level.WARNING, "Graph API group sync failed — continuing without groups", e);
-                NotificationService.sendGraphApiFailed(OmniAuthGlobalConfig.get(),
-                        upn != null ? upn : oid, e.getMessage());
-            }
-        }
-
-        // Provisioning portal: if this flow was started as an access REQUEST (provision=1),
-        // create a PENDING request from the Microsoft-verified identity instead of logging in.
-        boolean provisionMode = Boolean.TRUE.equals(req.getSession().getAttribute(SESSION_PROVISION_MODE));
-        req.getSession().removeAttribute(SESSION_PROVISION_MODE);
-        if (provisionMode) {
-            return handleEntraProvisionRequest(oid, upn, name, email, groups);
-        }
-
-        // Gate: only individually pre-provisioned users or members of allowed groups can log in.
-        if (!isPreProvisioned(oid, upn, groups)) {
-            String displayId = upn != null ? upn : oid;
-            LOGGER.log(Level.WARNING, "Rejected SSO login — not pre-provisioned: {0}", displayId);
-            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
-            if (audit != null) audit.logLoginFailure(displayId, req.getRemoteAddr());
-            // If the rejected user was previously VIA_ENTRA_GROUP, clear their group OIDs
-            // and mark pending deletion so the orphaned account can be cleaned up.
-            markOrphanedGroupAccount(oid, upn);
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=notProvisioned");
-        }
-
-        // Domain gate: even a pre-provisioned user or allowed-group member must present a
-        // Microsoft-verified email/UPN in an allowed domain (defence against e.g. a guest or
-        // cross-tenant account slipping in through group membership). Empty list = allow all.
-        String emailForDomain = (email != null && !email.isEmpty()) ? email
-                : (upn != null ? upn : "");
-        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, entraConfig.getAllowedDomains())) {
-            String displayId = upn != null ? upn : oid;
-            int at = emailForDomain.lastIndexOf('@');
-            String domain = at >= 0 ? emailForDomain.substring(at + 1) : "(none)";
-            LOGGER.log(Level.WARNING, "Rejected SSO login — domain not allowed: {0}", displayId);
-            OmniAuthAuditLog audit = OmniAuthAuditLog.get();
-            if (audit != null) audit.logLoginDeniedDomain(displayId, domain, req.getRemoteAddr());
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=domainNotAllowed");
-        }
-
-        // Provision / update Jenkins user
-        User jenkinsUser = getOrCreateEntraUser(oid, upn, name, groups);
-
-        // Establish Spring Security session
-        EntraUserDetails userDetails = new EntraUserDetails(
-                jenkinsUser.getId(), name, email, oid, groups);
-        EntraAuthenticationToken auth = new EntraAuthenticationToken(userDetails);
-
-        // Use SecurityContextImpl explicitly — Spring Security 6's holder may return
-        // a deferred/lazy wrapper that doesn't serialize cleanly into the HTTP session.
-        SecurityContext securityContext = new SecurityContextImpl(auth);
-        SecurityContextHolder.setContext(securityContext);
-
-        // Rotate the session id on this privilege change (session-fixation defence), mirroring
-        // the native path's establishSession(). The pre-auth stash (from URL, seed) survives the
-        // rotation because changeSessionId() keeps the session's attributes.
-        req.getSession(); // ensure a session exists before rotating
-        try { req.changeSessionId(); } catch (Exception ignore) { /* no session / unsupported */ }
-
-        // Persist the security context into the HTTP session.
-        req.getSession().setAttribute(
-                org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                securityContext);
-
-        // Jenkins's HttpSessionContextIntegrationFilter2 checks "_JENKINS_SESSION_SEED" on
-        // every request and wipes the security context if it is absent or stale.
-        // SecurityListener.fireAuthenticated2() tries to store it via Stapler.getCurrentRequest2()
-        // (the Jakarta-Servlet API), but doFinishLogin uses the old StaplerRequest API so
-        // getCurrentRequest2() returns null and the seed is never written.
-        // We store it directly here to guarantee the check passes.
-        jenkins.security.seed.UserSeedProperty seedProp =
-                jenkinsUser.getProperty(jenkins.security.seed.UserSeedProperty.class);
-        if (seedProp != null) {
-            req.getSession().setAttribute(
-                    jenkins.security.seed.UserSeedProperty.USER_SESSION_SEED,
-                    seedProp.getSeed());
-        }
-
-        // Notify Jenkins security listeners (audit log, active sessions tracker, etc.)
-        SecurityListener.fireAuthenticated2(userDetails);
-
-        LOGGER.log(Level.INFO, "Entra login successful: {0} (OID: {1})", new Object[]{upn, oid});
-
-        String from = (String) req.getSession().getAttribute(SESSION_FROM_URL);
-        req.getSession().removeAttribute(SESSION_FROM_URL);
-        String dest = (from != null && !from.isEmpty())
-                ? from
-                : (Jenkins.get().getRootUrl() != null ? Jenkins.get().getRootUrl() : "/");
-        return HttpResponses.redirectTo(dest);
+        return provider.finishLogin(this, req);
     }
 
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Handle a provisioning-portal access request that came through the Microsoft sign-in flow.
-     * The caller has already proven the user's identity via OAuth; here we record a PENDING
-     * {@link ProvisioningRequest} (unless the user already has access or a request is pending),
-     * then send them back to the request page. Never establishes a session.
-     */
-    private HttpResponse handleEntraProvisionRequest(String oid, String upn, String name,
-                                                     String email, List<EntraGroupDetails> groups) {
-        String root = Jenkins.get().getRootUrl();
-        OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
-
-        // Portal must be enabled with Entra requests allowed; otherwise behave like a normal
-        // not-provisioned rejection so we don't silently swallow the login.
-        if (cfg == null || !cfg.isProvisioningEnabled() || !cfg.isProvisioningAllowEntra()) {
-            return HttpResponses.redirectTo(root + "loginError?error=notProvisioned");
-        }
-
-        // The Jenkins user id mirrors the login flow: UPN (email) when present, else the OID.
-        String userId = (upn != null && !upn.isEmpty()) ? upn : oid;
-
-        // Already has access (individually or via group)? Don't create a request — tell them.
-        if (isPreProvisioned(oid, upn, groups) || User.getById(userId, false) != null) {
-            return HttpResponses.redirectTo(root + "request-access/?already=1");
-        }
-
-        // Optional domain gate, against the verified UPN/email.
-        String emailForDomain = (email != null && !email.isEmpty()) ? email : userId;
-        if (!ProvisioningPortalAction.domainAllowed(emailForDomain, cfg.getProvisioningAllowedDomains())) {
-            return HttpResponses.redirectTo(root + "request-access/?error=domain");
-        }
-
-        // Already a pending request for this identity? Don't ask for a reason again.
-        ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
-        if (store != null && store.findPendingForUser(userId) != null) {
-            return HttpResponses.redirectTo(root + "request-access/?submitted=1");
-        }
-
-        // Identity is Microsoft-verified. Stash it on the session and collect a reason on the
-        // next page; the PENDING request is created from that submission (ProvisioningPortalAction
-        // #doSubmitEntraReason), bringing Entra to parity with the native form's reason field.
-        StaplerRequest2 cur = Stapler.getCurrentRequest2();
-        if (cur != null) {
-            jakarta.servlet.http.HttpSession s = cur.getSession(true);
-            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_OID,    oid);
-            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_USERID, userId);
-            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_NAME,   name  != null ? name  : "");
-            s.setAttribute(ProvisioningPortalAction.SESSION_ENTRA_EMAIL,  email != null ? email : "");
-        }
-        LOGGER.log(Level.INFO, "Provisioning: Entra identity verified for {0}, collecting reason", userId);
-        return HttpResponses.redirectTo(root + "request-access/reason");
-    }
-
-    private User getOrCreateEntraUser(String oid, String upn, String displayName,
+    public User getOrCreateEntraUser(String oid, String upn, String displayName,
                                       List<EntraGroupDetails> groups) throws IOException {
         // Determine provisioning source and active group OIDs
         OmniAuthAssignmentConfig assignmentConfig = OmniAuthAssignmentConfig.get();
@@ -653,7 +431,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         return newUser;
     }
 
-    private boolean isPreProvisioned(String oid, String upn, List<EntraGroupDetails> groups) {
+    public boolean isPreProvisioned(String oid, String upn, List<EntraGroupDetails> groups) {
         // Check 1 — individually pre-provisioned (provisioningSource = INDIVIDUAL or legacy account)
         if (upn != null && !upn.isEmpty()) {
             User existing = User.getById(upn, false);
@@ -695,7 +473,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     /** When a VIA_ENTRA_GROUP user is rejected at login, clear their group OIDs and flag for deletion. */
-    private void markOrphanedGroupAccount(String oid, String upn) {
+    public void markOrphanedGroupAccount(String oid, String upn) {
         try {
             User existing = null;
             if (upn != null) existing = User.getById(upn, false);
@@ -784,11 +562,11 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      *
      * Overridden in tests to inject a fake helper without touching MSAL4J.
      */
-    TokenHelper createMsalTokenHelper() throws Exception {
+    public TokenHelper createMsalTokenHelper() throws Exception {
         if (cachedHelper == null) {
             synchronized (this) {
                 if (cachedHelper == null) {
-                    cachedHelper = new MsalTokenHelper(entraConfig);
+                    cachedHelper = new MsalTokenHelper(getEntraConfig());
                 }
             }
         }
@@ -801,7 +579,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
      * and backslash paths (\evil.com) — all of which browsers treat as external redirects.
      * Only paths starting with a single "/" are accepted as safe post-login destinations.
      */
-    private static boolean isSafeRedirectUrl(String url) {
+    public static boolean isSafeRedirectUrl(String url) {
         if (url == null || url.isEmpty() || url.charAt(0) != '/') return false;
         // Reject //host and /\host — browsers normalise the backslash form to a
         // protocol-relative URL, so /\evil.com would navigate off-site.
@@ -814,7 +592,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
         return true;
     }
 
-    private String buildRedirectUri(StaplerRequest2 req) {
+    public String buildRedirectUri(StaplerRequest2 req) {
         String root = Jenkins.get().getRootUrl();
         if (root == null) root = req.getRootPath() + "/";
         if (root.endsWith("/")) root = root.substring(0, root.length() - 1);
@@ -851,28 +629,29 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
             // provisioning portal (request + approval + audit), not an open /signup page.
             boolean allowsSignup = false;
 
-            // The SSO toggle is authoritative. The Entra fields are always parsed and kept (even when
-            // the toggle is off) so the provider settings are preserved and sign-in just goes native
-            // only; flipping the toggle back on later restores them without re-entering the secret.
+            // The SSO toggle is authoritative. The provider settings are always bound and kept (even
+            // when the toggle is off) so they are preserved and sign-in just goes native only;
+            // flipping the toggle back on later restores them without re-entering the secret.
             boolean ssoEnabled = formData.optBoolean("ssoEnabled", false);
 
-            EntraOAuthConfig entraConfig = null;
-            JSONObject entraData = formData.optJSONObject("entraConfig");
-            if (entraData != null && !entraData.isEmpty()) {
-                String tenantId  = entraData.optString("tenantId",  "").trim();
-                String clientId  = entraData.optString("clientId",  "").trim();
-                String secretStr = entraData.optString("clientSecret", "").trim();
-                if (!tenantId.isEmpty() && !clientId.isEmpty() && !secretStr.isEmpty()) {
-                    entraConfig = new EntraOAuthConfig(
-                            tenantId, clientId, hudson.util.Secret.fromString(secretStr));
-                    entraConfig.setEnableGroupSync(entraData.optBoolean("enableGroupSync", false));
+            // Bind the selected SSO provider from the dropdown-descriptor-selector. Databinding uses
+            // the provider's own @DataBoundConstructor/@DataBoundSetters, so each provider's full
+            // config round-trips without the realm knowing its fields. A half-configured provider
+            // (missing required settings) is treated as "no provider".
+            OmniAuthSsoProvider provider = null;
+            JSONObject providerData = formData.optJSONObject("provider");
+            if (providerData != null && !providerData.isEmpty()) {
+                provider = req.bindJSON(OmniAuthSsoProvider.class, providerData);
+                if (provider != null && !provider.isConfigured()) {
+                    provider = null;
                 }
             }
+            EntraOAuthConfig newEntra = (provider instanceof EntraOAuthConfig) ? (EntraOAuthConfig) provider : null;
 
             // Send config change notification
             OmniAuthGlobalConfig cfg = OmniAuthGlobalConfig.get();
             if (cfg != null) {
-                List<String> diff = buildConfigDiff(oldAllowsSignup, allowsSignup, oldEntra, entraConfig,
+                List<String> diff = buildConfigDiff(oldAllowsSignup, allowsSignup, oldEntra, newEntra,
                         oldSsoEnabled, ssoEnabled);
                 if (!diff.isEmpty()) {
                     String changedBy = currentUserId();
@@ -880,7 +659,7 @@ public class OmniAuthSecurityRealm extends HudsonPrivateSecurityRealm {
                 }
             }
 
-            OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(allowsSignup, entraConfig);
+            OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(allowsSignup, provider);
             realm.setSsoEnabled(ssoEnabled);
             return realm;
         }

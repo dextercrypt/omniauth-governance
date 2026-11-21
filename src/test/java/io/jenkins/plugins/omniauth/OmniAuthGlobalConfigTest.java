@@ -38,10 +38,21 @@ public class OmniAuthGlobalConfigTest {
 
     private OmniAuthGlobalConfig cfg() { return OmniAuthGlobalConfig.get(); }
 
+    // Poke a below-floor raw value directly on whichever per-area holder owns the field, bypassing
+    // the clamping setter, so the test can assert the getter still clamps.
     private static void setIntField(OmniAuthGlobalConfig c, String name, int val) throws Exception {
-        Field f = OmniAuthGlobalConfig.class.getDeclaredField(name);
-        f.setAccessible(true);
-        f.setInt(c, val);
+        Object[] holders = { c.getProvisioning(), c.getSecurity(), c.getLifecycle(), c.getNotifications() };
+        for (Object holder : holders) {
+            try {
+                Field f = holder.getClass().getDeclaredField(name);
+                f.setAccessible(true);
+                f.setInt(holder, val);
+                return;
+            } catch (NoSuchFieldException ignore) {
+                // try the next holder
+            }
+        }
+        throw new NoSuchFieldException(name);
     }
 
     // ── setProtectedUsers must touch ONLY the protected list ──────────────────
@@ -138,19 +149,20 @@ public class OmniAuthGlobalConfigTest {
     }
 
     @Test
-    public void configure_absentManagedField_resetsToDefault_documentsFootgun() throws Exception {
+    public void configure_absentField_isLeftUnchanged_partialUpdate() throws Exception {
         OmniAuthGlobalConfig c = cfg();
 
-        // First submit sets a non-default threshold (there is no public setter for it).
+        // First submit sets a non-default threshold.
         JSONObject first = new JSONObject();
         first.put("staleThresholdDays", 120);
         c.configure((org.kohsuke.stapler.StaplerRequest2) null, first);
         assertEquals(120, c.getStaleThresholdDays());
 
-        // A later submit that omits the key resets it to the default — this is why a
-        // subset-of-fields save must use a dedicated setter rather than configure().
+        // A later submit that omits the key LEAVES it unchanged (partial update). This is what lets a
+        // page save only the fields it owns without wiping another page's, and makes a global
+        // "Manage Jenkins / System" save (which carries none of our fields) a no-op for our settings.
         c.configure((org.kohsuke.stapler.StaplerRequest2) null, new JSONObject());
-        assertEquals(90, c.getStaleThresholdDays(), "absent managed field reverts to default");
+        assertEquals(120, c.getStaleThresholdDays(), "absent field is left unchanged under partial update");
     }
 
     @Test
