@@ -4615,6 +4615,17 @@ public class OmniAuthManagementLink extends ManagementLink {
                 if (p != null) rebuilt.add(p, entry);
             }
         }
+        // Global Hudson.Read is the login prerequisite; the folder/job ACLs then decide what the user
+        // actually sees. A root-scope role that omits Read (e.g. a job-only role) would otherwise wipe
+        // the Read granted at account creation and lock the user out, so re-assert it on every grant.
+        if (!removing && !permIds.isEmpty()) {
+            Permission read = Permission.fromId("hudson.model.Hudson.Read");
+            if (read != null) {
+                PermissionEntry readEntry = atype == AuthorizationType.GROUP
+                        ? PermissionEntry.group(sid) : PermissionEntry.user(sid);
+                rebuilt.add(read, readEntry);
+            }
+        }
         Set<PermissionEntry> adminSet = rebuilt.getGrantedPermissionEntries().get(Jenkins.ADMINISTER);
         if (adminSet == null || adminSet.isEmpty()) {
             rsp.sendRedirect(detailUrl(sid, atype, "error=lastAdmin"));
