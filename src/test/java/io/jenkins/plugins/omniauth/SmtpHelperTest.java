@@ -51,9 +51,20 @@ public class SmtpHelperTest {
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {
-        Field f = target.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        f.set(target, value);
+        Object[] candidates = (target instanceof OmniAuthGlobalConfig c)
+                ? new Object[]{ c.getNotifications(), c.getSecurity(), c.getLifecycle(), c.getBranding(), c.getProvisioning() }
+                : new Object[]{ target };
+        for (Object cand : candidates) {
+            try {
+                Field f = cand.getClass().getDeclaredField(name);
+                f.setAccessible(true);
+                f.set(cand, value);
+                return;
+            } catch (NoSuchFieldException ignore) {
+                // try the next holder
+            }
+        }
+        throw new NoSuchFieldException(name);
     }
 
     @BeforeEach

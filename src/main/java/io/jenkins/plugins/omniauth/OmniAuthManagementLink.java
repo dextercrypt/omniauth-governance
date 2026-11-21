@@ -961,55 +961,13 @@ public class OmniAuthManagementLink extends ManagementLink {
             final String snapTeamsUrl   = config.getTeamsWebhookUrlPlain();
             final String snapLogoUrl    = config.getNotificationLogoUrl();
 
-            net.sf.json.JSONObject json = new net.sf.json.JSONObject();
-            // master + channels
-            json.put("notificationsEnabled", req.getParameter("notificationsEnabled") != null);
-            json.put("smtpEnabled",          req.getParameter("smtpEnabled")          != null);
-            json.put("slackEnabled",         req.getParameter("slackEnabled")         != null);
-            putParam(json, req, "slackWebhookUrl");
-            json.put("teamsEnabled",         req.getParameter("teamsEnabled")         != null);
-            putParam(json, req, "teamsWebhookUrl");
-            // SMTP fields
-            putParam(json, req, "smtpHost");
-            putParam(json, req, "smtpPort");
-            putParam(json, req, "smtpUsername");
-            putParam(json, req, "smtpPassword");
-            json.put("smtpTls", req.getParameter("smtpTls") != null);
-            putParam(json, req, "smtpFromAddress");
-            putParam(json, req, "smtpFromName");
-            putParam(json, req, "smtpReplyTo");
-            putParam(json, req, "notifyEmails");
-            putParam(json, req, "notificationLogoUrl");
-            putParam(json, req, "notificationFooterNote");
-            // brute force
-            String bft = req.getParameter("bruteForceThreshold");
-            if (bft != null) json.put("bruteForceThreshold", bft.trim());
-            json.put("bruteForceLockoutEnabled", req.getParameter("bruteForceLockoutEnabled") != null);
-            String bfm = req.getParameter("bruteForceLockoutMinutes");
-            if (bfm != null) json.put("bruteForceLockoutMinutes", bfm.trim());
-            // stale warning
-            json.put("staleWarningEnabled", req.getParameter("staleWarningEnabled") != null);
-            String swCron = req.getParameter("staleWarningCron");
-            String swWin  = req.getParameter("staleWarningWindowDays");
-            if (swCron != null) json.put("staleWarningCron",       swCron.trim());
-            if (swWin  != null) json.put("staleWarningWindowDays", swWin.trim());
-            // per-channel event subscriptions
-            net.sf.json.JSONArray smtpEvtsArr = new net.sf.json.JSONArray();
-            String[] se = req.getParameterValues("smtpEvents");
-            if (se != null) for (String e : se) smtpEvtsArr.add(e);
-            json.put("smtpEvents", smtpEvtsArr);
-            net.sf.json.JSONArray slackEvtsArr = new net.sf.json.JSONArray();
-            String[] sle = req.getParameterValues("slackEvents");
-            if (sle != null) for (String e : sle) slackEvtsArr.add(e);
-            json.put("slackEvents", slackEvtsArr);
-            net.sf.json.JSONArray teamsEvtsArr = new net.sf.json.JSONArray();
-            String[] te = req.getParameterValues("teamsEvents");
-            if (te != null) for (String e : te) teamsEvtsArr.add(e);
-            json.put("teamsEvents", teamsEvtsArr);
-            // configure() is a partial update, so this handler sends only the fields the Notifications
-            // page owns; Settings-owned fields (login branding, thresholds, cleanup, access review,
-            // emergency recovery, protected users) are simply omitted and left untouched.
-            config.configure(req, json);
+            // Each area holder binds its own fields from the form. The Notifications page owns the
+            // channels/SMTP plus the brute-force and stale-warning controls shown on it; every other
+            // setting lives on a holder this page never touches, so it is left untouched.
+            config.getNotifications().updateFrom(req);
+            config.getSecurity().updateBruteForceFrom(req);
+            config.getLifecycle().updateStaleWarningFrom(req);
+            config.save();
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
             // but no longer does — using PRE-SAVE credentials so disabling SMTP/master cannot silence it.
@@ -1168,51 +1126,13 @@ public class OmniAuthManagementLink extends ManagementLink {
             int    oldAuditRet       = config.getAuditRetentionDays();
             boolean oldSosEnabled = config.isSosEnabled();
 
-            net.sf.json.JSONObject json = new net.sf.json.JSONObject();
-            // thresholds
-            String stale  = req.getParameter("staleThresholdDays");
-            String active = req.getParameter("activeThresholdDays");
-            if (stale  != null) json.put("staleThresholdDays",  stale.trim());
-            if (active != null) json.put("activeThresholdDays", active.trim());
-            // audit log retention (days; 0 = keep forever)
-            String auditRet = req.getParameter("auditRetentionDays");
-            if (auditRet != null) json.put("auditRetentionDays", auditRet.trim());
-            // cleanup
-            boolean cleanupEnabled = req.getParameter("cleanupEnabled") != null;
-            json.put("cleanupEnabled", cleanupEnabled);
-            boolean dryRun = !cleanupEnabled || req.getParameter("cleanupDryRun") != null;
-            json.put("cleanupDryRun", dryRun);
-            String cron = req.getParameter("cleanupCron");
-            String maxD = req.getParameter("cleanupMaxDeletions");
-            if (cron != null) json.put("cleanupCron",         cron.trim());
-            if (maxD != null) json.put("cleanupMaxDeletions", maxD.trim());
-            // emergency recovery
-            json.put("sosEnabled", req.getParameter("sosEnabled") != null);
-            // access review
-            json.put("accessReviewEnabled", req.getParameter("accessReviewEnabled") != null);
-            String arDays = req.getParameter("accessReviewThresholdDays");
-            if (arDays != null) json.put("accessReviewThresholdDays", arDays.trim());
-            // login page branding (managed by this page)
-            String lh  = req.getParameter("loginHeading");
-            String ltt = req.getParameter("loginTabTitle");
-            String lat = req.getParameter("loginAnnouncementText");
-            String lft = req.getParameter("loginFooterText");
-            String lbg = req.getParameter("loginBackground");
-            String llp = req.getParameter("loginLogoPosition");
-            String lls = req.getParameter("loginLogoSize");
-            String lbt = req.getParameter("loginButler");
-            if (lh  != null) json.put("loginHeading",          lh.trim());
-            if (ltt != null) json.put("loginTabTitle",          ltt.trim());
-            if (lat != null) json.put("loginAnnouncementText", lat.trim());
-            if (lft != null) json.put("loginFooterText",       lft.trim());
-            if (lbg != null) json.put("loginBackground",       lbg.trim());
-            if (llp != null) json.put("loginLogoPosition",     llp.trim());
-            if (lls != null) json.put("loginLogoSize",         lls.trim());
-            if (lbt != null) json.put("loginButler",           lbt.trim());
-            // configure() is a partial update, so this handler sends only the fields the Settings
-            // page owns; everything else (notifications, SMTP/Slack/Teams, protected users, …) is
-            // omitted and left untouched.
-            config.configure(req, json);
+            // Each area holder binds its own fields from the form. The Settings page owns the
+            // thresholds / cleanup / access-review (lifecycle), the SOS switch (security) and the
+            // login branding; every other setting lives on a holder this page never touches.
+            config.getLifecycle().updateSettingsFrom(req);
+            config.getSecurity().updateSosFrom(req);
+            config.getBranding().updateFrom(req);
+            config.save();
 
             // diff and notify
             List<String> diff = new ArrayList<>();
@@ -1356,11 +1276,6 @@ public class OmniAuthManagementLink extends ManagementLink {
 
     private static String escapeJson(String s) {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-    }
-
-    private static void putParam(net.sf.json.JSONObject json, StaplerRequest2 req, String name) {
-        String v = req.getParameter(name);
-        if (v != null) json.put(name, v.trim());
     }
 
     private static String mgmtCta(String label, String page) {
@@ -1792,18 +1707,7 @@ public class OmniAuthManagementLink extends ManagementLink {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         OmniAuthGlobalConfig c = OmniAuthGlobalConfig.get();
         if (c != null) {
-            c.setProvisioningEnabled(req.getParameter("provisioningEnabled") != null);
-            c.setProvisioningAllowEntra(req.getParameter("provisioningAllowEntra") != null);
-            c.setProvisioningAllowNative(req.getParameter("provisioningAllowNative") != null);
-            c.setProvisioningAllowedDomains(req.getParameter("provisioningAllowedDomains"));
-            c.setProvisioningDefaultDurationDays(parseIntOr(req.getParameter("provisioningDefaultDurationDays"), 0));
-            c.setProvisioningExpiryAction(req.getParameter("provisioningExpiryAction"));
-            c.setProvisioningMaxPendingPerUser(parseIntOr(req.getParameter("provisioningMaxPendingPerUser"), 1));
-            c.setProvisioningBreakerMax(parseIntOr(req.getParameter("provisioningBreakerMax"), 100));
-            c.setProvisioningBreakerWindowMin(parseIntOr(req.getParameter("provisioningBreakerWindowMin"), 10));
-            c.setProvisioningBreakerCooldownMin(parseIntOr(req.getParameter("provisioningBreakerCooldownMin"), 30));
-            c.setProvisioningExpiryReminderDays(parseIntOr(req.getParameter("provisioningExpiryReminderDays"), 7));
-            c.setActivationLinkTtlHours(parseIntOr(req.getParameter("activationLinkTtlHours"), 72));
+            c.getProvisioning().updateFrom(req);
             c.save();
             OmniAuthAuditLog.get().logConfigChanged(currentUserId(), "Provisioning",
                     "provisioning intake settings saved");

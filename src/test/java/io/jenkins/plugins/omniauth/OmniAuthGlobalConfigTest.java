@@ -38,10 +38,21 @@ public class OmniAuthGlobalConfigTest {
 
     private OmniAuthGlobalConfig cfg() { return OmniAuthGlobalConfig.get(); }
 
+    // Poke a below-floor raw value directly on whichever per-area holder owns the field, bypassing
+    // the clamping setter, so the test can assert the getter still clamps.
     private static void setIntField(OmniAuthGlobalConfig c, String name, int val) throws Exception {
-        Field f = OmniAuthGlobalConfig.class.getDeclaredField(name);
-        f.setAccessible(true);
-        f.setInt(c, val);
+        Object[] holders = { c.getProvisioning(), c.getSecurity(), c.getLifecycle(), c.getNotifications() };
+        for (Object holder : holders) {
+            try {
+                Field f = holder.getClass().getDeclaredField(name);
+                f.setAccessible(true);
+                f.setInt(holder, val);
+                return;
+            } catch (NoSuchFieldException ignore) {
+                // try the next holder
+            }
+        }
+        throw new NoSuchFieldException(name);
     }
 
     // ── setProtectedUsers must touch ONLY the protected list ──────────────────
