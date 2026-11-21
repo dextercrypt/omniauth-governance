@@ -1,17 +1,5 @@
-<!-- Company butler: Jenkins 'general' logo, inlined fragment for pre-auth render.
-     Source: https://www.jenkins.io/artwork/  | CC BY-SA 3.0 (Jenkins project).
-     The classic Jenkins butler. Framing 226x312 (same as JayeX); sized via CSS height:40vh. -->
-<svg viewBox="0 0 226 312" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg-general" style="position:relative;z-index:1;height:40vh;width:auto;overflow:visible;filter:drop-shadow(0 0 28px rgba(34,211,238,0.45));"><g transform="translate(113.000,156.000) scale(0.92296) translate(-112.770,-163.950)">
-  <namedview showgrid="false" id="namedview3728" guidetolerance="10" gridtolerance="10" objecttolerance="10" borderopacity="1" bordercolor="#666666" pagecolor="#ffffff"></namedview>
-  <metadata id="metadata3732">
-    <RDF>
-      <Work>
-        <format>image/svg+xml</format>
-        <type></type>
-        <title></title>
-      </Work>
-    </RDF>
-  </metadata>
+<!-- Jenkins artwork, CC BY-SA 3.0 — https://www.jenkins.io/artwork/ -->
+<svg viewBox="0 0 226 312" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g transform="translate(113.000,156.000) scale(0.92296) translate(-112.770,-163.950)">
   <defs id="defs3730"></defs>
   <g id="レイヤー_1">
     <path id="path3557" fill="#d33833" d="M118.54,54.725 C178.768,59.721 220.665,106.506 222.147,166.442 C222.147,228.228 173.179,278.316 112.772,278.316 C52.367,278.316 3.398,228.228 3.398,166.442 C3.953,133.139 15.209,108.201 38.291,84.591 C39.987,86.74 42.587,87.8 45.203,88.27 C47.468,88.566 49.392,88.246 51.63,87.557 C56.852,85.951 60.218,83.364 65.433,78.178 C65.581,78.032 65.73,77.883 65.926,77.687 C66.167,77.446 66.167,77.446 66.404,77.21 C67.612,76.02 68.801,74.795 70.142,73.752 C74.975,72.008 72.771,72.777 76.748,71.421 C78.146,70.952 79.327,70.563 81.796,69.755 C90.86,66.788 94.861,65.389 100.081,63.214 C100.402,63.08 100.725,62.944 101.052,62.804 C103.969,61.559 105.756,60.724 111.471,57.991 C113.819,56.884 116.153,55.744 118.54,54.725 z"></path>

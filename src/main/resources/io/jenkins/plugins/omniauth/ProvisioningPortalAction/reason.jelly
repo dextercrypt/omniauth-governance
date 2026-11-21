@@ -71,7 +71,7 @@
                     </j:if>
                   </div>
                   <span class="pa-whoami__badge">
-                    <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="icon-xs"/>
+                    <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-xs"/>
                     Verified
                   </span>
                 </div>

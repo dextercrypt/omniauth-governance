@@ -21,7 +21,7 @@
         <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
               <h3 class="oau-card-title">Microsoft Entra (Azure AD) Configuration</h3>
             </div>
             <a href="${rootURL}/manage/configureSecurity/" style="font-size: 0.8em; color: var(--blue,var(--blue)); text-decoration: none;">

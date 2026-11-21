@@ -32,7 +32,7 @@
           <button type="button" class="jenkins-button" id="oauLiveToggle"
                   title="Pause or resume live updates"
                   style="display:inline-flex;align-items:center;gap:6px;">
-            <l:icon src="symbol-oau-x47 plugin-omniauth-governance" class="icon-sm"/>
+            <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm"/>
             <span id="oauLiveBtnText">Pause</span>
           </button>
         </div>
@@ -45,7 +45,7 @@
           <j:when test="${bgActive}">
             <div class="oau-status-banner oau-status-banner--critical">
               <div class="oau-status-banner__icon">
-                <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
               </div>
               <div class="oau-status-banner__body">
                 <strong>Emergency Override Active</strong>
@@ -59,7 +59,7 @@
           <j:when test="${failed24h gt 0 or !bfEntries.isEmpty()}">
             <div id="oau-warning-banner" class="oau-status-banner oau-status-banner--warning">
               <div class="oau-status-banner__icon">
-                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
               </div>
               <div class="oau-status-banner__body">
                 <strong>Attention Required</strong>
@@ -69,14 +69,14 @@
               </div>
               <a href="security" class="oau-status-banner__action">View Security →</a>
               <button class="oau-status-banner__close js-oau-dismiss-warning" title="Dismiss">
-                <l:icon src="symbol-oau-close plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
               </button>
             </div>
           </j:when>
           <j:otherwise>
             <div class="oau-status-banner oau-status-banner--healthy">
               <div class="oau-status-banner__icon">
-                <l:icon src="symbol-oau-shield-checkmark plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-shield-checkmark plugin-ionicons-api" class="icon-sm"/>
               </div>
               <div class="oau-status-banner__body">
                 <strong>All Systems Operational</strong>
@@ -91,7 +91,7 @@
         <j:if test="${!cfg.notificationsEnabled}">
           <div id="oau_notif_dismiss_banner" class="oau-status-banner oau-status-banner--info">
             <div class="oau-status-banner__icon">
-              <l:icon src="symbol-oau-notifications-off plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
             </div>
             <div class="oau-status-banner__body">
               <strong>Notifications disabled</strong>
@@ -100,14 +100,14 @@
             </div>
             <a href="notifications" class="oau-status-banner__action">Configure →</a>
             <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_notif_dismiss" title="Dismiss for 1 week">
-              <l:icon src="symbol-oau-close plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
             </button>
           </div>
         </j:if>
         <j:if test="${!cfg.cleanupEnabled}">
           <div id="oau_cleanup_dismiss_banner" class="oau-status-banner oau-status-banner--info">
             <div class="oau-status-banner__icon">
-              <l:icon src="symbol-oau-x48 plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
             </div>
             <div class="oau-status-banner__body">
               <strong>Auto cleanup disabled</strong>
@@ -116,7 +116,7 @@
             </div>
             <a href="settings" class="oau-status-banner__action">Enable →</a>
             <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_cleanup_dismiss" title="Dismiss for 1 week">
-              <l:icon src="symbol-oau-close plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
             </button>
           </div>
         </j:if>
@@ -125,7 +125,7 @@
         <j:if test="${pendingReview gt 0}">
           <div id="oau_review_dismiss_banner" class="oau-status-banner oau-status-banner--info">
             <div class="oau-status-banner__icon">
-              <l:icon src="symbol-oau-checkmark-done plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-sm"/>
             </div>
             <div class="oau-status-banner__body">
               <strong>${pendingReview} access assignment<j:if test="${pendingReview != 1}">s</j:if> pending review</strong>
@@ -134,7 +134,7 @@
             </div>
             <a href="accessReview" class="oau-status-banner__action">Review now →</a>
             <button class="oau-status-banner__close js-oau-dismiss-weekly" data-key="oau_review_dismiss" title="Dismiss for 1 week">
-              <l:icon src="symbol-oau-close plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
             </button>
           </div>
         </j:if>
@@ -144,7 +144,7 @@
 
           <a href="userStatus" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
-              <l:icon src="symbol-oau-people plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-people plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="total" style="color:#0078d4;">${total}</div>
             <div class="oau-kpi-card__label">Total Users</div>
@@ -152,7 +152,7 @@
 
           <a href="userStatus" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
-              <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="active" style="color:var(--success-color);">${active}</div>
             <div class="oau-kpi-card__label">Active <span class="oau-kpi-card__sublabel">(${cfg.activeThresholdDays}d)</span></div>
@@ -160,7 +160,7 @@
 
           <a href="staleUsers" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:${staleCount gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--oau-neutral-bg)'};">
-              <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="stale">${staleCount}</div>
             <div class="oau-kpi-card__label">Stale <span class="oau-kpi-card__sublabel">(${cfg.staleThresholdDays}d)</span></div>
@@ -168,7 +168,7 @@
 
           <a href="protectedUsers" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #7c3aed 15%, transparent);">
-              <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-shield plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="protected" style="color:#7c3aed;">${it.protectedUserCount}</div>
             <div class="oau-kpi-card__label">Protected</div>
@@ -176,7 +176,7 @@
 
           <a href="userStatus" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #1d4ed8 15%, transparent);">
-              <l:icon src="symbol-oau-desktop plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="sso" style="color:#1d4ed8;">${ssoCount}</div>
             <div class="oau-kpi-card__label">SSO Users</div>
@@ -184,7 +184,7 @@
 
           <a href="userStatus" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-neutral-bg);">
-              <l:icon src="symbol-oau-key plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="native" style="color:var(--text-color-secondary);">${nativeCount}</div>
             <div class="oau-kpi-card__label">Native Users</div>
@@ -192,7 +192,7 @@
 
           <a href="sessions" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
-              <l:icon src="symbol-oau-person plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-person plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" data-kpi="sessions" style="color:#be185d;">${it.activeSessionCount}</div>
             <div class="oau-kpi-card__label">Live Sessions</div>
@@ -200,7 +200,7 @@
 
           <a href="security" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:${failed24h gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--oau-neutral-bg)'};">
-              <l:icon src="symbol-oau-information-circle plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-information-circle plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="failed24h">${failed24h}</div>
             <div class="oau-kpi-card__label">Failed Logins <span class="oau-kpi-card__sublabel">(24h)</span></div>
@@ -209,7 +209,7 @@
           <j:set var="pendingJit" value="${it.pendingJitCount}"/>
           <a href="jitRequests" class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:${pendingJit gt 0 ? 'var(--oau-warning-bg)' : 'var(--oau-neutral-bg)'};">
-              <l:icon src="symbol-oau-x49 plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-flash plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'};" data-kpi="pendingJit">${pendingJit}</div>
             <div class="oau-kpi-card__label">Pending JIT</div>
@@ -222,7 +222,7 @@
         <div class="jenkins-card oau-widget oau-chart-card" style="margin-bottom:16px;">
           <div class="oau-widget__header">
             <div class="oau-widget__title">
-              <l:icon src="symbol-oau-x50 plugin-omniauth-governance" class="icon-sm"/>
+              <l:icon src="symbol-bar-chart plugin-ionicons-api" class="icon-sm"/>
               Login Activity
               <span style="font-weight:400;color:var(--text-color-secondary);font-size:0.85em;margin-left:4px;">· last 14 days</span>
             </div>
@@ -276,7 +276,7 @@
           <div class="jenkins-card oau-widget" style="flex:1.4; min-width:240px;">
             <div class="oau-widget__header">
               <div class="oau-widget__title">
-                <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
                 Needs Attention
               </div>
               <j:choose>
@@ -293,7 +293,7 @@
               <j:choose>
                 <j:when test="${attentionCount eq 0}">
                   <div style="text-align:center;padding:20px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
-                    <l:icon src="symbol-oau-shield-checkmark plugin-omniauth-governance" class="icon-lg"/>
+                    <l:icon src="symbol-shield-checkmark plugin-ionicons-api" class="icon-lg"/>
                     No action required
                   </div>
                 </j:when>
@@ -302,7 +302,7 @@
                   <!-- Stale users: action if no cleanup, informational if cleanup active -->
                   <j:if test="${staleCount gt 0}">
                     <a href="staleUsers" class="oau-attention-row ${cleanupActive ? 'oau-attention-row--info' : 'oau-attention-row--warn'}">
-                      <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text">
                         <strong>${staleCount}</strong> stale user<j:if test="${staleCount != 1}">s</j:if>
                         <j:choose>
@@ -317,7 +317,7 @@
                   <!-- Pending deletion: action if no cleanup, informational if cleanup active -->
                   <j:if test="${pendingDel gt 0}">
                     <a href="userStatus" class="oau-attention-row ${cleanupActive ? 'oau-attention-row--info' : 'oau-attention-row--danger'}">
-                      <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text">
                         <strong>${pendingDel}</strong> user<j:if test="${pendingDel != 1}">s</j:if> pending deletion
                         <j:if test="${cleanupActive}"> — queued for next run</j:if>
@@ -329,7 +329,7 @@
                   <!-- Notification channel failing -->
                   <j:if test="${failingChannels.size() gt 0}">
                     <a href="notifications" class="oau-attention-row oau-attention-row--danger">
-                      <l:icon src="symbol-oau-notifications-off plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text"><strong>${failingChannels}</strong> notification<j:if test="${failingChannels.size() != 1}">s</j:if> failing — security alerts not delivered</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -338,7 +338,7 @@
                   <!-- No protected users with cleanup active -->
                   <j:if test="${noProtected}">
                     <a href="protectedUsers" class="oau-attention-row oau-attention-row--warn">
-                      <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text">No protected users — admin accounts at risk of auto-cleanup</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -347,7 +347,7 @@
                   <!-- Orphaned group accounts -->
                   <j:if test="${orphanedAccounts gt 0}">
                     <a href="userStatus" class="oau-attention-row oau-attention-row--warn">
-                      <l:icon src="symbol-oau-x51 plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-person-remove plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text"><strong>${orphanedAccounts}</strong> orphaned group account<j:if test="${orphanedAccounts != 1}">s</j:if> — group removed from Access Management</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -355,7 +355,7 @@
 
                   <j:if test="${unenrolledAdmin gt 0}">
                     <a href="emergencyAccess" class="oau-attention-row oau-attention-row--warn">
-                      <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text"><strong>${unenrolledAdmin}</strong> admin<j:if test="${unenrolledAdmin != 1}">s</j:if> without Break Glass TOTP</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -363,7 +363,7 @@
 
                   <j:if test="${sosUnprotected gt 0}">
                     <a href="emergencyAccess" class="oau-attention-row oau-attention-row--warn">
-                      <l:icon src="symbol-oau-settings plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-settings plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text"><strong>${sosUnprotected}</strong> admin<j:if test="${sosUnprotected != 1}">s</j:if> without usable SOS recovery codes</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -371,7 +371,7 @@
 
                   <j:if test="${expiringGrants.size() gt 0}">
                     <a href="accessReview" class="oau-attention-row oau-attention-row--info">
-                      <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-sm"/>
+                      <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
                       <span class="oau-attention-row__text"><strong>${expiringGrants.size()}</strong> access grant<j:if test="${expiringGrants.size() != 1}">s</j:if> expiring within 7 days</span>
                       <span class="oau-attention-row__arrow">→</span>
                     </a>
@@ -387,7 +387,7 @@
           <div class="jenkins-card oau-widget" style="flex:1.6; min-width:240px;">
             <div class="oau-widget__header">
               <div class="oau-widget__title">
-                <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
                 Expiring Access — Next 14 Days
               </div>
               <a href="accessManagement" class="oau-widget__link">Manage →</a>
@@ -439,7 +439,7 @@
             <div class="jenkins-card oau-widget">
               <div class="oau-widget__header">
                 <div class="oau-widget__title">
-                  <l:icon src="symbol-oau-x52 plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-cube plugin-ionicons-api" class="icon-sm"/>
                   User Composition
                 </div>
               </div>
@@ -493,7 +493,7 @@
             <div class="jenkins-card oau-widget">
               <div class="oau-widget__header">
                 <div class="oau-widget__title">
-                  <l:icon src="symbol-oau-x54 plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-notifications plugin-ionicons-api" class="icon-sm"/>
                   Notifications
                 </div>
                 <a href="notifications" class="oau-widget__link">Configure →</a>
@@ -502,7 +502,7 @@
 
                 <div class="oau-notif-row">
                   <div style="display:flex;align-items:center;gap:8px;">
-                    <l:icon src="symbol-oau-mail plugin-omniauth-governance" class="icon-xs"/>
+                    <l:icon src="symbol-mail plugin-ionicons-api" class="icon-xs"/>
                     <span style="font-size:0.85em;">Email</span>
                   </div>
                   <j:choose>
@@ -515,7 +515,7 @@
 
                 <div class="oau-notif-row">
                   <div style="display:flex;align-items:center;gap:8px;">
-                    <l:icon src="symbol-oau-x55 plugin-omniauth-governance" class="icon-xs"/>
+                    <l:icon src="symbol-chatbubble plugin-ionicons-api" class="icon-xs"/>
                     <span style="font-size:0.85em;">Slack</span>
                   </div>
                   <j:choose>
@@ -528,7 +528,7 @@
 
                 <div class="oau-notif-row" style="border-bottom:none;">
                   <div style="display:flex;align-items:center;gap:8px;">
-                    <l:icon src="symbol-oau-desktop plugin-omniauth-governance" class="icon-xs"/>
+                    <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-xs"/>
                     <span style="font-size:0.85em;">Teams</span>
                   </div>
                   <j:choose>
@@ -552,7 +552,7 @@
           <div class="jenkins-card oau-widget" style="flex:3; min-width:300px;">
             <div class="oau-widget__header">
               <div class="oau-widget__title">
-                <l:icon src="symbol-oau-x56 plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-document-text plugin-ionicons-api" class="icon-sm"/>
                 Recent Security Events
               </div>
               <a href="auditLog" class="oau-widget__link">Full audit log →</a>
@@ -573,27 +573,27 @@
                       <j:choose>
                         <j:when test="${action eq 'login_failure' or action eq 'break_glass_failed'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--error-color) 15%, transparent);">
-                            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-xs"/>
+                            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-xs"/>
                           </div>
                         </j:when>
                         <j:when test="${action eq 'break_glass_activate'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--warning-color) 15%, transparent);">
-                            <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-xs"/>
+                            <l:icon src="symbol-shield plugin-ionicons-api" class="icon-xs"/>
                           </div>
                         </j:when>
                         <j:when test="${action eq 'revoke' or action eq 'user_deleted' or action eq 'role_deleted' or action eq 'expired' or action eq 'permission_revoked' or action eq 'session_revoked' or action eq 'provisioning_rejected' or action eq 'jit_denied' or action eq 'jit_revoked' or action eq 'audit_purged'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
-                            <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-xs"/>
+                            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-xs"/>
                           </div>
                         </j:when>
                         <j:when test="${action eq 'grant' or action eq 'user_created' or action eq 'role_created' or action eq 'break_glass_enrolled' or action eq 'permission_granted' or action eq 'jit_approved' or action eq 'review_confirmed'}">
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
-                            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-xs"/>
+                            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-xs"/>
                           </div>
                         </j:when>
                         <j:otherwise>
                           <div class="oau-audit-icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
-                            <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-xs"/>
+                            <l:icon src="symbol-time plugin-ionicons-api" class="icon-xs"/>
                           </div>
                         </j:otherwise>
                       </j:choose>
@@ -664,7 +664,7 @@
             <div class="jenkins-card oau-widget">
               <div class="oau-widget__header">
                 <div class="oau-widget__title">
-                  <l:icon src="symbol-oau-x57 plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-locate plugin-ionicons-api" class="icon-sm"/>
                   System Configuration
                 </div>
                 <a href="settings" class="oau-widget__link">Settings →</a>
@@ -719,7 +719,7 @@
             <div class="jenkins-card oau-widget">
               <div class="oau-widget__header">
                 <div class="oau-widget__title">
-                  <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
                   Break Glass
                 </div>
                 <a href="breakGlass" class="oau-widget__link">Manage →</a>

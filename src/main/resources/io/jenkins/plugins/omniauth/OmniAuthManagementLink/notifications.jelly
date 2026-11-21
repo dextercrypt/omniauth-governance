@@ -184,7 +184,7 @@
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <l:icon src="symbol-oau-mail plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-mail plugin-ionicons-api" class="icon-sm"/>
                   <h3 class="oau-card-title">Email (SMTP)</h3>
                   <j:set var="smtpHealth" value="${it.notificationLog.lastSmtpEntry()}"/>
                   <j:choose>
@@ -341,7 +341,7 @@
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <l:icon src="symbol-oau-x60 plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-logo-slack plugin-ionicons-api" class="icon-sm"/>
                   <h3 class="oau-card-title">Slack</h3>
                   <j:set var="slackHealth" value="${it.notificationLog.lastSlackEntry()}"/>
                   <j:choose>
@@ -401,7 +401,7 @@
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <l:icon src="symbol-oau-people plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
                   <h3 class="oau-card-title">Microsoft Teams</h3>
                   <j:set var="teamsHealth" value="${it.notificationLog.lastTeamsEntry()}"/>
                   <j:choose>

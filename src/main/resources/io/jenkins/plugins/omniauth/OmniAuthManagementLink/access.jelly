@@ -28,7 +28,7 @@
               <!-- Identity -->
               <div class="jenkins-card" style="flex:1;min-width:280px;padding:16px;">
                 <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                  <l:icon src="symbol-oau-person plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-person plugin-ionicons-api" class="icon-sm"/>
                   Identity
                 </h3>
                 <table style="width:100%;border-collapse:collapse;">
@@ -100,7 +100,7 @@
               <!-- Jenkins Permissions -->
               <div class="jenkins-card" style="flex:1;min-width:280px;padding:16px;">
                 <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                  <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-sm"/>
+                  <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
                   Global Permissions
                 </h3>
                 <table style="width:100%;border-collapse:collapse;">
@@ -150,7 +150,7 @@
             <!-- ─── OmniAuth Grants ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <l:icon src="symbol-oau-shield plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
                 OmniAuth Grants
               </h3>
 
@@ -243,7 +243,7 @@
             <!-- ─── Job / Pipeline Access ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <l:icon src="symbol-oau-grid plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-grid plugin-ionicons-api" class="icon-sm"/>
                 Job / Pipeline Access
               </h3>
 
@@ -322,7 +322,7 @@
             <!-- ─── Login History ─── -->
             <div class="jenkins-card" style="margin-top:16px;padding:16px;">
               <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;">
-                <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-sm"/>
+                <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
                 Login History
                 <span style="font-size:0.75em;color:var(--text-color-secondary);font-weight:400;">(last 10)</span>
               </h3>

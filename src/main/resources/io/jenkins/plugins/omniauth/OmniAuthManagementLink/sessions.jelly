@@ -107,7 +107,7 @@
       <div id="oauRevokeModal" class="oau-modal-backdrop" style="display:none;">
         <div class="oau-modal">
           <div class="oau-modal-header oau-modal-header--danger">
-            <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-md"/>
+            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-md"/>
             Revoke Session
           </div>
           <div class="oau-modal-body">

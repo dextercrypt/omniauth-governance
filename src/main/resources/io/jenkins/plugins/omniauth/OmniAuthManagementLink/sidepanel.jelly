@@ -18,10 +18,10 @@
     <l:task icon="symbol-key"
             href="${rootURL}/manage/omniauth-management/accessManagement"
             title="Access Management"/>
-    <l:task icon="symbol-oau-checkmark-done plugin-omniauth-governance"
+    <l:task icon="symbol-checkmark-done plugin-ionicons-api"
             href="${rootURL}/manage/omniauth-management/accessReview"
             title="Access Review"/>
-    <l:task icon="symbol-oau-flash plugin-omniauth-governance"
+    <l:task icon="symbol-flash plugin-ionicons-api"
             href="${rootURL}/manage/omniauth-management/jitRequests"
             title="JIT Requests"/>
     <l:task icon="symbol-person-add-outline plugin-ionicons-api"
@@ -42,7 +42,7 @@
     <l:task icon="symbol-notifications-outline plugin-ionicons-api"
             href="${rootURL}/manage/omniauth-management/notifications"
             title="Notifications">
-      <l:task icon="symbol-oau-mail plugin-omniauth-governance"
+      <l:task icon="symbol-mail plugin-ionicons-api"
               href="${rootURL}/manage/omniauth-management/notificationLog"
               title="Notification Log"/>
     </l:task>

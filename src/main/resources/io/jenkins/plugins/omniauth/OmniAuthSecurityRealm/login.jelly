@@ -67,7 +67,7 @@
                        background:color-mix(in srgb, var(--warning-color,#f0ad4e) 14%, transparent);
                        border:1px solid var(--warning-color,#f0ad4e);
                        border-radius:6px;margin-bottom:16px;font-size:13px;line-height:1.5;">
-                    <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
+                    <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
                     <span>${it.loginAnnouncementText}</span>
                   </div>
                 </j:if>
@@ -135,12 +135,12 @@
                       />
                       <button type="button" id="togglePw" class="pw-toggle" tabindex="-1"
                               aria-label="Show password" title="Show password">
-                        <l:icon src="symbol-oau-eye plugin-omniauth-governance" class="icon-sm icon-eye"/>
-                        <l:icon src="symbol-oau-eye-off plugin-omniauth-governance" class="icon-sm icon-eye-off"/>
+                        <l:icon src="symbol-eye plugin-ionicons-api" class="icon-sm icon-eye"/>
+                        <l:icon src="symbol-eye-off plugin-ionicons-api" class="icon-sm icon-eye-off"/>
                       </button>
                     </div>
                     <div id="capsWarn" class="caps-warn" aria-live="polite">
-                      <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-xs"/>
+                      <l:icon src="symbol-warning plugin-ionicons-api" class="icon-xs"/>
                       <span>Caps Lock is on</span>
                     </div>
                   </div>
@@ -202,7 +202,7 @@
                         </j:when>
                         <j:otherwise>
                           <!-- Generic SSO fallback (key icon) for providers without a bespoke logo -->
-                          <l:icon src="symbol-oau-key plugin-omniauth-governance" class="icon-md"/>
+                          <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
                         </j:otherwise>
                       </j:choose>
                     </span>

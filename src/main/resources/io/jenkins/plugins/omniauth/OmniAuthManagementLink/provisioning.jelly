@@ -52,21 +52,21 @@
         <div class="pr-kpis">
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-warning-bg);">
-              <l:icon src="symbol-oau-time plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-warning-fg);">${it.pendingProvisioningCount}</div>
             <div class="oau-kpi-card__label">Pending</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-success-bg);">
-              <l:icon src="symbol-oau-checkmark plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
             <div class="oau-kpi-card__label">Approved</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-danger-bg);">
-              <l:icon src="symbol-oau-close-circle plugin-omniauth-governance" class="icon-md"/>
+              <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
             <div class="oau-kpi-card__label">Rejected</div>
@@ -191,7 +191,7 @@
           <j:choose>
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
               <div class="oau-notice--success">
-                <l:notice title="All caught up" icon="symbol-oau-checkmark-circle plugin-omniauth-governance">
+                <l:notice title="All caught up" icon="symbol-checkmark-circle plugin-ionicons-api">
                   You're all caught up — no pending access requests.
                 </l:notice>
               </div>
@@ -263,7 +263,7 @@
           <j:forEach var="r" items="${decided}"><j:if test="${!r.pending}"><j:set var="anyDecided" value="true"/></j:if></j:forEach>
           <j:choose>
             <j:when test="${anyDecided == 'false'}">
-              <l:notice title="No decisions yet" icon="symbol-oau-time plugin-omniauth-governance">
+              <l:notice title="No decisions yet" icon="symbol-time plugin-ionicons-api">
                 No decisions yet.
               </l:notice>
             </j:when>

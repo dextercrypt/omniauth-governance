@@ -9,7 +9,7 @@
   <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.sosCodesSectionAssets"/>
 
   <div style="display:flex; align-items:center; gap:8px; margin:4px 0 12px;">
-    <l:icon src="symbol-oau-settings plugin-omniauth-governance" class="icon-sm"/>
+    <l:icon src="symbol-settings plugin-ionicons-api" class="icon-sm"/>
     <h2 style="margin:0; font-size:1.05em; font-weight:600;">SOS Recovery Codes</h2>
   </div>
   <p style="margin:0 0 16px; font-size:0.85em; color:var(--text-color-secondary); line-height:1.6;">
@@ -111,7 +111,7 @@
     <div style="background:var(--card-background, #fff); border-radius:8px; padding:24px; max-width:440px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
       <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
         <div style="flex-shrink:0; width:36px; height:36px; border-radius:50%; background:var(--oau-danger-bg); display:flex; align-items:center; justify-content:center;">
-          <l:icon src="symbol-oau-x64 plugin-omniauth-governance" class="icon-sm"/>
+          <l:icon src="symbol-sync plugin-ionicons-api" class="icon-sm"/>
         </div>
         <div>
           <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:var(--text-color);">Regenerate recovery codes?</h3>

@@ -44,7 +44,7 @@
         <!-- Toolbar: search + filter pills -->
         <div class="us-toolbar">
           <div class="us-search-box">
-            <l:icon src="symbol-oau-search plugin-omniauth-governance" class="icon-xs"/>
+            <l:icon src="symbol-search plugin-ionicons-api" class="icon-xs"/>
             <input id="usQ" type="text" placeholder="Search username, name or email…"/>
           </div>
           <div class="us-filter-group">
@@ -187,24 +187,24 @@
                       <button class="us-kebab-btn" title="Actions">&#8942;</button>
                       <div class="us-menu">
                         <a class="us-menu-item" href="userOverview?userId=${u.userId}">
-                          <l:icon src="symbol-oau-person plugin-omniauth-governance" class="icon-sm"/>
+                          <l:icon src="symbol-person plugin-ionicons-api" class="icon-sm"/>
                           User Overview
                         </a>
                         <a class="us-menu-item" href="checkAccess?sid=${u.userId}&amp;type=USER">
-                          <l:icon src="symbol-oau-eye plugin-omniauth-governance" class="icon-sm"/>
+                          <l:icon src="symbol-eye plugin-ionicons-api" class="icon-sm"/>
                           Check Access
                         </a>
                         <div class="us-menu-divider"></div>
                         <j:choose>
                           <j:when test="${isGroupManaged}">
                             <span class="us-menu-item us-menu-disabled" title="Managed via Azure Entra group — remove from group in Azure to revoke access">
-                              <l:icon src="symbol-oau-people plugin-omniauth-governance" class="icon-sm"/>
+                              <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
                               Group managed
                             </span>
                           </j:when>
                           <j:when test="${isProtected}">
                             <span class="us-menu-item us-menu-disabled" title="Protected — remove protection first on the Protected Users page">
-                              <l:icon src="symbol-oau-lock-closed plugin-omniauth-governance" class="icon-sm"/>
+                              <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
                               Protected
                             </span>
                           </j:when>
@@ -218,14 +218,14 @@
                                         data-userid="${u.userId}"
                                         data-crumb-field="${app.crumbRequestField}"
                                         data-crumb-value="${app.crumb}">
-                                  <l:icon src="symbol-oau-arrow-undo plugin-omniauth-governance" class="icon-sm"/>
+                                  <l:icon src="symbol-arrow-undo plugin-ionicons-api" class="icon-sm"/>
                                   Remove Deletion Mark
                                 </button>
                               </j:when>
                               <j:when test="${orphanedGroup}">
                                 <!-- Orphaned group account — grayed + instant CSS tooltip -->
                                 <span class="us-menu-item us-menu-disabled us-menu-tipped">
-                                  <l:icon src="symbol-oau-arrow-undo plugin-omniauth-governance" class="icon-sm"/>
+                                  <l:icon src="symbol-arrow-undo plugin-ionicons-api" class="icon-sm"/>
                                   Remove Deletion Mark
                                   <span class="us-menu-tipbox">Re-provision as Individual user to restore access</span>
                                 </span>
@@ -236,7 +236,7 @@
                                         data-userid="${u.userId}"
                                         data-crumb-field="${app.crumbRequestField}"
                                         data-crumb-value="${app.crumb}">
-                                  <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
+                                  <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
                                   Mark for Deletion
                                 </button>
                               </j:otherwise>
@@ -245,7 +245,7 @@
                                     data-userid="${u.userId}"
                                     data-crumb-field="${app.crumbRequestField}"
                                     data-crumb-value="${app.crumb}">
-                              <l:icon src="symbol-oau-x71 plugin-omniauth-governance" class="icon-sm"/>
+                              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
                               Delete Now
                             </button>
                           </j:otherwise>
@@ -271,7 +271,7 @@
       <div id="usDModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
         <div class="us-modal">
           <div class="us-modal-hdr">
-            <l:icon src="symbol-oau-trash plugin-omniauth-governance" class="icon-sm"/>
+            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
             Delete User
           </div>
           <div class="us-modal-body">
@@ -290,7 +290,7 @@
       <div id="usPDModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
         <div class="us-modal">
           <div class="us-modal-hdr" style="background:var(--oau-warning-bg);border-bottom-color:var(--oau-warning-border);color:var(--oau-warning-fg);">
-            <l:icon src="symbol-oau-warning plugin-omniauth-governance" class="icon-sm"/>
+            <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
             Access Detail Unavailable
           </div>
           <div class="us-modal-body">

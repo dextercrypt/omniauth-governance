@@ -36,7 +36,7 @@
         <!-- Feature disabled state -->
         <j:if test="${!cfg.accessReviewEnabled}">
           <div style="text-align:center; padding: 60px 0; color: var(--text-color-secondary);">
-            <l:icon src="symbol-oau-checkmark-done plugin-omniauth-governance" class="icon-xlg"/>
+            <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-xlg"/>
             <div style="font-size: 1em; font-weight: 600; margin-bottom: 6px;">Access review is disabled</div>
             <div style="font-size: 0.85em; margin-bottom: 20px;">
               Enable it in Settings to start flagging stale access grants.
@@ -81,7 +81,7 @@
           <!-- All-clear empty state — Jenkins' standard empty-state notice -->
           <j:if test="${items.isEmpty()}">
             <div class="oau-notice--success">
-              <l:notice title="All caught up" icon="symbol-oau-shield-checkmark plugin-omniauth-governance">
+              <l:notice title="All caught up" icon="symbol-shield-checkmark plugin-ionicons-api">
                 No assignments need review right now.
               </l:notice>
             </div>
@@ -139,13 +139,13 @@
                         <div style="display:flex;align-items:center;gap:6px;">
                           <j:choose>
                             <j:when test="${item.scopeType eq 'GLOBAL'}">
-                              <l:icon src="symbol-oau-globe plugin-omniauth-governance" class="icon-xs"/>
+                              <l:icon src="symbol-globe plugin-ionicons-api" class="icon-xs"/>
                             </j:when>
                             <j:when test="${item.scopeType eq 'FOLDER'}">
-                              <l:icon src="symbol-oau-x45 plugin-omniauth-governance" class="icon-xs"/>
+                              <l:icon src="symbol-folder plugin-ionicons-api" class="icon-xs"/>
                             </j:when>
                             <j:otherwise>
-                              <l:icon src="symbol-oau-desktop plugin-omniauth-governance" class="icon-xs"/>
+                              <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-xs"/>
                             </j:otherwise>
                           </j:choose>
                           <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.displayScope}">
