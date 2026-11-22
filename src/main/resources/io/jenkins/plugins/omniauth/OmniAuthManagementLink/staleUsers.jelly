@@ -29,7 +29,7 @@
       </l:app-bar>
 
       <!-- Hidden cleanup form -->
-      <f:form name="oauCleanupForm" method="post" action="runCleanupNow" style="display:none;">
+      <f:form name="oauCleanupForm" method="post" action="runCleanupNow" class="oau-hidden">
       </f:form>
 
       <div class="oau-su-page">
@@ -129,7 +129,7 @@
             </div>
           </j:when>
           <j:otherwise>
-            <div class="jenkins-card oau-su-card oau-su-card--danger">
+            <div class="jenkins-card oau-su-card oau-su-card--danger oau-flush-table">
               <table class="jenkins-table jenkins-table--medium" style="margin:0;">
                 <thead>
                   <tr>
@@ -207,7 +207,7 @@
             </div>
           </j:when>
           <j:otherwise>
-            <div class="jenkins-card oau-su-card oau-su-card--warn">
+            <div class="jenkins-card oau-su-card oau-su-card--warn oau-flush-table">
               <table class="jenkins-table jenkins-table--medium sortable" style="margin:0;">
                 <thead>
                   <tr>
@@ -303,7 +303,7 @@
               </l:notice>
             </j:when>
             <j:otherwise>
-              <div class="jenkins-card oau-su-card oau-su-card--neutral" style="margin-top:8px;">
+              <div class="jenkins-card oau-su-card oau-su-card--neutral oau-flush-table" style="margin-top:8px;">
                 <table class="jenkins-table jenkins-table--medium" style="margin:0;">
                   <thead>
                     <tr>

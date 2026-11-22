@@ -163,7 +163,7 @@
  data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
  style="padding:3px 10px;">Edit</button>
                             </j:if>
-                            <f:form method="post" action="revokeAssignment" style="display:inline;">
+                            <f:form method="post" action="revokeAssignment" class="oau-inline-form">
                               <input type="hidden" name="sid"   value="${group.groupOid}"/>
                               <input type="hidden" name="type"  value="GROUP"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>

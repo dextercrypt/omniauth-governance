@@ -23,11 +23,15 @@
         .us-pill-on     { background:var(--accent-color) !important;color:#fff !important;border-color:var(--accent-color) !important;font-weight:600; }
 
         /* Table */
-        .us-card  { border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg); }
-        /* jenkins-table provides the frame (collapse, header, row borders, hover); these keep only
-           the fixed column layout and per-cell specifics so the data-grid look matches Jenkins. */
+        /* jenkins-table already draws the card frame (background, border, rounded corners, header,
+           row borders, hover). A second border+radius on this wrapper gave a double frame with a
+           mismatched-radius sliver at each corner, so the wrapper stays frameless. */
+        .us-card  { }
+        /* these keep the fixed column layout plus the shaded, uppercase header this table has always
+           used (the jenkins-table frame itself is kept; only the duplicate wrapper frame was removed). */
         .us-table { table-layout:fixed; }
-        .us-th    { text-transform:uppercase;letter-spacing:.05em;white-space:nowrap; }
+        .us-th    { text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
+                    background:var(--oau-neutral-bg); }
         .us-td    { vertical-align:middle;overflow:hidden; }
         .us-row   { cursor:pointer;transition:background .1s; }
         .us-row:hover { background:var(--oau-neutral-bg); }

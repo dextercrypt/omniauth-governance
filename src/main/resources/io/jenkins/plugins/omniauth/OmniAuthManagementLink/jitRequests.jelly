@@ -109,7 +109,7 @@
                       <td style="white-space:nowrap;text-align:right;">
                         <!-- Only show Approve/Deny if current admin is a listed pending approver -->
                         <j:if test="${r.isCurrentUserApprover(it.currentUserId)}">
-                          <f:form method="post" action="approveJit" style="display:inline;">
+                          <f:form method="post" action="approveJit" class="oau-inline-form">
                             <input type="hidden" name="requestId" value="${r.requestId}"/>
                             <div class="jenkins-select" style="margin-right:4px;vertical-align:middle;">
                             <select name="durationHours" title="Grant duration — up to the ${r.requestedDurationHours}h requested" class="jenkins-select__input"
@@ -228,7 +228,7 @@
                         <td style="font-size:0.8em;color:var(--text-color-secondary);">${r.timeAgo()}</td>
                         <td style="text-align:right;">
                           <j:if test="${r.status.equals('ACTIVE')}">
-                            <f:form method="post" action="revokeActiveJit" style="display:inline;">
+                            <f:form method="post" action="revokeActiveJit" class="oau-inline-form">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
                               <button type="submit" class="jenkins-button js-jit-revoke"
  data-confirm="Revoke active JIT access for ${r.requesterId}?"

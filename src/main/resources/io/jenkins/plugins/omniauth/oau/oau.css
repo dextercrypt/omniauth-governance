@@ -246,3 +246,32 @@
 /* "All-clear" empty states: keep Jenkins' native l:notice, tint only its icon green
    (reviewer-endorsed — the title/body text stay default). */
 .oau-notice--success .jenkins-notice > svg { color: var(--oau-success-solid); }
+
+/* Data tables that sit inside a card. A native jenkins-table draws its own card frame (background,
+   border, rounded corners); inside a card that stacks into a double border with a mismatched-radius
+   sliver at each corner. Tag the wrapping card with this class so the inner jenkins-table runs flush
+   (single frame = the card) while keeping a clear, theme-aware shaded header and row separators, so
+   it reads as a proper data table the way these tables did before they moved onto jenkins-table. */
+.oau-flush-table .jenkins-table { background: transparent; border: none; border-radius: 0; margin: 0;
+  border-collapse: collapse; width: 100%; }
+.oau-flush-table .jenkins-table > thead > tr > th {
+  background: var(--oau-neutral-bg); color: var(--text-color-secondary);
+  text-transform: uppercase; letter-spacing: .04em;
+  font-size: .76em; font-weight: 700; text-align: left;
+  padding: 10px 16px; white-space: nowrap; }
+.oau-flush-table .jenkins-table > tbody > tr > td {
+  border-top: 1px solid var(--oau-card-border);
+  padding: 12px 16px; vertical-align: middle; font-size: .88em; }
+.oau-flush-table .jenkins-table > tbody > tr:hover > td { background: var(--oau-neutral-bg); }
+
+/* Inline action forms inside a table cell (a small button next to a status pill or label).
+   f:form drops the style attribute and wraps its body in a <div width="100%"> block, which pushed
+   the control onto its own line. f:form does forward class, so tag the form with this: it lays the
+   form out inline and dissolves f:form's wrapper div (display:contents) so the control sits next to
+   the pill, the way it did before these forms moved from plain <form> to <f:form>. */
+.oau-inline-form { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; margin: 0 0 0 8px; }
+.oau-inline-form > div { display: contents; }
+
+/* f:form drops the style attribute, so a form meant to be hidden (JS-submitted helper) needs a class
+   to stay out of view instead of style="display:none". */
+.oau-hidden { display: none; }

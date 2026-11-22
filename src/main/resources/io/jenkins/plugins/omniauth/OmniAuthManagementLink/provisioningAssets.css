@@ -19,10 +19,17 @@
   background:var(--warning-color); color:#fff; border-radius:11px;
   font-size:0.72em; font-weight:700; padding:2px 9px;
 }
-/* jenkins-table provides the frame (collapse, header, row borders, hover); keep only per-cell
-   specifics so the data grid matches the Jenkins table look. */
-.pr-th { text-transform:uppercase; letter-spacing:0.04em; }
-.pr-td { font-size:0.88em; vertical-align:middle; }
+/* Table framing + header/row styling (flush frame, shaded header, row separators, hover) now come
+   from the shared .oau-flush-table rule in oau.css, since each table's card is tagged oau-flush-table. */
+
+/* Approved-but-not-yet-activated native requests: a single low-emphasis (tertiary) Resend link next
+   to the Approved pill, on the same line so the row keeps its height. The awaiting-activation context
+   lives in the button's tooltip rather than a second line, to keep the cell uncluttered. */
+.pr-resend { font-size:0.8em; padding:2px 10px; min-height:0; }
+/* read as a link (accent colour) so it's clearly actionable. Jenkins sets the button colour with
+   !important, so match it (our two-class selector then wins among the !important rules). Hover still
+   gets the tertiary button's subtle background. */
+.jenkins-button--tertiary.pr-resend { color:var(--link-color) !important; }
 
 .pr-user  { font-weight:600; }
 .pr-sub   { font-size:0.84em; color:var(--text-color-secondary); margin-top:2px; }
@@ -33,6 +40,8 @@
 .pr-empty svg { opacity:0.28; margin-bottom:10px; }
 
 .pr-reject { display:inline-flex; gap:6px; align-items:center; margin-left:6px; }
+/* dissolve f:form's <div width="100%"> wrapper so the comment field and button are direct flex items */
+.pr-reject > div { display:contents; }
 .pr-reject input { font-size:0.82em; padding:5px 8px; width:130px;
   border:1px solid var(--input-border,#ccc); border-radius:6px; }
 

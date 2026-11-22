@@ -265,7 +265,7 @@
                                     class="jenkins-button js-oau-edit-role" style="padding:3px 10px;margin-right:4px">
                               Edit
                             </button>
-                            <f:form method="post" action="deleteRole" style="display:inline;">
+                            <f:form method="post" action="deleteRole" class="oau-inline-form">
                               <input type="hidden" name="roleName" value="${r.name}"/>
                               <button type="submit"
  data-confirm="Delete role: ${r.name}?"

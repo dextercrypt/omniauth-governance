@@ -21,7 +21,7 @@
 
         <j:set var="entries" value="${it.notificationLog.entries}"/>
 
-        <div class="jenkins-card" style="padding: 0; overflow: hidden;">
+        <div class="jenkins-card oau-flush-table" style="padding: 0; overflow: hidden;">
 
           <!-- Header row -->
           <div style="padding: 12px 20px; border-bottom: 1px solid var(--oau-card-border);

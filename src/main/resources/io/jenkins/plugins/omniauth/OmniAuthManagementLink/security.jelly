@@ -90,7 +90,7 @@
                       </td>
                       <td>
                         <j:if test="${bf.alerted or bf.locked}">
-                          <f:form method="post" action="clearBruteForce" style="display:inline;">
+                          <f:form method="post" action="clearBruteForce" class="oau-inline-form">
                             <input type="hidden" name="userId" value="${bf.userId}"/>
                             <button type="submit" class="jenkins-button jenkins-button--small">${bf.locked ? 'Unlock' : 'Clear'}</button>
                           </f:form>

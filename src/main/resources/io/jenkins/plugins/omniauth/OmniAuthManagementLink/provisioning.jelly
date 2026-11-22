@@ -179,7 +179,7 @@
         </j:if>
 
         <!-- Pending -->
-        <div class="jenkins-card pr-card">
+        <div class="jenkins-card pr-card oau-flush-table">
           <div class="pr-card__head">
             Pending
             <j:if test="${!it.pendingProvisioningRequests.isEmpty()}">
@@ -224,7 +224,7 @@
                       <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
                       <td class="pr-td pr-when">${r.timeAgo()}</td>
                       <td class="pr-td" style="text-align:right;white-space:nowrap;">
-                        <f:form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
+                        <f:form method="post" action="approveProvisioning" class="oau-inline-form">
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
                           <div class="jenkins-select" style="max-width:150px;">
                           <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later" class="jenkins-select__input"
@@ -252,7 +252,7 @@
         </div>
 
         <!-- Recent -->
-        <div class="jenkins-card pr-card">
+        <div class="jenkins-card pr-card oau-flush-table">
           <div class="pr-card__head">Recent decisions</div>
           <j:set var="decided" value="${it.recentProvisioningRequests}"/>
           <j:set var="anyDecided" value="false"/>
@@ -287,9 +287,9 @@
                             <j:otherwise><span class="oau-pill oau-pill--amber">${r.statusLabel()}</span></j:otherwise>
                           </j:choose>
                           <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
-                            <f:form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
+                            <f:form method="post" action="resendActivation" class="oau-inline-form">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
-                              <button type="submit" class="jenkins-button jenkins-button--small" title="Email a fresh one-time activation link">Resend link</button>
+                              <button type="submit" class="jenkins-button jenkins-button--tertiary pr-resend" title="Still awaiting activation — email a fresh one-time activation link">Resend link</button>
                             </f:form>
                           </j:if>
                         </td>

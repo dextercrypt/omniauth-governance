@@ -351,7 +351,7 @@
                                 Edit
                               </button>
                             </j:if>
-                            <f:form method="post" action="revokeAssignment" style="display:inline;">
+                            <f:form method="post" action="revokeAssignment" class="oau-inline-form">
                               <input type="hidden" name="sid"   value="${sid}"/>
                               <input type="hidden" name="type"  value="${type}"/>
                               <input type="hidden" name="scope" value="${a.scope}"/>

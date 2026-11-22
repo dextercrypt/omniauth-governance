@@ -88,7 +88,7 @@
 
           <!-- Table -->
           <j:if test="${!items.isEmpty()}">
-            <div class="jenkins-card" style="padding:0; overflow:hidden;">
+            <div class="jenkins-card oau-flush-table" style="padding:0; overflow:hidden;">
               <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
@@ -166,7 +166,7 @@
 
                       <!-- Action cell -->
                       <td style="text-align:right; white-space:nowrap;">
-                        <f:form method="post" action="confirmAccess" style="display:inline;">
+                        <f:form method="post" action="confirmAccess" class="oau-inline-form">
                           <input type="hidden" name="sid"      value="${item.userId}"/>
                           <input type="hidden" name="type"     value="${item.authType}"/>
                           <input type="hidden" name="scope"    value="${item.scope}"/>
@@ -176,8 +176,8 @@
                             &#10003; Keep
                           </button>
                         </f:form>
-                        <f:form method="post" action="revokeFromReview" style="display:inline;margin-left:4px;"
-                              class="js-ar-revoke" data-confirm="Revoke access for ${item.displayName}?">
+                        <f:form method="post" action="revokeFromReview"
+                              class="js-ar-revoke oau-inline-form" data-confirm="Revoke access for ${item.displayName}?">
                           <input type="hidden" name="sid"   value="${item.userId}"/>
                           <input type="hidden" name="type"  value="${item.authType}"/>
                           <input type="hidden" name="scope" value="${item.scope}"/>
