@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — Access Requests" norefresh="true">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -8,11 +8,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.provisioningAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Access Requests</h1>
-        </div>
-      </div>
+      <l:app-bar title="Access Requests"/>
 
       <div class="pr-wrap">
 
@@ -56,21 +52,21 @@
         <div class="pr-kpis">
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-warning-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-warning-fg)"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-warning-fg);">${it.pendingProvisioningCount}</div>
             <div class="oau-kpi-card__label">Pending</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-success-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-success-fg)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
             <div class="oau-kpi-card__label">Approved</div>
           </div>
           <div class="oau-kpi-card">
             <div class="oau-kpi-card__icon" style="background:var(--oau-danger-bg);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 20 20" fill="var(--oau-danger-fg)"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-md"/>
             </div>
             <div class="oau-kpi-card__value" style="color:var(--oau-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
             <div class="oau-kpi-card__label">Rejected</div>
@@ -88,8 +84,7 @@
             </j:choose>
           </summary>
           <div class="pr-set-body">
-            <form method="post" action="saveProvisioningSettings">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="saveProvisioningSettings">
 
               <!-- Group 1: what requests are accepted -->
               <div class="pr-subhead">Requests</div>
@@ -127,10 +122,12 @@
                 </div>
                 <div class="pr-field">
                   <label for="pset-expiry">On expiry</label>
-                  <select id="pset-expiry" name="provisioningExpiryAction">
+                  <div class="jenkins-select">
+                  <select id="pset-expiry" name="provisioningExpiryAction" class="jenkins-select__input">
                     <option value="DISABLE" selected="${cfg.getProvisioningExpiryAction() == 'DISABLE' ? 'selected' : null}">Disable the account (revoke access)</option>
                     <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
                   </select>
+                  </div>
                 </div>
                 <div class="pr-field">
                   <label for="pset-remind">Expiry reminder (days before, 0 = off)</label>
@@ -167,7 +164,7 @@
               <div style="margin-top:18px;">
                 <button type="submit" class="jenkins-button jenkins-button--primary" style="line-height:1.2;padding:7px 16px;min-height:0;height:auto">Save Settings</button>
               </div>
-            </form>
+            </f:form>
           </div>
         </details>
 
@@ -175,10 +172,9 @@
         <j:if test="${it.provisioningBreakerTripped}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <span>Native request intake is paused by the circuit breaker (too many requests).</span>
-            <form method="post" action="resetProvisioningBreaker" style="margin:0;">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="resetProvisioningBreaker" style="margin:0;">
               <button type="submit" class="jenkins-button jenkins-button--small">Re-open now</button>
-            </form>
+            </f:form>
           </div>
         </j:if>
 
@@ -192,13 +188,14 @@
           </div>
           <j:choose>
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
-              <div class="pr-empty">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <div style="font-size:0.92em;">You're all caught up — no pending access requests.</div>
+              <div class="oau-notice--success">
+                <l:notice title="All caught up" icon="symbol-checkmark-circle plugin-ionicons-api">
+                  You're all caught up — no pending access requests.
+                </l:notice>
               </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>
@@ -227,24 +224,24 @@
                       <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
                       <td class="pr-td pr-when">${r.timeAgo()}</td>
                       <td class="pr-td" style="text-align:right;white-space:nowrap;">
-                        <form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                        <f:form method="post" action="approveProvisioning" style="display:inline-flex;gap:6px;align-items:center;vertical-align:middle;">
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
-                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later"
-                                  style="font-size:0.82em;padding:4px 6px;border:1px solid var(--input-border,#ccc);border-radius:6px;max-width:150px;">
+                          <div class="jenkins-select" style="max-width:150px;">
+                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later" class="jenkins-select__input"
+                                  style="font-size:0.82em;">
                             <option value="NONE">Sign-in only</option>
                             <j:forEach var="role" items="${it.roles}">
                               <option value="${role.name}">+ ${role.name}</option>
                             </j:forEach>
                           </select>
+                          </div>
                           <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
-                        </form>
-                        <form method="post" action="rejectProvisioning" class="pr-reject">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                        </f:form>
+                        <f:form method="post" action="rejectProvisioning" class="pr-reject">
                           <input type="hidden" name="requestId" value="${r.requestId}"/>
                           <input type="text" name="comment" placeholder="reason (optional)"/>
                           <button type="submit" class="jenkins-button jenkins-button--small">Reject</button>
-                        </form>
+                        </f:form>
                       </td>
                     </tr>
                   </j:forEach>
@@ -262,10 +259,12 @@
           <j:forEach var="r" items="${decided}"><j:if test="${!r.pending}"><j:set var="anyDecided" value="true"/></j:if></j:forEach>
           <j:choose>
             <j:when test="${anyDecided == 'false'}">
-              <div class="pr-empty"><div style="font-size:0.92em;">No decisions yet.</div></div>
+              <l:notice title="No decisions yet" icon="symbol-time plugin-ionicons-api">
+                No decisions yet.
+              </l:notice>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>
@@ -288,11 +287,10 @@
                             <j:otherwise><span class="oau-pill oau-pill--amber">${r.statusLabel()}</span></j:otherwise>
                           </j:choose>
                           <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
-                            <form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
+                            <f:form method="post" action="resendActivation" style="display:inline;margin-left:8px;">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                               <button type="submit" class="jenkins-button jenkins-button--small" title="Email a fresh one-time activation link">Resend link</button>
-                            </form>
+                            </f:form>
                           </j:if>
                         </td>
                         <td class="pr-td pr-sub" style="max-width:280px;">

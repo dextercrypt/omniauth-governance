@@ -11,7 +11,7 @@
   provider getters live on the realm (app.securityRealm), exactly as on login.jelly.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler">
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
   <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
     <st:setHeader name="Expires" value="0" />
     <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
@@ -109,6 +109,7 @@
                     <span class="sso-logo" style="display:flex;align-items:center;">
                       <j:choose>
                         <j:when test="${realm.ssoProvider.id == 'microsoft'}">
+                          <!-- Microsoft brand mark: a multi-colour logo, kept inline, not a monochrome symbol. -->
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
                             <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
                             <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
@@ -117,10 +118,7 @@
                           </svg>
                         </j:when>
                         <j:otherwise>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                               stroke="#dde6f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                          </svg>
+                          <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
                         </j:otherwise>
                       </j:choose>
                     </span>
@@ -140,7 +138,7 @@
                 <j:if test="${it.nativeAllowed}">
                   <j:choose>
                     <j:when test="${it.nativeAvailable}">
-                      <form method="post" action="${rootURL}/request-access/submitNative">
+                      <f:form method="post" action="${rootURL}/request-access/submitNative">
                         <div>
                           <label class="app-sign-in-register__form-label" for="pa-user">Username</label>
                           <input id="pa-user" class="jenkins-input" type="text" name="username"
@@ -174,9 +172,8 @@
                           <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
                                  min="0" value="${it.defaultDurationDays}"/>
                         </div>
-                        <input type="hidden" name="${h.getCrumbRequestField()}" value="${h.getCrumb(request2)}"/>
                         <button type="submit" class="pa-btn">Submit request</button>
-                      </form>
+                      </f:form>
                     </j:when>
                     <j:otherwise>
                       <div class="pa-banner pa-warn">

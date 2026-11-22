@@ -3,7 +3,7 @@
  * reset-to-defaults, cleanup field toggling, and cron validation.
  * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.settingsAssets"/>
  * Externalised from settings.jelly's inline <script> blocks for CSP compliance (Jenkins hosting).
- * The Jenkins root URL is read from the data-rooturl attribute on #oauSettingsForm
+ * The Jenkins root URL is read from the data-rooturl attribute on form[name="oauSettingsForm"]
  * instead of being inlined as EL. Functions called from inline on* handlers are
  * declared at top level (global). Adjuncts load in <head>, so DOM-access on load
  * is deferred until the document is parsed.
@@ -11,19 +11,14 @@
 
 // Jenkins root URL, sourced from the form's data-rooturl attribute (was inline EL).
 function oauRoot() {
-  var f = document.getElementById('oauSettingsForm');
+  var f = document.querySelector('form[name="oauSettingsForm"]');
   return f ? (f.getAttribute('data-rooturl') || '') : '';
 }
 
 function sosDeactivateNow(btn){
   btn.disabled = true; btn.textContent = 'Deactivating...';
   var base = window.location.pathname.split('/manage/')[0];
-  fetch(base + '/crumbIssuer/api/json')
-    .then(function(r){return r.json();})
-    .then(function(cd){
-      var h = {'Content-Type':'application/x-www-form-urlencoded'}; h[cd.crumbRequestField]=cd.crumb;
-      return fetch(base + '/manage/omniauth-management/sosDeactivate',{method:'POST',headers:h,body:''});
-    })
+  fetch(base + '/manage/omniauth-management/sosDeactivate',{method:'POST',headers:crumb.wrap({'Content-Type':'application/x-www-form-urlencoded'}),body:''})
     .then(function(){ window.location.reload(); })
     .catch(function(){ btn.disabled=false; btn.textContent='Deactivate now'; });
 }
@@ -49,11 +44,7 @@ function oauUploadLoginLogo(input) {
   var fd = new FormData();
   fd.append('loginLogo', input.files[0]);
 
-  var head = document.querySelector('head');
-  var cf = head ? head.getAttribute('data-crumb-header') : '';
-  var cv = head ? head.getAttribute('data-crumb-value')  : '';
-  var headers = {};
-  if (cf) headers[cf] = cv;
+  var headers = crumb.wrap({});
 
   fetch(oauRoot() + '/manage/omniauth-management/uploadLoginLogo', {
     method: 'POST', credentials: 'same-origin', headers: headers, body: fd
@@ -81,11 +72,7 @@ function oauUploadLoginLogo(input) {
 
 function oauRemoveLoginLogo(btn) {
   btn.disabled = true;
-  var head = document.querySelector('head');
-  var cf = head ? head.getAttribute('data-crumb-header') : '';
-  var cv = head ? head.getAttribute('data-crumb-value')  : '';
-  var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-  if (cf) headers[cf] = cv;
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
 
   fetch(oauRoot() + '/manage/omniauth-management/removeLoginLogo', {
     method: 'POST', credentials: 'same-origin', headers: headers, body: ''
@@ -133,11 +120,7 @@ function oauResetLoginBranding() {
   // Remove logo if one is uploaded
   var preview = document.getElementById('oauLogoPreview');
   if (preview && preview.style.display !== 'none') {
-    var head = document.querySelector('head');
-    var cf = head ? head.getAttribute('data-crumb-header') : '';
-    var cv = head ? head.getAttribute('data-crumb-value')  : '';
-    var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    if (cf) headers[cf] = cv;
+    var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
     fetch(oauRoot() + '/manage/omniauth-management/removeLoginLogo', {
       method: 'POST', credentials: 'same-origin', headers: headers, body: ''
     })
@@ -184,7 +167,7 @@ function validateCron(input) {
 
     // ── Event wiring (was inline on* handlers; moved here for CSP) ──────
     // Number inputs: blur on wheel so scrolling the page doesn't change values.
-    document.querySelectorAll('#oauSettingsForm input[type="number"]').forEach(function(el) {
+    document.querySelectorAll('form[name="oauSettingsForm"] input[type="number"]').forEach(function(el) {
       el.addEventListener('wheel', function() { this.blur(); });
     });
 

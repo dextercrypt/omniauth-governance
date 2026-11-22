@@ -18,7 +18,7 @@ function oauCloseCleanupModal() {
 }
 function oauSubmitCleanup() {
   oauCloseCleanupModal();
-  document.getElementById('oauCleanupForm').submit();
+  document.querySelector('form[name="oauCleanupForm"]').submit();
 }
 
 // ── Delete modal ───────────────────────────────────────────────────

@@ -1,19 +1,16 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — Access Management" norefresh="true">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Access Management" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.omniauth.oau.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.accessManagementAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Access Management</h1>
-        </div>
-      </div>
+      <l:app-bar title="Access Management"/>
 
       <div style="padding:0 16px 60px;">
 
@@ -74,7 +71,7 @@
         <div id="tabPanelUsers">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:8px;background:var(--oau-card-bg);border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:6px;padding:6px 12px;min-width:220px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#888;flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <l:icon src="symbol-search plugin-ionicons-api" class="icon-xs"/>
               <input id="oamSearch" type="text" placeholder="Search users and groups…"
                      style="border:none;outline:none;background:transparent;font-size:0.88em;color:var(--text-color,#333);width:180px;"/>
             </div>
@@ -86,22 +83,21 @@
             </j:if>
           </div>
 
-          <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
+          <div>
             <j:choose>
               <j:when test="${it.accessManagementUserList.isEmpty()}">
-                <div style="padding:56px;text-align:center;color:var(--text-color-secondary,#888);">
-                  <div style="margin-bottom:10px;opacity:0.4;display:flex;justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                  <div style="font-size:0.92em;">No permissions configured yet.</div>
+                <l:notice title="No permissions yet" icon="symbol-people plugin-ionicons-api">
+                  No permissions configured yet.
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
                             class="jenkins-button jenkins-button--primary js-oau-add-user" style="margin-top:12px">
                       + Add User
                     </button>
                   </j:if>
-                </div>
+                </l:notice>
               </j:when>
               <j:otherwise>
-                <table class="jenkins-table" style="width:100%;">
+                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                   <thead>
                     <tr>
                       <th>User / Group</th>
@@ -180,8 +176,7 @@
           <!-- Inline Create/Edit form (hidden by default) -->
           <div id="roleFormPanel" style="display:none;border:1px solid var(--oau-info-border);border-radius:8px;padding:20px 22px;background:var(--oau-info-bg);margin-bottom:16px;">
             <div id="roleFormTitle" style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Create Role</div>
-            <form method="post" action="saveRole">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="saveRole">
               <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:16px;">
                 <div>
                   <div class="oam-label">Role Name *</div>
@@ -212,12 +207,9 @@
                       </summary>
                       <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
                         <j:forEach var="perm" items="${group.permissions}">
-                          <label class="perm-label" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;transition:background 0.1s,border-color 0.1s;">
-                            <input type="checkbox" class="perm-cb" name="rolePermissions" value="${perm.id}"/>
-                            <span style="display:flex;flex-direction:column;gap:1px;">
-                              <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
-                              <span style="font-size:0.68em;color:#999;font-family:monospace;line-height:1.2;">${perm.shortId}</span>
-                            </span>
+                          <label class="perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--oau-neutral-bg);border:1px solid var(--oau-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;transition:background 0.1s,border-color 0.1s;">
+                            <input type="checkbox" class="perm-cb" name="rolePermissions" value="${perm.id}" data-implied-by="${perm.impliedById}"/>
+                            <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
                           </label>
                         </j:forEach>
                       </div>
@@ -229,26 +221,25 @@
                 <button type="submit" class="jenkins-button jenkins-button--primary" >Save Role</button>
                 <button type="button" id="oauRoleCancel" class="jenkins-button" >Cancel</button>
               </div>
-            </form>
+            </f:form>
           </div>
 
           <!-- Roles list -->
-          <div style="border:1px solid var(--panel-border-color,var(--oau-card-border));border-radius:8px;overflow:hidden;">
+          <div>
             <j:choose>
               <j:when test="${it.roles.isEmpty()}">
-                <div style="padding:56px;text-align:center;color:#888;">
-                  <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
-                  <div style="font-size:0.9em;">No roles defined yet.</div>
+                <l:notice title="No roles yet" icon="symbol-list-outline plugin-ionicons-api">
+                  No roles defined yet.
                   <j:if test="${it.omniAuthActive}">
                     <button type="button"
                             class="jenkins-button jenkins-button--primary js-oau-create-role" style="margin-top:12px">
                       + Create Role
                     </button>
                   </j:if>
-                </div>
+                </l:notice>
               </j:when>
               <j:otherwise>
-                <table class="jenkins-table" style="width:100%;">
+                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
                   <thead>
                     <tr>
                       <th>Role Name</th>
@@ -274,16 +265,15 @@
                                     class="jenkins-button js-oau-edit-role" style="padding:3px 10px;margin-right:4px">
                               Edit
                             </button>
-                            <form method="post" action="deleteRole" style="display:inline;">
-                              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                            <f:form method="post" action="deleteRole" style="display:inline;">
                               <input type="hidden" name="roleName" value="${r.name}"/>
                               <button type="submit"
-                                      data-confirm="Delete role: ${r.name}?"
-                                      class="jenkins-button js-oau-confirm"
-                                      style="font-size:0.78em;padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
+ data-confirm="Delete role: ${r.name}?"
+ class="jenkins-button js-oau-confirm"
+ style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
                                 Delete
                               </button>
-                            </form>
+                            </f:form>
                           </j:if>
                         </td>
                       </tr>
@@ -314,8 +304,7 @@
         </div>
 
         <div style="padding:22px 20px 32px;">
-          <form id="addUserForm" method="post" action="addUser">
-            <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+          <f:form name="addUserForm" method="post" action="addUser">
             <input type="hidden" id="auAction" name="action" value="existing"/>
 
             <!-- User Type -->
@@ -325,17 +314,17 @@
                 <label id="auTypeNativeLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--blue);color:#fff;font-weight:600;transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeNative" value="NATIVE" checked="checked"
-                         style="display:none;"/><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Native / Local</span>
+                         style="display:none;"/><l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/><span>Native / Local</span>
                 </label>
                 <label id="auTypeEntraLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeEntra" value="ENTRA"
-                         style="display:none;"/><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg><span>Entra / Microsoft</span>
+                         style="display:none;"/><l:icon src="symbol-cloud plugin-ionicons-api" class="icon-sm"/><span>Entra / Microsoft</span>
                 </label>
                 <label id="auTypeGroupLabel"
                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;cursor:pointer;font-size:0.88em;background:var(--oau-card-bg);color:var(--text-color,#333);transition:background 0.15s;">
                   <input type="radio" name="userType" id="auTypeGroup" value="GROUP"
-                         style="display:none;"/><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Entra Group</span>
+                         style="display:none;"/><l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/><span>Entra Group</span>
                 </label>
               </div>
             </div>
@@ -373,13 +362,13 @@
                 </label>
               </div>
               <div style="font-size:0.78em;color:#666;padding:8px 10px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:4px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L21 4.5"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>A secure temporary password will be auto-generated and shown once after account creation.
+                <l:icon src="symbol-key plugin-ionicons-api" class="icon-xs"/>A secure temporary password will be auto-generated and shown once after account creation.
               </div>
             </div>
 
             <!-- Entra: info banner -->
             <div id="auEntraInfo" style="display:none;margin-bottom:16px;padding:10px 12px;background:var(--oau-success-bg);border:1px solid var(--oau-success-border);border-radius:6px;font-size:0.83em;color:var(--oau-success-fg);">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Access will be pre-provisioned. When this user logs in via Microsoft for the first time, their account will be created automatically and access will already be in place.
+              <l:icon src="symbol-checkmark-circle plugin-ionicons-api" class="icon-xs"/>Access will be pre-provisioned. When this user logs in via Microsoft for the first time, their account will be created automatically and access will already be in place.
             </div>
 
             <!-- Group: OID + label fields -->
@@ -401,7 +390,7 @@
                 <div style="font-size:0.76em;color:#888;margin-top:4px;">Your own note — shown until display name resolves on first login.</div>
               </div>
               <div style="margin-bottom:16px;padding:10px 12px;background:var(--oau-warning-bg);border:1px solid var(--oau-warning-border);border-radius:6px;font-size:0.82em;color:var(--warning-color);">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login — removing this group immediately revokes access.
+                <l:icon src="symbol-people plugin-ionicons-api" class="icon-xs"/>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login — removing this group immediately revokes access.
               </div>
               <div style="padding:10px 12px;background:var(--oau-info-bg);border:1px solid var(--oau-info-border);border-radius:6px;font-size:0.82em;color:var(--oau-info-fg);">
                 &#8505; Display name will be resolved automatically when the first group member signs in with Microsoft.
@@ -409,11 +398,10 @@
             </div>
 
             <div style="display:flex;gap:10px;margin-top:16px;">
-              <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary"
-                      style="font-size:0.88em;">Continue</button>
+              <button type="submit" id="auSubmitBtn" class="jenkins-button jenkins-button--primary">Continue</button>
               <button type="button" class="jenkins-button js-oau-close-drawer" >Cancel</button>
             </div>
-          </form>
+          </f:form>
         </div>
       </div>
 

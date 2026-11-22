@@ -667,7 +667,7 @@ public class SmtpHelper {
         String content = kvTable(new String[][]{
                 {"Host",          code(esc(host) + ":" + port)},
                 {"From Address",  code(esc(fromAddress))},
-                {"TLS / STARTTLS", badge("#dcfce7", "#166534", "Enabled")},
+                {"Encryption",    badge("#dcfce7", "#166534", port == 465 ? "SSL/TLS (implicit)" : "STARTTLS")},
                 {"Test Sent To",  code(esc(to))},
                 {"Tested At",     ts}
         });
@@ -1013,13 +1013,20 @@ public class SmtpHelper {
     // SMTP properties
     // -------------------------------------------------------------------------
 
-    private static Properties buildProps(String host, int port, boolean tls) {
+    // Package-private so SmtpHelperTest can assert the TLS wiring without a live server.
+    static Properties buildProps(String host, int port, boolean tls) {
         Properties props = new Properties();
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", String.valueOf(port));
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.auth.mechanisms", "PLAIN LOGIN");
-        if (tls) {
+        if (port == 465) {
+            // Implicit TLS (SMTPS): the whole connection is encrypted from the first byte. This is
+            // the modern-secure default and the standard meaning of port 465 — STARTTLS does not
+            // apply here. The branch below is for the submission port 587 (or legacy plaintext 25).
+            props.put("mail.smtp.ssl.enable",              "true");
+            props.put("mail.smtp.ssl.checkserveridentity", "true");
+        } else if (tls) {
             props.put("mail.smtp.starttls.enable",   "true");
             props.put("mail.smtp.starttls.required", "true");
         }

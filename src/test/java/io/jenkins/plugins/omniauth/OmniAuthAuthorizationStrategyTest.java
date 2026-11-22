@@ -189,4 +189,32 @@ public class OmniAuthAuthorizationStrategyTest {
                 .anyMatch(p -> OmniAuthAuthorizationStrategy.isDangerousPermission(p.getId()));
         assertFalse(anyDangerous, "the permission picker must not offer admin-equivalent permissions");
     }
+
+    @Test
+    public void permissionGroups_areDerivedFromJenkinsNotAnOtherBucket() {
+        OmniAuthManagementLink link = j.jenkins.getExtensionList(OmniAuthManagementLink.class).get(0);
+        var groups = link.getAvailablePermissions();
+        // No catch-all "other plugin permissions" dumping ground — everything sits in its real group.
+        assertTrue(groups.stream().noneMatch(g -> g.getGroupName().toLowerCase().contains("other plugin")),
+                "permissions should be grouped by their real Jenkins group, not an 'other' bucket");
+        // The Item/Job permission group is present and holds the Item.* permissions.
+        boolean hasItemGroup = groups.stream().anyMatch(g ->
+                g.getPermissions().stream().anyMatch(p -> p.getId().startsWith("hudson.model.Item.")));
+        assertTrue(hasItemGroup, "the Item/Job permission group should be offered");
+    }
+
+    @Test
+    public void permissionInfo_carriesDescriptionAndImpliedBy() {
+        OmniAuthManagementLink link = j.jenkins.getExtensionList(OmniAuthManagementLink.class).get(0);
+        var all = link.getAvailablePermissions().stream()
+                .flatMap(g -> g.getPermissions().stream())
+                .toList();
+        PermissionInfo read = all.stream()
+                .filter(p -> p.getId().equals("hudson.model.Item.Read")).findFirst().orElseThrow();
+        assertFalse(read.getDescription().isEmpty(), "Item.Read should expose its description for the tooltip");
+        // Discover is granted automatically by a stronger permission (Read), so it is implied-by something.
+        PermissionInfo discover = all.stream()
+                .filter(p -> p.getId().equals("hudson.model.Item.Discover")).findFirst().orElseThrow();
+        assertFalse(discover.getImpliedById().isEmpty(), "Item.Discover should report the permission that implies it");
+    }
 }

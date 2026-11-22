@@ -1,18 +1,14 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form" xmlns:oau="/lib/oau">
 
-  <l:layout title="OmniAuth — Notifications" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Notifications" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.notificationsAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Notifications</h1>
-        </div>
-      </div>
+      <l:app-bar title="Notifications"/>
 
       <div style="padding: 16px 24px; max-width: 860px;">
 
@@ -32,13 +28,12 @@
           "teamsEvents": "${cfg.teamsEventsJoined}"
         }</script>
 
-        <form method="post" action="saveNotifications">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form method="post" action="saveNotifications">
 
           <!-- ================================================================
                MASTER TOGGLE
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
               <div style="flex: 1;">
                 <div style="font-weight: 700; font-size: 0.95em; margin-bottom: 4px;">Enable Notifications</div>
@@ -105,6 +100,7 @@
                   Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
                 </div>
                 <input type="url" id="oauLogoUrlInput" name="notificationLogoUrl"
+                       class="jenkins-input"
                        value=""
                        placeholder="https://your-domain.com/logo.png"
                        style="width:400px; max-width:100%;"/>
@@ -113,11 +109,12 @@
 
             <!-- Footer note -->
             <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--oau-card-border);">
-              <div style="font-weight:600; font-size:0.88em; margin-bottom:4px;">Footer Note</div>
+              <div class="oau-field-label">Footer Note</div>
               <div style="color:var(--text-color-secondary); font-size:0.82em; margin-bottom:6px;">
                 Optional line shown above the fine print in every notification email (e.g. "Contact IT: helpdesk@corp.com").
               </div>
               <input type="text" name="notificationFooterNote" value="${cfg.notificationFooterNote}"
+                     class="jenkins-input"
                      placeholder="e.g. For support contact helpdesk@corp.com"
                      style="width:440px; max-width:100%;"/>
             </div>
@@ -136,14 +133,13 @@
           <!-- Email Preview Modal -->
           <div id="oauPreviewModal" style="display:none; position:fixed; inset:0; z-index:9999;
                background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
-            <div style="background:var(--card-background, #fff); border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
+            <div style="background:var(--oau-card-bg); border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
                         width:min(780px,95vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
               <div style="padding:14px 20px; border-bottom:1px solid var(--oau-card-border);
                           display:flex; align-items:center; gap:12px;">
                 <span style="font-weight:700; font-size:0.95em; white-space:nowrap;">Email Preview</span>
-                <select id="oauPreviewEventType"
-                        style="flex:1; max-width:260px; font-size:0.85em; padding:4px 8px;
-                               border:1px solid var(--oau-card-border); border-radius:6px; background:var(--card-background, #fff); cursor:pointer;">
+                <div class="jenkins-select" style="flex:1; max-width:260px;">
+                <select id="oauPreviewEventType" class="jenkins-select__input" style="font-size:0.85em;">
                   <option value="configChanged">Config Changed</option>
                   <option value="bruteForce">Brute Force Alert</option>
                   <option value="userDeleted">User Deleted</option>
@@ -158,6 +154,7 @@
                   <option value="jitDenied">JIT Denied (to requester)</option>
                   <option value="smtpTest">SMTP Test Email</option>
                 </select>
+                </div>
                 <button type="button" id="oauPreviewCloseBtn"
                         style="background:none; border:none; font-size:1.3em; cursor:pointer; line-height:1;
                                color:var(--text-color-secondary); padding:2px 6px; border-radius:4px; margin-left:auto;"
@@ -186,13 +183,8 @@
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                       style="color:var(--oau-success-fg);flex-shrink:0;">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Email (SMTP)</h3>
+                  <l:icon src="symbol-mail plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="oau-card-title">Email (SMTP)</h3>
                   <j:set var="smtpHealth" value="${it.notificationLog.lastSmtpEntry()}"/>
                   <j:choose>
                     <j:when test="${smtpHealth != null and smtpHealth.success}">
@@ -237,12 +229,12 @@
                 <!-- Host + Port -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 2; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Host</div>
+                    <div class="oau-field-label">SMTP Host</div>
                     <input type="text" name="smtpHost" value="${cfg.smtpHost}"
                            class="jenkins-input" style="width: 100%;" placeholder="smtp.example.com"/>
                   </label>
                   <label style="flex: 0 0 100px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Port</div>
+                    <div class="oau-field-label">SMTP Port</div>
                     <input type="number" name="smtpPort" min="1" max="65535"
                            value="${cfg.smtpPort}" class="jenkins-input js-oau-no-wheel" style="width: 100%;"/>
                   </label>
@@ -251,13 +243,13 @@
                 <!-- Username + Password -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Username</div>
+                    <div class="oau-field-label">SMTP Username</div>
                     <input type="text" name="smtpUsername" value="${cfg.smtpUsername}"
                            class="jenkins-input" style="width: 100%;"
                            autocomplete="off" placeholder="smtp-username"/>
                   </label>
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">SMTP Password</div>
+                    <div class="oau-field-label">SMTP Password</div>
                     <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 4px;">
                       Leave blank to keep existing.
                     </div>
@@ -291,12 +283,12 @@
                 <!-- From address + name -->
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">From Address</div>
+                    <div class="oau-field-label">From Address</div>
                     <input type="email" name="smtpFromAddress" value="${cfg.smtpFromAddress}"
                            class="jenkins-input" style="width: 100%;" placeholder="no-reply@example.com"/>
                   </label>
                   <label style="flex: 1; min-width: 200px;">
-                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">From Name</div>
+                    <div class="oau-field-label">From Name</div>
                     <input type="text" name="smtpFromName" value="${cfg.smtpFromName}"
                            class="jenkins-input" style="width: 100%;" placeholder="Jenkins OmniAuth"/>
                   </label>
@@ -304,10 +296,10 @@
 
                 <!-- Reply-To -->
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">
+                  <div class="oau-field-label">
                     Reply-To Address <span style="font-weight:400; color:var(--text-color-secondary);">(Optional)</span>
                   </div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-hint">
                     Replies go here instead of the From address. Useful for no-reply senders.
                   </div>
                   <input type="email" name="smtpReplyTo" value="${cfg.smtpReplyTo}"
@@ -316,8 +308,8 @@
 
                 <!-- Recipients -->
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Notification Recipients</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Notification Recipients</div>
+                  <div class="oau-field-hint">
                     Comma-separated. All enabled event emails go to these addresses.
                   </div>
                   <input type="text" name="notifyEmails" value="${cfg.notifyEmails}"
@@ -325,34 +317,19 @@
                          placeholder="admin@example.com, team@example.com"/>
                 </label>
 
-                <!-- Test button -->
+                <!-- Test button — native f:validateButton; posts the SMTP fields to
+                     OmniAuthGlobalConfig#doSendTestEmail and renders its FormValidation result. -->
                 <div style="padding-top: 4px; border-top: 1px solid var(--oau-card-border);">
-                  <button type="button" class="jenkins-button" id="oauSendTestEmailBtn">
-                    Send Test Email
-                  </button>
-                  <span id="smtpTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
+                  <j:set var="descriptor" value="${it.smtpTestDescriptor}"/>
+                  <f:validateButton title="Send Test Email" progress="Sending…"
+                                    method="sendTestEmail"
+                                    with="smtpHost,smtpPort,smtpUsername,smtpPassword,smtpTls,smtpFromAddress,smtpFromName,smtpReplyTo,notifyEmails"/>
                 </div>
 
                 <!-- SMTP event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send via Email</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="smtpEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="smtpEvents"/>
                 </div>
 
               </div>
@@ -363,19 +340,8 @@
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                       style="color:#4a154b;flex-shrink:0;">
-                    <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-                    <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                    <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
-                    <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
-                    <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
-                    <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
-                    <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
-                    <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/>
-                  </svg>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Slack</h3>
+                  <l:icon src="symbol-logo-slack plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="oau-card-title">Slack</h3>
                   <j:set var="slackHealth" value="${it.notificationLog.lastSlackEntry()}"/>
                   <j:choose>
                     <j:when test="${slackHealth != null and slackHealth.success}">
@@ -408,8 +374,8 @@
               </div>
               <div id="slackConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Incoming Webhook URL</div>
+                  <div class="oau-field-hint">
                     Create one at Slack → Your App → Incoming Webhooks.
                   </div>
                   <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrlPlain}"
@@ -424,41 +390,18 @@
                 <!-- Slack event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Slack</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="slackEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="slackEvents"/>
                 </div>
               </div>
             </div>
 
             <!-- Teams -->
-            <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div class="jenkins-card oau-card-block">
               <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);
                           display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                       style="color:#6264a7;flex-shrink:0;">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                  <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Microsoft Teams</h3>
+                  <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="oau-card-title">Microsoft Teams</h3>
                   <j:set var="teamsHealth" value="${it.notificationLog.lastTeamsEntry()}"/>
                   <j:choose>
                     <j:when test="${teamsHealth != null and teamsHealth.success}">
@@ -491,8 +434,8 @@
               </div>
               <div id="teamsConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
                 <label>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Incoming Webhook URL</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Incoming Webhook URL</div>
+                  <div class="oau-field-hint">
                     In Teams: channel → ... → Workflows → "Post to a channel when a webhook request is received".
                     Copy the generated webhook URL. O365 Connectors are retired and no longer work.
                   </div>
@@ -508,23 +451,7 @@
                 <!-- Teams event subscriptions -->
                 <div style="border-top: 1px solid var(--oau-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Microsoft Teams</div>
-                  <div class="oau-event-grid">
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="cleanup"/>          <span>Stale cleanup ran</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="userDeleted"/>      <span>User manually deleted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="configChanged"/>    <span>OmniAuth config changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="protectedListChanged"/> <span>Protected users list changed</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="graphApiFailure"/>  <span>Graph API failure</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="adminGranted"/>     <span>Admin permission granted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="bruteForce"/>       <span>Brute force detected</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="staleWarning"/>     <span>Stale warning digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accessReview"/>     <span>Access review digest</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitRequest"/>       <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitApproved"/>      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access approved</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="jitDenied"/>        <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="vertical-align:middle;margin-right:3px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>JIT access denied</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="provisionRequest"/> <span>Access request submitted</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accountExpired"/> <span>Account expired (time-limited)</span></label>
-                    <label class="oau-event-label"><input type="checkbox" name="teamsEvents" value="accountLocked"/> <span>Account locked (brute force)</span></label>
-                  </div>
+                  <oau:eventGrid name="teamsEvents"/>
                 </div>
               </div>
             </div>
@@ -537,7 +464,7 @@
               Event Settings
             </div>
 
-            <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+            <div class="jenkins-card oau-card-block">
               <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 0;">
 
                 <!-- Brute force threshold -->
@@ -634,7 +561,7 @@
             <a href="." class="jenkins-button">Cancel</a>
           </div>
 
-        </form>
+        </f:form>
 
         <!-- ================================================================
              NOTIFICATION LOG
@@ -644,7 +571,7 @@
           Notification Log
         </div>
 
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">Notification Audit Trail</div>

@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout title="OmniAuth — Audit Log" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Audit Log" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -8,11 +8,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oau"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.auditLogAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Audit Log</h1>
-        </div>
-      </div>
+      <l:app-bar title="Audit Log"/>
 
       <div style="padding:0 16px 60px;">
 
@@ -23,7 +19,8 @@
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
           <input id="alxSearch" type="text" placeholder="Filter by user, action, scope…"
                  class="jenkins-input" style="max-width:260px;font-size:0.88em;"/>
-          <select id="alxActionFilter" class="jenkins-input" style="max-width:180px;font-size:0.88em;">
+          <div class="jenkins-select" style="max-width:180px;">
+          <select id="alxActionFilter" class="jenkins-select__input" style="font-size:0.88em;">
             <option value="">All actions</option>
             <option value="grant">Grant</option>
             <option value="revoke">Revoke</option>
@@ -60,13 +57,14 @@
             <option value="jit_cancelled">JIT Cancelled</option>
             <option value="review_confirmed">Review Confirmed</option>
           </select>
+          </div>
           <input id="alxIpFilter" type="text" placeholder="Filter by IP…"
                  class="jenkins-input" style="max-width:160px;font-size:0.88em;"/>
           <span id="alxCount" style="font-size:0.8em;color:var(--text-color-secondary, #999);margin-left:4px;"></span>
           <div style="margin-left:auto;">
             <button type="button" id="oauPurgeOpen"
-                    class="jenkins-button"
-                    style="font-size:0.82em;color:var(--error-color);border-color:var(--error-color);">
+ class="jenkins-button"
+ style="color:var(--error-color);border-color:var(--error-color);">
               Purge All Logs
             </button>
           </div>
@@ -81,16 +79,16 @@
                   class="jenkins-button" >Clear filters</button>
         </div>
 
-        <div style="border:1px solid var(--oau-card-border);border-radius:8px;overflow:hidden;background:var(--oau-card-bg);">
+        <div>
           <j:choose>
             <j:when test="${it.auditEvents.isEmpty()}">
               <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
-                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></div>
+                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><l:icon src="symbol-document-text plugin-ionicons-api" class="icon-lg"/></div>
                 <div style="font-size:0.9em;">No audit events recorded yet.</div>
               </div>
             </j:when>
             <j:otherwise>
-              <table id="alxTable" class="jenkins-table" style="width:100%;">
+              <table id="alxTable" class="jenkins-table jenkins-table--medium" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Time</th>
@@ -184,14 +182,14 @@
     <div id="alxPurgeModal" data-sso="${it.currentUserSso}"
          style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,20,30,0.55);
                 backdrop-filter:blur(3px);align-items:center;justify-content:center;">
-      <div id="alxPurgeBox" style="background:var(--card-background, #fff);border-radius:14px;width:420px;max-width:92vw;
+      <div id="alxPurgeBox" style="background:var(--oau-card-bg);border-radius:14px;width:420px;max-width:92vw;
                   box-shadow:0 32px 80px rgba(0,0,0,0.28);padding:32px 32px 28px;">
 
         <!-- Icon + title -->
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
           <div style="width:44px;height:44px;border-radius:12px;background:var(--oau-danger-bg);
                       display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--oau-danger-fg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-md"/>
           </div>
           <div>
             <div style="font-weight:700;font-size:1.05em;color:var(--text-color);">Purge All Audit Logs</div>
@@ -234,8 +232,8 @@
           <button type="button" id="oauPurgeCancel"
                   class="jenkins-button" >Cancel</button>
           <button type="button" id="alxPurgeBtn"
-                  class="jenkins-button" disabled="disabled"
-                  style="font-size:0.88em;background:var(--error-color);color:#fff;border-color:var(--error-color);">
+ class="jenkins-button" disabled="disabled"
+ style="background:var(--error-color);color:#fff;border-color:var(--error-color);">
             Delete All Logs
           </button>
         </div>

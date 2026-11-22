@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout title="OmniAuth — Notification Log" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Notification Log" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -9,11 +9,7 @@
       <st:adjunct includes="io.jenkins.plugins.omniauth.oau.oauConfirm"/>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.notificationLogAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Notification Log</h1>
-        </div>
-      </div>
+      <l:app-bar title="Notification Log"/>
 
       <div style="padding: 16px 24px; max-width: 960px;">
 
@@ -39,32 +35,28 @@
               </span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <a href="notifications" class="jenkins-button" >
-                ← Back to Notifications
-              </a>
               <j:if test="${!entries.isEmpty()}">
-                <form method="post" action="clearNotificationLog" style="margin: 0;">
-                  <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+                <f:form method="post" action="clearNotificationLog" style="margin: 0;">
                   <button type="submit" class="jenkins-button" id="oauClearLogBtn"
-                          style="font-size: 0.85em;"
-                          data-confirm="Clear all notification log entries?">
+
+ data-confirm="Clear all notification log entries?">
                     Clear log
                   </button>
-                </form>
+                </f:form>
               </j:if>
             </div>
           </div>
 
           <!-- Empty state -->
           <j:if test="${entries.isEmpty()}">
-            <div style="padding: 48px 20px; text-align: center; color: var(--text-color-secondary); font-size: 0.9em;">
+            <l:notice title="No notifications yet" icon="symbol-mail plugin-ionicons-api">
               No notifications sent yet. Configure SMTP, enable events, and they will appear here.
-            </div>
+            </l:notice>
           </j:if>
 
           <!-- Table (hidden initially — JS shows correct page) -->
           <j:if test="${!entries.isEmpty()}">
-            <table id="logTable" class="jenkins-table" style="width: 100%;">
+            <table id="logTable" class="jenkins-table jenkins-table--medium" style="width: 100%;">
               <thead>
                 <tr>
                   <th>#</th>

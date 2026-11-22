@@ -1,18 +1,14 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout title="OmniAuth — Settings" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Settings" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.settingsAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Settings</h1>
-        </div>
-      </div>
+      <l:app-bar title="Settings"/>
 
       <div style="padding: 16px 24px; max-width: 860px;">
 
@@ -22,25 +18,22 @@
           </div>
         </j:if>
 
-        <form id="oauSettingsForm" method="post" action="saveSettings" data-rooturl="${rootURL}">
-          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+        <f:form name="oauSettingsForm" method="post" action="saveSettings" data-rooturl="${rootURL}">
 
           <j:set var="cfg" value="${it.omniAuthGlobalConfig}"/>
 
           <!-- ================================================================
                USER STATUS
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,var(--blue));flex-shrink:0;">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">User Status</h3>
+              <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">User Status</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                 <label style="flex: 1; min-width: 200px;">
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Active threshold (days)</div>
+                  <div class="oau-field-label">Active threshold (days)</div>
                   <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                     Logins within this window are considered active. Affects the Active / Inactive status on the User Status page.
                   </div>
@@ -56,16 +49,14 @@
           <!-- ================================================================
                STALE USERS
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Stale Users</h3>
+              <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">Stale Users</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <label style="display: block;">
-                <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Stale threshold (days)</div>
+                <div class="oau-field-label">Stale threshold (days)</div>
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                   Users who have not logged in for longer than this are listed as stale and eligible for cleanup.
                 </div>
@@ -81,16 +72,14 @@
                AUDIT LOG RETENTION
                ================================================================ -->
           <j:set var="auditStore" value="${it.auditStorage}"/>
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,#0078d4);flex-shrink:0;">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Audit Log Retention</h3>
+              <l:icon src="symbol-document-text plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">Audit Log Retention</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <label style="display: block;">
-                <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Retention period (days)</div>
+                <div class="oau-field-label">Retention period (days)</div>
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                   Audit events older than this are automatically pruned by a daily job. Set to
                   <strong>0</strong> to keep events forever. Audit entries are tiny (~110 bytes each),
@@ -115,12 +104,10 @@
           <!-- ================================================================
                AUTOMATED CLEANUP
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--error-color);flex-shrink:0;">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Automated Cleanup</h3>
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">Automated Cleanup</h3>
             </div>
             <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
 
@@ -175,8 +162,8 @@
 
                 <!-- Cron schedule -->
                 <div>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Schedule (cron)</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Schedule (cron)</div>
+                  <div class="oau-field-hint">
                     Standard 5-field cron. Default: <code>0 2 * * 0</code> (02:00 every Sunday).
                   </div>
                   <input type="text" name="cleanupCron" id="cleanupCron" value="${cfg.cleanupCron}"
@@ -191,8 +178,8 @@
 
                 <!-- Max deletions -->
                 <div>
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Max deletions per run</div>
-                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                  <div class="oau-field-label">Max deletions per run</div>
+                  <div class="oau-field-hint">
                     Safety cap. Cleanup stops after this many deletions even if more stale users exist.
                   </div>
                   <input type="number" name="cleanupMaxDeletions" min="1" max="500"
@@ -208,14 +195,12 @@
           <!-- ================================================================
                ACCESS REVIEW
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
-                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Access Review</h3>
+              <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">Access Review</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <div style="margin-bottom: 16px;">
                 <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
                   Flag scoped assignments that haven't been reviewed in a while.
@@ -236,7 +221,7 @@
               </div>
               <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                 <label style="flex: 1; min-width: 200px;">
-                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Review threshold (days)</div>
+                  <div class="oau-field-label">Review threshold (days)</div>
                   <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
                     Assignments older than this (since grant or last review) are flagged.
                   </div>
@@ -252,14 +237,12 @@
           <!-- ================================================================
                SOS MODE (lockout recovery)
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--warning-color);flex-shrink:0;">
-                <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">SOS Mode (lockout recovery)</h3>
+              <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">SOS Mode (lockout recovery)</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
                 A host-level fail-safe for a true admin lockout (all admins SSO-only with the identity
                 provider down, or a misconfigured authorization strategy). An operator drops an empty file
@@ -297,12 +280,10 @@
           <!-- ================================================================
                LOGIN PAGE BRANDING
                ================================================================ -->
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border); display: flex; align-items: center; gap: 10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue,var(--blue));flex-shrink:0;">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
-              </svg>
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Login Page</h3>
+              <l:icon src="symbol-browsers plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="oau-card-title">Login Page</h3>
               <button type="button" class="jenkins-button" style="margin-left: auto"
                       id="oauResetBranding">
                 Reset to defaults
@@ -312,24 +293,27 @@
 
               <!-- Login Background -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Login Background</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Login Background</label>
+                <div class="oau-field-hint">
                   Background design shown behind the logo on the login page. Default: OmniAuth animation.
                 </div>
-                <select name="loginBackground" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginBackground" class="jenkins-select__input">
                   <j:set var="bg" value="${cfg.loginBackground}"/>
                   <option value="omniauth"  selected="${bg == 'omniauth'  ? 'selected' : null}">OmniAuth Animation (animated reactor)</option>
                   <option value="starburst" selected="${bg == 'starburst' ? 'selected' : null}">Starburst (Jenkins native)</option>
                 </select>
+                </div>
               </div>
 
               <!-- Butler Style -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Butler Style</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Butler Style</label>
+                <div class="oau-field-hint">
                   Centre figure on the animated panel. Default: the native Jenkins butler.
                 </div>
-                <select name="loginButler" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginButler" class="jenkins-select__input">
                   <j:set var="btl" value="${cfg.loginButler}"/>
                   <option value="default" selected="${btl == 'default' ? 'selected' : null}">Jenkins Butler (native) — default</option>
                   <option value="austin"  selected="${btl == 'austin'  ? 'selected' : null}">Willie Nelson (Austin butler)</option>
@@ -345,12 +329,13 @@
                   <option value="daily"      selected="${btl == 'daily'      ? 'selected' : null}">Surprise: Butler of the Day</option>
                   <option value="random"     selected="${btl == 'random'     ? 'selected' : null}">Surprise: Random each visit</option>
                 </select>
+                </div>
               </div>
 
               <!-- Page Heading -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Page Heading</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Page Heading</label>
+                <div class="oau-field-hint">
                   Large title above the login form. Default: "Sign in to Jenkins"
                 </div>
                 <input type="text" name="loginHeading" value="${cfg.loginHeading}"
@@ -360,8 +345,8 @@
 
               <!-- Tab Title -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Browser Tab Title</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Browser Tab Title</label>
+                <div class="oau-field-hint">
                   Text shown in the browser tab on the login page. Default: "Sign In"
                 </div>
                 <input type="text" name="loginTabTitle" value="${cfg.loginTabTitle}"
@@ -371,7 +356,7 @@
 
               <!-- Logo upload -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Company Logo</label>
+                <label class="oau-field-label">Company Logo</label>
                 <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
                   Shown above the sign-in form. The Jenkins butler stays on the branding panel. PNG, JPG, SVG, or GIF. Max 2 MB. Leave empty to hide.
                 </div>
@@ -425,36 +410,40 @@
 
               <!-- Logo Position -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Logo Position</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Logo Position</label>
+                <div class="oau-field-hint">
                   Where the company logo sits on the login form. Only applies when a logo is uploaded.
                 </div>
-                <select name="loginLogoPosition" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoPosition" class="jenkins-select__input">
                   <j:set var="llp" value="${cfg.loginLogoPosition}"/>
                   <option value="a" selected="${llp == 'a' ? 'selected' : null}">Top left (above the heading) — default</option>
                   <option value="e" selected="${llp == 'e' ? 'selected' : null}">Top-right corner of the panel</option>
                   <option value="f" selected="${llp == 'f' ? 'selected' : null}">Centered (above the heading)</option>
                 </select>
+                </div>
               </div>
 
               <!-- Logo Size -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Logo Size</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Logo Size</label>
+                <div class="oau-field-hint">
                   Height of the company logo on the login form. Only applies when a logo is uploaded.
                 </div>
-                <select name="loginLogoSize" class="jenkins-input" style="width: 360px; max-width: 100%;">
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoSize" class="jenkins-select__input">
                   <j:set var="lls" value="${cfg.loginLogoSize}"/>
                   <option value="20" selected="${lls == '20' ? 'selected' : null}">Small (20px)</option>
                   <option value="30" selected="${lls == '30' ? 'selected' : null}">Medium (30px)</option>
                   <option value="40" selected="${lls == '40' ? 'selected' : null}">Large (40px) — default</option>
                 </select>
+                </div>
               </div>
 
               <!-- Announcement Banner -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Announcement Banner</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Announcement Banner</label>
+                <div class="oau-field-hint">
                   Shown above the login form. Useful for maintenance windows, policy changes, or onboarding notices.
                   Leave empty to hide.
                 </div>
@@ -466,8 +455,8 @@
 
               <!-- Footer Contact Text -->
               <div>
-                <label style="display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px;">Footer Contact Text</label>
-                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px;">
+                <label class="oau-field-label">Footer Contact Text</label>
+                <div class="oau-field-hint">
                   Shown below the login form. Use for help desk contact details or a support link.
                   Leave empty to hide.
                 </div>
@@ -484,7 +473,7 @@
             <a href="." class="jenkins-button">Cancel</a>
           </div>
 
-        </form>
+        </f:form>
       </div>
 
     </l:main-panel>

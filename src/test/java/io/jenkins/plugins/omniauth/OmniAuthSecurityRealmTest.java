@@ -1,4 +1,5 @@
 package io.jenkins.plugins.omniauth;
+import io.jenkins.plugins.omniauth.sso.EntraOAuthConfig;
 
 import com.microsoft.aad.msal4j.IAccount;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for OmniAuthSecurityRealm.
  *
  * Uses FakeMsalTokenHelper (a test subclass) to avoid any real Azure AD calls.
- * No HTTP requests are made — Tier 2/3 tests call startEntraLogin / finishEntraLogin
+ * No HTTP requests are made — Tier 2/3 tests call startLogin / finishLogin
  * directly with a fake StaplerRequest proxy and capture the returned HttpResponse
  * through a fake StaplerResponse2 proxy.
  *
@@ -65,7 +66,7 @@ public class OmniAuthSecurityRealmTest {
         IAuthenticationResult fakeResult  = null;
         JWTClaimsSet          fakeClaims  = null;
 
-        // Captured by buildAuthorizationUrl — readable by tests after startEntraLogin
+        // Captured by buildAuthorizationUrl — readable by tests after startLogin
         String capturedState;
         String capturedNonce;
 
@@ -161,7 +162,7 @@ public class OmniAuthSecurityRealmTest {
         }
 
         @Override
-        TokenHelper createMsalTokenHelper() { return helper; }
+        public TokenHelper createMsalTokenHelper() { return helper; }
     }
 
     // ─── Captured response ────────────────────────────────────────────────────
@@ -204,11 +205,11 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * Creates a StaplerRequest proxy that serves only the methods called by
-     * startEntraLogin / finishEntraLogin: getSession(), getParameter(), getRootPath().
+     * startLogin / finishLogin: getSession(), getParameter(), getRootPath().
      *
      * The same FakeSession instance must be shared across the commence + finish
-     * calls so that session attributes written by startEntraLogin are visible to
-     * finishEntraLogin — exactly as a real browser session works.
+     * calls so that session attributes written by startLogin are visible to
+     * finishLogin — exactly as a real browser session works.
      */
     private StaplerRequest2 fakeRequest(Map<String, String> params, FakeSession session) {
         return (StaplerRequest2) Proxy.newProxyInstance(
@@ -363,7 +364,7 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         assertTrue(realm.isSsoEnabled(), "unset flag + configured provider → reported on");
         assertTrue(realm.isSsoActive(), "SSO should be active");
-        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+        assertEquals("microsoft", realm.getSsoProvider().getId());
     }
 
     /** No provider and no flag → native-only: SSO off and inactive, no login-button provider. */
@@ -390,7 +391,7 @@ public class OmniAuthSecurityRealmTest {
         assertFalse(realm.isSsoActive());
         assertNull(realm.getSsoProvider(), "no SSO button when the toggle is off");
 
-        Resp resp = captureResponse(realm.startEntraLogin(fakeRequest(Map.of(), new FakeSession())));
+        Resp resp = captureResponse(realm.startLogin(fakeRequest(Map.of(), new FakeSession())));
         assertEquals(503, resp.status, "OAuth entry point must refuse while SSO is off");
     }
 
@@ -400,7 +401,7 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         realm.setSsoEnabled(true);
         assertTrue(realm.isSsoActive());
-        assertEquals(SsoProvider.MICROSOFT, realm.getSsoProvider());
+        assertEquals("microsoft", realm.getSsoProvider().getId());
     }
 
     /** The toggle alone cannot activate SSO — a provider must also be configured. */
@@ -430,21 +431,21 @@ public class OmniAuthSecurityRealmTest {
     // ─── Tier 2: OAuth2 error cases (direct method calls, no HTTP) ───────────
 
     /**
-     * When Entra is not configured, startEntraLogin should immediately return a
+     * When Entra is not configured, startLogin should immediately return a
      * 503 Service Unavailable rather than crashing.
      */
     @Test
     public void commenceLogin_withNoEntraConfig_returns503() throws Exception {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, null);
 
-        HttpResponse response = realm.startEntraLogin(fakeRequest(Map.of(), new FakeSession()));
+        HttpResponse response = realm.startLogin(fakeRequest(Map.of(), new FakeSession()));
         Resp resp = captureResponse(response);
 
         assertEquals(503, resp.status);
     }
 
     /**
-     * When Entra is configured, startEntraLogin should redirect to the Azure AD
+     * When Entra is configured, startLogin should redirect to the Azure AD
      * login page (returned by MsalTokenHelper.buildAuthorizationUrl) and store
      * OAuth state and OIDC nonce in the session.
      */
@@ -454,7 +455,7 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = realmWithFakeHelper(testConfig(), fakeHelper);
         j.jenkins.setSecurityRealm(realm);
 
-        HttpResponse response = realm.startEntraLogin(fakeRequest(Map.of(), new FakeSession()));
+        HttpResponse response = realm.startLogin(fakeRequest(Map.of(), new FakeSession()));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
@@ -465,7 +466,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * If the OAuth state returned by Azure does not match the session (e.g. session
-     * expired, CSRF attempt), finishEntraLogin should redirect to the login page with
+     * expired, CSRF attempt), finishLogin should redirect to the login page with
      * error=session rather than proceeding with token exchange.
      */
     @Test
@@ -473,13 +474,13 @@ public class OmniAuthSecurityRealmTest {
         OmniAuthSecurityRealm realm = new OmniAuthSecurityRealm(false, testConfig());
         j.jenkins.setSecurityRealm(realm);
         FakeSession session = new FakeSession();
-        // No prior startEntraLogin → session has no oauth state → any returned state is a mismatch
+        // No prior startLogin → session has no oauth state → any returned state is a mismatch
 
         Map<String, String> params = new HashMap<>();
         params.put("state", "wrong-state");
         params.put("code",  "any");
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
@@ -488,7 +489,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * If the authorization code is missing from Azure's callback (malformed request),
-     * finishEntraLogin should return HTTP 400 immediately without attempting token exchange.
+     * finishLogin should return HTTP 400 immediately without attempting token exchange.
      * State must match to get past the CSRF check first.
      */
     @Test
@@ -499,14 +500,14 @@ public class OmniAuthSecurityRealmTest {
         FakeSession session = new FakeSession();
 
         // Establish valid state in session via commenceLogin
-        realm.startEntraLogin(fakeRequest(Map.of(), session));
+        realm.startLogin(fakeRequest(Map.of(), session));
 
         // finishLogin with matching state but NO code parameter
         Map<String, String> params = new HashMap<>();
         params.put("state", fakeHelper.capturedState);
         // intentionally no "code" param
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(400, resp.status, "Missing auth code should return 400");
@@ -514,7 +515,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * If the PKCE code verifier is missing from the session (session expired between
-     * commenceLogin and finishLogin), finishEntraLogin should redirect to the login
+     * commenceLogin and finishLogin), finishLogin should redirect to the login
      * page with error=session rather than attempting token exchange without PKCE.
      */
     @Test
@@ -525,14 +526,14 @@ public class OmniAuthSecurityRealmTest {
 
         // Manually inject only the state — no code verifier — simulating a session
         // that lost its PKCE state between commenceLogin and finishLogin
-        session.setAttribute(OmniAuthSecurityRealm.SESSION_OAUTH_STATE, "my-state");
+        session.setAttribute(EntraOAuthConfig.SESSION_OAUTH_STATE, "my-state");
         // SESSION_CODE_VERIFIER intentionally not set
 
         Map<String, String> params = new HashMap<>();
         params.put("state", "my-state");
         params.put("code",  "some-auth-code");
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
@@ -541,7 +542,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * When Azure returns an error parameter (e.g. user cancelled the login),
-     * finishEntraLogin should redirect to the login page with error=entra.
+     * finishLogin should redirect to the login page with error=entra.
      * The session state from commenceLogin must match for the error to be detected.
      */
     @Test
@@ -552,7 +553,7 @@ public class OmniAuthSecurityRealmTest {
         FakeSession session = new FakeSession();
 
         // Step 1: commenceLogin — stores valid state in session
-        realm.startEntraLogin(fakeRequest(Map.of(), session));
+        realm.startLogin(fakeRequest(Map.of(), session));
         assertNotNull(fakeHelper.capturedState, "State must be captured from session");
 
         // Step 2: finishLogin — Azure returns an error (e.g. user cancelled)
@@ -561,7 +562,7 @@ public class OmniAuthSecurityRealmTest {
         params.put("error",             "access_denied");
         params.put("error_description", "User cancelled");
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);
@@ -592,7 +593,7 @@ public class OmniAuthSecurityRealmTest {
         pre.save();
 
         // Step 1: commenceLogin — stores state and nonce in session, captures them in fakeHelper
-        realm.startEntraLogin(fakeRequest(Map.of(), session));
+        realm.startLogin(fakeRequest(Map.of(), session));
         assertNotNull(fakeHelper.capturedNonce, "Nonce must be captured");
 
         // Step 2: arm parseIdToken to return claims with the EXACT nonce stored in the session
@@ -603,7 +604,7 @@ public class OmniAuthSecurityRealmTest {
         params.put("state", fakeHelper.capturedState);
         params.put("code",  "fake-auth-code");
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status, "Should redirect after successful login");
@@ -622,7 +623,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * If the ID token carries a nonce that does not match the one stored in the
-     * session (possible token replay attack), finishEntraLogin must reject the
+     * session (possible token replay attack), finishLogin must reject the
      * request with HTTP 400 and must NOT provision a user.
      */
     @Test
@@ -637,14 +638,14 @@ public class OmniAuthSecurityRealmTest {
         FakeSession session = new FakeSession();
 
         // commenceLogin — stores the real (correct) nonce in the session
-        realm.startEntraLogin(fakeRequest(Map.of(), session));
+        realm.startLogin(fakeRequest(Map.of(), session));
 
         // finishLogin — token has wrong nonce → must be rejected
         Map<String, String> params = new HashMap<>();
         params.put("state", fakeHelper.capturedState);
         params.put("code",  "fake-auth-code");
 
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(400, resp.status, "Nonce mismatch should return 400");
@@ -652,7 +653,7 @@ public class OmniAuthSecurityRealmTest {
 
     /**
      * Provisioning portal via SSO: when the OAuth flow is started with provision=1 and the
-     * user is NOT already provisioned, finishEntraLogin must NOT log in or reject as
+     * user is NOT already provisioned, finishLogin must NOT log in or reject as
      * notProvisioned. Identity is verified, then the user is sent to the reason-capture page
      * ({@code request-access/reason}); the PENDING request is created only when they submit a
      * reason there (ProvisioningPortalAction#doSubmitEntraReason) — so no request exists yet.
@@ -674,7 +675,7 @@ public class OmniAuthSecurityRealmTest {
         FakeSession session = new FakeSession();
 
         // Step 1: commenceLogin WITH provision=1 → sets the provision-mode session flag.
-        realm.startEntraLogin(fakeRequest(Map.of("provision", "1"), session));
+        realm.startLogin(fakeRequest(Map.of("provision", "1"), session));
         assertNotNull(fakeHelper.capturedNonce, "Nonce must be captured");
 
         // Step 2: arm the token with the matching nonce.
@@ -684,7 +685,7 @@ public class OmniAuthSecurityRealmTest {
         Map<String, String> params = new HashMap<>();
         params.put("state", fakeHelper.capturedState);
         params.put("code",  "fake-auth-code");
-        HttpResponse response = realm.finishEntraLogin(fakeRequest(params, session));
+        HttpResponse response = realm.finishLogin(fakeRequest(params, session));
         Resp resp = captureResponse(response);
 
         assertEquals(302, resp.status);

@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout title="OmniAuth — Backup &amp; Restore" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="OmniAuth — Backup &amp; Restore" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -9,11 +9,7 @@
 
       <st:adjunct includes="io.jenkins.plugins.omniauth.OmniAuthManagementLink.backupAssets"/>
 
-      <div class="jenkins-app-bar">
-        <div class="jenkins-app-bar__content">
-          <h1 class="jenkins-app-bar__heading">Backup &amp; Restore</h1>
-        </div>
-      </div>
+      <l:app-bar title="Backup &amp; Restore"/>
 
       <div style="padding: 16px 24px; max-width: 860px;">
 
@@ -53,38 +49,37 @@
         </div>
 
         <!-- Export -->
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Export</h3>
+            <h3 class="oau-card-title">Export</h3>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
             <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
               Download the current configuration as a YAML file.
             </p>
-            <form method="post" action="exportConfig">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
+            <f:form method="post" action="exportConfig">
               <button type="submit" class="jenkins-button jenkins-button--primary">
                 Export configuration
               </button>
-            </form>
+            </f:form>
           </div>
         </div>
 
         <!-- Import -->
-        <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+        <div class="jenkins-card oau-card-block">
           <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-            <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Import / Restore</h3>
+            <h3 class="oau-card-title">Import / Restore</h3>
           </div>
-          <div style="padding: 16px 20px;">
+          <div class="oau-card-body">
             <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
               Choose a backup file (or paste its contents), then review the plan. Importing
               <strong>replaces</strong> the current roles, assignments, groups and settings. A restore
               point is saved first, so you can roll back.
             </p>
-            <form method="post" action="importConfig" id="bkImportForm">
-              <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
-              <input type="file" id="bkFile" accept=".yaml,.yml,.txt"
-                     class="jenkins-input" style="margin-bottom: 12px; display: block;"/>
+            <f:form method="post" action="importConfig" name="bkImportForm">
+              <div style="margin-bottom: 12px;">
+                <f:file name="bkFileUpload" id="bkFile" accept=".yaml,.yml,.txt"/>
+              </div>
               <textarea name="config" id="bkConfig" rows="8"
                         placeholder="Backup file contents appear here (or paste them)."
                         class="jenkins-input" style="width: 100%; font-family: monospace; font-size: 0.8em;"></textarea>
@@ -93,21 +88,21 @@
                   Review changes &amp; import
                 </button>
               </div>
-            </form>
+            </f:form>
           </div>
         </div>
 
         <!-- Revert / restore points -->
         <j:if test="${it.revertAvailable}">
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Restore points</h3>
+              <h3 class="oau-card-title">Restore points</h3>
             </div>
-            <div style="padding: 16px 20px;">
+            <div class="oau-card-body">
               <p style="margin: 0 0 12px 0; color: var(--text-color-secondary); font-size: 0.85em;">
                 A snapshot is saved automatically before each import. Roll back to any of the last five.
               </p>
-              <table class="jenkins-table" style="width: 100%;">
+              <table class="jenkins-table jenkins-table--medium" style="width: 100%;">
                 <thead>
                   <tr>
                     <th>Taken</th>
@@ -123,12 +118,11 @@
                         ${s.roles} role(s), ${s.assignments} assignment(s), ${s.groups} group(s)
                       </td>
                       <td style="text-align: right;">
-                        <form method="post" action="revertImport" class="bkRevertForm"
+                        <f:form method="post" action="revertImport" class="bkRevertForm"
                               style="display: inline;" data-when="${s.displayTime}">
-                          <input type="hidden" name="${app.crumbRequestField}" value="${app.crumb}"/>
                           <input type="hidden" name="snapshot" value="${s.fileName}"/>
                           <button type="submit" class="jenkins-button">Roll back to this</button>
-                        </form>
+                        </f:form>
                       </td>
                     </tr>
                   </j:forEach>
@@ -140,12 +134,12 @@
 
         <!-- Import history -->
         <j:if test="${it.historyAvailable}">
-          <div class="jenkins-card" style="padding: 0; margin-bottom: 20px; overflow: hidden;">
+          <div class="jenkins-card oau-card-block">
             <div style="padding: 14px 20px; border-bottom: 1px solid var(--oau-card-border);">
-              <h3 style="margin: 0; font-size: 0.95em; font-weight: 600;">Recent activity</h3>
+              <h3 class="oau-card-title">Recent activity</h3>
             </div>
-            <div style="padding: 16px 20px;">
-              <table class="jenkins-table" style="width: 100%;">
+            <div class="oau-card-body">
+              <table class="jenkins-table jenkins-table--medium" style="width: 100%;">
                 <thead>
                   <tr>
                     <th>When</th>

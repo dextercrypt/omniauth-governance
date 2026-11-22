@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,10 +70,14 @@ public class JCasCSecretExportTest {
         assertEquals(SMTP_PW, cfg.getSmtpPassword().getPlainText());
     }
 
-    private static void setSecret(OmniAuthGlobalConfig cfg, String field, String value) throws Exception {
-        Field f = OmniAuthGlobalConfig.class.getDeclaredField(field);
-        f.setAccessible(true);
-        f.set(cfg, Secret.fromString(value));
+    private static void setSecret(OmniAuthGlobalConfig cfg, String field, String value) {
+        Secret s = Secret.fromString(value);
+        switch (field) {
+            case "slackWebhookUrl": cfg.setSlackWebhookUrl(s); break;
+            case "teamsWebhookUrl": cfg.setTeamsWebhookUrl(s); break;
+            case "smtpPassword":    cfg.setSmtpPassword(s);    break;
+            default: throw new IllegalArgumentException("unknown secret field: " + field);
+        }
     }
 
     private String exportToString() throws Exception {

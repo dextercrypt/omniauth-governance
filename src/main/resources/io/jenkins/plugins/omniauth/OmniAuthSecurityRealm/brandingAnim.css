@@ -46,3 +46,15 @@
   min-height: 15rem;
   width: auto;
 }
+
+/* Login butler illustration (rendered via l:icon symbol). Glow + layout here;
+   per-butler height is set inline on the icon. */
+.oau-butler { position: relative; z-index: 1; width: auto; overflow: visible;
+  filter: drop-shadow(0 0 28px rgba(34,211,238,0.45)); }
+
+/* Per-butler height (l:icon keeps class but strips inline style, so height lives here). */
+.oau-butler--h30 { height: 30vh; }
+.oau-butler--h40 { height: 40vh; }
+.oau-butler--h44 { height: 44vh; }
+.oau-butler--h45 { height: 45vh; }
+.oau-butler--h56 { height: 56vh; }

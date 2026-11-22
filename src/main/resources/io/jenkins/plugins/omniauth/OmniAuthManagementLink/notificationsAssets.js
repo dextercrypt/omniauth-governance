@@ -49,11 +49,7 @@ function oauTestWebhook(btn, urlField, endpoint, resultId) {
 
   var form = btn.closest('form');
   var url  = form.querySelector('[name="' + urlField + '"]').value;
-  var head = document.querySelector('head');
-  var cf   = head ? head.getAttribute('data-crumb-header') : '';
-  var cv   = head ? head.getAttribute('data-crumb-value')  : '';
-  var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-  if (cf) headers[cf] = cv;
+  var headers = crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded'});
 
   fetch(oauRootURL + '/manage/omniauth-management/' + endpoint, {
     method: 'POST', credentials: 'same-origin', headers: headers,
@@ -90,21 +86,6 @@ function oauToggleCustomLogo(checkbox) {
     input.value = '';
   }
 }
-
-// Event label tooltips — set on the <label> so hover always works
-var oauEventTitles = {
-  cleanup:              'Report after each automated cleanup run (dry-run or live).',
-  userDeleted:          'Alert when an admin manually deletes a user via the OmniAuth UI.',
-  configChanged:        'Sent when OmniAuth settings are saved.',
-  protectedListChanged: 'Alert when users are added to or removed from the protected list.',
-  graphApiFailure:      'Alert when Microsoft Graph API calls fail, breaking Entra group sync.',
-  adminGranted:         'Alert when a user is granted Jenkins ADMINISTER permission.',
-  bruteForce:           'Alert when consecutive login failures hit the configured threshold.',
-  staleWarning:         'Periodic digest of users approaching the stale threshold.',
-  jitRequest:           'Sent to approvers when a user submits a JIT access request.',
-  jitApproved:          'Sent to the requester when their JIT request is approved.',
-  jitDenied:            'Sent to the requester when their JIT request is denied or times out.'
-};
 
 function oauPreviewUrl() {
   var type    = document.getElementById('oauPreviewEventType').value;
@@ -153,51 +134,6 @@ function oauClosePreview() {
   frame.src = 'about:blank';
 }
 
-function oauSendTestEmail(btn) {
-  var resultEl = document.getElementById('smtpTestResult');
-  resultEl.style.color = '#888';
-  resultEl.textContent = 'Sending…';
-  btn.disabled = true;
-
-  var form    = btn.closest('form');
-  var tlsEl   = form.querySelector('[name="smtpTls"]');
-  var headers = {};
-  var head = document.querySelector('head');
-  var cf = head ? head.getAttribute('data-crumb-header') : '';
-  var cv = head ? head.getAttribute('data-crumb-value')  : '';
-  if (cf) headers[cf] = cv;
-  headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-  var params = new URLSearchParams({
-    smtpHost:        form.querySelector('[name="smtpHost"]').value,
-    smtpPort:        form.querySelector('[name="smtpPort"]').value,
-    smtpUsername:    form.querySelector('[name="smtpUsername"]').value,
-    smtpPassword:    form.querySelector('[name="smtpPassword"]').value,
-    smtpTls:         (tlsEl && tlsEl.checked) ? '1' : '',
-    smtpFromAddress: form.querySelector('[name="smtpFromAddress"]').value,
-    smtpFromName:    form.querySelector('[name="smtpFromName"]').value,
-    smtpReplyTo:     form.querySelector('[name="smtpReplyTo"]').value,
-    notifyEmails:    form.querySelector('[name="notifyEmails"]').value
-  });
-
-  fetch(oauRootURL + '/manage/omniauth-management/sendTestEmail', {
-    method:      'POST',
-    credentials: 'same-origin',
-    headers:     headers,
-    body:        params
-  })
-    .then(function(r) { return r.text(); })
-    .then(function(text) {
-      var data = JSON.parse(text);
-      resultEl.style.color = data.ok ? 'var(--oau-success-fg)' : 'var(--error-color)';
-      resultEl.textContent = data.msg;
-    })
-    .catch(function(err) {
-      resultEl.style.color = 'var(--error-color)';
-      resultEl.textContent = 'Request failed: ' + err.message;
-    })
-    .finally(function() { btn.disabled = false; });
-}
 
 function oauInitNotifications() {
   // Dynamic values are served as a JSON island in the page (no EL in this cached adjunct).
@@ -211,13 +147,6 @@ function oauInitNotifications() {
       oauTeamsEvents = data.teamsEvents || '';
     } catch (e) { /* leave defaults */ }
   }
-
-  ['smtpEvents','slackEvents','teamsEvents'].forEach(function(ch) {
-    document.querySelectorAll('[name="' + ch + '"]').forEach(function(cb) {
-      var lbl = cb.closest('label');
-      if (lbl && oauEventTitles[cb.value]) lbl.setAttribute('data-tooltip', oauEventTitles[cb.value]);
-    });
-  });
 
   // Init on load
   oauInitEventCheckboxes('smtpEvents',  oauSmtpEvents);
@@ -244,9 +173,6 @@ function oauInitNotifications() {
 
   var previewCloseBtn = document.getElementById('oauPreviewCloseBtn');
   if (previewCloseBtn) previewCloseBtn.addEventListener('click', oauClosePreview);
-
-  var sendTestEmailBtn = document.getElementById('oauSendTestEmailBtn');
-  if (sendTestEmailBtn) sendTestEmailBtn.addEventListener('click', function() { oauSendTestEmail(this); });
 
   document.querySelectorAll('.js-oau-test-webhook').forEach(function(btn) {
     btn.addEventListener('click', function() {
