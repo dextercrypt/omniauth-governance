@@ -2,7 +2,7 @@
 
 > Make the sign-in experience match your organization's identity.
 
-The OmniAuth login page is fully themeable from **Manage Jenkins → OmniAuth → Settings**.
+The Rotogate login page is fully themeable from **Manage Jenkins → Rotogate → Settings**.
 Branding is presentation-only — it does not change authentication behavior.
 
 The custom login page is served at `/<prefix>/securityRealm/login`.

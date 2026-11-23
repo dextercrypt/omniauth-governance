@@ -1,6 +1,6 @@
 # Security model
 
-> How OmniAuth authenticates, authorizes, and protects sessions — and the guarantees and
+> How Rotogate authenticates, authorizes, and protects sessions — and the guarantees and
 > limits you should design around.
 
 ## Authentication assurances
@@ -27,8 +27,8 @@ MFA for SSO users is enforced by **Microsoft Entra** (Conditional Access), not b
 
 ## Authorization
 
-- Permission decisions are made by `OmniAuthItemACL` under
-  `OmniAuthAuthorizationStrategy`, a superset of Project-based Matrix Authorization.
+- Permission decisions are made by `RotogateItemACL` under
+  `RotogateAuthorizationStrategy`, a superset of Project-based Matrix Authorization.
 - Access is grantable per user or group, global or job/folder-scoped, and can carry an
   expiry that is auto-enforced.
 - **Least privilege** is the intended default: scope narrowly, prefer

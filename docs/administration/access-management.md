@@ -2,12 +2,12 @@
 
 > Grant, scope, time-limit, and revoke what users and groups can do in Jenkins.
 
-OmniAuth's authorization strategy (`OmniAuthAuthorizationStrategy`) builds on Jenkins'
+Rotogate's authorization strategy (`RotogateAuthorizationStrategy`) builds on Jenkins'
 Project-based Matrix Authorization and adds a friendlier permission model, group grants,
 job/folder scoping, expiry, and conflict detection — all managed from
-**Manage Jenkins → OmniAuth → Access management**.
+**Manage Jenkins → Rotogate → Access management**.
 
-> Requires the **OmniAuth Authorization Strategy** to be selected under
+> Requires the **Rotogate Authorization Strategy** to be selected under
 > **Manage Jenkins → Security → Authorization**.
 
 ## Concepts
@@ -20,12 +20,12 @@ job/folder scoping, expiry, and conflict detection — all managed from
 | **Role** | A named bundle of permissions (see [Roles](#roles)). |
 | **Expiry** | Optional date after which the assignment is auto-revoked. |
 
-Assignments are stored by `OmniAuthAssignmentConfig`; role definitions by
-`OmniAuthRoleConfig`. Permission decisions at request time are made by `OmniAuthItemACL`.
+Assignments are stored by `RotogateAssignmentConfig`; role definitions by
+`RotogateRoleConfig`. Permission decisions at request time are made by `RotogateItemACL`.
 
 ## Granting access
 
-1. **Manage Jenkins → OmniAuth → Access management**.
+1. **Manage Jenkins → Rotogate → Access management**.
 2. Select an existing user/group, or add a subject.
 3. Choose a **scope** — global, or pick a job/folder from the tree picker.
 4. Choose a **role** and/or individual permissions.
@@ -53,7 +53,7 @@ membership rather than per-user maintenance.
 
 ### Time-limited access
 
-Set an **expiry date** on any grant. The `OmniAuthExpiryWorker` background job runs on a
+Set an **expiry date** on any grant. The `RotogateExpiryWorker` background job runs on a
 schedule and automatically revokes assignments whose expiry has passed, writing the change
 to the [audit log](../security/audit-logging.md). This prevents access from silently
 outliving its purpose.
@@ -63,7 +63,7 @@ For on-demand elevation with approval, see [JIT access](jit-access.md).
 ## Roles {#roles}
 
 Roles are named permission bundles you define once and reuse across assignments. Manage
-them alongside access management; definitions are stored by `OmniAuthRoleConfig`.
+them alongside access management; definitions are stored by `RotogateRoleConfig`.
 
 Typical roles:
 - **Admin** — full control (use sparingly; watch for [conflicts](#conflict-detection)).
@@ -71,7 +71,7 @@ Typical roles:
 - **Reader** — read-only visibility.
 
 See the [Permissions reference](../reference/permissions.md) for the grouped permission
-catalog OmniAuth presents.
+catalog Rotogate presents.
 
 ## Conflict detection
 

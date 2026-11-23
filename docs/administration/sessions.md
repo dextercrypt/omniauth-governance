@@ -2,11 +2,11 @@
 
 > See who is currently signed in and forcibly end sessions when needed.
 
-OmniAuth tracks active user sessions and lets administrators revoke them — essential for
+Rotogate tracks active user sessions and lets administrators revoke them — essential for
 incident response (a compromised account, an offboarded user, or a revoked grant that must
 take effect immediately).
 
-Managed at **Manage Jenkins → OmniAuth → Sessions**.
+Managed at **Manage Jenkins → Rotogate → Sessions**.
 
 ## Active sessions view
 

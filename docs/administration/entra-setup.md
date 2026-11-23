@@ -1,9 +1,9 @@
 # Microsoft Entra setup
 
 > Register and configure the Microsoft Entra (Azure AD) OAuth2 / OIDC application that
-> backs SSO, then connect it to OmniAuth.
+> backs SSO, then connect it to Rotogate.
 
-> **Microsoft Entra is the SSO provider integrated today.** OmniAuth's SSO is built on a
+> **Microsoft Entra is the SSO provider integrated today.** Rotogate's SSO is built on a
 > pluggable OAuth2/OIDC provider framework, so more providers are planned; this page covers
 > the Entra integration specifically.
 
@@ -16,19 +16,19 @@ registrations → New registration**:
 
 | Field | Recommended value |
 |---|---|
-| **Name** | `Jenkins — OmniAuth` (any descriptive name) |
+| **Name** | `Jenkins — Rotogate` (any descriptive name) |
 | **Supported account types** | *Accounts in this organizational directory only* (single tenant) |
 | **Redirect URI** | Platform **Web**, value below |
 
 **Redirect URI:**
 
 ```
-https://<jenkins-host>/<prefix>/omniauth/finishLogin
+https://<jenkins-host>/<prefix>/rotogate/finishLogin
 ```
 
 Examples:
-- Root context: `https://jenkins.example.com/omniauth/finishLogin`
-- With prefix: `https://ci.example.com/jenkins/omniauth/finishLogin`
+- Root context: `https://jenkins.example.com/rotogate/finishLogin`
+- With prefix: `https://ci.example.com/jenkins/rotogate/finishLogin`
 
 > The redirect URI must match **exactly** (scheme, host, port, path). Register additional
 > URIs if you have multiple hostnames (e.g. internal vs. external).
@@ -70,10 +70,10 @@ Ensure the app issues **ID tokens** (and access tokens for Graph). Under
 **Authentication**, enable **ID tokens** for the implicit/hybrid flow checkbox set if your
 tenant requires it; the plugin uses the authorization-code flow with PKCE.
 
-## 6. Connect OmniAuth
+## 6. Connect Rotogate
 
-In Jenkins: **Manage Jenkins → Security → Security Realm → OmniAuth**, then turn on **"Connect a
-single sign-on provider (SSO)"** to reveal the provider settings (it's off by default — OmniAuth
+In Jenkins: **Manage Jenkins → Security → Security Realm → Rotogate**, then turn on **"Connect a
+single sign-on provider (SSO)"** to reveal the provider settings (it's off by default — Rotogate
 is native-first). Fill the Entra configuration:
 
 | Field | Value |
@@ -111,7 +111,7 @@ audit event `login_denied_domain`). This is **distinct** from the
 
 | Symptom | Likely cause |
 |---|---|
-| `AADSTS50011` redirect mismatch | Redirect URI in Entra ≠ `.../omniauth/finishLogin` (check prefix/host/scheme) |
+| `AADSTS50011` redirect mismatch | Redirect URI in Entra ≠ `.../rotogate/finishLogin` (check prefix/host/scheme) |
 | Login loops back to the login page | Session/seed issue behind a reverse proxy — verify external URL and cookies |
 | Groups not appearing | `GroupMember.Read.All` not admin-consented, or Group Sync disabled |
 | `AADSTS7000215` invalid secret | Client secret expired or mistyped |

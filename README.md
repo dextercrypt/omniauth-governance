@@ -1,14 +1,14 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/omniauth-horizontal-dark.png" />
-    <img src="docs/assets/omniauth-horizontal-light.png" alt="OmniAuth" width="420" />
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/rotogate-horizontal-dark.png" />
+    <img src="docs/assets/rotogate-horizontal-light.png" alt="Rotogate" width="420" />
   </picture>
 </p>
 
 <h1 align="center">Jenkins access governance — not just single sign-on</h1>
 
 <p align="center">
-  <b>OmniAuth</b> is a Jenkins security plugin that goes past the login page: single sign-on <em>and</em>
+  <b>Rotogate</b> is a Jenkins security plugin that goes past the login page: single sign-on <em>and</em>
   a full access-governance layer — least-privilege grants, just-in-time elevation, access reviews,
   break-glass, lockout recovery, and a complete audit trail — in one console.
 </p>
@@ -29,11 +29,11 @@ Most Jenkins security plugins stop at the front door: they log a user in, and th
 in is the *easy* part — the hard part is everything after: who can do what, for how long, who approved
 it, who reviewed it, and how you get back in when it all goes wrong.
 
-OmniAuth is that "everything after." It's the layer that turns Jenkins authentication into **managed,
+Rotogate is that "everything after." It's the layer that turns Jenkins authentication into **managed,
 least-privilege, auditable access** — the kind of controls a security or compliance team expects, in a
 single plugin instead of a sprawling platform.
 
-| Most SSO plugins give you… | OmniAuth adds… |
+| Most SSO plugins give you… | Rotogate adds… |
 |---|---|
 | A login via your IdP | …plus a governance console for everything after login |
 | A static permission matrix | …scoped, **time-limited**, auto-expiring grants + a friendlier matrix |
@@ -83,7 +83,7 @@ single plugin instead of a sprawling platform.
 ## What's inside
 
 ### 🛡️ Access management & governance
-- **Matrix-based authorization** (`OmniAuthAuthorizationStrategy`) with grouped, labeled permissions
+- **Matrix-based authorization** (`RotogateAuthorizationStrategy`) with grouped, labeled permissions
   and a friendlier admin experience than the raw Jenkins matrix.
 - **Per-user and per-group** assignments — global, or scoped to a job/folder via a tree picker
   (parent folders auto-granted Read).
@@ -126,7 +126,7 @@ single plugin instead of a sprawling platform.
 - **Make the login page yours** — custom heading, announcement banner, footer and logo, an animated
   reactor background, and a whole cast of **Jenkins butler mascots** to choose from (Ninja, Santa,
   Superhero, Cowboy, Nerd…) — or set **🎲 Butler of the Day** and let it surprise your team.
-- A single console — **Manage Jenkins → OmniAuth** — for all of the above.
+- A single console — **Manage Jenkins → Rotogate** — for all of the above.
 
 > Full documentation lives in [`docs/`](docs/README.md).
 
@@ -142,14 +142,14 @@ Relies on Matrix Authorization Strategy, CloudBees Folder (folder-scoped grants)
 
 ## Getting started
 
-1. **Install** — from **Manage Jenkins → Plugins → Available**, search for **OmniAuth** and install it,
+1. **Install** — from **Manage Jenkins → Plugins → Available**, search for **Rotogate** and install it,
    then restart.
-2. **Enable** — **Manage Jenkins → Security → Security Realm → OmniAuth**, and select the **OmniAuth
+2. **Enable** — **Manage Jenkins → Security → Security Realm → Rotogate**, and select the **Rotogate
    Authorization Strategy** to unlock access management.
 3. **Connect SSO (optional)** — turn on **Connect a single sign-on provider (SSO)** in the realm
    config (off by default); for Microsoft Entra, follow [Entra setup](docs/administration/entra-setup.md).
    Skip this step to run native-only.
-4. **Manage** — everything else lives under **Manage Jenkins → OmniAuth**.
+4. **Manage** — everything else lives under **Manage Jenkins → Rotogate**.
 
 See the [Quick start](docs/getting-started/quick-start.md) for a 15-minute walkthrough.
 
@@ -159,13 +159,13 @@ Core descriptors expose `@Symbol` names for JCasC:
 
 | Symbol | Component |
 |---|---|
-| `omniAuth` | Security realm |
+| `rotogate` | Security realm |
 | `entraConfig` | OAuth provider config (Microsoft Entra) |
-| `omniAuthAuthorization` | Authorization strategy |
-| `omniAuthAssignments` | Access assignments store |
-| `omniAuthRoles` | Role definitions |
-| `omniAuthJitRequests` | JIT request store |
-| `omniAuthProvisioningRequests` | Provisioning request store |
+| `rotogateAuthorization` | Authorization strategy |
+| `rotogateAssignments` | Access assignments store |
+| `rotogateRoles` | Role definitions |
+| `rotogateJitRequests` | JIT request store |
+| `rotogateProvisioningRequests` | Provisioning request store |
 
 Global settings (brute-force lockout, cleanup, notifications, branding, audit retention, SOS) round-trip
 under the global-configuration descriptor; the Entra block includes `allowedDomains`. See
@@ -175,7 +175,7 @@ under the global-configuration descriptor; the Entra block includes `allowedDoma
 
 ```bash
 export JAVA_HOME=/path/to/jdk-21
-mvn package -DskipTests   # produces target/omniauth-governance.hpi
+mvn package -DskipTests   # produces target/rotogate.hpi
 ```
 
 ### Running for development

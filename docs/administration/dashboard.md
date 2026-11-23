@@ -1,8 +1,8 @@
 # Overview dashboard
 
-> The at-a-glance landing page for OmniAuth — posture, attention items, and sign-in activity.
+> The at-a-glance landing page for Rotogate — posture, attention items, and sign-in activity.
 
-The **Overview** (the landing page at **Manage Jenkins → OmniAuth**) is a glance-and-triage
+The **Overview** (the landing page at **Manage Jenkins → Rotogate**) is a glance-and-triage
 surface: in a few seconds it answers *"is anything wrong, and what's my current posture?"*.
 It reads live data and refreshes in place; it is not a reporting tool (use the
 [audit log](../security/audit-logging.md) for history).

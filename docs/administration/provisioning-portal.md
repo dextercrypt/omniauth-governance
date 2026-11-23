@@ -5,16 +5,16 @@
 
 The provisioning portal lets prospective users ask for access instead of an administrator
 having to pre-create every account by hand. Nothing is created on submission — each request
-sits in a queue as **pending** until an admin approves it, at which point OmniAuth creates
+sits in a queue as **pending** until an admin approves it, at which point Rotogate creates
 the Jenkins account and grants sign-in access. This eliminates ghost accounts and gives a
 full request → decision audit trail.
 
 - **Public request page:** `https://<jenkins-host>/<prefix>/request-access/`
-- **Admin queue:** **Manage Jenkins → OmniAuth → Access Requests**
+- **Admin queue:** **Manage Jenkins → Rotogate → Access Requests**
 
 ## Why it exists
 
-OmniAuth pre-provisions access (an account must exist before someone can sign in). That is
+Rotogate pre-provisions access (an account must exist before someone can sign in). That is
 secure but puts the admin in the position of creating every account up front. The portal adds
 the missing self-service layer: the user initiates, the admin approves, the account is created
 with the right permissions — a governed workflow rather than manual account creation.
@@ -40,7 +40,7 @@ role at approval.)
 
 ## Admin queue
 
-At **Manage Jenkins → OmniAuth → Access Requests** you see pending requests with summary tiles
+At **Manage Jenkins → Rotogate → Access Requests** you see pending requests with summary tiles
 (Pending / Approved / Rejected) and can:
 
 Each request shows the requester's free-text **"what access do you need?"** note, so you have their

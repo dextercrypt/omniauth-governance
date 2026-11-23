@@ -1,10 +1,10 @@
 # Architecture
 
-> How OmniAuth is put together: the security realm, authorization strategy, stores,
+> How Rotogate is put together: the security realm, authorization strategy, stores,
 > background workers, and login flow.
 
-- **Group id / artifact:** `io.jenkins.plugins:omniauth-governance`
-- **Java package:** `io.jenkins.plugins.omniauth`
+- **Group id / artifact:** `io.jenkins.plugins:rotogate`
+- **Java package:** `io.jenkins.plugins.rotogate`
 - **Parent POM:** `org.jenkins-ci.plugins:plugin:6.2236.v12dd4c483242`
 - **Target platform:** Jenkins 2.555.3+, Java 21 (Jakarta servlet API; Jenkins 2.555.x requires Java 21)
 
@@ -14,7 +14,7 @@
 
 | Class | Role |
 |---|---|
-| `OmniAuthSecurityRealm` | The security realm; extends `HudsonPrivateSecurityRealm` so native login is inherited. Adds Entra OAuth2 endpoints (`commenceLogin`/`finishLogin`) and the native login post handler. |
+| `RotogateSecurityRealm` | The security realm; extends `HudsonPrivateSecurityRealm` so native login is inherited. Adds Entra OAuth2 endpoints (`commenceLogin`/`finishLogin`) and the native login post handler. |
 | `EntraOAuthConfig` | Describable holding `tenantId`, `clientId`, `clientSecret` (encrypted `Secret`), `enableGroupSync`, and `allowedDomains` (email-domain allowlist; `@DataBoundSetter`, round-trips via JCasC). |
 | `EntraUserDetails` | Spring Security `UserDetails` for an Entra-authenticated user. |
 | `EntraAuthenticationToken` | The `Authentication` token placed in the security context. |
@@ -28,24 +28,24 @@
 
 | Class | Role |
 |---|---|
-| `OmniAuthAuthorizationStrategy` | Extends `ProjectMatrixAuthorizationStrategy`; the plugin's authorization strategy. |
-| `OmniAuthItemACL` | The `ACL` consulted per item to make permission decisions, applying assignments, scopes, groups, and JIT grants. |
-| `OmniAuthAssignment` | A single access assignment (subject, scope, role/permissions, expiry). |
-| `OmniAuthGroupEntity` | Group subject representation for group grants. |
-| `OmniAuthRoleConfig` | Store of role definitions. |
-| `OmniAuthAssignmentConfig` | Store of access assignments. |
+| `RotogateAuthorizationStrategy` | Extends `ProjectMatrixAuthorizationStrategy`; the plugin's authorization strategy. |
+| `RotogateItemACL` | The `ACL` consulted per item to make permission decisions, applying assignments, scopes, groups, and JIT grants. |
+| `RotogateAssignment` | A single access assignment (subject, scope, role/permissions, expiry). |
+| `RotogateGroupEntity` | Group subject representation for group grants. |
+| `RotogateRoleConfig` | Store of role definitions. |
+| `RotogateAssignmentConfig` | Store of access assignments. |
 
 ### Governance & lifecycle
 
 | Class | Role |
 |---|---|
-| `OmniAuthManagementLink` | The **Manage Jenkins → OmniAuth** console (most `do*` admin endpoints live here). |
-| `OmniAuthJitAction` / `OmniAuthJitRequest` / `OmniAuthJitRequestStore` | JIT request UI, model, and store. |
-| `OmniAuthUserProperty` | Per-user data (OID/UPN, break-glass, etc.). |
-| `OmniAuthForcePasswordProperty` | Marks a native user as requiring a password change. |
+| `RotogateManagementLink` | The **Manage Jenkins → Rotogate** console (most `do*` admin endpoints live here). |
+| `RotogateJitAction` / `RotogateJitRequest` / `RotogateJitRequestStore` | JIT request UI, model, and store. |
+| `RotogateUserProperty` | Per-user data (OID/UPN, break-glass, etc.). |
+| `RotogateForcePasswordProperty` | Marks a native user as requiring a password change. |
 | `LastLoginProperty` / `LastLoginListener` / `LoginHistoryProperty` | Track last-login and history for staleness and analytics. |
 | `PasswordChangeRequiredException` | Thrown in the auth path to enforce fail-closed force-password-change. |
-| `OmniAuthAuditLog` | Audit record store. |
+| `RotogateAuditLog` | Audit record store. |
 | `NotificationService` / `SmtpHelper` / `SlackHelper` / `TeamsHelper` / `NotificationLog` / `NotifyRetry` | Notification pipeline with retry and logging. |
 | `BruteForceTracker` | Counts failed logins against a threshold (tracks/alerts). |
 | `ActiveSessionManager` | Tracks and revokes active sessions. |
@@ -58,30 +58,30 @@
 | `LoginErrorInterceptor` | Serves the branded, theming-consistent login error page. |
 | `NativeLoginCrumbExclusion` | CSRF crumb exclusion for the native login post. |
 | `AdminChangeListener` | `SaveableListener` reacting to config changes. |
-| `OmniAuthRootAction` (`UnprotectedRootAction`) | Pre-auth endpoints (e.g. serving the login logo). |
-| `OmniAuthPageDecorator` | Injects plugin assets/behavior into pages. |
+| `RotogateRootAction` (`UnprotectedRootAction`) | Pre-auth endpoints (e.g. serving the login logo). |
+| `RotogatePageDecorator` | Injects plugin assets/behavior into pages. |
 
 ### Background workers (`AsyncPeriodicWork`)
 
 | Worker | Responsibility |
 |---|---|
-| `OmniAuthExpiryWorker` | Auto-revoke expired assignments. |
-| `OmniAuthJitExpiryWorker` | Expire elapsed JIT grants. |
+| `RotogateExpiryWorker` | Auto-revoke expired assignments. |
+| `RotogateJitExpiryWorker` | Expire elapsed JIT grants. |
 | `AccessReviewWork` | Access-review cycles and digest. |
 | `StaleWarningWork` | Warn before stale-account cleanup. |
 | `StaleUserCleanupWork` | Clean up inactive accounts. |
-| `OmniAuthAccountExpiryWorker` | Enforce provisioning time-limited accounts; runs every 6h and also sends pre-expiry reminders. |
-| `OmniAuthAuditRetentionWork` | Daily audit-log pruning per the retention setting. |
+| `RotogateAccountExpiryWorker` | Enforce provisioning time-limited accounts; runs every 6h and also sends pre-expiry reminders. |
+| `RotogateAuditRetentionWork` | Daily audit-log pruning per the retention setting. |
 
 ## Persistence
 
 State is stored under `JENKINS_HOME` via Jenkins `GlobalConfiguration` and `UserProperty`
 mechanisms (see [Backup & restore](../operations/backup-and-restore.md)):
 
-- Global config → `OmniAuthGlobalConfig`
-- Assignments → `OmniAuthAssignmentConfig`
-- Roles → `OmniAuthRoleConfig`
-- JIT requests → `OmniAuthJitRequestStore`
+- Global config → `RotogateGlobalConfig`
+- Assignments → `RotogateAssignmentConfig`
+- Roles → `RotogateRoleConfig`
+- JIT requests → `RotogateJitRequestStore`
 - Provisioning requests → `ProvisioningRequestConfig`
 - Per-user → user `config.xml` properties
 

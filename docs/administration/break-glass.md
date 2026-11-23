@@ -8,7 +8,7 @@ authenticated with Overall/Administer** proves presence with a one-time TOTP cod
 short, logged window for sensitive operations. It exists so that the riskiest actions require
 a fresh, second-factor confirmation and leave a clear trail — not so that someone can get *in*.
 
-Managed at **Manage Jenkins → OmniAuth → Break Glass**.
+Managed at **Manage Jenkins → Rotogate → Break Glass**.
 
 > **Important — this is NOT a lockout recovery path.** Activating Break Glass requires you to
 > already hold Overall/Administer (the handler checks `ADMINISTER` before anything else). If
@@ -29,7 +29,7 @@ Managed at **Manage Jenkins → OmniAuth → Break Glass**.
 
 Enroll a TOTP factor before you need it:
 
-1. **Manage Jenkins → OmniAuth → Break Glass → enroll**.
+1. **Manage Jenkins → Rotogate → Break Glass → enroll**.
 2. Scan the displayed **QR code** with an authenticator app (Microsoft Authenticator,
    Google Authenticator, etc.).
 3. Verify a generated code to confirm enrollment.
@@ -55,19 +55,19 @@ Entra is down, or the authorization strategy misfired so no one holds **Administ
 recovered from the **controller host**, not the UI. The best first line of defence is simply to
 keep at least one **native** administrator account that does not depend on SSO.
 
-If even that is unavailable, OmniAuth ships an **SOS Mode** recovery path (see below) that is
+If even that is unavailable, Rotogate ships an **SOS Mode** recovery path (see below) that is
 safer and more targeted than disabling security wholesale.
 
 ### SOS Mode (recommended)
 
 SOS Mode turns host access to `JENKINS_HOME` into a narrow, audited recovery window instead of a
 blunt "turn security off". Each administrator holds a set of **SOS recovery codes** (generated
-once under **Manage Jenkins → OmniAuth → Emergency Access**; enrollment is mandatory and codes
+once under **Manage Jenkins → Rotogate → Emergency Access**; enrollment is mandatory and codes
 are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal them).
 
 1. On the controller host, create an empty trigger file in `JENKINS_HOME`:
    ```
-   touch "$JENKINS_HOME/omniauth-sos.request"
+   touch "$JENKINS_HOME/rotogate-sos.request"
    ```
    No restart is needed — the file is checked live. SOS Mode arms immediately and stays armed for
    **30 minutes** from the file's timestamp.
@@ -79,17 +79,17 @@ are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal them
 4. Repair a real admin account, then **Deactivate** SOS from the banner or from
    **Settings** (it also auto-closes after 30 minutes, or after 5 failed code attempts).
 
-**Realm gate — SOS only arms when OmniAuth is your Security Realm.** SOS is a recovery path *into
-OmniAuth logins*, so it stays completely inert on any instance that does not use OmniAuth to
+**Realm gate — SOS only arms when Rotogate is your Security Realm.** SOS is a recovery path *into
+Rotogate logins*, so it stays completely inert on any instance that does not use Rotogate to
 authenticate. If the plugin is merely installed (a different realm is active), or you have switched
-away from OmniAuth (leaving stale recovery-code hashes on disk), dropping the trigger file does
+away from Rotogate (leaving stale recovery-code hashes on disk), dropping the trigger file does
 **nothing** — `/sos/recover` never leaves its dark state. This is what keeps an idle or abandoned
 install from becoming a backdoor. The genuine lockout cases are unaffected: when your identity
-provider is merely unreachable, or the authorization strategy is misconfigured, OmniAuth is still
+provider is merely unreachable, or the authorization strategy is misconfigured, Rotogate is still
 the *configured* realm, so SOS arms normally.
 
 **Restoring admin depends on the authorization strategy** (a separate setting from the realm). SOS
-re-grants **Administer** into any *matrix-based* strategy — OmniAuth's own, or the stock
+re-grants **Administer** into any *matrix-based* strategy — Rotogate's own, or the stock
 *Matrix-based* / *Project-based Matrix* strategies. If the active strategy is **not** matrix-based
 (Role-Based Strategy, a custom strategy, "anyone can do anything"), SOS still signs you in but tells
 you plainly that admin could not be restored, and you repair it via the host-level steps below.
@@ -102,7 +102,7 @@ that toggle is a policy control, not a security boundary — the realm gate abov
 
 ### Last-resort host recovery
 
-If SOS Mode cannot be used (no admin ever enrolled recovery codes, OmniAuth is not the active
+If SOS Mode cannot be used (no admin ever enrolled recovery codes, Rotogate is not the active
 Security Realm so SOS never arms, or the authorization strategy is not matrix-based so admin cannot
 be restored), fall back to the standard Jenkins procedure: start with security disabled
 (`-Djenkins.model.Jenkins.useSecurity=false`) or edit `config.xml` in `JENKINS_HOME` to reset the

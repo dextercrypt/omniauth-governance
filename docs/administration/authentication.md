@@ -3,7 +3,7 @@
 > How users sign in: native accounts and OAuth2 / OIDC single sign-on, with a pluggable
 > provider framework and group synchronization.
 
-OmniAuth's security realm (`OmniAuthSecurityRealm`) is **native-first**: the Jenkins user
+Rotogate's security realm (`RotogateSecurityRealm`) is **native-first**: the Jenkins user
 database is always on (the realm extends `HudsonPrivateSecurityRealm`), so a deployment can run
 on native accounts alone with no external dependency. OAuth2/OIDC single sign-on is an
 **additive capability you turn on** — the realm config has a **"Connect a single sign-on
@@ -34,16 +34,16 @@ the page.
 
 Native authentication is standard Jenkins local-account login:
 
-- Accounts and **bcrypt** password hashes are managed by Jenkins core (OmniAuth extends
+- Accounts and **bcrypt** password hashes are managed by Jenkins core (Rotogate extends
   `HudsonPrivateSecurityRealm`).
 - API tokens and CLI authentication work as usual.
-- The native form posts to `/<prefix>/omniauth/nativeLogin`.
+- The native form posts to `/<prefix>/rotogate/nativeLogin`.
 
 Native accounts are ideal for **service accounts** and **break-glass admins** that must not
 depend on an external identity provider.
 
 **Native-only deployment.** You don't have to configure SSO at all. With the SSO toggle off,
-OmniAuth runs purely on native accounts and still gives you the full governance layer — access
+Rotogate runs purely on native accounts and still gives you the full governance layer — access
 management, JIT, access reviews, audit logging, the provisioning portal, and break-glass. SSO is
 something you add when you want organization sign-in, not a prerequisite.
 
@@ -82,8 +82,8 @@ Browser                     Jenkins                         Identity provider (E
   │◄── 302 to dashboard ───────│                                  │
 ```
 
-Endpoints: `/<prefix>/omniauth/commenceLogin` (start) and `/<prefix>/omniauth/finishLogin`
-(callback), both served by `OmniAuthRootAction` (they are **not** under `securityRealm/`). The
+Endpoints: `/<prefix>/rotogate/commenceLogin` (start) and `/<prefix>/rotogate/finishLogin`
+(callback), both served by `RotogateRootAction` (they are **not** under `securityRealm/`). The
 callback must match the redirect URI registered with the provider — for Entra, see
 [Entra setup](entra-setup.md).
 

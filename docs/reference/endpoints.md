@@ -12,11 +12,11 @@ reached through the console UI rather than directly.
 | Endpoint | Purpose |
 |---|---|
 | `securityRealm/login` | The custom login page (native + SSO). |
-| `omniauth/nativeLogin` | Native username/password form POST target. |
+| `rotogate/nativeLogin` | Native username/password form POST target. |
 | `securityRealm/commenceLogin` | Start the Entra OAuth2 flow. |
-| `omniauth/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
-| `omniauth/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
-| `descriptorByName/io.jenkins.plugins.omniauth.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
+| `rotogate/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
+| `rotogate/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
+| `descriptorByName/io.jenkins.plugins.rotogate.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
 
 > **Login error codes.** Failed or rejected sign-ins redirect to `loginError?error=<code>`:
 > `locked` (brute-force lockout), `activation` (account not yet activated), `entra` (Entra/SSO
@@ -29,7 +29,7 @@ reached through the console UI rather than directly.
 |---|---|
 | `doChangePassword` | Change password. |
 | `doSubmitPasswordChange` / `doCheckNativeUser` | Force-password-change submission and checks. |
-| `omniauth/activate` (`doActivate`) | Native account activation link (one-time). |
+| `rotogate/activate` (`doActivate`) | Native account activation link (one-time). |
 
 ## Break Glass
 

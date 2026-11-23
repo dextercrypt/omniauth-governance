@@ -1,6 +1,6 @@
 # Installation & upgrade
 
-> How to install, activate, upgrade, and roll back OmniAuth.
+> How to install, activate, upgrade, and roll back Rotogate.
 
 ## Before you begin
 
@@ -17,34 +17,34 @@
 
 ### Option A — deploy the `.hpi` (recommended for pre-release builds)
 
-1. Build or obtain `omniauth-governance.hpi` (see [Building & contributing](../developer/contributing.md)).
+1. Build or obtain `rotogate.hpi` (see [Building & contributing](../developer/contributing.md)).
 2. In Jenkins: **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin**.
-3. Upload `omniauth-governance.hpi`.
+3. Upload `rotogate.hpi`.
 4. Restart Jenkins when prompted.
 
 ### Option B — side-load into `$JENKINS_HOME/plugins`
 
 1. Copy the built artifact into the plugins directory as a `.jpi`:
    ```bash
-   cp target/omniauth-governance.hpi "$JENKINS_HOME/plugins/omniauth-governance.jpi"
+   cp target/rotogate.hpi "$JENKINS_HOME/plugins/rotogate.jpi"
    ```
 2. Remove any stale exploded directory or `.hpi` for the same plugin so Jenkins
    re-expands the fresh build:
    ```bash
-   rm -rf "$JENKINS_HOME/plugins/omniauth-governance" "$JENKINS_HOME/plugins/omniauth-governance.hpi"
+   rm -rf "$JENKINS_HOME/plugins/rotogate" "$JENKINS_HOME/plugins/rotogate.hpi"
    ```
 3. Restart Jenkins.
 
-> **Note:** A leftover `omniauth-governance.hpi` next to `omniauth-governance.jpi` can shadow your new build.
+> **Note:** A leftover `rotogate.hpi` next to `rotogate.jpi` can shadow your new build.
 > Keep exactly one, and prefer `.jpi` for side-loading.
 
 ## Activate
 
 1. **Manage Jenkins → Security**.
-2. Under **Security Realm**, choose **OmniAuth**.
-3. (Optional) Under **Authorization**, choose **OmniAuth Authorization Strategy** to
+2. Under **Security Realm**, choose **Rotogate**.
+3. (Optional) Under **Authorization**, choose **Rotogate Authorization Strategy** to
    enable the access-management features. (You can also keep another strategy; the realm
-   works independently, but governance features assume the OmniAuth strategy.)
+   works independently, but governance features assume the Rotogate strategy.)
 4. Configure Microsoft Entra if using SSO — see [Entra setup](../administration/entra-setup.md).
 5. **Save**, then verify you can still sign in (open a private browser window to test).
 

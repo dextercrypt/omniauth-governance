@@ -1,6 +1,6 @@
 # Platform support & upgrade policy
 
-> Which Jenkins and Java versions OmniAuth supports, why the floor is where it is, and the
+> Which Jenkins and Java versions Rotogate supports, why the floor is where it is, and the
 > playbook for moving the floor forward when a Java or Jenkins major version is forced on us.
 
 The guiding rule: **we support our declared baseline and every version newer than it.** The
@@ -34,8 +34,8 @@ and one convention sets the *declared* one.
 
 ### 1. Jakarta servlet migration — hard floor ≈ Jenkins 2.479.1 LTS
 
-OmniAuth implements servlet-layer components directly against the **`jakarta.servlet.*`**
-namespace — `Filter`s (`LoginContextFilter`, `OmniAuthPageDecorator`) and `CrumbExclusion`s
+Rotogate implements servlet-layer components directly against the **`jakarta.servlet.*`**
+namespace — `Filter`s (`LoginContextFilter`, `RotogatePageDecorator`) and `CrumbExclusion`s
 (`SosCrumbExclusion`, `NativeLoginCrumbExclusion`), plus `jakarta.servlet.http.*` across the
 request-handling code.
 
@@ -52,7 +52,7 @@ Running below the jakarta cutover is impossible without rewriting every filter b
 ### 2. matrix-auth dependency — reinforces the jakarta-era floor
 
 The entire authorization engine is built on the **Matrix Authorization Strategy** plugin:
-`OmniAuthAuthorizationStrategy extends ProjectMatrixAuthorizationStrategy`, and we use its
+`RotogateAuthorizationStrategy extends ProjectMatrixAuthorizationStrategy`, and we use its
 `PermissionEntry` / `AuthorizationType` / `AuthorizationMatrixProperty` types and XML
 converters. The pinned version (`matrix-auth` `3.2.9`) requires a jakarta-era Jenkins, so it
 aligns with — and does not raise — the floor set by constraint 1.
@@ -159,8 +159,8 @@ export JAVA_HOME=/path/to/jdk-25
 mvn -o clean package -DskipTests
 
 # deploy into a CLEAN work dir (stale .hpi shadows the .jpi)
-cp target/omniauth-governance.hpi work/plugins/omniauth-governance.jpi
-rm -f work/plugins/omniauth-governance.hpi && rm -rf work/plugins/omniauth-governance
+cp target/rotogate.hpi work/plugins/rotogate.jpi
+rm -f work/plugins/rotogate.hpi && rm -rf work/plugins/rotogate
 
 # run the LATEST LTS war on the new JDK
 JENKINS_HOME=$PWD/work java -jar jenkins-war-<latest-LTS>.war --httpPort=9090 --prefix=/jenkins
@@ -197,11 +197,11 @@ Passing both axes on the latest LTS + newest Java lets us honestly state "verifi
   built; enforcer `RequireJavaVersion` / `EnforceBytecodeVersion` and `access-modifier-checker`
   all passed. Only **SpotBugs 4.8.3.1** could not read Java 25 bytecode ("class file major
   version 69") → skipped; it is build-time tooling and does not affect runtime. Axis B: the hpi
-  deployed into Jenkins 2.580.1 running on Corretto 25 — plugin loaded cleanly, OmniAuth realm
+  deployed into Jenkins 2.580.1 running on Corretto 25 — plugin loaded cleanly, Rotogate realm
   active, native login + CSRF exclusion worked, and the Overview / Access Management / Audit Log
   / Emergency Access / Settings pages all rendered HTTP 200 with no stack traces. The SOS live
   cycle passed end-to-end (dark → armed `/sos/recover` form → deactivated → dark). **Conclusion:
-  OmniAuth runs on the latest Jenkins LTS and Java 25 today; the baseline stays at 2.541.2 /
+  Rotogate runs on the latest Jenkins LTS and Java 25 today; the baseline stays at 2.541.2 /
   Java 21 by choice.** Known follow-up for an eventual bump: raise the SpotBugs version so static
   analysis parses Java 25.
 

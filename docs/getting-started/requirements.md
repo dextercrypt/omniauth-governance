@@ -1,6 +1,6 @@
 # Requirements
 
-> Supported platforms, dependencies, and prerequisites before installing OmniAuth.
+> Supported platforms, dependencies, and prerequisites before installing Rotogate.
 
 ## Platform
 
@@ -10,7 +10,7 @@
 | **Java** | 21 (required — Jenkins 2.555.x dropped Java 17; tested on Amazon Corretto 21) |
 | **Servlet API** | Jakarta Servlet 6.x (provided by Jenkins core) |
 
-> OmniAuth targets the Jenkins release line that migrated from `javax.*` to `jakarta.*`.
+> Rotogate targets the Jenkins release line that migrated from `javax.*` to `jakarta.*`.
 > It will not load on Jenkins versions predating that migration.
 
 ## Required Jenkins plugins
@@ -20,7 +20,7 @@ deploy the `.hpi` through the Update Center, or bundled when side-loaded):
 
 | Plugin | Why it's needed |
 |---|---|
-| **Matrix Authorization Strategy** | Base for `OmniAuthAuthorizationStrategy` |
+| **Matrix Authorization Strategy** | Base for `RotogateAuthorizationStrategy` |
 | **CloudBees Folder** | Folder-scoped permission grants |
 | **Jakarta Mail API** | Email notifications (correct classloader at runtime) |
 | **Ionicons API** | Icon assets (version pinned for CloudBees Folder compatibility) |

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to OmniAuth are documented here. This project aims to follow
+All notable changes to Rotogate are documented here. This project aims to follow
 [Keep a Changelog](https://keepachangelog.com/) conventions and
 [Semantic Versioning](https://semver.org/).
 
@@ -13,13 +13,13 @@ All notable changes to OmniAuth are documented here. This project aims to follow
 Most recent notable changes (newest first):
 
 ### Added
-- **Native-first sign-in with an optional SSO toggle**: the OmniAuth security realm now leads with
+- **Native-first sign-in with an optional SSO toggle**: the Rotogate security realm now leads with
   native accounts and treats single sign-on as a capability you add. A **"Connect a single sign-on
   provider (SSO)"** toggle (off by default on new installs) reveals the provider settings; with it
   off, sign-in is native-only and the login page shows no SSO button. The toggle is authoritative
   and **preserves stored provider settings** when switched off (no re-entering the client secret to
   turn it back on). Upgrades are safe: a realm that already had Entra configured stays on SSO.
-  Configurable via JCasC (`ssoEnabled` under the `omniAuth` realm).
+  Configurable via JCasC (`ssoEnabled` under the `rotogate` realm).
 - **Native-account management**: reset a native account's password (one-time temporary password,
   forces a change at next login, revokes active sessions, audited) and edit its full name / email
   directly from the user detail view — no need for Jenkins' own user pages. Native accounts only;
@@ -32,18 +32,18 @@ Most recent notable changes (newest first):
   banner's End Access / Cancel now use a consistent in-app modal instead of the browser's native
   `confirm()`.
 - **SOS Mode**: a host-filesystem-triggered fail-safe for a true admin lockout (all admins SSO-only
-  with Entra down, or a misconfigured authorization strategy). Dropping an `omniauth-sos.request`
+  with Entra down, or a misconfigured authorization strategy). Dropping an `rotogate-sos.request`
   file in `JENKINS_HOME` arms a 30-minute recovery window — live-checked, no restart — and opens a
   dark-until-armed endpoint at `/sos/recover`. An admin enters one of their single-use **SOS recovery
   codes** (no username — the matching code identifies them); they are re-granted global Administer
   and signed in. Codes are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal
   them. Enrollment is mandatory and keyed on *usable* codes (a blocking one-time interstitial on
   admin login that re-fires if an admin runs out, plus low/depleted warnings and a dashboard
-  attention item). SOS **only arms when OmniAuth is the active Security Realm** — an idle or
+  attention item). SOS **only arms when Rotogate is the active Security Realm** — an idle or
   abandoned install (different realm) stays completely dark, so it cannot be a backdoor; genuine
-  lockouts (IdP unreachable, authorization strategy misconfigured) still arm because OmniAuth is
+  lockouts (IdP unreachable, authorization strategy misconfigured) still arm because Rotogate is
   still the configured realm. Admin is restored into any matrix-based authorization strategy
-  (OmniAuth's or the stock Matrix / Project-Matrix strategies); for a non-matrix strategy the user
+  (Rotogate's or the stock Matrix / Project-Matrix strategies); for a non-matrix strategy the user
   is signed in and told plainly that admin must be repaired via `config.xml`. A site-wide banner
   announces an active window with one-click Deactivate (also in Settings); the window auto-closes
   after 30 minutes or 5 failed attempts. Audit events: `sos_armed`, `sos_recovery_success`,
@@ -74,7 +74,7 @@ Most recent notable changes (newest first):
 - **Baseline raised to Jenkins 2.555.3 / Java 21** (from 2.541.2), preparing for Update Center
   hosting. Jenkins 2.555.x removed Java 17, so **Java 21 is now required**. Parent plugin POM bumped
   to `6.2236.v12dd4c483242`; dependency versions moved onto the `bom-2.555.x` plugin BOM. Artifact
-  id renamed `omni-auth` → `omniauth-governance` (Java package, class names and URLs unchanged).
+  id renamed `omni-auth` → `rotogate` (Java package, class names and URLs unchanged).
 - JIT access banner countdown now shows hours and minutes (e.g. `3h 15m 02s`) instead of raw minutes.
 - Reframed the plugin as an **authentication and access-governance** platform (not just SSO);
   dropped all legacy "Dual Auth" naming.
@@ -95,7 +95,7 @@ The feature-complete baseline the first release builds on:
 - **Authentication:** native (bcrypt, API tokens, CLI) + OAuth2/OIDC SSO on one login page —
   **currently Microsoft Entra**, others *planned*. Authorization-code flow with PKCE and
   ID-token nonce always enforced; directory-id-anchored identity; optional group sync.
-- **Authorization:** `OmniAuthAuthorizationStrategy` (matrix-based) with grouped permissions,
+- **Authorization:** `RotogateAuthorizationStrategy` (matrix-based) with grouped permissions,
   per-user and per-group grants, global or job/folder scope, and expiry-based auto-revoke.
 - **Governance:** access review / certification with a weekly digest; Just-in-Time (JIT) access
   with multi-approver AND-logic, approval timeout and auto-expiry; conflict detection; a full

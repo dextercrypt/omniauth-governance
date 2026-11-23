@@ -1,11 +1,11 @@
 # Permissions reference
 
-> How OmniAuth presents and evaluates permissions.
+> How Rotogate presents and evaluates permissions.
 
-OmniAuth's authorization strategy (`OmniAuthAuthorizationStrategy`) is a superset of
+Rotogate's authorization strategy (`RotogateAuthorizationStrategy`) is a superset of
 Jenkins' Project-based Matrix Authorization. It uses the **same underlying Jenkins
 permissions** (Overall, Job, Run, View, Agent/Computer, Credentials, SCM, etc.), but
-presents them in a **grouped, labeled** form and evaluates them through `OmniAuthItemACL`
+presents them in a **grouped, labeled** form and evaluates them through `RotogateItemACL`
 with support for scoping, groups, expiry, and JIT grants.
 
 ## Permission model
@@ -16,7 +16,7 @@ with support for scoping, groups, expiry, and JIT grants.
 | **Grouping** | Permissions are grouped/labeled for a clearer admin experience. |
 | **Subjects** | Users (by UPN/email or native username) and Azure AD groups. |
 | **Scope** | Global, or a specific job/folder (parent folders auto-granted Read). |
-| **Roles** | Named bundles of permissions defined in `OmniAuthRoleConfig`. |
+| **Roles** | Named bundles of permissions defined in `RotogateRoleConfig`. |
 | **Expiry** | Optional per-assignment; auto-enforced by the expiry worker. |
 | **JIT** | Time-bounded grants layered on top at evaluation time. |
 
@@ -39,7 +39,7 @@ The exact catalog depends on installed plugins. The commonly-used groups are:
 
 ## Evaluation order (conceptual)
 
-For a given user, item, and permission, `OmniAuthItemACL` grants access if **any** applicable
+For a given user, item, and permission, `RotogateItemACL` grants access if **any** applicable
 source says yes:
 
 1. Global grants for the user.

@@ -8,9 +8,9 @@ Instead of permanently holding an elevated role, a user **requests** it for a bo
 window; an admin **approves**; the access **auto-expires**; and everything is **audited**.
 
 It is exposed to users via the JIT action and managed by admins at
-**Manage Jenkins → OmniAuth → JIT requests**. Requests are stored by
-`OmniAuthJitRequestStore`, and elapsed grants are cleaned up by the
-`OmniAuthJitExpiryWorker` background job.
+**Manage Jenkins → Rotogate → JIT requests**. Requests are stored by
+`RotogateJitRequestStore`, and elapsed grants are cleaned up by the
+`RotogateJitExpiryWorker` background job.
 
 ## User flow
 
@@ -36,9 +36,9 @@ approval does not activate access.
 Approvers can act two ways:
 
 - **Tokenized email links** — each approver receives a unique per-entry link
-  `…/omniauth-jit/action?token=<token>` (served by a `RootAction`, so it bypasses the
+  `…/rotogate-jit/action?token=<token>` (served by a `RootAction`, so it bypasses the
   `ADMINISTER` management gate — no Jenkins login required to decide).
-- **In-product** — at **Manage Jenkins → OmniAuth → JIT requests**, admins approve or deny via
+- **In-product** — at **Manage Jenkins → Rotogate → JIT requests**, admins approve or deny via
   `doApproveJit` / `doDenyJit`.
 
 | Action | Result |
@@ -55,14 +55,14 @@ in-product Approve form and the tokenized email page show a **"grant for"** sele
 
 With multiple approvers, the activated grant uses the **minimum** of their chosen durations — the
 shortest cap wins, and no approver can grant more than was requested
-(`OmniAuthJitRequest.effectiveGrantedDurationHours()`). An approver who leaves the default grants
+(`RotogateJitRequest.effectiveGrantedDurationHours()`). An approver who leaves the default grants
 the full requested window, so a plain Approve behaves exactly as before. The management queue's
 Recent Activity shows the granted window, noting **"(of N h)"** when it was shortened below the
 request, and the audit log records the granted duration (not the requested one).
 
 ## Expiry and cleanup
 
-`OmniAuthJitExpiryWorker` drives two separate timeouts:
+`RotogateJitExpiryWorker` drives two separate timeouts:
 
 - **Approval timeout.** A pending request not fully approved before its `approvalDeadline`
   transitions to **`TIMED_OUT`** (audit `logJitTimedOut`) — it never activates.
