@@ -259,7 +259,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
         + "<circle cx='32' cy='29' r='5' fill='#ffffff'/>"
         + "<path d='M30 33 H34 L33.2 39.5 H30.8 Z' fill='#ffffff'/>"
         + "</svg>"
-        + "<span class='wm'>Omni<span class='wm-a'>Auth</span></span>"
+        + "<span class='wm'>Rotogate</span>"
         + "</div>";
 
     private static final String STYLE =
@@ -271,7 +271,6 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
         + "padding:28px 26px;box-shadow:0 10px 40px rgba(0,0,0,0.4);}"
         + ".brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:22px;}"
         + ".brand .wm{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:#f8fafc;line-height:1;}"
-        + ".brand .wm-a{color:#5b8bf0;}"
         + ".badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;"
         + "background:#b45309;color:#fff;padding:4px 10px;border-radius:999px;margin-bottom:16px;}"
         + ".badge-red{background:#b91c1c;}"
