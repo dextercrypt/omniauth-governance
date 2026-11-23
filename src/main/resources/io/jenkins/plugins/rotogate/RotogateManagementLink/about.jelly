@@ -149,7 +149,7 @@
               <tr>
                 <td style="color: var(--text-color-secondary); padding: 8px 0;">Report an issue</td>
                 <td style="padding: 8px 0;">
-                  <a href="https://github.com/dextercrypt/rotogate/issues" target="_blank" rel="noopener noreferrer"
+                  <a href="https://github.com/jenkinsci/rotogate-plugin/issues" target="_blank" rel="noopener noreferrer"
                      style="color: var(--blue); text-decoration: none;">GitHub Issues &#8599;</a>
                 </td>
               </tr>
