@@ -1,0 +1,424 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Group Access" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.permImplied"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.groupDetailAssets"/>
+
+      <j:set var="oid"         value="${request2.getParameter('oid')}"/>
+      <j:set var="group"       value="${it.getGroupEntity()}"/>
+      <j:set var="assignments" value="${it.groupDetailAssignments}"/>
+      <j:set var="roles"       value="${it.roles}"/>
+      <j:set var="members"     value="${it.getGroupMembers(oid)}"/>
+
+      <!-- Breadcrumb -->
+      <l:app-bar title="${group != null ? group.effectiveName : 'Group'}"/>
+
+      <j:if test="${group == null}">
+        <div style="padding:40px;text-align:center;color:var(--text-color-secondary, #888);">Group not found.</div>
+      </j:if>
+
+      <j:if test="${group != null}">
+      <div style="padding:0 16px 60px;">
+
+        <!-- Flash -->
+        <j:if test="${request2.getParameter('added') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Group added. Assign access below.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('saved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access updated.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'invalidRole'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Role not found. Check that it still exists in the Roles tab.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notFound'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Job or folder not found at that path.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'noPermissions'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">No permissions selected.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notRotogate'}">
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Rotogate Authorization Strategy must be active.</div>
+        </j:if>
+
+        <!-- Pending banner -->
+        <j:if test="${!group.resolved}">
+          <div class="jenkins-alert jenkins-alert-info" style="margin-bottom:16px;font-size:0.88em;">
+            &#8505; Display name not yet resolved — will be set automatically when the first group member signs in with Microsoft.
+          </div>
+        </j:if>
+
+        <!-- Group card -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;background:var(--rg-card-bg);border:1px solid var(--panel-border-color,var(--rg-card-border));border-radius:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3em;color:#fff;flex-shrink:0;background:var(--rg-info-fg);">
+              <l:icon src="symbol-people plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:1.05em;">${group.effectiveName}</div>
+              <div style="font-size:0.82em;color:var(--text-color-secondary,#888);margin-top:3px;">
+                Entra Group
+                <j:if test="${!group.label.isEmpty()}"> · ${group.label}</j:if>
+                · OID: <code style="font-size:0.92em;">${group.groupOid}</code>
+                · Added by ${group.addedBy}
+                <j:if test="${!group.resolved}">
+                  <span style="margin-left:6px;font-size:.82em;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--rg-warning-bg);color:var(--warning-color);">Pending</span>
+                </j:if>
+              </div>
+            </div>
+          </div>
+          <f:form method="post" action="removeGroup" style="margin:0;"
+                name="udxRemoveGroupForm"
+                data-confirm="Remove this group? All members with no other allowed group will lose access immediately.">
+            <input type="hidden" name="oid" value="${group.groupOid}"/>
+            <button type="submit" class="jenkins-button"
+ style="color:var(--rg-danger-fg);border-color:var(--rg-danger-border);">
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>Remove Group
+            </button>
+          </f:form>
+        </div>
+
+        <!-- Assignments section -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:1em;font-weight:700;">Access Assignments</div>
+          <j:if test="${it.rotogateActive}">
+            <button type="button"
+ class="jenkins-button jenkins-button--primary js-udx-add">+ Add Access</button>
+          </j:if>
+        </div>
+
+        <div>
+          <j:choose>
+            <j:when test="${assignments.isEmpty()}">
+              <div style="padding:56px;text-align:center;color:var(--text-color-secondary, #888);">
+                <div style="margin-bottom:8px;opacity:0.3;display:flex;justify-content:center;"><l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-lg"/></div>
+                <div style="font-size:0.9em;">No access assigned to this group yet.</div>
+                <j:if test="${it.rotogateActive}">
+                  <button type="button"
+ class="jenkins-button jenkins-button--primary js-udx-add"
+ style="margin-top:12px;">+ Add Access</button>
+                </j:if>
+              </div>
+            </j:when>
+            <j:otherwise>
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+                <thead>
+                  <tr>
+                    <th>Scope</th>
+                    <th>Role</th>
+                    <th>Permissions</th>
+                    <th>Expires</th>
+                    <th style="width:140px;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="a" items="${assignments}">
+                    <tr>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                          <span style="font-size:1em;">
+                            <j:choose>
+                              <j:when test="${a.global}"><l:icon src="symbol-globe plugin-ionicons-api" class="icon-sm"/></j:when>
+                              <j:when test="${a.scopeType == 'folder'}"><l:icon src="symbol-folder plugin-ionicons-api" class="icon-sm"/></j:when>
+                              <j:otherwise><l:icon src="symbol-cube plugin-ionicons-api" class="icon-sm"/></j:otherwise>
+                            </j:choose>
+                          </span>
+                          <div>
+                            <div style="font-weight:600;font-size:0.9em;">${a.displayScope}</div>
+                            <j:if test="${!a.global}">
+                              <div style="font-size:0.72em;color:var(--text-color-secondary, #aaa);">${a.scope}</div>
+                            </j:if>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="udx-role-badge">${a.roleName}</span>
+                      </td>
+                      <td style="font-size:0.82em;color:var(--text-color-secondary,#777);">
+                        ${a.permissionSummary}
+                      </td>
+                      <td style="font-size:0.82em;">
+                        <j:choose>
+                          <j:when test="${a.expiresAt != null and a.expiresAt != ''}">
+                            <span class="udx-expiry-badge" data-expires="${a.expiresAt}"></span>
+                          </j:when>
+                          <j:otherwise><span style="color:var(--text-color-secondary, #ccc);">—</span></j:otherwise>
+                        </j:choose>
+                      </td>
+                      <td style="text-align:right;">
+                        <j:if test="${it.rotogateActive}">
+                          <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
+                            <j:if test="${!a.global}">
+                              <button type="button"
+ class="jenkins-button js-udx-edit"
+ data-scope="${a.scope}"
+ data-scope-display="${a.displayScope}"
+ data-role="${a.roleName}"
+ data-perms="${a.customPermissionsJson}"
+ data-expires="${a.expiresAt != null ? a.expiresAt : ''}"
+ style="padding:3px 10px;">Edit</button>
+                            </j:if>
+                            <f:form method="post" action="revokeAssignment" class="rg-inline-form">
+                              <input type="hidden" name="sid"   value="${group.groupOid}"/>
+                              <input type="hidden" name="type"  value="GROUP"/>
+                              <input type="hidden" name="scope" value="${a.scope}"/>
+                              <button type="submit"
+ class="jenkins-button js-udx-revoke"
+ data-confirm="Revoke ${a.roleName} on ${a.displayScope}?"
+ style="padding:3px 10px;color:var(--error-color);border-color:var(--error-color);">
+                                Revoke
+                              </button>
+                            </f:form>
+                          </div>
+                        </j:if>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </j:otherwise>
+          </j:choose>
+        </div>
+
+        <!-- Add Access panel -->
+        <div id="udxAddPanel" style="display:none;margin-top:20px;border:1px solid var(--rg-info-border);border-radius:8px;padding:20px 22px;background:var(--rg-info-bg);">
+          <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Add Access</div>
+          <f:form method="post" action="grantAssignment">
+            <input type="hidden" name="sid"  value="${group.groupOid}"/>
+            <input type="hidden" name="type" value="GROUP"/>
+
+            <div style="margin-bottom:14px;">
+              <div class="udx-label">Scope</div>
+              <div style="display:flex;gap:16px;margin-bottom:8px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:0.88em;cursor:pointer;">
+                  <input type="radio" name="scopeType" value="global" checked="checked"
+                         class="js-udx-scope-radio"/> Global (all of Jenkins)
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:0.88em;cursor:pointer;">
+                  <input type="radio" name="scopeType" value="item"
+                         class="js-udx-scope-radio"/> Specific job or folder
+                </label>
+              </div>
+              <div id="udxItemInput" style="display:none;">
+                <input id="udxScopeValue" name="scope" type="hidden" value=""/>
+                <div style="display:inline-flex;align-items:center;gap:6px;max-width:420px;">
+                  <button type="button" id="udxScopeBtn"
+                          style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;
+                                 border:1.5px solid var(--input-border,var(--rg-card-border));border-radius:6px;
+                                 background:var(--rg-card-bg);cursor:pointer;font-size:0.88em;
+                                 min-width:280px;flex:1;justify-content:space-between;transition:border-color 0.15s,box-shadow 0.15s;">
+                    <span style="display:flex;align-items:center;gap:7px;flex:1;min-width:0;">
+                      <span id="udxScopeIcon" style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-folder plugin-ionicons-api" class="icon-sm"/></span>
+                      <span id="udxScopeLbl" style="color:var(--text-color-secondary, #aaa);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Select a job or folder…</span>
+                    </span>
+                    <span style="font-size:0.6em;color:var(--text-color-secondary, #aaa);flex-shrink:0;margin-left:4px;">&#9660;</span>
+                  </button>
+                  <button type="button" id="udxScopeClear"
+                          style="display:none;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid var(--rg-card-border);border-radius:6px;background:var(--rg-card-bg);cursor:pointer;font-size:0.8em;color:var(--text-color-secondary, #999);flex-shrink:0;padding:0;"
+                          title="Clear">&#x2715;</button>
+                </div>
+                <div style="font-size:0.76em;color:var(--text-color-secondary, #666);margin-top:5px;">Parent folders automatically receive Read access.</div>
+              </div>
+              <input id="udxScopeGlobal" type="hidden" name="scope" value=""/>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div class="udx-label">Role</div>
+              <div class="jenkins-select" style="width:100%;max-width:320px;">
+              <select name="role" id="udxRoleSelect" class="jenkins-select__input">
+                <j:forEach var="r" items="${roles}">
+                  <option value="${r.name}">${r.name} (${r.permissionCount} permissions)</option>
+                </j:forEach>
+                <option value="CUSTOM">— Custom (pick permissions manually) —</option>
+              </select>
+              </div>
+            </div>
+
+            <div id="udxCustomPerms" style="display:none;margin-bottom:16px;">
+              <div class="udx-label" style="margin-bottom:8px;">Permissions</div>
+              <div style="border:1px solid var(--panel-border-color,var(--rg-card-border));border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
+                <j:forEach var="permGroup" items="${it.availablePermissions}">
+                  <details style="border-bottom:1px solid var(--panel-border-color,var(--rg-neutral-bg));">
+                    <summary style="padding:8px 14px;cursor:pointer;background:var(--rg-neutral-bg);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+                      <span class="udx-arr">&#9656;</span>
+                      <span style="display:flex;flex-direction:column;gap:1px;">
+                        <span style="font-size:0.83em;font-weight:600;line-height:1.2;">${permGroup.groupName}</span>
+                        <j:if test="${permGroup.subtitle != null and permGroup.subtitle != ''}">
+                          <span style="font-size:0.72em;font-weight:400;color:var(--text-color-secondary, #999);line-height:1.2;">${permGroup.subtitle}</span>
+                        </j:if>
+                      </span>
+                    </summary>
+                    <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
+                      <j:forEach var="perm" items="${permGroup.permissions}">
+                        <label class="udx-perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--rg-neutral-bg);border:1px solid var(--rg-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
+                          <input type="checkbox" name="customPermissions" value="${perm.id}" data-implied-by="${perm.impliedById}"/>
+                          <span style="font-size:0.82em;font-weight:500;line-height:1.2;">${perm.name}</span>
+                        </label>
+                      </j:forEach>
+                    </div>
+                  </details>
+                </j:forEach>
+              </div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div class="udx-label">Expiry Date <span style="font-weight:400;color:var(--text-color-secondary, #aaa);text-transform:none;">(optional)</span></div>
+              <input type="date" name="expiresAt" id="udxExpiresAt"
+                     style="padding:7px 10px;border:1.5px solid var(--input-border,var(--rg-card-border));border-radius:6px;font-size:0.88em;background:var(--rg-card-bg);color:inherit;"/>
+              <div id="udxExpiryHint" style="font-size:0.78em;color:var(--text-color-secondary, #999);margin-top:4px;">Access will be automatically revoked at end of this day.</div>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button type="submit" class="jenkins-button jenkins-button--primary" >Grant Access</button>
+              <button type="button" id="udxAddCancel" class="jenkins-button" >Cancel</button>
+            </div>
+          </f:form>
+        </div>
+
+        <!-- Edit Access panel -->
+        <div id="udxEditPanel" style="display:none;margin-top:20px;border:1px solid var(--rg-success-bg);border-radius:8px;padding:20px 22px;background:var(--rg-success-bg);">
+          <div style="font-size:0.95em;font-weight:700;margin-bottom:16px;">Edit Access</div>
+          <f:form method="post" action="editAssignment">
+            <input type="hidden" name="sid"  value="${group.groupOid}"/>
+            <input type="hidden" name="type" value="GROUP"/>
+            <input type="hidden" name="scope" id="udxEditScope" value=""/>
+            <div style="margin-bottom:14px;">
+              <div class="udx-label">Scope</div>
+              <div id="udxEditScopeDisplay" style="font-size:0.9em;font-weight:600;padding:7px 12px;background:var(--rg-neutral-bg);border-radius:6px;display:inline-block;color:var(--text-color-secondary, #555);"></div>
+            </div>
+            <div style="margin-bottom:16px;">
+              <div class="udx-label">Role</div>
+              <div class="jenkins-select" style="width:100%;max-width:320px;">
+              <select name="role" id="udxEditRoleSelect" class="jenkins-select__input">
+                <j:forEach var="r" items="${roles}">
+                  <option value="${r.name}">${r.name} (${r.permissionCount} permissions)</option>
+                </j:forEach>
+                <option value="CUSTOM">— Custom (pick permissions manually) —</option>
+              </select>
+              </div>
+            </div>
+            <div id="udxEditCustomPerms" style="display:none;margin-bottom:16px;">
+              <div class="udx-label" style="margin-bottom:8px;">Permissions</div>
+              <div style="border:1px solid var(--panel-border-color,var(--rg-card-border));border-radius:6px;overflow:hidden;max-height:320px;overflow-y:auto;">
+                <j:forEach var="permGroup" items="${it.availablePermissions}">
+                  <details style="border-bottom:1px solid var(--panel-border-color,var(--rg-neutral-bg));">
+                    <summary style="padding:8px 14px;cursor:pointer;background:var(--rg-neutral-bg);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+                      <span class="udx-arr">&#9656;</span>
+                      <span style="font-size:0.83em;font-weight:600;">${permGroup.groupName}</span>
+                    </summary>
+                    <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;">
+                      <j:forEach var="perm" items="${permGroup.permissions}">
+                        <label class="udx-perm-label" tooltip="${perm.description}" style="display:inline-flex;align-items:center;gap:6px;background:var(--rg-neutral-bg);border:1px solid var(--rg-card-border);border-radius:4px;padding:5px 10px;cursor:pointer;">
+                          <input type="checkbox" name="customPermissions" value="${perm.id}" class="udx-edit-perm-cb" data-implied-by="${perm.impliedById}"/>
+                          <span style="font-size:0.82em;font-weight:500;">${perm.name}</span>
+                        </label>
+                      </j:forEach>
+                    </div>
+                  </details>
+                </j:forEach>
+              </div>
+            </div>
+            <div style="margin-bottom:16px;">
+              <div class="udx-label">Expiry Date <span style="font-weight:400;color:var(--text-color-secondary, #aaa);text-transform:none;">(optional)</span></div>
+              <input type="date" name="expiresAt" id="udxEditExpiresAt"
+                     style="padding:7px 10px;border:1.5px solid var(--input-border,var(--rg-card-border));border-radius:6px;font-size:0.88em;background:var(--rg-card-bg);color:inherit;"/>
+              <div id="udxEditExpiryHint" style="font-size:0.78em;color:var(--text-color-secondary, #999);margin-top:4px;">Access will be automatically revoked at end of this day.</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button type="submit" class="jenkins-button jenkins-button--primary" >Save Changes</button>
+              <button type="button" id="udxEditCancel" class="jenkins-button" >Cancel</button>
+            </div>
+          </f:form>
+        </div>
+
+        <!-- Members section -->
+        <div style="margin-top:28px;">
+          <div style="font-size:1em;font-weight:700;margin-bottom:12px;">Members with Jenkins Accounts</div>
+          <div>
+            <j:choose>
+              <j:when test="${members.isEmpty()}">
+                <div style="padding:32px;text-align:center;color:var(--text-color-secondary, #888);font-size:0.87em;">
+                  No members have signed in via this group yet. Accounts are created automatically on first Microsoft login.
+                </div>
+              </j:when>
+              <j:otherwise>
+                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Last Login</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <j:forEach var="m" items="${members}">
+                      <tr>
+                        <td>
+                          <a href="checkAccess?sid=${m.userId}&amp;type=USER"
+                             style="color:var(--blue);text-decoration:none;font-weight:600;">${m.fullName}</a>
+                          <span style="font-size:0.8em;color:var(--text-color-secondary, #888);margin-left:6px;">${m.userId}</span>
+                        </td>
+                        <td style="font-size:0.82em;color:var(--text-color-secondary, #888);">
+                          <j:choose>
+                            <j:when test="${m.lastLoginAt == null}">Never</j:when>
+                            <j:otherwise>${m.lastLoginAt}</j:otherwise>
+                          </j:choose>
+                        </td>
+                      </tr>
+                    </j:forEach>
+                  </tbody>
+                </table>
+              </j:otherwise>
+            </j:choose>
+          </div>
+        </div>
+
+      </div>
+      </j:if>
+
+      <!-- Dynamic scope list for the picker modal (CSP-safe data island; read by groupDetailAssets.js) -->
+      <script type="application/json" id="udxScopeData">${it.allScopeNamesJson}</script>
+
+      <!-- Scope picker modal -->
+      <div id="udxScopeModal"
+           style="display:flex;opacity:0;pointer-events:none;position:fixed;inset:0;z-index:9999;
+                  background:rgba(15,20,30,0.5);backdrop-filter:blur(3px);
+                  align-items:center;justify-content:center;transition:opacity 0.32s;">
+        <div data-modal-box="1" style="background:var(--rg-card-bg);border-radius:14px;width:660px;max-width:94vw;
+                    box-shadow:0 32px 80px rgba(0,0,0,0.24);transform-origin:50% 50%;will-change:transform,opacity;
+                    display:flex;flex-direction:column;max-height:84vh;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px 16px;border-bottom:1px solid var(--rg-neutral-bg);">
+            <div>
+              <div style="font-size:1.05em;font-weight:700;color:var(--text-color);">Select Job or Folder</div>
+              <div style="font-size:0.8em;color:var(--text-color-secondary, #aaa);margin-top:3px;">Choose where to apply this access grant</div>
+            </div>
+            <button type="button" id="udxModalCloseX" style="background:none;border:none;cursor:pointer;width:34px;height:34px;border-radius:8px;font-size:1.1em;color:var(--text-color-secondary, #bbb);display:flex;align-items:center;justify-content:center;">&#x2715;</button>
+          </div>
+          <div style="padding:14px 20px;border-bottom:1px solid var(--rg-neutral-bg);">
+            <div style="position:relative;display:flex;align-items:center;">
+              <l:icon src="symbol-search plugin-ionicons-api" class="icon-sm"/>
+              <input id="udxModalSearch" type="text" placeholder="Search jobs and folders…"
+                     style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;border:1.5px solid var(--rg-card-border);border-radius:9px;font-size:0.93em;outline:none;color:var(--text-color, #222);background:var(--rg-neutral-bg);"/>
+            </div>
+          </div>
+          <div id="udxModalBody" style="flex:1;overflow-y:auto;padding:8px 0;min-height:260px;"/>
+          <div style="padding:16px 24px;border-top:1px solid var(--rg-neutral-bg);display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--rg-neutral-bg);border-radius:0 0 14px 14px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-color-secondary, #ccc);margin-bottom:4px;">Selected</div>
+              <div id="udxModalLbl" style="font-size:0.86em;color:var(--text-color-secondary, #aaa);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nothing selected</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button type="button" id="udxModalCancel" class="jenkins-button" style="padding:8px 18px">Cancel</button>
+              <button type="button" id="udxModalOk" class="jenkins-button jenkins-button--primary" style="padding:8px 18px" disabled="disabled">Select &#8594;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

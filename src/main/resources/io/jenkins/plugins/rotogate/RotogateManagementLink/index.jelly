@@ -1,0 +1,778 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Overview" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.indexAssets"/>
+
+      <j:set var="cfg"        value="${it.rotogateGlobalConfig}"/>
+      <j:set var="nlog"       value="${it.notificationLog}"/>
+      <j:set var="bgActive"   value="${it.breakGlassActive}"/>
+      <j:set var="failed24h"  value="${it.failedLoginsLast24h}"/>
+      <j:set var="bfEntries"  value="${it.bruteForceEntries}"/>
+      <j:set var="total"      value="${it.totalUserCount}"/>
+      <j:set var="active"     value="${it.activeUserCount}"/>
+      <j:set var="staleCount" value="${it.staleUserCount}"/>
+      <j:set var="ssoCount"   value="${it.entraUserCount}"/>
+      <j:set var="nativeCount" value="${it.legacyUserCount}"/>
+      <j:set var="smtpEntry"  value="${nlog.lastSmtpEntry()}"/>
+      <j:set var="slackEntry" value="${nlog.lastSlackEntry()}"/>
+      <j:set var="teamsEntry" value="${nlog.lastTeamsEntry()}"/>
+
+      <!-- ── App Bar ───────────────────────────────────────────────────────── -->
+      <l:app-bar title="Overview">
+        <div style="display:inline-flex;align-items:center;gap:12px;">
+          <span class="rg-live-status" id="rgLiveStatus">
+            <span class="rg-live-dot" id="rgLiveDot"></span>
+            <span id="rgLiveText">Live</span>
+          </span>
+          <button type="button" class="jenkins-button" id="rgLiveToggle"
+                  title="Pause or resume live updates"
+                  style="display:inline-flex;align-items:center;gap:6px;">
+            <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm"/>
+            <span id="rgLiveBtnText">Pause</span>
+          </button>
+        </div>
+      </l:app-bar>
+
+      <div style="padding:0 24px 24px;">
+
+        <!-- ── Status Banner ────────────────────────────────────────────────── -->
+        <j:choose>
+          <j:when test="${bgActive}">
+            <div class="rg-status-banner jenkins-alert jenkins-alert-danger">
+              <div class="rg-status-banner__icon">
+                <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
+              </div>
+              <div class="rg-status-banner__body">
+                <strong>Emergency Override Active</strong>
+                <span class="rg-status-banner__sep">—</span>
+                Activated by <strong>${it.breakGlassActivatedBy}</strong>.
+                Direct access to the authorization matrix is enabled.
+              </div>
+              <a href="emergencyAccess" class="rg-status-banner__action">Manage Override →</a>
+            </div>
+          </j:when>
+          <j:when test="${failed24h gt 0 or !bfEntries.isEmpty()}">
+            <div id="rg-warning-banner" class="rg-status-banner jenkins-alert jenkins-alert-warning">
+              <div class="rg-status-banner__icon">
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+              </div>
+              <div class="rg-status-banner__body">
+                <strong>Attention Required</strong>
+                <span class="rg-status-banner__sep">—</span>
+                <j:if test="${failed24h gt 0}"><strong>${failed24h}</strong> failed login<j:if test="${failed24h != 1}">s</j:if> in the last 24 hours.</j:if>
+                <j:if test="${!bfEntries.isEmpty()}"><span style="margin-left:3px"><strong>${bfEntries.size()}</strong> brute force alert<j:if test="${bfEntries.size() != 1}">s</j:if> active.</span></j:if>
+              </div>
+              <a href="security" class="rg-status-banner__action">View Security →</a>
+              <button class="rg-status-banner__close js-rg-dismiss-warning" title="Dismiss">
+                <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
+              </button>
+            </div>
+          </j:when>
+          <j:otherwise>
+            <div class="rg-status-banner jenkins-alert jenkins-alert-success">
+              <div class="rg-status-banner__icon">
+                <l:icon src="symbol-shield-checkmark plugin-ionicons-api" class="icon-sm"/>
+              </div>
+              <div class="rg-status-banner__body">
+                <strong>All Systems Operational</strong>
+                <span class="rg-status-banner__sep">—</span>
+                No active security alerts. Authorization framework is functioning normally.
+              </div>
+            </div>
+          </j:otherwise>
+        </j:choose>
+
+        <!-- ── Weekly Info Banners ───────────────────────────────────────── -->
+        <j:if test="${!cfg.notificationsEnabled}">
+          <div id="rg_notif_dismiss_banner" class="rg-status-banner jenkins-alert jenkins-alert-info">
+            <div class="rg-status-banner__icon">
+              <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
+            </div>
+            <div class="rg-status-banner__body">
+              <strong>Notifications disabled</strong>
+              <span class="rg-status-banner__sep">—</span>
+              Security alerts cannot be delivered. Enable at least one channel to stay informed.
+            </div>
+            <a href="notifications" class="rg-status-banner__action">Configure →</a>
+            <button class="rg-status-banner__close js-rg-dismiss-weekly" data-key="rg_notif_dismiss" title="Dismiss for 1 week">
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
+            </button>
+          </div>
+        </j:if>
+        <j:if test="${!cfg.cleanupEnabled}">
+          <div id="rg_cleanup_dismiss_banner" class="rg-status-banner jenkins-alert jenkins-alert-info">
+            <div class="rg-status-banner__icon">
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+            </div>
+            <div class="rg-status-banner__body">
+              <strong>Auto cleanup disabled</strong>
+              <span class="rg-status-banner__sep">—</span>
+              Stale and inactive accounts accumulate over time. Enable cleanup to maintain a clean directory.
+            </div>
+            <a href="settings" class="rg-status-banner__action">Enable →</a>
+            <button class="rg-status-banner__close js-rg-dismiss-weekly" data-key="rg_cleanup_dismiss" title="Dismiss for 1 week">
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
+            </button>
+          </div>
+        </j:if>
+
+        <j:set var="pendingReview" value="${it.pendingReviewCount}"/>
+        <j:if test="${pendingReview gt 0}">
+          <div id="rg_review_dismiss_banner" class="rg-status-banner jenkins-alert jenkins-alert-info">
+            <div class="rg-status-banner__icon">
+              <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-sm"/>
+            </div>
+            <div class="rg-status-banner__body">
+              <strong>${pendingReview} access assignment<j:if test="${pendingReview != 1}">s</j:if> pending review</strong>
+              <span class="rg-status-banner__sep">—</span>
+              Open Access Review to keep or revoke stale grants.
+            </div>
+            <a href="accessReview" class="rg-status-banner__action">Review now →</a>
+            <button class="rg-status-banner__close js-rg-dismiss-weekly" data-key="rg_review_dismiss" title="Dismiss for 1 week">
+              <l:icon src="symbol-close plugin-ionicons-api" class="icon-sm"/>
+            </button>
+          </div>
+        </j:if>
+
+        <!-- ── KPI Cards ──────────────────────────────────────────────────── -->
+        <div class="rg-kpi-row">
+
+          <a href="userStatus" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
+              <l:icon src="symbol-people plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="total" style="color:#0078d4;">${total}</div>
+            <div class="rg-kpi-card__label">Total Users</div>
+          </a>
+
+          <a href="userStatus" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
+              <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="active" style="color:var(--success-color);">${active}</div>
+            <div class="rg-kpi-card__label">Active <span class="rg-kpi-card__sublabel">(${cfg.activeThresholdDays}d)</span></div>
+          </a>
+
+          <a href="staleUsers" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:${staleCount gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--rg-neutral-bg)'};">
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:${staleCount gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="stale">${staleCount}</div>
+            <div class="rg-kpi-card__label">Stale <span class="rg-kpi-card__sublabel">(${cfg.staleThresholdDays}d)</span></div>
+          </a>
+
+          <a href="protectedUsers" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:color-mix(in srgb, #7c3aed 15%, transparent);">
+              <l:icon src="symbol-shield plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="protected" style="color:#7c3aed;">${it.protectedUserCount}</div>
+            <div class="rg-kpi-card__label">Protected</div>
+          </a>
+
+          <a href="userStatus" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:color-mix(in srgb, #1d4ed8 15%, transparent);">
+              <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="sso" style="color:#1d4ed8;">${ssoCount}</div>
+            <div class="rg-kpi-card__label">SSO Users</div>
+          </a>
+
+          <a href="userStatus" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:var(--rg-neutral-bg);">
+              <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="native" style="color:var(--text-color-secondary);">${nativeCount}</div>
+            <div class="rg-kpi-card__label">Native Users</div>
+          </a>
+
+          <a href="sessions" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
+              <l:icon src="symbol-person plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" data-kpi="sessions" style="color:#be185d;">${it.activeSessionCount}</div>
+            <div class="rg-kpi-card__label">Live Sessions</div>
+          </a>
+
+          <a href="security" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:${failed24h gt 0 ? 'color-mix(in srgb, var(--error-color) 15%, transparent)' : 'var(--rg-neutral-bg)'};">
+              <l:icon src="symbol-information-circle plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:${failed24h gt 0 ? 'var(--error-color)' : 'var(--text-color-secondary)'};" data-kpi="failed24h">${failed24h}</div>
+            <div class="rg-kpi-card__label">Failed Logins <span class="rg-kpi-card__sublabel">(24h)</span></div>
+          </a>
+
+          <j:set var="pendingJit" value="${it.pendingJitCount}"/>
+          <a href="jitRequests" class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:${pendingJit gt 0 ? 'var(--rg-warning-bg)' : 'var(--rg-neutral-bg)'};">
+              <l:icon src="symbol-flash plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:${pendingJit gt 0 ? 'var(--warning-color)' : 'var(--text-color-secondary)'};" data-kpi="pendingJit">${pendingJit}</div>
+            <div class="rg-kpi-card__label">Pending JIT</div>
+          </a>
+
+        </div>
+
+        <!-- ── Login Activity chart (14-day, SVG/CSS, no deps) ──────────────── -->
+        <j:set var="act" value="${it.loginActivity}"/>
+        <div class="jenkins-card rg-widget rg-chart-card" style="margin-bottom:16px;">
+          <div class="rg-widget__header">
+            <div class="rg-widget__title">
+              <l:icon src="symbol-bar-chart plugin-ionicons-api" class="icon-sm"/>
+              Login Activity
+              <span style="font-weight:400;color:var(--text-color-secondary);font-size:0.85em;margin-left:4px;">· last 14 days</span>
+            </div>
+            <div class="rg-chart-legend">
+              <span><span class="rg-dot" style="background:#1d4ed8;"></span> SSO</span>
+              <span><span class="rg-dot" style="background:var(--success-color);"></span> Native</span>
+              <span><span class="rg-dot" style="background:var(--error-color);"></span> Failed</span>
+            </div>
+          </div>
+          <div class="rg-chart-plot">
+            <j:forEach var="d" items="${act.days}" varStatus="st">
+              <!-- Click a day to open the Audit Log filtered to that date. -->
+              <a class="rg-chart-col" href="auditLog?from=${d.label}&amp;to=${d.label}"
+                 title="${d.label} — ${d.ssoSuccess} SSO, ${d.nativeSuccess} native, ${d.failure} failed">
+                <div class="rg-chart-bars">
+                  <!-- Success bar: native (green) base, SSO (blue) stacked on top -->
+                  <div class="rg-chart-stack">
+                    <div class="rg-chart-seg rg-chart-seg--sso"
+                         style="--h:${act.max gt 0 ? (d.ssoSuccess * 100 / act.max) : 0}%; animation-delay:${st.index * 35}ms;"></div>
+                    <div class="rg-chart-seg rg-chart-seg--native"
+                         style="--h:${act.max gt 0 ? (d.nativeSuccess * 100 / act.max) : 0}%; animation-delay:${st.index * 35}ms;"></div>
+                  </div>
+                  <div class="rg-chart-bar rg-chart-bar--fail"
+                       style="--h:${act.max gt 0 ? (d.failure * 100 / act.max) : 0}%; animation-delay:${st.index * 35 + 15}ms;"></div>
+                </div>
+              </a>
+            </j:forEach>
+          </div>
+          <div class="rg-chart-xaxis">
+            <span>${act.days.get(0).label}</span>
+            <span style="font-weight:600;color:var(--text-color);">Today</span>
+          </div>
+        </div>
+
+        <!-- ── Row 2: Needs Attention + Expiring Access + User Composition + Notifications ── -->
+        <div class="rg-grid-row" style="margin-bottom:16px;">
+
+          <!-- Needs Attention -->
+          <j:set var="pendingDel"       value="${it.pendingDeletionCount}"/>
+          <j:set var="unenrolledAdmin"  value="${it.unenrolledAdminCount}"/>
+          <j:set var="sosUnprotected"   value="${it.sosUnprotectedAdminCount}"/>
+          <j:set var="expiringGrants"   value="${it.getExpiringGrants(7)}"/>
+          <j:set var="orphanedAccounts" value="${it.orphanedGroupAccountCount}"/>
+          <j:set var="failingChannels"  value="${it.failingNotificationChannels}"/>
+          <j:set var="noProtected"      value="${it.protectedUserCount eq 0 and cfg.cleanupEnabled}"/>
+          <!-- Cleanup active = stale/pending are informational only, not action items -->
+          <j:set var="cleanupActive"    value="${cfg.cleanupEnabled and !cfg.cleanupDryRun}"/>
+          <!-- Action count: stale/pending only count when cleanup is NOT active -->
+          <j:set var="attentionCount"   value="${(!cleanupActive and staleCount gt 0 ? 1 : 0) + (!cleanupActive and pendingDel gt 0 ? 1 : 0) + (unenrolledAdmin gt 0 ? 1 : 0) + (sosUnprotected gt 0 ? 1 : 0) + (expiringGrants.size() gt 0 ? 1 : 0) + (orphanedAccounts gt 0 ? 1 : 0) + (failingChannels.size() gt 0 ? 1 : 0) + (noProtected ? 1 : 0)}"/>
+
+          <div class="jenkins-card rg-widget" style="flex:1.4; min-width:240px;">
+            <div class="rg-widget__header">
+              <div class="rg-widget__title">
+                <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+                Needs Attention
+              </div>
+              <j:choose>
+                <j:when test="${attentionCount gt 0}">
+                  <span class="rg-pill rg-pill--red">${attentionCount} item<j:if test="${attentionCount != 1}">s</j:if></span>
+                </j:when>
+                <j:otherwise>
+                  <span class="rg-pill rg-pill--green">All clear</span>
+                </j:otherwise>
+              </j:choose>
+            </div>
+            <div style="padding:8px 16px 12px; display:flex; flex-direction:column; gap:2px;">
+
+              <j:choose>
+                <j:when test="${attentionCount eq 0}">
+                  <div style="text-align:center;padding:20px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
+                    <l:icon src="symbol-shield-checkmark plugin-ionicons-api" class="icon-lg"/>
+                    No action required
+                  </div>
+                </j:when>
+                <j:otherwise>
+
+                  <!-- Stale users: action if no cleanup, informational if cleanup active -->
+                  <j:if test="${staleCount gt 0}">
+                    <a href="staleUsers" class="rg-attention-row ${cleanupActive ? 'rg-attention-row--info' : 'rg-attention-row--warn'}">
+                      <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text">
+                        <strong>${staleCount}</strong> stale user<j:if test="${staleCount != 1}">s</j:if>
+                        <j:choose>
+                          <j:when test="${cleanupActive}"> — will be auto-removed</j:when>
+                          <j:otherwise> — review or remove</j:otherwise>
+                        </j:choose>
+                      </span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <!-- Pending deletion: action if no cleanup, informational if cleanup active -->
+                  <j:if test="${pendingDel gt 0}">
+                    <a href="userStatus" class="rg-attention-row ${cleanupActive ? 'rg-attention-row--info' : 'rg-attention-row--danger'}">
+                      <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text">
+                        <strong>${pendingDel}</strong> user<j:if test="${pendingDel != 1}">s</j:if> pending deletion
+                        <j:if test="${cleanupActive}"> — queued for next run</j:if>
+                      </span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <!-- Notification channel failing -->
+                  <j:if test="${failingChannels.size() gt 0}">
+                    <a href="notifications" class="rg-attention-row rg-attention-row--danger">
+                      <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text"><strong>${failingChannels}</strong> notification<j:if test="${failingChannels.size() != 1}">s</j:if> failing — security alerts not delivered</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <!-- No protected users with cleanup active -->
+                  <j:if test="${noProtected}">
+                    <a href="protectedUsers" class="rg-attention-row rg-attention-row--warn">
+                      <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text">No protected users — admin accounts at risk of auto-cleanup</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <!-- Orphaned group accounts -->
+                  <j:if test="${orphanedAccounts gt 0}">
+                    <a href="userStatus" class="rg-attention-row rg-attention-row--warn">
+                      <l:icon src="symbol-person-remove plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text"><strong>${orphanedAccounts}</strong> orphaned group account<j:if test="${orphanedAccounts != 1}">s</j:if> — group removed from Access Management</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <j:if test="${unenrolledAdmin gt 0}">
+                    <a href="emergencyAccess" class="rg-attention-row rg-attention-row--warn">
+                      <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text"><strong>${unenrolledAdmin}</strong> admin<j:if test="${unenrolledAdmin != 1}">s</j:if> without Break Glass TOTP</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <j:if test="${sosUnprotected gt 0}">
+                    <a href="emergencyAccess" class="rg-attention-row rg-attention-row--warn">
+                      <l:icon src="symbol-settings plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text"><strong>${sosUnprotected}</strong> admin<j:if test="${sosUnprotected != 1}">s</j:if> without usable SOS recovery codes</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                  <j:if test="${expiringGrants.size() gt 0}">
+                    <a href="accessReview" class="rg-attention-row rg-attention-row--info">
+                      <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
+                      <span class="rg-attention-row__text"><strong>${expiringGrants.size()}</strong> access grant<j:if test="${expiringGrants.size() != 1}">s</j:if> expiring within 7 days</span>
+                      <span class="rg-attention-row__arrow">→</span>
+                    </a>
+                  </j:if>
+
+                </j:otherwise>
+              </j:choose>
+
+            </div>
+          </div>
+
+          <!-- Expiring Access -->
+          <div class="jenkins-card rg-widget" style="flex:1.6; min-width:240px;">
+            <div class="rg-widget__header">
+              <div class="rg-widget__title">
+                <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
+                Expiring Access — Next 14 Days
+              </div>
+              <a href="accessManagement" class="rg-widget__link">Manage →</a>
+            </div>
+            <j:set var="expiring14" value="${it.getExpiringGrants(14)}"/>
+            <j:choose>
+              <j:when test="${expiring14.isEmpty()}">
+                <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
+                  No grants expiring in the next 14 days.
+                </div>
+              </j:when>
+              <j:otherwise>
+                <table class="jenkins-table" style="width:100%;">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Expires</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <j:forEach var="g" items="${expiring14}" begin="0" end="5">
+                      <tr>
+                        <td style="font-weight:600;">${g.userId}</td>
+                        <td style="color:var(--text-color-secondary,var(--text-color-secondary));">${g.roleId}</td>
+                        <td style="text-align:right;">
+                          <j:choose>
+                            <j:when test="${g.daysLeft eq 0}"><span style="color:var(--error-color);font-weight:700;">Today</span></j:when>
+                            <j:when test="${g.daysLeft eq 1}"><span style="color:var(--error-color);font-weight:600;">Tomorrow</span></j:when>
+                            <j:when test="${g.daysLeft le 3}"><span style="color:var(--warning-color);font-weight:600;">${g.daysLeft}d</span></j:when>
+                            <j:otherwise><span style="color:var(--text-color-secondary,var(--text-color-secondary));">${g.daysLeft}d</span></j:otherwise>
+                          </j:choose>
+                        </td>
+                      </tr>
+                    </j:forEach>
+                  </tbody>
+                </table>
+                <j:if test="${expiring14.size() gt 6}">
+                  <div style="padding:6px 16px;font-size:0.78em;color:var(--text-color-secondary,var(--text-color-secondary));">+${expiring14.size() - 6} more</div>
+                </j:if>
+              </j:otherwise>
+            </j:choose>
+          </div>
+
+          <!-- Right column: User Composition + Notifications stacked -->
+          <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:16px;">
+
+            <!-- User Composition -->
+            <div class="jenkins-card rg-widget">
+              <div class="rg-widget__header">
+                <div class="rg-widget__title">
+                  <l:icon src="symbol-cube plugin-ionicons-api" class="icon-sm"/>
+                  User Composition
+                </div>
+              </div>
+              <div style="padding:0 16px 16px; display:flex; flex-direction:column; gap:12px;">
+
+                <!-- SSO vs Native — SVG donut (circumference 2πr with r=40 ≈ 251) -->
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <svg width="104" height="104" viewBox="0 0 120 120" style="flex-shrink:0;">
+                    <circle cx="60" cy="60" r="40" fill="none" stroke="var(--rg-neutral-bg)" stroke-width="14"/>
+                    <circle class="rg-donut-arc" cx="60" cy="60" r="40" fill="none" stroke="#1d4ed8" stroke-width="14"
+                            stroke-linecap="round" transform="rotate(-90 60 60)"
+                            stroke-dasharray="${total gt 0 ? (ssoCount * 251 / total) : 0} 251"/>
+                    <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text-color)">${total}</text>
+                    <text x="60" y="73" text-anchor="middle" font-size="9" letter-spacing="0.5" fill="var(--text-color-secondary)">USERS</text>
+                  </svg>
+                  <div style="display:flex; flex-direction:column; gap:8px; font-size:0.82em;">
+                    <div style="display:flex; align-items:center; gap:7px;">
+                      <span class="rg-dot" style="background:#1d4ed8;"></span>
+                      <span style="color:var(--text-color-secondary);">SSO</span>
+                      <strong style="margin-left:auto;">${ssoCount}</strong>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:7px;">
+                      <span class="rg-dot" style="background:var(--text-color-secondary);"></span>
+                      <span style="color:var(--text-color-secondary);">Native</span>
+                      <strong style="margin-left:auto;">${nativeCount}</strong>
+                    </div>
+                    <div style="font-size:0.85em; color:var(--text-color-secondary); margin-top:2px;">
+                      ${total gt 0 ? (ssoCount * 100 / total) : 0}% single sign-on
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.8em;margin-bottom:5px;">
+                    <span style="color:var(--text-color-secondary,var(--text-color-secondary));">Active vs Stale</span>
+                    <span style="font-weight:600;">${active} / ${staleCount}</span>
+                  </div>
+                  <div class="rg-progress-track">
+                    <div class="rg-progress-fill" style="width:${total gt 0 ? (active * 100 / total) : 0}%; background:var(--success-color);"></div>
+                  </div>
+                  <div style="display:flex;gap:12px;margin-top:5px;font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));">
+                    <span><span class="rg-dot" style="background:var(--success-color);"></span> Active</span>
+                    <span><span class="rg-dot" style="background:var(--error-color);"></span> Stale</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Notification Health -->
+            <div class="jenkins-card rg-widget">
+              <div class="rg-widget__header">
+                <div class="rg-widget__title">
+                  <l:icon src="symbol-notifications plugin-ionicons-api" class="icon-sm"/>
+                  Notifications
+                </div>
+                <a href="notifications" class="rg-widget__link">Configure →</a>
+              </div>
+              <div style="padding:0 16px 12px;">
+
+                <div class="rg-notif-row">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <l:icon src="symbol-mail plugin-ionicons-api" class="icon-xs"/>
+                    <span style="font-size:0.85em;">Email</span>
+                  </div>
+                  <j:choose>
+                    <j:when test="${!cfg.smtpEnabled}"><span class="rg-notif-badge rg-notif-badge--off">Disabled</span></j:when>
+                    <j:when test="${smtpEntry == null}"><span class="rg-notif-badge rg-notif-badge--idle">No sends yet</span></j:when>
+                    <j:when test="${smtpEntry.success}"><span class="rg-notif-badge rg-notif-badge--ok">OK</span></j:when>
+                    <j:otherwise><span class="rg-notif-badge rg-notif-badge--fail">Failed</span></j:otherwise>
+                  </j:choose>
+                </div>
+
+                <div class="rg-notif-row">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <l:icon src="symbol-chatbubble plugin-ionicons-api" class="icon-xs"/>
+                    <span style="font-size:0.85em;">Slack</span>
+                  </div>
+                  <j:choose>
+                    <j:when test="${!cfg.slackEnabled}"><span class="rg-notif-badge rg-notif-badge--off">Disabled</span></j:when>
+                    <j:when test="${slackEntry == null}"><span class="rg-notif-badge rg-notif-badge--idle">No sends yet</span></j:when>
+                    <j:when test="${slackEntry.success}"><span class="rg-notif-badge rg-notif-badge--ok">OK</span></j:when>
+                    <j:otherwise><span class="rg-notif-badge rg-notif-badge--fail">Failed</span></j:otherwise>
+                  </j:choose>
+                </div>
+
+                <div class="rg-notif-row" style="border-bottom:none;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-xs"/>
+                    <span style="font-size:0.85em;">Teams</span>
+                  </div>
+                  <j:choose>
+                    <j:when test="${!cfg.teamsEnabled}"><span class="rg-notif-badge rg-notif-badge--off">Disabled</span></j:when>
+                    <j:when test="${teamsEntry == null}"><span class="rg-notif-badge rg-notif-badge--idle">No sends yet</span></j:when>
+                    <j:when test="${teamsEntry.success}"><span class="rg-notif-badge rg-notif-badge--ok">OK</span></j:when>
+                    <j:otherwise><span class="rg-notif-badge rg-notif-badge--fail">Failed</span></j:otherwise>
+                  </j:choose>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Row 3: Audit Feed + System Config + Break Glass ───────────────── -->
+        <div class="rg-grid-row">
+
+          <!-- Recent Security Events -->
+          <div class="jenkins-card rg-widget" style="flex:3; min-width:300px;">
+            <div class="rg-widget__header">
+              <div class="rg-widget__title">
+                <l:icon src="symbol-document-text plugin-ionicons-api" class="icon-sm"/>
+                Recent Security Events
+              </div>
+              <a href="auditLog" class="rg-widget__link">Full audit log →</a>
+            </div>
+            <div style="padding:0 16px 8px;">
+              <j:set var="auditEntries" value="${it.recentAuditEntries}"/>
+              <j:choose>
+                <j:when test="${auditEntries.isEmpty()}">
+                  <div style="text-align:center;padding:28px 0;color:var(--text-color-secondary,var(--text-color-secondary));font-size:0.85em;">
+                    No events recorded yet.
+                  </div>
+                </j:when>
+                <j:otherwise>
+                  <j:forEach var="entry" items="${auditEntries}">
+                    <j:set var="action" value="${entry.get('action')}"/>
+                    <div class="rg-audit-row">
+                      <!-- Icon per event type -->
+                      <j:choose>
+                        <j:when test="${action eq 'login_failure' or action eq 'break_glass_failed'}">
+                          <div class="rg-audit-icon" style="background:color-mix(in srgb, var(--error-color) 15%, transparent);">
+                            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-xs"/>
+                          </div>
+                        </j:when>
+                        <j:when test="${action eq 'break_glass_activate'}">
+                          <div class="rg-audit-icon" style="background:color-mix(in srgb, var(--warning-color) 15%, transparent);">
+                            <l:icon src="symbol-shield plugin-ionicons-api" class="icon-xs"/>
+                          </div>
+                        </j:when>
+                        <j:when test="${action eq 'revoke' or action eq 'user_deleted' or action eq 'role_deleted' or action eq 'expired' or action eq 'permission_revoked' or action eq 'session_revoked' or action eq 'provisioning_rejected' or action eq 'jit_denied' or action eq 'jit_revoked' or action eq 'audit_purged'}">
+                          <div class="rg-audit-icon" style="background:color-mix(in srgb, #be185d 15%, transparent);">
+                            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-xs"/>
+                          </div>
+                        </j:when>
+                        <j:when test="${action eq 'grant' or action eq 'user_created' or action eq 'role_created' or action eq 'break_glass_enrolled' or action eq 'permission_granted' or action eq 'jit_approved' or action eq 'review_confirmed'}">
+                          <div class="rg-audit-icon" style="background:color-mix(in srgb, var(--success-color) 15%, transparent);">
+                            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-xs"/>
+                          </div>
+                        </j:when>
+                        <j:otherwise>
+                          <div class="rg-audit-icon" style="background:color-mix(in srgb, #0078d4 15%, transparent);">
+                            <l:icon src="symbol-time plugin-ionicons-api" class="icon-xs"/>
+                          </div>
+                        </j:otherwise>
+                      </j:choose>
+
+                      <!-- Description -->
+                      <div class="rg-audit-body">
+                        <div class="rg-audit-desc">
+                          <j:choose>
+                            <j:when test="${action eq 'login_success'}">Login by <strong>${entry.get('user')}</strong> via ${entry.get('authType')}</j:when>
+                            <j:when test="${action eq 'login_failure'}">Failed login attempt — <strong>${entry.get('user')}</strong><j:if test="${entry.get('ip') != null and entry.get('ip') != ''}"><span style="margin-left:0.25em">from ${entry.get('ip')}</span></j:if></j:when>
+                            <j:when test="${action eq 'grant'}"><strong>${entry.get('by')}</strong> granted <em>${entry.get('role')}</em> to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'revoke'}"><strong>${entry.get('by')}</strong> revoked access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'edit'}"><strong>${entry.get('by')}</strong> changed <strong>${entry.get('user')}</strong>: <em>${entry.get('oldRole')}</em> → <em>${entry.get('newRole')}</em></j:when>
+                            <j:when test="${action eq 'expired'}">Access expired for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'user_created'}">User account created: <strong>${entry.get('user')}</strong> by ${entry.get('by')}</j:when>
+                            <j:when test="${action eq 'user_deleted'}">User account deleted: <strong>${entry.get('user')}</strong> by ${entry.get('by')}</j:when>
+                            <j:when test="${action eq 'break_glass_activate'}">Emergency Override activated by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'break_glass_deactivate'}">Emergency Override deactivated by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'break_glass_enrolled'}">Break Glass TOTP enrolled by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'break_glass_unenrolled'}">Break Glass TOTP removed by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'break_glass_failed'}">Emergency Override attempt failed by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'role_created'}">Role created: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'role_edited'}">Role edited: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'role_deleted'}">Role deleted: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'permission_granted'}"><strong>${entry.get('by')}</strong> granted permissions to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'permission_revoked'}"><strong>${entry.get('by')}</strong> revoked permissions for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'session_revoked'}"><strong>${entry.get('by')}</strong> force-revoked the session of <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'bruteforce_cleared'}"><strong>${entry.get('by')}</strong> cleared the lockout for <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'audit_purged'}">Audit log purged by <strong>${entry.get('by')}</strong> (${entry.get('count')} file(s))</j:when>
+                            <j:when test="${action eq 'config_changed'}"><strong>${entry.get('by')}</strong> changed <em>${entry.get('area')}</em><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'config_exported'}">Configuration exported by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'config_imported'}">Configuration imported by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> (${entry.get('detail')})</j:if></j:when>
+                            <j:when test="${action eq 'config_reverted'}">Configuration reverted by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'user_marked_deletion'}"><strong>${entry.get('user')}</strong> marked for deletion by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'user_unmarked_deletion'}">Pending deletion cleared for <strong>${entry.get('user')}</strong> by <strong>${entry.get('by')}</strong></j:when>
+                            <j:when test="${action eq 'password_changed'}">Password set by <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'provisioning_requested'}">Access requested by <strong>${entry.get('user')}</strong><j:if test="${entry.get('authType') != null and entry.get('authType') != ''}"> (${entry.get('authType')})</j:if></j:when>
+                            <j:when test="${action eq 'provisioning_rejected'}"><strong>${entry.get('by')}</strong> rejected the access request from <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'activation_resent'}"><strong>${entry.get('by')}</strong> resent the activation link to <strong>${entry.get('user')}</strong></j:when>
+                            <j:when test="${action eq 'jit_requested'}">JIT access requested by <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_approved'}"><strong>${entry.get('by')}</strong> approved JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_denied'}"><strong>${entry.get('by')}</strong> denied JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_expired'}">JIT access expired for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_timed_out'}">JIT request timed out for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_revoked'}"><strong>${entry.get('by')}</strong> revoked JIT access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'jit_cancelled'}">JIT request cancelled by <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:when test="${action eq 'review_confirmed'}"><strong>${entry.get('by')}</strong> confirmed access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
+                            <j:otherwise>${action}</j:otherwise>
+                          </j:choose>
+                        </div>
+                        <div class="rg-audit-ts" data-ts="${entry.get('ts')}">
+                          <j:if test="${entry.get('ip') != null and entry.get('ip') != '' and action eq 'login_success'}">
+                            <span style="font-size:0.75em;color:var(--text-color-secondary,var(--text-color-secondary));margin-right:6px;">${entry.get('ip')}</span>
+                          </j:if>
+                        </div>
+                      </div>
+                    </div>
+                  </j:forEach>
+                </j:otherwise>
+              </j:choose>
+            </div>
+          </div>
+
+          <!-- Right column: System Config + Break Glass -->
+          <div style="flex:1.4; min-width:220px; display:flex; flex-direction:column; gap:16px;">
+
+            <!-- System Configuration -->
+            <div class="jenkins-card rg-widget">
+              <div class="rg-widget__header">
+                <div class="rg-widget__title">
+                  <l:icon src="symbol-locate plugin-ionicons-api" class="icon-sm"/>
+                  System Configuration
+                </div>
+                <a href="settings" class="rg-widget__link">Settings →</a>
+              </div>
+              <div style="padding:0 16px 14px; display:flex; flex-direction:column; gap:10px;">
+
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Authentication</span>
+                  <j:choose>
+                    <j:when test="${it.ssoConfigured}"><span class="rg-pill rg-pill--blue">Native + SSO</span></j:when>
+                    <j:otherwise><span class="rg-pill rg-pill--gray">Native</span></j:otherwise>
+                  </j:choose>
+                </div>
+                <div class="rg-config-row">
+                  <span class="rg-config-label">PKCE + Nonce</span>
+                  <!-- Always enforced on the OAuth flow — not a toggle. -->
+                  <span class="rg-pill rg-pill--blue" title="Always enforced on the SSO flow — cannot be disabled">Always on</span>
+                </div>
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Group Sync</span>
+                  <!-- Group sync is a property of the Entra (SSO) config, not the global config. -->
+                  <j:choose>
+                    <j:when test="${!it.ssoConfigured}"><span class="rg-pill rg-pill--gray" title="No SSO provider configured">N/A</span></j:when>
+                    <j:when test="${it.entraConfig.enableGroupSync}"><span class="rg-pill rg-pill--green">On</span></j:when>
+                    <j:otherwise><span class="rg-pill rg-pill--gray">Off</span></j:otherwise>
+                  </j:choose>
+                </div>
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Cleanup</span>
+                  <j:choose>
+                    <j:when test="${cfg.cleanupEnabled and cfg.cleanupDryRun}"><span class="rg-pill rg-pill--amber">Dry Run</span></j:when>
+                    <j:when test="${cfg.cleanupEnabled}"><span class="rg-pill rg-pill--green">On</span></j:when>
+                    <j:otherwise><span class="rg-pill rg-pill--gray">Off</span></j:otherwise>
+                  </j:choose>
+                </div>
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Notifications</span>
+                  <j:choose>
+                    <j:when test="${cfg.notificationsEnabled}"><span class="rg-pill rg-pill--green">On</span></j:when>
+                    <j:otherwise><span class="rg-pill rg-pill--gray">Off</span></j:otherwise>
+                  </j:choose>
+                </div>
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Brute Force</span>
+                  <span class="rg-pill rg-pill--blue">Threshold: ${cfg.bruteForceThreshold}</span>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Break Glass Widget -->
+            <div class="jenkins-card rg-widget">
+              <div class="rg-widget__header">
+                <div class="rg-widget__title">
+                  <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
+                  Break Glass
+                </div>
+                <a href="breakGlass" class="rg-widget__link">Manage →</a>
+              </div>
+              <div style="padding:0 16px 14px;">
+
+                <!-- Active state -->
+                <j:if test="${bgActive}">
+                  <div style="padding:10px 12px;background:var(--rg-warning-bg);border:1px solid var(--rg-warning-border);border-radius:8px;margin-bottom:10px;">
+                    <div style="font-size:0.82em;font-weight:700;color:var(--warning-color);margin-bottom:2px;">Override ACTIVE</div>
+                    <div style="font-size:0.78em;color:var(--warning-color);">By: ${it.breakGlassActivatedBy}</div>
+                  </div>
+                </j:if>
+
+                <!-- Enrolled admins count -->
+                <j:set var="bgEnrolled" value="${it.breakGlassEnrolledAdminCount}"/>
+                <div class="rg-config-row" style="margin-bottom:8px;">
+                  <span class="rg-config-label">Enrolled Admins</span>
+                  <j:choose>
+                    <j:when test="${bgEnrolled gt 0}">
+                      <span class="rg-pill rg-pill--green">${bgEnrolled} enrolled</span>
+                    </j:when>
+                    <j:otherwise>
+                      <span class="rg-pill rg-pill--amber">None</span>
+                    </j:otherwise>
+                  </j:choose>
+                </div>
+
+                <div class="rg-config-row">
+                  <span class="rg-config-label">Override Status</span>
+                  <j:choose>
+                    <j:when test="${bgActive}">
+                      <span class="rg-pill rg-pill--amber">Active</span>
+                    </j:when>
+                    <j:otherwise>
+                      <span class="rg-pill rg-pill--gray">Inactive</span>
+                    </j:otherwise>
+                  </j:choose>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Styles: the rg-* components live in the shared adjunct
+           (io.jenkins.plugins.rotogate.rg.rg), injected via sidepanel.jelly. -->
+
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

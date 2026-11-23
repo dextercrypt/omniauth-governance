@@ -1,0 +1,130 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Notification Log" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.notificationLogAssets"/>
+
+      <l:app-bar title="Notification Log"/>
+
+      <div style="padding: 16px 24px; max-width: 960px;">
+
+        <j:if test="${request2.getParameter('cleared') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
+            Notification log cleared.
+          </div>
+        </j:if>
+
+        <j:set var="entries" value="${it.notificationLog.entries}"/>
+
+        <div class="jenkins-card rg-flush-table" style="padding: 0; overflow: hidden;">
+
+          <!-- Header row -->
+          <div style="padding: 12px 20px; border-bottom: 1px solid var(--rg-card-border);
+                      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <span style="font-weight: 600; font-size: 0.9em;">
+                ${entries.size()} notification(s) recorded
+              </span>
+              <span style="margin-left: 8px; font-size: 0.8em; color: var(--text-color-secondary);">
+                — last 200, persists across restarts
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <j:if test="${!entries.isEmpty()}">
+                <f:form method="post" action="clearNotificationLog" style="margin: 0;">
+                  <button type="submit" class="jenkins-button" id="rgClearLogBtn"
+
+ data-confirm="Clear all notification log entries?">
+                    Clear log
+                  </button>
+                </f:form>
+              </j:if>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <j:if test="${entries.isEmpty()}">
+            <l:notice title="No notifications yet" icon="symbol-mail plugin-ionicons-api">
+              No notifications sent yet. Configure SMTP, enable events, and they will appear here.
+            </l:notice>
+          </j:if>
+
+          <!-- Table (hidden initially — JS shows correct page) -->
+          <j:if test="${!entries.isEmpty()}">
+            <table id="logTable" class="jenkins-table jenkins-table--medium" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Recipients</th>
+                  <th>Status</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="logBody">
+                <j:set var="idx" value="${0}"/>
+                <j:forEach var="entry" items="${entries}">
+                  <j:set var="idx" value="${idx + 1}"/>
+                  <tr class="log-row">
+                    <td style="color: var(--text-color-secondary); font-size: 0.82em;">${idx}</td>
+                    <td style="white-space: nowrap; color: var(--text-color-secondary);"
+                        title="${entry.formattedTime}">
+                      ${entry.relativeTime}
+                    </td>
+                    <td>${entry.description}</td>
+                    <td style="color: var(--text-color-secondary);
+                                max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                        title="${entry.recipients}">
+                      ${entry.recipients}
+                    </td>
+                    <td style="text-align: center;">
+                      <j:choose>
+                        <j:when test="${entry.success}">
+                          <span style="color: var(--rg-success-fg); font-weight: 600;">&#10003; Sent</span>
+                        </j:when>
+                        <j:otherwise>
+                          <span style="color: var(--error-color); font-weight: 600;">&#10007; Failed</span>
+                        </j:otherwise>
+                      </j:choose>
+                    </td>
+                    <td style="font-size: 0.82em; color: var(--text-color-secondary);
+                                max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      <j:choose>
+                        <j:when test="${!entry.success and entry.errorMessage != null and entry.errorMessage != ''}">
+                          <span style="color: var(--error-color);" title="${entry.errorMessage}">${entry.errorMessage}</span>
+                        </j:when>
+                        <j:otherwise>&#8212;</j:otherwise>
+                      </j:choose>
+                    </td>
+                  </tr>
+                </j:forEach>
+              </tbody>
+            </table>
+
+            <!-- Pagination bar -->
+            <div id="pagination" style="padding: 12px 16px; border-top: 1px solid var(--rg-card-border);
+                                        display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <span id="pageInfo" style="font-size: 0.82em; color: var(--text-color-secondary);"></span>
+              <div style="display: flex; gap: 6px;">
+                <button id="btnFirst" class="jenkins-button" style="padding:4px 10px">&#171; First</button>
+                <button id="btnPrev"  class="jenkins-button" style="padding:4px 10px">&#8249; Prev</button>
+                <span id="pageButtons" style="display:flex; gap:4px;"></span>
+                <button id="btnNext"  class="jenkins-button" style="padding:4px 10px">Next &#8250;</button>
+                <button id="btnLast"  class="jenkins-button" style="padding:4px 10px">Last &#187;</button>
+              </div>
+            </div>
+          </j:if>
+
+        </div>
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

@@ -1,0 +1,594 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form" xmlns:rg="/lib/rg">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Notifications" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.notificationsAssets"/>
+
+      <l:app-bar title="Notifications"/>
+
+      <div style="padding: 16px 24px; max-width: 860px;">
+
+        <j:if test="${request2.getParameter('saved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
+            Notification settings saved.
+          </div>
+        </j:if>
+
+        <j:set var="cfg" value="${it.rotogateGlobalConfig}"/>
+
+        <!-- Dynamic values for notificationsAssets.js (CSP-safe data island, no EL in the cached adjunct) -->
+        <script type="application/json" id="rgNotificationsData">{
+          "rootURL": "${rootURL}",
+          "smtpEvents": "${cfg.smtpEventsJoined}",
+          "slackEvents": "${cfg.slackEventsJoined}",
+          "teamsEvents": "${cfg.teamsEventsJoined}"
+        }</script>
+
+        <f:form method="post" action="saveNotifications">
+
+          <!-- ================================================================
+               MASTER TOGGLE
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 0.95em; margin-bottom: 4px;">Enable Notifications</div>
+                <div style="color: var(--text-color-secondary); font-size: 0.82em;">
+                  Master switch. When off, no notifications are sent regardless of channel or event settings.
+                </div>
+              </div>
+              <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                <j:choose>
+                  <j:when test="${cfg.notificationsEnabled}">
+                    <input type="checkbox" name="notificationsEnabled" id="notificationsEnabled"
+                           class="rg-toggle-chk" checked="checked"/>
+                  </j:when>
+                  <j:otherwise>
+                    <input type="checkbox" name="notificationsEnabled" id="notificationsEnabled"
+                           class="rg-toggle-chk"/>
+                  </j:otherwise>
+                </j:choose>
+                <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               NOTIFICATIONS LOGO
+               ================================================================ -->
+          <div id="rgLogoSection" class="jenkins-card" style="padding: 16px 20px; margin-bottom: 20px;">
+            <!-- Toggle row -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <div>
+                <div style="font-weight:700; font-size:0.95em;">Email Logo</div>
+                <div style="color:var(--text-color-secondary); font-size:0.82em; margin-top:2px;">
+                  Use the official Rotogate logo in notification emails.
+                </div>
+              </div>
+              <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                <j:if test="${cfg.notificationLogoUrl != null and cfg.notificationLogoUrl != ''}">
+                  <input type="checkbox" id="rgUseCustomLogo" class="rg-toggle-chk" checked="checked"/>
+                </j:if>
+                <j:if test="${cfg.notificationLogoUrl == null or cfg.notificationLogoUrl == ''}">
+                  <input type="checkbox" id="rgUseCustomLogo" class="rg-toggle-chk"/>
+                </j:if>
+                <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+              </label>
+            </div>
+
+            <!-- Custom URL (revealed when toggled on) -->
+            <j:if test="${cfg.notificationLogoUrl != null and cfg.notificationLogoUrl != ''}">
+              <div id="rgCustomLogoField" style="margin-top:12px; padding-top:12px;
+                   border-top:1px solid var(--rg-card-border);">
+                <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
+                  Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
+                </div>
+                <input type="url" id="rgLogoUrlInput" name="notificationLogoUrl"
+                       value="${cfg.notificationLogoUrl}"
+                       placeholder="https://your-domain.com/logo.png"
+                       style="width:400px; max-width:100%;"/>
+              </div>
+            </j:if>
+            <j:if test="${cfg.notificationLogoUrl == null or cfg.notificationLogoUrl == ''}">
+              <div id="rgCustomLogoField" style="display:none; margin-top:12px; padding-top:12px;
+                   border-top:1px solid var(--rg-card-border);">
+                <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
+                  Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
+                </div>
+                <input type="url" id="rgLogoUrlInput" name="notificationLogoUrl"
+                       class="jenkins-input"
+                       value=""
+                       placeholder="https://your-domain.com/logo.png"
+                       style="width:400px; max-width:100%;"/>
+              </div>
+            </j:if>
+
+            <!-- Footer note -->
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--rg-card-border);">
+              <div class="rg-field-label">Footer Note</div>
+              <div style="color:var(--text-color-secondary); font-size:0.82em; margin-bottom:6px;">
+                Optional line shown above the fine print in every notification email (e.g. "Contact IT: helpdesk@corp.com").
+              </div>
+              <input type="text" name="notificationFooterNote" value="${cfg.notificationFooterNote}"
+                     class="jenkins-input"
+                     placeholder="e.g. For support contact helpdesk@corp.com"
+                     style="width:440px; max-width:100%;"/>
+            </div>
+
+            <!-- Preview button -->
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--rg-card-border);">
+              <button type="button" class="jenkins-button" id="rgPreviewBtn">
+                Preview Email
+              </button>
+              <span style="margin-left:10px; color:var(--text-color-secondary); font-size:0.82em;">
+                Shows a sample notification email with the current logo.
+              </span>
+            </div>
+          </div>
+
+          <!-- Email Preview Modal -->
+          <div id="rgPreviewModal" style="display:none; position:fixed; inset:0; z-index:9999;
+               background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
+            <div style="background:var(--rg-card-bg); border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,0.35);
+                        width:min(780px,95vw); max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
+              <div style="padding:14px 20px; border-bottom:1px solid var(--rg-card-border);
+                          display:flex; align-items:center; gap:12px;">
+                <span style="font-weight:700; font-size:0.95em; white-space:nowrap;">Email Preview</span>
+                <div class="jenkins-select" style="flex:1; max-width:260px;">
+                <select id="rgPreviewEventType" class="jenkins-select__input" style="font-size:0.85em;">
+                  <option value="configChanged">Config Changed</option>
+                  <option value="bruteForce">Brute Force Alert</option>
+                  <option value="userDeleted">User Deleted</option>
+                  <option value="cleanup">Stale User Cleanup</option>
+                  <option value="adminGranted">Admin Granted</option>
+                  <option value="staleWarning">Stale Warning Digest</option>
+                  <option value="accessReview">Access Review Digest</option>
+                  <option value="protectedListChanged">Protected List Changed</option>
+                  <option value="graphApiFailure">Graph API Failure</option>
+                  <option value="jitRequest">JIT Request (to approver)</option>
+                  <option value="jitApproved">JIT Approved (to requester)</option>
+                  <option value="jitDenied">JIT Denied (to requester)</option>
+                  <option value="smtpTest">SMTP Test Email</option>
+                </select>
+                </div>
+                <button type="button" id="rgPreviewCloseBtn"
+                        style="background:none; border:none; font-size:1.3em; cursor:pointer; line-height:1;
+                               color:var(--text-color-secondary); padding:2px 6px; border-radius:4px; margin-left:auto;"
+                        title="Close">&#x2715;</button>
+              </div>
+              <div style="flex:1; overflow:hidden; padding:0;">
+                <iframe id="rgPreviewFrame" src="about:blank"
+                        sandbox="allow-same-origin allow-scripts"
+                        style="width:100%; height:600px; border:none; display:block;"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               CHANNELS
+               ================================================================ -->
+          <div id="rgChannelsSection">
+
+            <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+                        color: var(--text-color-secondary); margin-bottom: 10px; padding-left: 4px;">
+              Channels
+            </div>
+
+            <!-- SMTP -->
+            <div class="jenkins-card" style="padding: 0; margin-bottom: 16px; overflow: hidden;">
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border);
+                          display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <l:icon src="symbol-mail plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="rg-card-title">Email (SMTP)</h3>
+                  <j:set var="smtpHealth" value="${it.notificationLog.lastSmtpEntry()}"/>
+                  <j:choose>
+                    <j:when test="${smtpHealth != null and smtpHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--rg-success-fg); background:var(--rg-success-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2713; ${smtpHealth.relativeTime}
+                      </span>
+                    </j:when>
+                    <j:when test="${smtpHealth != null and !smtpHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--rg-danger-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2715; Failed ${smtpHealth.relativeTime}
+                      </span>
+                    </j:when>
+                  </j:choose>
+                </div>
+                <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                  <j:choose>
+                    <j:when test="${cfg.smtpEnabled}">
+                      <input type="checkbox" name="smtpEnabled" id="smtpEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="smtpConfig" checked="checked"/>
+                    </j:when>
+                    <j:otherwise>
+                      <input type="checkbox" name="smtpEnabled" id="smtpEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="smtpConfig"/>
+                    </j:otherwise>
+                  </j:choose>
+                  <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                </label>
+              </div>
+
+              <div id="smtpConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+
+                <div style="font-size: 0.82em; color: var(--text-color-secondary);
+                            background: var(--panel-header-bg,var(--rg-neutral-bg));
+                            border: 1px solid var(--rg-card-border);
+                            border-radius: 6px; padding: 10px 14px;">
+                  Works with any SMTP relay — Gmail, Outlook, SendGrid, AWS SES, or your own server.
+                  Independent of Jenkins' own email configuration.
+                </div>
+
+                <!-- Host + Port -->
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+                  <label style="flex: 2; min-width: 200px;">
+                    <div class="rg-field-label">SMTP Host</div>
+                    <input type="text" name="smtpHost" value="${cfg.smtpHost}"
+                           class="jenkins-input" style="width: 100%;" placeholder="smtp.example.com"/>
+                  </label>
+                  <label style="flex: 0 0 100px;">
+                    <div class="rg-field-label">SMTP Port</div>
+                    <input type="number" name="smtpPort" min="1" max="65535"
+                           value="${cfg.smtpPort}" class="jenkins-input js-rg-no-wheel" style="width: 100%;"/>
+                  </label>
+                </div>
+
+                <!-- Username + Password -->
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+                  <label style="flex: 1; min-width: 200px;">
+                    <div class="rg-field-label">SMTP Username</div>
+                    <input type="text" name="smtpUsername" value="${cfg.smtpUsername}"
+                           class="jenkins-input" style="width: 100%;"
+                           autocomplete="off" placeholder="smtp-username"/>
+                  </label>
+                  <label style="flex: 1; min-width: 200px;">
+                    <div class="rg-field-label">SMTP Password</div>
+                    <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 4px;">
+                      Leave blank to keep existing.
+                    </div>
+                    <input type="password" name="smtpPassword" value=""
+                           class="jenkins-input" style="width: 100%;"
+                           autocomplete="new-password" placeholder="••••••••"/>
+                  </label>
+                </div>
+
+                <!-- STARTTLS -->
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Enable STARTTLS Encryption</div>
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em;">
+                      Required for port 587. Disable only for port 25 or SSL-wrapped port 465.
+                    </div>
+                  </div>
+                  <label class="rg-toggle-wrap">
+                    <j:choose>
+                      <j:when test="${cfg.smtpTls}">
+                        <input type="checkbox" name="smtpTls" class="rg-toggle-chk" checked="checked"/>
+                      </j:when>
+                      <j:otherwise>
+                        <input type="checkbox" name="smtpTls" class="rg-toggle-chk"/>
+                      </j:otherwise>
+                    </j:choose>
+                    <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                  </label>
+                </div>
+
+                <!-- From address + name -->
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+                  <label style="flex: 1; min-width: 200px;">
+                    <div class="rg-field-label">From Address</div>
+                    <input type="email" name="smtpFromAddress" value="${cfg.smtpFromAddress}"
+                           class="jenkins-input" style="width: 100%;" placeholder="no-reply@example.com"/>
+                  </label>
+                  <label style="flex: 1; min-width: 200px;">
+                    <div class="rg-field-label">From Name</div>
+                    <input type="text" name="smtpFromName" value="${cfg.smtpFromName}"
+                           class="jenkins-input" style="width: 100%;" placeholder="Jenkins Rotogate"/>
+                  </label>
+                </div>
+
+                <!-- Reply-To -->
+                <label>
+                  <div class="rg-field-label">
+                    Reply-To Address <span style="font-weight:400; color:var(--text-color-secondary);">(Optional)</span>
+                  </div>
+                  <div class="rg-field-hint">
+                    Replies go here instead of the From address. Useful for no-reply senders.
+                  </div>
+                  <input type="email" name="smtpReplyTo" value="${cfg.smtpReplyTo}"
+                         class="jenkins-input" style="width: 340px;" placeholder="team@example.com"/>
+                </label>
+
+                <!-- Recipients -->
+                <label>
+                  <div class="rg-field-label">Notification Recipients</div>
+                  <div class="rg-field-hint">
+                    Comma-separated. All enabled event emails go to these addresses.
+                  </div>
+                  <input type="text" name="notifyEmails" value="${cfg.notifyEmails}"
+                         class="jenkins-input" style="width: 100%;"
+                         placeholder="admin@example.com, team@example.com"/>
+                </label>
+
+                <!-- Test button — native f:validateButton; posts the SMTP fields to
+                     RotogateGlobalConfig#doSendTestEmail and renders its FormValidation result. -->
+                <div style="padding-top: 4px; border-top: 1px solid var(--rg-card-border);">
+                  <j:set var="descriptor" value="${it.smtpTestDescriptor}"/>
+                  <f:validateButton title="Send Test Email" progress="Sending…"
+                                    method="sendTestEmail"
+                                    with="smtpHost,smtpPort,smtpUsername,smtpPassword,smtpTls,smtpFromAddress,smtpFromName,smtpReplyTo,notifyEmails"/>
+                </div>
+
+                <!-- SMTP event subscriptions -->
+                <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
+                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send via Email</div>
+                  <rg:eventGrid name="smtpEvents"/>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Slack -->
+            <div class="jenkins-card" style="padding: 0; margin-bottom: 16px; overflow: hidden;">
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border);
+                          display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <l:icon src="symbol-logo-slack plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="rg-card-title">Slack</h3>
+                  <j:set var="slackHealth" value="${it.notificationLog.lastSlackEntry()}"/>
+                  <j:choose>
+                    <j:when test="${slackHealth != null and slackHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--rg-success-fg); background:var(--rg-success-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2713; ${slackHealth.relativeTime}
+                      </span>
+                    </j:when>
+                    <j:when test="${slackHealth != null and !slackHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--rg-danger-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2715; Failed ${slackHealth.relativeTime}
+                      </span>
+                    </j:when>
+                  </j:choose>
+                </div>
+                <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                  <j:choose>
+                    <j:when test="${cfg.slackEnabled}">
+                      <input type="checkbox" name="slackEnabled" id="slackEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="slackConfig" checked="checked"/>
+                    </j:when>
+                    <j:otherwise>
+                      <input type="checkbox" name="slackEnabled" id="slackEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="slackConfig"/>
+                    </j:otherwise>
+                  </j:choose>
+                  <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                </label>
+              </div>
+              <div id="slackConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
+                <label>
+                  <div class="rg-field-label">Incoming Webhook URL</div>
+                  <div class="rg-field-hint">
+                    Create one at Slack → Your App → Incoming Webhooks.
+                  </div>
+                  <input type="text" name="slackWebhookUrl" value="${cfg.slackWebhookUrlPlain}"
+                         class="jenkins-input" style="width: 100%;" placeholder="https://hooks.slack.com/services/..."/>
+                </label>
+                <div style="padding-top: 4px; border-top: 1px solid var(--rg-card-border);">
+                  <button type="button" class="jenkins-button js-rg-test-webhook" data-url-field="slackWebhookUrl" data-endpoint="sendTestSlack" data-result="slackTestResult">
+                    Send Test Message
+                  </button>
+                  <span id="slackTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
+                </div>
+                <!-- Slack event subscriptions -->
+                <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
+                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Slack</div>
+                  <rg:eventGrid name="slackEvents"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Teams -->
+            <div class="jenkins-card rg-card-block">
+              <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border);
+                          display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
+                  <h3 class="rg-card-title">Microsoft Teams</h3>
+                  <j:set var="teamsHealth" value="${it.notificationLog.lastTeamsEntry()}"/>
+                  <j:choose>
+                    <j:when test="${teamsHealth != null and teamsHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--rg-success-fg); background:var(--rg-success-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2713; ${teamsHealth.relativeTime}
+                      </span>
+                    </j:when>
+                    <j:when test="${teamsHealth != null and !teamsHealth.success}">
+                      <span style="font-size:0.72em; font-weight:500; color:var(--error-color); background:var(--rg-danger-bg);
+                                   padding:2px 8px; border-radius:10px; white-space:nowrap;">
+                        &#x2715; Failed ${teamsHealth.relativeTime}
+                      </span>
+                    </j:when>
+                  </j:choose>
+                </div>
+                <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                  <j:choose>
+                    <j:when test="${cfg.teamsEnabled}">
+                      <input type="checkbox" name="teamsEnabled" id="teamsEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="teamsConfig" checked="checked"/>
+                    </j:when>
+                    <j:otherwise>
+                      <input type="checkbox" name="teamsEnabled" id="teamsEnabled"
+                             class="rg-toggle-chk js-rg-webhook-toggle" data-config="teamsConfig"/>
+                    </j:otherwise>
+                  </j:choose>
+                  <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                </label>
+              </div>
+              <div id="teamsConfig" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
+                <label>
+                  <div class="rg-field-label">Incoming Webhook URL</div>
+                  <div class="rg-field-hint">
+                    In Teams: channel → ... → Workflows → "Post to a channel when a webhook request is received".
+                    Copy the generated webhook URL. O365 Connectors are retired and no longer work.
+                  </div>
+                  <input type="text" name="teamsWebhookUrl" value="${cfg.teamsWebhookUrlPlain}"
+                         class="jenkins-input" style="width: 100%;" placeholder="https://prod-xx.westus.logic.azure.com/workflows/..."/>
+                </label>
+                <div style="padding-top: 4px; border-top: 1px solid var(--rg-card-border);">
+                  <button type="button" class="jenkins-button js-rg-test-webhook" data-url-field="teamsWebhookUrl" data-endpoint="sendTestTeams" data-result="teamsTestResult">
+                    Send Test Message
+                  </button>
+                  <span id="teamsTestResult" style="margin-left: 12px; font-size: 0.85em;"></span>
+                </div>
+                <!-- Teams event subscriptions -->
+                <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
+                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Microsoft Teams</div>
+                  <rg:eventGrid name="teamsEvents"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================================================================
+                 EVENT SETTINGS (brute force threshold + stale warning schedule)
+                 ================================================================ -->
+            <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+                        color: var(--text-color-secondary); margin-bottom: 10px; padding-left: 4px;">
+              Event Settings
+            </div>
+
+            <div class="jenkins-card rg-card-block">
+              <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 0;">
+
+                <!-- Brute force threshold -->
+                <div style="padding: 12px 0; border-bottom: 1px solid var(--rg-card-border);">
+                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Brute Force Alert Threshold</div>
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                    Send a brute force alert after this many consecutive login failures for the same user. Counter resets on successful login.
+                  </div>
+                  <input type="number" name="bruteForceThreshold" min="1" max="100"
+                         value="${cfg.bruteForceThreshold}"
+                         class="jenkins-input js-rg-no-wheel" style="width:100px;"/>
+                  <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">failures</span>
+                </div>
+
+                <!-- Brute force lockout enforcement -->
+                <div style="padding: 12px 0; border-bottom: 1px solid var(--rg-card-border);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Account Lockout Enforcement</div>
+                      <div style="color: var(--text-color-secondary); font-size: 0.8em;">
+                        When the threshold is reached, lock the account for a cooldown period — a correct password
+                        is rejected until it expires or an admin clears it. Protected users are never locked.
+                      </div>
+                    </div>
+                    <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                      <j:choose>
+                        <j:when test="${cfg.bruteForceLockoutEnabled}">
+                          <input type="checkbox" name="bruteForceLockoutEnabled" class="rg-toggle-chk" checked="checked"/>
+                        </j:when>
+                        <j:otherwise>
+                          <input type="checkbox" name="bruteForceLockoutEnabled" class="rg-toggle-chk"/>
+                        </j:otherwise>
+                      </j:choose>
+                      <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                    </label>
+                  </div>
+                  <div style="margin-top: 10px;">
+                    <div style="font-weight: 600; font-size: 0.85em; margin-bottom: 4px;">Lockout Duration</div>
+                    <input type="number" name="bruteForceLockoutMinutes" min="1" max="1440"
+                           value="${cfg.bruteForceLockoutMinutes}"
+                           class="jenkins-input js-rg-no-wheel" style="width:100px;"/>
+                    <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">minutes</span>
+                  </div>
+                </div>
+
+                <!-- Stale warning schedule -->
+                <div style="padding: 12px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Stale User Warning Digest</div>
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
+                      Periodic digest listing users who will become stale within the warning window.
+                      E.g. threshold=90, window=14 → warns about users last seen 76–90 days ago.
+                    </div>
+                    <div id="staleWarningConfig" style="display: flex; flex-direction: column; gap: 10px;">
+                      <div>
+                        <div style="font-weight: 600; font-size: 0.85em; margin-bottom: 4px;">Warning Window</div>
+                        <input type="number" name="staleWarningWindowDays" min="1" max="365"
+                               value="${cfg.staleWarningWindowDays}"
+                               class="jenkins-input js-rg-no-wheel" style="width:100px;"/>
+                        <span style="margin-left:8px; color:var(--text-color-secondary); font-size:0.85em;">days before stale</span>
+                      </div>
+                      <div>
+                        <div style="font-weight: 600; font-size: 0.85em; margin-bottom: 4px;">Schedule (Cron)</div>
+                        <div style="color: var(--text-color-secondary); font-size: 0.78em; margin-bottom: 6px;">
+                          Default: <code>0 9 * * 1</code> (Monday 09:00).
+                        </div>
+                        <input type="text" name="staleWarningCron" value="${cfg.staleWarningCron}"
+                               class="jenkins-input" style="width:200px;" placeholder="0 9 * * 1"/>
+                      </div>
+                    </div>
+                  </div>
+                  <label class="rg-toggle-wrap" style="flex-shrink:0;">
+                    <j:choose>
+                      <j:when test="${cfg.staleWarningEnabled}">
+                        <input type="checkbox" name="staleWarningEnabled" id="staleWarningEnabled"
+                               class="rg-toggle-chk js-rg-section-toggle" data-section="staleWarningConfig" checked="checked"/>
+                      </j:when>
+                      <j:otherwise>
+                        <input type="checkbox" name="staleWarningEnabled" id="staleWarningEnabled"
+                               class="rg-toggle-chk js-rg-section-toggle" data-section="staleWarningConfig"/>
+                      </j:otherwise>
+                    </j:choose>
+                    <div class="rg-toggle-track"><div class="rg-toggle-thumb"></div></div>
+                  </label>
+                </div>
+
+              </div>
+            </div>
+
+          </div><!-- end #rgChannelsSection -->
+
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button type="submit" class="jenkins-button jenkins-button--primary">Save</button>
+            <a href="." class="jenkins-button">Cancel</a>
+          </div>
+
+        </f:form>
+
+        <!-- ================================================================
+             NOTIFICATION LOG
+             ================================================================ -->
+        <div style="font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+                    color: var(--text-color-secondary); margin-bottom: 10px; margin-top: 28px; padding-left: 4px;">
+          Notification Log
+        </div>
+
+        <div class="jenkins-card rg-card-block">
+          <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">Notification Audit Trail</div>
+              <div style="color: var(--text-color-secondary); font-size: 0.82em;">
+                View the last 200 notifications sent by this plugin — timestamp, event, recipients, and delivery status.
+                Persists across Jenkins restarts.
+              </div>
+            </div>
+            <a href="notificationLog" class="jenkins-button" style="flex-shrink: 0;">
+              View Notification Log
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

@@ -1,0 +1,323 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — User Status" norefresh="true">
+    <l:side-panel><st:include page="sidepanel.jelly"/></l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.userStatusAssets"/>
+
+      <l:app-bar title="User Status"/>
+
+      <div class="us-page">
+        <j:set var="cfg"   value="${it.rotogateGlobalConfig}"/>
+        <j:set var="users" value="${it.userStatusList}"/>
+
+        <!-- Flash banners -->
+        <j:if test="${request2.getParameter('error') == 'activeGroup'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">
+            Deletion blocked — this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'protected'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">
+            Deletion blocked — this user is protected. Remove protection first on the <a href="protectedUsers">Protected Users</a> page.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('deleted') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">User deleted successfully.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('marked') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">User marked for deletion — will be removed on the next cleanup run.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('unmarked') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Pending deletion mark removed — account is safe.</div>
+        </j:if>
+
+        <!-- Stats bar -->
+        <div class="us-stats">
+          <div class="us-stat"><span class="us-stat-n" id="sTotal">—</span><span class="us-stat-l">Total Users</span></div>
+          <div class="us-stat"><span class="us-stat-n" style="color:var(--success-color)" id="sActive">—</span><span class="us-stat-l">Active</span></div>
+          <div class="us-stat"><span class="us-stat-n" style="color:var(--text-color-secondary)" id="sInactive">—</span><span class="us-stat-l">Inactive / Never</span></div>
+          <div class="us-stat"><span class="us-stat-n" style="color:var(--blue)" id="sEntra">—</span><span class="us-stat-l">Entra SSO</span></div>
+          <div class="us-stat"><span class="us-stat-n" style="color:var(--warning-color)" id="sStale">—</span><span class="us-stat-l">Stale (&gt;${cfg.staleThresholdDays}d)</span></div>
+        </div>
+
+        <!-- Toolbar: search + filter pills -->
+        <div class="us-toolbar">
+          <div class="us-search-box">
+            <l:icon src="symbol-search plugin-ionicons-api" class="icon-xs"/>
+            <input id="usQ" type="text" placeholder="Search username, name or email…"/>
+          </div>
+          <div class="us-filter-group">
+            <span class="us-filter-lbl">Type</span>
+            <button class="us-pill us-pill-on" data-fg="type" data-fv="all">All</button>
+            <button class="us-pill"            data-fg="type" data-fv="NATIVE">Native</button>
+            <button class="us-pill"            data-fg="type" data-fv="INDIVIDUAL">Individual</button>
+            <button class="us-pill"            data-fg="type" data-fv="VIA_ENTRA_GROUP">Group</button>
+          </div>
+          <div class="us-filter-group">
+            <span class="us-filter-lbl">Status</span>
+            <button class="us-pill us-pill-on" data-fg="status" data-fv="all">All</button>
+            <button class="us-pill"            data-fg="status" data-fv="active">Active</button>
+            <button class="us-pill"            data-fg="status" data-fv="inactive">Inactive</button>
+            <button class="us-pill"            data-fg="status" data-fv="never">Never</button>
+            <button class="us-pill"            data-fg="status" data-fv="stale">Stale</button>
+            <button class="us-pill"            data-fg="status" data-fv="pending">Pending Deletion</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="us-card">
+          <table class="jenkins-table jenkins-table--medium us-table">
+            <colgroup>
+              <col style="width:34%"/>
+              <col style="width:16%"/>
+              <col style="width:18%"/>
+              <col style="width:16%"/>
+              <col style="width:16%"/>
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="us-th">User</th>
+                <th class="us-th">Type</th>
+                <th class="us-th">Last Login</th>
+                <th class="us-th">Status</th>
+                <th class="us-th" style="text-align:right;padding-right:18px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usTbody">
+              <j:forEach var="u" items="${users}">
+                <j:set var="isGroupManaged" value="${u.activeGroupUser}"/>
+                <j:set var="isProtected"    value="${cfg.isProtected(u.userId)}"/>
+                <j:set var="canDelete"      value="${!isGroupManaged and !isProtected}"/>
+                <!-- ds = pure login state; stale tracked separately so Inactive/Never filters still work -->
+                <j:set var="ds" value="${u.status == 'Active' ? 'active' : u.status == 'Active via Jobs' ? 'active' : u.status == 'Inactive' ? 'inactive' : 'never'}"/>
+                <tr class="us-row"
+                    data-q="${u.userId} ${u.fullName} ${u.entraUpn != null ? u.entraUpn : ''}"
+                    data-prov="${u.provisioningSource}"
+                    data-ds="${ds}"
+                    data-stale="${u.staleWarning}"
+                    data-pending="${u.pendingDeletion}"
+                    data-uid="${u.userId}">
+
+                  <!-- User identity -->
+                  <td class="us-td">
+                    <div class="us-ident">
+                      <div class="us-av" style="background:${u.provisioningSource == 'NATIVE' ? 'var(--rg-neutral-bg)' : 'var(--rg-info-bg)'};color:${u.provisioningSource == 'NATIVE' ? 'var(--text-color-secondary)' : 'var(--rg-info-fg)'};">
+                        ${u.userId.substring(0,1).toUpperCase()}
+                      </div>
+                      <div class="us-names">
+                        <div class="us-primary">${u.userId}</div>
+                        <j:if test="${u.fullName != null and u.fullName != u.userId and u.fullName != ''}">
+                          <div class="us-secondary">${u.fullName}</div>
+                        </j:if>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Type -->
+                  <td class="us-td">
+                    <j:choose>
+                      <j:when test="${u.provisioningSource == 'NATIVE'}">
+                        <span class="us-badge us-gray">Native</span>
+                      </j:when>
+                      <j:when test="${u.provisioningSource == 'VIA_ENTRA_GROUP'}">
+                        <span class="us-badge us-purple">Entra · Group</span>
+                      </j:when>
+                      <j:otherwise>
+                        <span class="us-badge us-blue">Entra · Indiv.</span>
+                      </j:otherwise>
+                    </j:choose>
+                  </td>
+
+                  <!-- Last Login -->
+                  <td class="us-td">
+                    <j:choose>
+                      <j:when test="${u.neverLoggedIn}">
+                        <span class="us-muted">Never</span>
+                      </j:when>
+                      <j:otherwise>
+                        <div class="us-login">
+                          <span class="us-login-time">${u.relativeLastLoginAt}</span>
+                          <span class="us-tipwrap">
+                            <span class="us-tipicon">i</span>
+                            <span class="us-tipbox">
+                              <strong>${u.formattedLastLoginAt}</strong>
+                              <j:if test="${u.entraUpn != null and u.entraUpn != ''}"><br/>${u.entraUpn}</j:if>
+                              <j:if test="${u.latestEvent != null}">
+                                <br/>${u.latestEvent.browser} · ${u.latestEvent.os}
+                                <br/>${u.latestEvent.ipAddress}
+                                <br/>via ${u.latestEvent.method}
+                              </j:if>
+                            </span>
+                          </span>
+                        </div>
+                        <j:if test="${!u.neverTriggered}">
+                          <div class="us-muted us-small">&#9654; ${u.relativeLastJobTriggeredAt}</div>
+                        </j:if>
+                      </j:otherwise>
+                    </j:choose>
+                  </td>
+
+                  <!-- Status — pending > stale > login state -->
+                  <td class="us-td">
+                    <j:choose>
+                      <j:when test="${u.pendingDeletion}"><span class="us-badge us-crimson" title="Queued for deletion on next cleanup run">Pending Deletion</span></j:when>
+                      <j:when test="${u.staleWarning}">   <span class="us-badge us-amber" title="No login for more than ${cfg.staleThresholdDays} days">Stale</span></j:when>
+                      <j:when test="${ds == 'active'}">   <span class="us-badge us-green">Active</span></j:when>
+                      <j:when test="${ds == 'inactive'}"> <span class="us-badge us-red">Inactive</span></j:when>
+                      <j:otherwise>                       <span class="us-badge us-gray">Never</span></j:otherwise>
+                    </j:choose>
+                    <!-- Time-limited account expiry (provisioning portal) -->
+                    <j:if test="${u.hasExpiry()}">
+                      <div style="margin-top:4px;">
+                        <j:choose>
+                          <j:when test="${u.accountDisabledByExpiry}"><span class="us-badge us-crimson" title="Disabled by the expiry worker on ${u.formattedExpiresAt}">Expired · disabled</span></j:when>
+                          <j:when test="${u.accountExpired}">         <span class="us-badge us-red"     title="Expired ${u.formattedExpiresAt}">Expired</span></j:when>
+                          <j:when test="${u.expiresInDays &lt;= 0}">  <span class="us-badge us-amber"   title="Expires ${u.formattedExpiresAt}">Expires today</span></j:when>
+                          <j:when test="${u.expiresInDays &lt;= 7}">  <span class="us-badge us-amber"   title="Expires ${u.formattedExpiresAt}">Expires in ${u.expiresInDays}d</span></j:when>
+                          <j:otherwise>                               <span class="us-badge us-gray"    title="Expires ${u.formattedExpiresAt}">Expires in ${u.expiresInDays}d</span></j:otherwise>
+                        </j:choose>
+                      </div>
+                    </j:if>
+                  </td>
+
+                  <!-- Actions: kebab ··· menu -->
+                  <td class="us-td js-us-stop" style="text-align:right;padding-right:12px;">
+                    <div class="us-kebab-wrap">
+                      <button class="us-kebab-btn" title="Actions">&#8942;</button>
+                      <div class="us-menu">
+                        <a class="us-menu-item" href="userOverview?userId=${u.userId}">
+                          <l:icon src="symbol-person plugin-ionicons-api" class="icon-sm"/>
+                          User Overview
+                        </a>
+                        <a class="us-menu-item" href="checkAccess?sid=${u.userId}&amp;type=USER">
+                          <l:icon src="symbol-eye plugin-ionicons-api" class="icon-sm"/>
+                          Check Access
+                        </a>
+                        <div class="us-menu-divider"></div>
+                        <j:choose>
+                          <j:when test="${isGroupManaged}">
+                            <span class="us-menu-item us-menu-disabled" title="Managed via Azure Entra group — remove from group in Azure to revoke access">
+                              <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
+                              Group managed
+                            </span>
+                          </j:when>
+                          <j:when test="${isProtected}">
+                            <span class="us-menu-item us-menu-disabled" title="Protected — remove protection first on the Protected Users page">
+                              <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
+                              Protected
+                            </span>
+                          </j:when>
+                          <j:otherwise>
+                            <!-- orphanedGroup = auto-marked because removed from Azure group -->
+                            <j:set var="orphanedGroup" value="${u.pendingDeletion and u.provisioningSource == 'VIA_ENTRA_GROUP' and !u.activeGroupUser}"/>
+                            <j:choose>
+                              <j:when test="${u.pendingDeletion and !orphanedGroup}">
+                                <!-- Manually marked INDIVIDUAL — allow unmark -->
+                                <button class="us-menu-item us-menu-warn js-us-unmark"
+                                        data-userid="${u.userId}"
+                                        data-crumb-field="${app.crumbRequestField}"
+                                        data-crumb-value="${app.crumb}">
+                                  <l:icon src="symbol-arrow-undo plugin-ionicons-api" class="icon-sm"/>
+                                  Remove Deletion Mark
+                                </button>
+                              </j:when>
+                              <j:when test="${orphanedGroup}">
+                                <!-- Orphaned group account — grayed + instant CSS tooltip -->
+                                <span class="us-menu-item us-menu-disabled us-menu-tipped">
+                                  <l:icon src="symbol-arrow-undo plugin-ionicons-api" class="icon-sm"/>
+                                  Remove Deletion Mark
+                                  <span class="us-menu-tipbox">Re-provision as Individual user to restore access</span>
+                                </span>
+                              </j:when>
+                              <j:otherwise>
+                                <!-- Not marked yet — allow manual mark -->
+                                <button class="us-menu-item us-menu-warn js-us-mark"
+                                        data-userid="${u.userId}"
+                                        data-crumb-field="${app.crumbRequestField}"
+                                        data-crumb-value="${app.crumb}">
+                                  <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+                                  Mark for Deletion
+                                </button>
+                              </j:otherwise>
+                            </j:choose>
+                            <button class="us-menu-item us-menu-danger js-us-delete"
+                                    data-userid="${u.userId}"
+                                    data-crumb-field="${app.crumbRequestField}"
+                                    data-crumb-value="${app.crumb}">
+                              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+                              Delete Now
+                            </button>
+                          </j:otherwise>
+                        </j:choose>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </j:forEach>
+            </tbody>
+          </table>
+          <div id="usEmpty" style="display:none;padding:48px;text-align:center;color:var(--text-color-secondary);font-size:.88em;">No users match your filters.</div>
+        </div>
+
+        <div class="us-footer">
+          Active = logged in within <strong>${cfg.activeThresholdDays}d</strong> ·
+          Stale = no login for <strong>${cfg.staleThresholdDays}d</strong> ·
+          <a href="settings">Configure in Settings</a>
+        </div>
+      </div>
+
+      <!-- Delete confirmation modal -->
+      <div id="usDModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+        <div class="us-modal">
+          <div class="us-modal-hdr">
+            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+            Delete User
+          </div>
+          <div class="us-modal-body">
+            <p style="margin:0 0 10px;">Permanently delete <strong id="usDName"></strong>?</p>
+            <div class="us-modal-warn"><strong>This cannot be undone.</strong> The account and all permissions will be removed.</div>
+            <label class="us-modal-lbl">Type <code id="usDHint"></code> to confirm:</label>
+            <input id="usDInput" type="text" class="jenkins-input" placeholder="Type username to confirm" autocomplete="off" style="width:100%;box-sizing:border-box;"/>
+          </div>
+          <div class="us-modal-ftr">
+            <button type="button" class="jenkins-button" id="usDCancel">Cancel</button>
+            <button type="button" class="jenkins-button jenkins-button--danger" id="usDBtn" disabled="true">Delete</button>
+          </div>
+        </div>
+      </div>
+      <!-- Pending deletion info modal -->
+      <div id="usPDModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+        <div class="us-modal">
+          <div class="us-modal-hdr" style="background:var(--rg-warning-bg);border-bottom-color:var(--rg-warning-border);color:var(--rg-warning-fg);">
+            <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+            Access Detail Unavailable
+          </div>
+          <div class="us-modal-body">
+            <p style="margin:0 0 10px;">This account is <strong>pending deletion</strong>.</p>
+            <div class="us-modal-warn" style="background:var(--rg-warning-bg);border-color:var(--rg-warning-border);color:var(--rg-warning-fg);">
+              Its permissions were granted via group membership, which has been revoked.
+              The access detail page is not available for accounts in this state.
+            </div>
+            <p style="margin:8px 0 0;font-size:.86em;color:var(--text-color-secondary);">
+              To restore access, re-add the user to the Azure AD group. The account will be automatically recovered on their next login.
+            </p>
+          </div>
+          <div class="us-modal-ftr">
+            <button type="button" class="jenkins-button jenkins-button--primary" id="usPDOk">OK</button>
+          </div>
+        </div>
+      </div>
+
+      <form id="usDForm" method="post" action="deleteUser" style="display:none;">
+        <input type="hidden" name="userId" id="usDUser"/>
+        <input type="hidden" name="from"   value="userStatus"/>
+        <input type="hidden" id="usDCF"/>
+        <input type="hidden" id="usDCV"/>
+      </form>
+
+
+
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

@@ -1,4 +1,0 @@
-unclassified:
-  omniAuthGlobalConfig:
-    bruteForceLockoutMinutes: 30
-    provisioningEnabled: true

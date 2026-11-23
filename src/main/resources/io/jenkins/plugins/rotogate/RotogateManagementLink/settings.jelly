@@ -1,0 +1,482 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Settings" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.settingsAssets"/>
+
+      <l:app-bar title="Settings"/>
+
+      <div style="padding: 16px 24px; max-width: 860px;">
+
+        <j:if test="${request2.getParameter('saved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
+            Settings saved successfully.
+          </div>
+        </j:if>
+
+        <f:form name="rgSettingsForm" method="post" action="saveSettings" data-rooturl="${rootURL}">
+
+          <j:set var="cfg" value="${it.rotogateGlobalConfig}"/>
+
+          <!-- ================================================================
+               USER STATUS
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">User Status</h3>
+            </div>
+            <div class="rg-card-body">
+              <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <label style="flex: 1; min-width: 200px;">
+                  <div class="rg-field-label">Active threshold (days)</div>
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                    Logins within this window are considered active. Affects the Active / Inactive status on the User Status page.
+                  </div>
+                  <input type="number" name="activeThresholdDays" min="1" max="365"
+                         value="${cfg.activeThresholdDays}"
+                         class="jenkins-input" style="width: 100px;"/>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               STALE USERS
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Stale Users</h3>
+            </div>
+            <div class="rg-card-body">
+              <label style="display: block;">
+                <div class="rg-field-label">Stale threshold (days)</div>
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                  Users who have not logged in for longer than this are listed as stale and eligible for cleanup.
+                </div>
+                <input type="number" name="staleThresholdDays" min="1" max="3650"
+                       value="${cfg.staleThresholdDays}"
+                       class="jenkins-input" style="width: 100px;"/>
+                <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               AUDIT LOG RETENTION
+               ================================================================ -->
+          <j:set var="auditStore" value="${it.auditStorage}"/>
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-document-text plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Audit Log Retention</h3>
+            </div>
+            <div class="rg-card-body">
+              <label style="display: block;">
+                <div class="rg-field-label">Retention period (days)</div>
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                  Audit events older than this are automatically pruned by a daily job. Set to
+                  <strong>0</strong> to keep events forever. Audit entries are tiny (~110 bytes each),
+                  so even years of history stays small.
+                </div>
+                <input type="number" name="auditRetentionDays" min="0" max="3650"
+                       value="${cfg.auditRetentionDays}"
+                       class="jenkins-input" style="width: 100px;"/>
+                <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days (0 = forever)</span>
+              </label>
+              <!-- Live storage readout -->
+              <div style="margin-top: 14px; padding: 10px 14px; background: var(--rg-neutral-bg); border-radius: 6px; font-size: 0.82em; color: var(--text-color-secondary); display: flex; gap: 18px; flex-wrap: wrap;">
+                <span><strong style="color: var(--text-color);">${auditStore.events}</strong> events stored</span>
+                <span><strong style="color: var(--text-color);">${auditStore.humanSize}</strong> on disk</span>
+                <j:if test="${auditStore.oldest != ''}">
+                  <span>oldest: <span class="rg-ts-abbr" data-ts="${auditStore.oldest}">${auditStore.oldest}</span></span>
+                </j:if>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               AUTOMATED CLEANUP
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Automated Cleanup</h3>
+            </div>
+            <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+
+              <!-- Enable toggle -->
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Enable automated cleanup</div>
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em;">
+                    Automatically delete stale users on a schedule. Respects protected users list.
+                  </div>
+                </div>
+                <label class="rg-toggle-wrap">
+                  <j:choose>
+                    <j:when test="${cfg.cleanupEnabled}">
+                      <input type="checkbox" name="cleanupEnabled" id="cleanupEnabled" class="rg-toggle-chk" checked="checked"/>
+                    </j:when>
+                    <j:otherwise>
+                      <input type="checkbox" name="cleanupEnabled" id="cleanupEnabled" class="rg-toggle-chk"/>
+                    </j:otherwise>
+                  </j:choose>
+                  <div class="rg-toggle-track" id="cleanupTrack">
+                    <div class="rg-toggle-thumb"></div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Fields — greyed out when cleanup disabled -->
+              <div id="cleanupFields" style="display: flex; flex-direction: column; gap: 16px; padding-top: 4px; border-top: 1px solid var(--rg-card-border); transition: opacity 0.2s;">
+
+                <!-- Dry run -->
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Dry-run mode</div>
+                    <div style="color: var(--text-color-secondary); font-size: 0.8em;">
+                      When enabled, cleanup logs what it would delete but does not actually delete. Safe to enable first.
+                    </div>
+                  </div>
+                  <label class="rg-toggle-wrap">
+                    <j:choose>
+                      <j:when test="${cfg.cleanupDryRun}">
+                        <input type="checkbox" name="cleanupDryRun" class="rg-toggle-chk" checked="checked"/>
+                      </j:when>
+                      <j:otherwise>
+                        <input type="checkbox" name="cleanupDryRun" class="rg-toggle-chk"/>
+                      </j:otherwise>
+                    </j:choose>
+                    <div class="rg-toggle-track">
+                      <div class="rg-toggle-thumb"></div>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Cron schedule -->
+                <div>
+                  <div class="rg-field-label">Schedule (cron)</div>
+                  <div class="rg-field-hint">
+                    Standard 5-field cron. Default: <code>0 2 * * 0</code> (02:00 every Sunday).
+                  </div>
+                  <input type="text" name="cleanupCron" id="cleanupCron" value="${cfg.cleanupCron}"
+                         class="jenkins-input" style="width: 200px;" placeholder="0 2 * * 0"/>
+                  <div id="cronError" style="margin-top: 6px; font-size: 0.78em; color: var(--error-color); display: none;">
+                    Invalid cron — must be 5 fields: minute hour day month weekday (e.g. <code>0 2 * * 0</code>)
+                  </div>
+                  <div id="cronOk" style="margin-top: 6px; font-size: 0.78em; color: var(--rg-success-fg); display: none;">
+                    Valid cron expression.
+                  </div>
+                </div>
+
+                <!-- Max deletions -->
+                <div>
+                  <div class="rg-field-label">Max deletions per run</div>
+                  <div class="rg-field-hint">
+                    Safety cap. Cleanup stops after this many deletions even if more stale users exist.
+                  </div>
+                  <input type="number" name="cleanupMaxDeletions" min="1" max="500"
+                         value="${cfg.cleanupMaxDeletions}"
+                         class="jenkins-input" style="width: 100px;"/>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">users</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               ACCESS REVIEW
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Access Review</h3>
+            </div>
+            <div class="rg-card-body">
+              <div style="margin-bottom: 16px;">
+                <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
+                  Flag scoped assignments that haven't been reviewed in a while.
+                  A weekly email digest is sent listing overdue grants so admins can confirm or revoke them.
+                </div>
+                <label class="rg-toggle-wrap" style="gap: 10px;">
+                  <j:choose>
+                    <j:when test="${cfg.accessReviewEnabled}">
+                      <input type="checkbox" name="accessReviewEnabled" id="accessReviewEnabled" class="rg-toggle-chk" checked="checked"/>
+                    </j:when>
+                    <j:otherwise>
+                      <input type="checkbox" name="accessReviewEnabled" id="accessReviewEnabled" class="rg-toggle-chk"/>
+                    </j:otherwise>
+                  </j:choose>
+                  <span class="rg-toggle-track"><span class="rg-toggle-thumb"></span></span>
+                  <span style="font-size: 0.88em; font-weight: 500;">Enable access review</span>
+                </label>
+              </div>
+              <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <label style="flex: 1; min-width: 200px;">
+                  <div class="rg-field-label">Review threshold (days)</div>
+                  <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 8px;">
+                    Assignments older than this (since grant or last review) are flagged.
+                  </div>
+                  <input type="number" name="accessReviewThresholdDays" min="7" max="3650"
+                         value="${cfg.accessReviewThresholdDays}"
+                         class="jenkins-input" style="width: 100px;"/>
+                  <span style="margin-left: 8px; color: var(--text-color-secondary); font-size: 0.85em;">days</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               SOS MODE (lockout recovery)
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">SOS Mode (lockout recovery)</h3>
+            </div>
+            <div class="rg-card-body">
+              <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
+                A host-level fail-safe for a true admin lockout (all admins SSO-only with the identity
+                provider down, or a misconfigured authorization strategy). An operator drops an empty file
+                <code>rotogate-sos.request</code> in <code>JENKINS_HOME</code> — no restart needed — which
+                arms SOS Mode and opens <code>/sos/recover</code> for 30 minutes. There an admin enters one
+                of their <a href="emergencyAccess">SOS recovery codes</a> to regain access; the window then
+                auto-closes (or after 5 failed attempts). Only salted hashes of the codes are stored, so a
+                copy of <code>JENKINS_HOME</code> cannot reveal them. Distinct from Break Glass (in-session
+                TOTP step-up). Disabling this is a policy control only — anyone with filesystem access can
+                still recover via host-level <code>config.xml</code>.
+              </div>
+
+              <j:if test="${it.sosArmed}">
+                <div class="jenkins-alert" style="margin-bottom:14px; background:var(--rg-error-bg,#fdecea); border-color:var(--rg-error-border,#f5c2c0); color:var(--rg-error-fg,#8a1c17); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                  <span><strong>SOS Mode is currently active</strong> — recovery is open and auto-closes in about ${it.sosMinutesRemaining} minute(s).</span>
+                  <button type="button" class="jenkins-button" id="sosDeactivateBtn">Deactivate now</button>
+                </div>
+              </j:if>
+
+              <label class="rg-toggle-wrap" style="gap: 10px;">
+                <j:choose>
+                  <j:when test="${cfg.sosEnabled}">
+                    <input type="checkbox" name="sosEnabled" id="sosEnabled" class="rg-toggle-chk" checked="checked"/>
+                  </j:when>
+                  <j:otherwise>
+                    <input type="checkbox" name="sosEnabled" id="sosEnabled" class="rg-toggle-chk"/>
+                  </j:otherwise>
+                </j:choose>
+                <span class="rg-toggle-track"><span class="rg-toggle-thumb"></span></span>
+                <span style="font-size: 0.88em; font-weight: 500;">Honour the SOS trigger file (arm recovery when present)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               LOGIN PAGE BRANDING
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-browsers plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Login Page</h3>
+              <button type="button" class="jenkins-button" style="margin-left: auto"
+                      id="rgResetBranding">
+                Reset to defaults
+              </button>
+            </div>
+            <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+
+              <!-- Login Background -->
+              <div>
+                <label class="rg-field-label">Login Background</label>
+                <div class="rg-field-hint">
+                  Background design shown behind the logo on the login page. Default: Rotogate animation.
+                </div>
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginBackground" class="jenkins-select__input">
+                  <j:set var="bg" value="${cfg.loginBackground}"/>
+                  <option value="rotogate"  selected="${bg == 'rotogate'  ? 'selected' : null}">Rotogate Animation (animated reactor)</option>
+                  <option value="starburst" selected="${bg == 'starburst' ? 'selected' : null}">Starburst (Jenkins native)</option>
+                </select>
+                </div>
+              </div>
+
+              <!-- Butler Style -->
+              <div>
+                <label class="rg-field-label">Butler Style</label>
+                <div class="rg-field-hint">
+                  Centre figure on the animated panel. Default: the native Jenkins butler.
+                </div>
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginButler" class="jenkins-select__input">
+                  <j:set var="btl" value="${cfg.loginButler}"/>
+                  <option value="default" selected="${btl == 'default' ? 'selected' : null}">Jenkins Butler (native) — default</option>
+                  <option value="austin"  selected="${btl == 'austin'  ? 'selected' : null}">Willie Nelson (Austin butler)</option>
+                  <option value="jenkinsx" selected="${btl == 'jenkinsx' ? 'selected' : null}">JayeX (Jenkins X butler)</option>
+                  <option value="general"  selected="${btl == 'general'  ? 'selected' : null}">General butler</option>
+                  <option value="nerd"  selected="${btl == 'nerd'  ? 'selected' : null}">Nerd butler</option>
+                  <option value="ninja"  selected="${btl == 'ninja'  ? 'selected' : null}">Ninja butler</option>
+                  <option value="santaclaus"  selected="${btl == 'santaclaus'  ? 'selected' : null}">Santa butler</option>
+                  <option value="superhero"  selected="${btl == 'superhero'  ? 'selected' : null}">Superhero butler</option>
+                  <option value="raleigh"    selected="${btl == 'raleigh'    ? 'selected' : null}">Raleigh butler</option>
+                  <option value="sandiego"   selected="${btl == 'sandiego'   ? 'selected' : null}">San Diego butler</option>
+                  <option value="cowboy"     selected="${btl == 'cowboy'     ? 'selected' : null}">Cowboy butler</option>
+                  <option value="daily"      selected="${btl == 'daily'      ? 'selected' : null}">Surprise: Butler of the Day</option>
+                  <option value="random"     selected="${btl == 'random'     ? 'selected' : null}">Surprise: Random each visit</option>
+                </select>
+                </div>
+              </div>
+
+              <!-- Page Heading -->
+              <div>
+                <label class="rg-field-label">Page Heading</label>
+                <div class="rg-field-hint">
+                  Large title above the login form. Default: "Sign in to Jenkins"
+                </div>
+                <input type="text" name="loginHeading" value="${cfg.loginHeading}"
+                       placeholder="Sign in to Jenkins"
+                       class="jenkins-input" style="width: 360px; max-width: 100%;"/>
+              </div>
+
+              <!-- Tab Title -->
+              <div>
+                <label class="rg-field-label">Browser Tab Title</label>
+                <div class="rg-field-hint">
+                  Text shown in the browser tab on the login page. Default: "Sign In"
+                </div>
+                <input type="text" name="loginTabTitle" value="${cfg.loginTabTitle}"
+                       placeholder="Sign In"
+                       class="jenkins-input" style="width: 360px; max-width: 100%;"/>
+              </div>
+
+              <!-- Logo upload -->
+              <div>
+                <label class="rg-field-label">Company Logo</label>
+                <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
+                  Shown above the sign-in form. The Jenkins butler stays on the branding panel. PNG, JPG, SVG, or GIF. Max 2 MB. Leave empty to hide.
+                </div>
+
+                <!-- Preview row — shown when a logo is already uploaded -->
+                <j:choose>
+                  <j:when test="${it.loginLogoUploaded}">
+                    <div id="rgLogoPreview" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+                         padding: 10px 14px; background: var(--panel-header-bg,var(--rg-neutral-bg));
+                         border: 1px solid var(--rg-card-border); border-radius: 6px;">
+                      <img id="rgLogoPreviewImg" src="${it.loginLogoPreviewUrl}" alt="Current logo"
+                           style="height: 40px; width: auto; max-width: 120px; object-fit: contain;"/>
+                      <div style="flex: 1;">
+                        <div style="font-size: 0.85em; font-weight: 600;">Logo uploaded</div>
+                        <div style="font-size: 0.78em; color: var(--text-color-secondary);">Shown on the login page instead of the butler.</div>
+                      </div>
+                      <button type="button" class="jenkins-button js-rg-remove-logo"
+                              style="color: var(--error-color); border-color: var(--error-color); flex-shrink: 0;">
+                        Remove
+                      </button>
+                    </div>
+                  </j:when>
+                  <j:otherwise>
+                    <div id="rgLogoPreview" style="display: none; align-items: center; gap: 12px; margin-bottom: 10px;
+                         padding: 10px 14px; background: var(--panel-header-bg,var(--rg-neutral-bg));
+                         border: 1px solid var(--rg-card-border); border-radius: 6px;">
+                      <img id="rgLogoPreviewImg" src="" alt="Current logo"
+                           style="height: 40px; width: auto; max-width: 120px; object-fit: contain;"/>
+                      <div style="flex: 1;">
+                        <div style="font-size: 0.85em; font-weight: 600;">Logo uploaded</div>
+                        <div style="font-size: 0.78em; color: var(--text-color-secondary);">Shown on the login page instead of the butler.</div>
+                      </div>
+                      <button type="button" class="jenkins-button js-rg-remove-logo"
+                              style="color: var(--error-color); border-color: var(--error-color); flex-shrink: 0;">
+                        Remove
+                      </button>
+                    </div>
+                  </j:otherwise>
+                </j:choose>
+
+                <!-- Upload button -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <input type="file" id="rgLoginLogoFile" accept=".png,.jpg,.jpeg,.svg,.gif,.webp"
+                         style="display: none;"/>
+                  <button type="button" class="jenkins-button" id="rgUploadBtn">
+                    Upload Logo
+                  </button>
+                  <span id="rgLogoUploadStatus" style="font-size: 0.82em; color: var(--text-color-secondary);"></span>
+                </div>
+              </div>
+
+              <!-- Logo Position -->
+              <div>
+                <label class="rg-field-label">Logo Position</label>
+                <div class="rg-field-hint">
+                  Where the company logo sits on the login form. Only applies when a logo is uploaded.
+                </div>
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoPosition" class="jenkins-select__input">
+                  <j:set var="llp" value="${cfg.loginLogoPosition}"/>
+                  <option value="a" selected="${llp == 'a' ? 'selected' : null}">Top left (above the heading) — default</option>
+                  <option value="e" selected="${llp == 'e' ? 'selected' : null}">Top-right corner of the panel</option>
+                  <option value="f" selected="${llp == 'f' ? 'selected' : null}">Centered (above the heading)</option>
+                </select>
+                </div>
+              </div>
+
+              <!-- Logo Size -->
+              <div>
+                <label class="rg-field-label">Logo Size</label>
+                <div class="rg-field-hint">
+                  Height of the company logo on the login form. Only applies when a logo is uploaded.
+                </div>
+                <div class="jenkins-select" style="width: 360px; max-width: 100%;">
+                <select name="loginLogoSize" class="jenkins-select__input">
+                  <j:set var="lls" value="${cfg.loginLogoSize}"/>
+                  <option value="20" selected="${lls == '20' ? 'selected' : null}">Small (20px)</option>
+                  <option value="30" selected="${lls == '30' ? 'selected' : null}">Medium (30px)</option>
+                  <option value="40" selected="${lls == '40' ? 'selected' : null}">Large (40px) — default</option>
+                </select>
+                </div>
+              </div>
+
+              <!-- Announcement Banner -->
+              <div>
+                <label class="rg-field-label">Announcement Banner</label>
+                <div class="rg-field-hint">
+                  Shown above the login form. Useful for maintenance windows, policy changes, or onboarding notices.
+                  Leave empty to hide.
+                </div>
+                <textarea name="loginAnnouncementText" rows="2"
+                          placeholder="e.g. Maintenance tonight 22:00–02:00 UTC. Sign-in may be temporarily unavailable."
+                          class="jenkins-input"
+                          style="width: 100%; max-width: 480px; resize: vertical; font-family: inherit;">${cfg.loginAnnouncementText}</textarea>
+              </div>
+
+              <!-- Footer Contact Text -->
+              <div>
+                <label class="rg-field-label">Footer Contact Text</label>
+                <div class="rg-field-hint">
+                  Shown below the login form. Use for help desk contact details or a support link.
+                  Leave empty to hide.
+                </div>
+                <input type="text" name="loginFooterText" value="${cfg.loginFooterText}"
+                       placeholder="e.g. Need help? Contact IT: helpdesk@corp.com"
+                       class="jenkins-input" style="width: 480px; max-width: 100%;"/>
+              </div>
+
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="submit" class="jenkins-button jenkins-button--primary">Save Settings</button>
+            <a href="." class="jenkins-button">Cancel</a>
+          </div>
+
+        </f:form>
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

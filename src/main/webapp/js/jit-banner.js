@@ -5,7 +5,7 @@
  * not yet granted.
  *
  * Served as an external, same-origin script (CSP script-src 'self'); the
- * previous inline <script> injected by OmniAuthPageDecorator is blocked by
+ * previous inline <script> injected by RotogatePageDecorator is blocked by
  * Jenkins' CSP. All event wiring uses addEventListener (not inline on* handler
  * attributes, which the same CSP blocks).
  */
@@ -49,34 +49,34 @@
     function escHtml(s) { if (!s) return ""; return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
     function fetchStatus() {
-      fetch(base + "/omniauth-jit/status?job=" + encodeURIComponent(jobPath), { credentials: "same-origin" })
+      fetch(base + "/rotogate-jit/status?job=" + encodeURIComponent(jobPath), { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
         .then(function (d) { renderBanner(d); })
         .catch(function () {});
     }
 
-    function removeBanner() { var b = document.getElementById("oau-jit-banner"); if (b) b.remove(); }
+    function removeBanner() { var b = document.getElementById("rg-jit-banner"); if (b) b.remove(); }
 
     function injectGrayBuildNow() {
-      if (document.getElementById("oau-gray-build")) return;
+      if (document.getElementById("rg-gray-build")) return;
       var tasks = document.getElementById("tasks"); if (!tasks) return;
       var links = tasks.querySelectorAll("a");
       for (var i = 0; i < links.length; i++) { if (/build now/i.test(links[i].textContent.trim())) return; }
       var d = document.createElement("div");
-      d.id = "oau-gray-build"; d.className = "task";
+      d.id = "rg-gray-build"; d.className = "task";
       d.innerHTML = '<a class="task-link" href="#" style="opacity:0.38;cursor:default;pointer-events:none;">' +
         '<span class="task-icon-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></span>' +
         'Build Now</a>';
       tasks.insertBefore(d, tasks.firstChild);
     }
-    function removeGrayBuildNow() { var el = document.getElementById("oau-gray-build"); if (el) el.remove(); }
+    function removeGrayBuildNow() { var el = document.getElementById("rg-gray-build"); if (el) el.remove(); }
 
     function startCountdown(secs) {
       if (_cdInterval) clearInterval(_cdInterval);
       var rem = secs;
       _cdInterval = setInterval(function () {
         rem--;
-        var el = document.getElementById("oau-jit-countdown");
+        var el = document.getElementById("rg-jit-countdown");
         if (el) el.textContent = fmtTime(rem);
         if (rem <= 0) { clearInterval(_cdInterval); fetchStatus(); }
       }, 1000);
@@ -90,19 +90,19 @@
       _prevJitStatus = d.status;
       removeBanner();
       var banner = document.createElement("div");
-      banner.id = "oau-jit-banner";
+      banner.id = "rg-jit-banner";
       var color, icon, msg, actions;
       if (d.status === "ACTIVE") {
         removeGrayBuildNow();
         color = "#16a34a"; icon = SVG_CHECK;
-        msg = '<strong>JIT Access active</strong> &mdash; approved by <strong>' + escHtml(d.approverId) + '</strong> &middot; expires in <strong id="oau-jit-countdown">' + fmtTime(d.secondsRemaining) + '</strong>';
-        actions = '<button type="button" class="oau-jit-act" data-action="revoke" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:var(--card-background, #fff);color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;">End Access</button>';
+        msg = '<strong>JIT Access active</strong> &mdash; approved by <strong>' + escHtml(d.approverId) + '</strong> &middot; expires in <strong id="rg-jit-countdown">' + fmtTime(d.secondsRemaining) + '</strong>';
+        actions = '<button type="button" class="rg-jit-act" data-action="revoke" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:var(--card-background, #fff);color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;">End Access</button>';
       } else if (d.status === "PENDING") {
         injectGrayBuildNow();
         color = "#d97706"; icon = SVG_CLOCK;
         var approvalInfo = d.totalApprovers > 0 ? " &middot; <strong>" + d.approvedCount + " of " + d.totalApprovers + "</strong> approved" : "";
         msg = '<strong>JIT request pending</strong>' + approvalInfo + ' &middot; requested ' + escHtml(d.timeAgo);
-        actions = '<button type="button" class="oau-jit-act" data-action="cancel" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #d97706;border-radius:4px;background:var(--card-background, #fff);color:#d97706;cursor:pointer;font-size:12px;font-weight:600;">Cancel Request</button>';
+        actions = '<button type="button" class="rg-jit-act" data-action="cancel" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #d97706;border-radius:4px;background:var(--card-background, #fff);color:#d97706;cursor:pointer;font-size:12px;font-weight:600;">Cancel Request</button>';
       } else {
         injectGrayBuildNow();
         color = "#6366f1"; icon = SVG_BOLT;
@@ -111,19 +111,19 @@
         } else {
           msg = '<strong>JIT access required</strong> &mdash; building this pipeline requires approval from ' + escHtml(d.approverGroup || "an admin") + '.';
         }
-        actions = '<button type="button" class="oau-jit-act" data-action="open" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:12px;font-weight:600;">' + SVG_BOLT + ' Request JIT Access</button>';
+        actions = '<button type="button" class="rg-jit-act" data-action="open" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:12px;font-weight:600;">' + SVG_BOLT + ' Request JIT Access</button>';
       }
       banner.style.cssText = "margin:8px 16px;padding:10px 14px;border-radius:6px;background:var(--card-background, #fff);border:1px solid " + color + ";display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;";
       banner.innerHTML = '<div style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="display:inline-flex;align-items:center;color:' + color + ';">' + icon + '</span><span style="color:var(--text-color, #333);">' + msg + '</span></div><div style="display:flex;align-items:center;gap:8px;">' + actions + '</div>';
       // Wire the action button (CSP-safe: addEventListener, not an inline onclick attribute).
-      var actBtn = banner.querySelector(".oau-jit-act");
+      var actBtn = banner.querySelector(".rg-jit-act");
       if (actBtn) {
         var act = actBtn.getAttribute("data-action");
         var req = actBtn.getAttribute("data-req");
         actBtn.addEventListener("click", function () {
-          if (act === "revoke") oauJitRevoke(req);
-          else if (act === "cancel") oauJitCancel(req);
-          else if (act === "open") oauJitOpen();
+          if (act === "revoke") rgJitRevoke(req);
+          else if (act === "cancel") rgJitCancel(req);
+          else if (act === "open") rgJitOpen();
         });
       }
       if (d.status === "ACTIVE") startCountdown(d.secondsRemaining);
@@ -131,13 +131,13 @@
       if (main) { main.insertBefore(banner, main.firstChild); } else { document.body.insertBefore(banner, document.body.firstChild); }
     }
 
-    function oauJitOpen() {
+    function rgJitOpen() {
       if (_jitModal) { _jitModal.style.display = "flex"; return; }
       var m = document.createElement("div");
       _jitModal = m;
       m.style.cssText = "display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;";
       var durOpts = "";
-      fetch(base + "/omniauth-jit/status?job=" + encodeURIComponent(jobPath), { credentials: "same-origin" })
+      fetch(base + "/rotogate-jit/status?job=" + encodeURIComponent(jobPath), { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           for (var h = 1; h <= d.maxDurationHours; h++) { durOpts += '<option value="' + h + '"' + (h === 1 ? " selected" : "") + ">" + h + " hour" + (h > 1 ? "s" : "") + "</option>"; }
@@ -152,30 +152,30 @@
             '<strong>Auto-deny after:</strong> ' + d.approvalTimeoutHours + ' hour(s)' +
             '</div>' +
             '<div style="margin-bottom:12px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-color-secondary, #888);margin-bottom:4px;">Reason *</label>' +
-            '<textarea id="oau-jit-reason" placeholder="Why do you need access? (e.g. Deploy v2.3.1, hotfix for JIRA-441)" style="width:100%;height:72px;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;resize:none;box-sizing:border-box;"></textarea></div>' +
+            '<textarea id="rg-jit-reason" placeholder="Why do you need access? (e.g. Deploy v2.3.1, hotfix for JIRA-441)" style="width:100%;height:72px;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;resize:none;box-sizing:border-box;"></textarea></div>' +
             '<div style="margin-bottom:16px;"><label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-color-secondary, #888);margin-bottom:4px;">Duration</label>' +
-            '<select id="oau-jit-dur" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">' + durOpts + '</select></div>' +
-            '<div id="oau-jit-err" style="display:none;padding:8px 12px;background:#fee;border:1px solid #fca;border-radius:4px;font-size:12px;color:#c00;margin-bottom:12px;"></div>' +
+            '<select id="rg-jit-dur" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">' + durOpts + '</select></div>' +
+            '<div id="rg-jit-err" style="display:none;padding:8px 12px;background:#fee;border:1px solid #fca;border-radius:4px;font-size:12px;color:#c00;margin-bottom:12px;"></div>' +
             '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-            '<button type="button" id="oau-jit-cancel-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
-            '<button type="button" id="oau-jit-submit" style="padding:8px 16px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Submit Request</button>' +
+            '<button type="button" id="rg-jit-cancel-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
+            '<button type="button" id="rg-jit-submit" style="padding:8px 16px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Submit Request</button>' +
             '</div></div>';
-          var cancelBtn = m.querySelector("#oau-jit-cancel-btn");
-          if (cancelBtn) cancelBtn.addEventListener("click", oauJitClose);
-          var submitBtn = m.querySelector("#oau-jit-submit");
-          if (submitBtn) submitBtn.addEventListener("click", oauJitSubmit);
+          var cancelBtn = m.querySelector("#rg-jit-cancel-btn");
+          if (cancelBtn) cancelBtn.addEventListener("click", rgJitClose);
+          var submitBtn = m.querySelector("#rg-jit-submit");
+          if (submitBtn) submitBtn.addEventListener("click", rgJitSubmit);
         });
       document.body.appendChild(m);
     }
 
-    function oauJitClose() { if (_jitModal) _jitModal.style.display = "none"; }
+    function rgJitClose() { if (_jitModal) _jitModal.style.display = "none"; }
 
-    function oauJitSubmit() {
-      var reason = document.getElementById("oau-jit-reason").value.trim();
-      var dur = document.getElementById("oau-jit-dur").value;
-      var err = document.getElementById("oau-jit-err");
+    function rgJitSubmit() {
+      var reason = document.getElementById("rg-jit-reason").value.trim();
+      var dur = document.getElementById("rg-jit-dur").value;
+      var err = document.getElementById("rg-jit-err");
       if (!reason) { err.textContent = "Reason is required."; err.style.display = "block"; return; }
-      var btn = document.getElementById("oau-jit-submit");
+      var btn = document.getElementById("rg-jit-submit");
       btn.disabled = true; btn.textContent = "Submitting...";
       fetch(base + "/crumbIssuer/api/json", { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
@@ -183,67 +183,67 @@
           var body = "job=" + encodeURIComponent(jobPath) + "&reason=" + encodeURIComponent(reason) + "&durationHours=" + encodeURIComponent(dur);
           var headers = { "Content-Type": "application/x-www-form-urlencoded" };
           headers[cd.crumbRequestField] = cd.crumb;
-          return fetch(base + "/omniauth-jit/request", { method: "POST", headers: headers, body: body, credentials: "same-origin" });
+          return fetch(base + "/rotogate-jit/request", { method: "POST", headers: headers, body: body, credentials: "same-origin" });
         })
         .then(function (r) { return r.json(); })
         .then(function (data) {
           btn.disabled = false; btn.textContent = "Submit Request";
-          if (data.ok) { oauJitClose(); fetchStatus(); } else { err.textContent = data.error || "Request failed."; err.style.display = "block"; }
+          if (data.ok) { rgJitClose(); fetchStatus(); } else { err.textContent = data.error || "Request failed."; err.style.display = "block"; }
         })
         .catch(function () { btn.disabled = false; btn.textContent = "Submit Request"; err.textContent = "Network error."; err.style.display = "block"; });
     }
 
     // In-app confirm modal (replaces the browser's native confirm() dialog, which CSP/UX-wise
     // looks out of place). Same look as the Request-JIT modal. onConfirm runs on OK.
-    function oauJitConfirm(opts) {
+    function rgJitConfirm(opts) {
       var ov = document.createElement("div");
       ov.style.cssText = "display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:10000;align-items:center;justify-content:center;";
       ov.innerHTML = '<div style="background:var(--card-background, #fff);border-radius:8px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
         '<div style="font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:' + (opts.color || "#dc2626") + ';">' + (opts.icon || "") + '<span style="color:var(--text-color, #111);">' + escHtml(opts.title) + '</span></div>' +
         '<div style="font-size:13px;color:var(--text-color-secondary, #444);margin-bottom:20px;line-height:1.5;">' + escHtml(opts.message) + '</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-        '<button type="button" class="oau-cf-cancel" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
-        '<button type="button" class="oau-cf-ok" style="padding:8px 16px;border:none;border-radius:4px;background:' + (opts.color || "#dc2626") + ';color:#fff;cursor:pointer;font-size:13px;font-weight:600;">' + escHtml(opts.confirmLabel || "Confirm") + '</button>' +
+        '<button type="button" class="rg-cf-cancel" style="padding:8px 16px;border:1px solid #ccc;border-radius:4px;background:var(--card-background, #fff);cursor:pointer;font-size:13px;">Cancel</button>' +
+        '<button type="button" class="rg-cf-ok" style="padding:8px 16px;border:none;border-radius:4px;background:' + (opts.color || "#dc2626") + ';color:#fff;cursor:pointer;font-size:13px;font-weight:600;">' + escHtml(opts.confirmLabel || "Confirm") + '</button>' +
         '</div></div>';
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
       ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
-      ov.querySelector(".oau-cf-cancel").addEventListener("click", close);
-      ov.querySelector(".oau-cf-ok").addEventListener("click", function () { close(); opts.onConfirm(); });
+      ov.querySelector(".rg-cf-cancel").addEventListener("click", close);
+      ov.querySelector(".rg-cf-ok").addEventListener("click", function () { close(); opts.onConfirm(); });
       document.body.appendChild(ov);
     }
 
     // POST to the cancel/revoke endpoint (shared by pending-cancel and active-revoke).
-    function oauJitPostCancel(requestId) {
+    function rgJitPostCancel(requestId) {
       fetch(base + "/crumbIssuer/api/json", { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
         .then(function (cd) {
           var headers = { "Content-Type": "application/x-www-form-urlencoded" };
           headers[cd.crumbRequestField] = cd.crumb;
-          return fetch(base + "/omniauth-jit/cancel", { method: "POST", headers: headers, body: "requestId=" + encodeURIComponent(requestId), credentials: "same-origin" });
+          return fetch(base + "/rotogate-jit/cancel", { method: "POST", headers: headers, body: "requestId=" + encodeURIComponent(requestId), credentials: "same-origin" });
         })
         .then(function () { fetchStatus(); })
         .catch(function () {});
     }
 
-    function oauJitCancel(requestId) {
-      oauJitConfirm({
+    function rgJitCancel(requestId) {
+      rgJitConfirm({
         title: "Cancel JIT request",
         message: "Cancel your pending JIT request? You can submit a new one at any time.",
         confirmLabel: "Cancel Request",
         color: "#d97706",
         icon: SVG_CLOCK,
-        onConfirm: function () { oauJitPostCancel(requestId); }
+        onConfirm: function () { rgJitPostCancel(requestId); }
       });
     }
 
-    function oauJitRevoke(requestId) {
-      oauJitConfirm({
+    function rgJitRevoke(requestId) {
+      rgJitConfirm({
         title: "End JIT access",
         message: "Revoke your active JIT access now? You'll need a new approval before you can build again.",
         confirmLabel: "End Access",
         color: "#dc2626",
         icon: SVG_CLOCK,
-        onConfirm: function () { oauJitPostCancel(requestId); }
+        onConfirm: function () { rgJitPostCancel(requestId); }
       });
     }
 

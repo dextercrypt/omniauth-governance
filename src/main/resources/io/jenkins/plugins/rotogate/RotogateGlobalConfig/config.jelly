@@ -1,0 +1,13 @@
+<?jelly escape-by-default='true'?>
+<!--
+  Intentionally empty.
+
+  RotogateGlobalConfig is a persistence-only GlobalConfiguration: it exists to store the Rotogate plugin settings
+  and round-trip it through Configuration-as-Code, not to render UI on the Jenkins global
+  "Manage Jenkins / System" page. That data is managed through the Rotogate management link.
+
+  Jenkins' global config page does an <st:include page="config.jelly"/> over every
+  GlobalConfiguration extension; without this view that include fails and the whole System
+  page errors out. This empty view satisfies the include and contributes nothing visible.
+-->
+<j:jelly xmlns:j="jelly:core"/>

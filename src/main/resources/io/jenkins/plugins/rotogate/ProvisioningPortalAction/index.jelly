@@ -1,0 +1,201 @@
+<!--
+  Public, unauthenticated self-service access request portal at /request-access/.
+
+  Twin of the Rotogate login page: same app-sign-in-register shell, same animated
+  butler branding panel on the left (pulled from the security realm, same butler /
+  background / logo as login, driven by the same settings), same dark right-panel
+  theming. Only the right-panel content differs — an access-request form instead of
+  the login form.
+
+  'it' here is the ProvisioningPortalAction (portal state getters); branding + SSO
+  provider getters live on the realm (app.securityRealm), exactly as on login.jelly.
+-->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+  <l:view xmlns:l="/lib/layout" contentType="text/html;charset=UTF-8">
+    <st:setHeader name="Expires" value="0" />
+    <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
+    ${h.initPageVariables(context)}
+    <x:doctype name="html" />
+
+    <j:set var="realm" value="${app.securityRealm}"/>
+    <j:set var="logoPos" value="${realm.loginLogoPosition}"/>
+    <j:set var="logoSize" value="${realm.loginLogoSize}"/>
+    <j:set var="simpleDecorator" value="${h.simplePageDecorator}"/>
+    <j:set var="err" value="${request2.getParameter('error')}"/>
+    <j:set var="submitted" value="${request2.getParameter('submitted')}"/>
+    <j:set var="already" value="${request2.getParameter('already')}"/>
+
+    <html lang="${request2.getLocale().toLanguageTag()}">
+      <head data-rooturl="${rootURL}" data-resurl="${resURL}" data-imagesurl="${imagesURL}" resURL="${resURL}">
+        <title>Request access</title>
+        <meta name="ROBOTS" content="NOFOLLOW" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <st:include it="${simpleDecorator}" page="simple-head.jelly" />
+        <st:adjunct includes="io.jenkins.plugins.rotogate.ProvisioningPortalAction.indexAssets"/>
+      </head>
+      <body class="app-sign-in-register">
+        <!-- Left branding panel: identical to the login page, driven by the realm. -->
+        <j:choose>
+          <j:when test="${realm.loginBackground == 'starburst'}">
+            <st:include it="${simpleDecorator}" page="simple-branding.jelly" />
+          </j:when>
+          <j:otherwise>
+            <st:include it="${realm}" page="animated-branding.jelly"/>
+          </j:otherwise>
+        </j:choose>
+
+        <main id="main-panel" class="app-sign-in-register__content pos-${logoPos}">
+          <j:if test="${logoPos == 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+            <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt="" style="height:${logoSize}px"/></div>
+          </j:if>
+          <div class="app-sign-in-register__content-inner">
+            <j:if test="${logoPos != 'e' and realm.loginLogoUrl != null and realm.loginLogoUrl != ''}">
+              <div class="brand-logo"><img src="${realm.loginLogoUrl}" alt="" style="height:${logoSize}px"/></div>
+            </j:if>
+
+            <h1>Request access</h1>
+            <div class="pa-sub">Ask an administrator for access to this Jenkins.</div>
+
+            <!-- Confirmation (enumeration-safe: identical regardless of duplicates) -->
+            <j:if test="${submitted != null}">
+              <div class="pa-banner pa-ok">
+                Your request has been submitted. An administrator will review it, and you'll be
+                notified of the decision.
+              </div>
+              <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
+            </j:if>
+
+            <j:if test="${already != null}">
+              <div class="pa-banner pa-ok">
+                You already have access to this Jenkins — no request needed. Please sign in.
+              </div>
+              <div class="pa-foot"><a href="${rootURL}/">Go to sign in</a></div>
+            </j:if>
+
+            <j:if test="${submitted == null and already == null}">
+              <!-- Error banners -->
+              <j:choose>
+                <j:when test="${err == 'unavailable'}">
+                  <div class="pa-banner pa-warn">The request portal is busy right now. Please try again in a few minutes.</div>
+                </j:when>
+                <j:when test="${err == 'missing'}">
+                  <div class="pa-banner pa-err">Please fill in your username, email, a reason, and what access you need.</div>
+                </j:when>
+                <j:when test="${err == 'domain'}">
+                  <div class="pa-banner pa-err">That email domain isn't accepted for access requests.</div>
+                </j:when>
+                <j:when test="${err == 'session'}">
+                  <div class="pa-banner pa-warn">Your session expired before the request was completed. Please try again.</div>
+                </j:when>
+              </j:choose>
+
+              <!-- Portal disabled entirely -->
+              <j:if test="${!it.portalEnabled}">
+                <div class="pa-banner pa-warn">Self-service access requests are not enabled on this server.</div>
+                <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
+              </j:if>
+
+              <j:if test="${it.portalEnabled}">
+                <!-- Entra / Microsoft request — same button as login's SSO button -->
+                <j:if test="${it.entraAllowed and realm.ssoProvider != null}">
+                  <a href="${rootURL}/rotogate/commenceLogin?provision=1" class="sso-btn" style="
+                       display:flex;align-items:center;justify-content:center;gap:10px;
+                       width:100%;padding:9px 12px;box-sizing:border-box;
+                       background:#101c30;color:#dde6f4;border:1px solid #2a3a54;
+                       border-radius:var(--form-input-border-radius,4px);
+                       font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;
+                       transition:box-shadow .15s ease;">
+                    <span class="sso-logo" style="display:flex;align-items:center;">
+                      <j:choose>
+                        <j:when test="${realm.ssoProvider.id == 'microsoft'}">
+                          <!-- Microsoft brand mark: a multi-colour logo, kept inline, not a monochrome symbol. -->
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0;">
+                            <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1"  width="9" height="9" fill="#00a4ef"/>
+                            <rect x="1"  y="11" width="9" height="9" fill="#7fba00"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                          </svg>
+                        </j:when>
+                        <j:otherwise>
+                          <l:icon src="symbol-key plugin-ionicons-api" class="icon-md"/>
+                        </j:otherwise>
+                      </j:choose>
+                    </span>
+                    <span>Request access with Microsoft</span>
+                  </a>
+
+                  <j:if test="${it.nativeAllowed}">
+                    <div style="display:flex;align-items:center;margin:16px 0;gap:8px;">
+                      <hr style="flex:1;border:none;border-top:1px dashed #26344c;"/>
+                      <span style="font-size:12px;color:#7d8aa2;white-space:nowrap;">or</span>
+                      <hr style="flex:1;border:none;border-top:1px dashed #26344c;"/>
+                    </div>
+                  </j:if>
+                </j:if>
+
+                <!-- Native (username/password) request -->
+                <j:if test="${it.nativeAllowed}">
+                  <j:choose>
+                    <j:when test="${it.nativeAvailable}">
+                      <f:form method="post" action="${rootURL}/request-access/submitNative">
+                        <div>
+                          <label class="app-sign-in-register__form-label" for="pa-user">Username</label>
+                          <input id="pa-user" class="jenkins-input" type="text" name="username"
+                                 required="required" autocomplete="off" placeholder="e.g. jsmith"/>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-name">Full name</label>
+                          <input id="pa-name" class="jenkins-input" type="text" name="fullName"
+                                 autocomplete="off" placeholder="Jane Smith"/>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-email">Email</label>
+                          <input id="pa-email" class="jenkins-input" type="email" name="email"
+                                 required="required" autocomplete="off" placeholder="you@company.com"/>
+                          <j:if test="${it.allowedDomains != ''}">
+                            <div class="pa-hint">Accepted domains: ${it.allowedDomains}</div>
+                          </j:if>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-reason">Reason for access</label>
+                          <textarea id="pa-reason" class="jenkins-input" name="reason" required="required"
+                                    placeholder="Why do you need access?"></textarea>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-access">What access do you need?</label>
+                          <textarea id="pa-access" class="jenkins-input" name="requestedAccess" required="required"
+                                    placeholder="e.g. run and configure jobs in the mobile-app folder"></textarea>
+                        </div>
+                        <div style="margin-top:16px;">
+                          <label class="app-sign-in-register__form-label" for="pa-days">Access duration (days, 0 = permanent)</label>
+                          <input id="pa-days" class="jenkins-input" type="number" name="durationDays"
+                                 min="0" value="${it.defaultDurationDays}"/>
+                        </div>
+                        <button type="submit" class="pa-btn">Submit request</button>
+                      </f:form>
+                    </j:when>
+                    <j:otherwise>
+                      <div class="pa-banner pa-warn">
+                        The request portal is temporarily unavailable. Please try again in about
+                        ${it.nativeCooldownMinutes} minute(s).
+                      </div>
+                    </j:otherwise>
+                  </j:choose>
+                </j:if>
+
+                <j:if test="${realm.loginFooterText != null and realm.loginFooterText != ''}">
+                  <div style="margin-top:20px;text-align:center;font-size:12px;color:#7d8aa2;line-height:1.5;">
+                    ${realm.loginFooterText}
+                  </div>
+                </j:if>
+
+                <div class="pa-foot"><a href="${rootURL}/">Back to sign in</a></div>
+              </j:if>
+            </j:if>
+          </div>
+        </main>
+      </body>
+    </html>
+  </l:view>
+</j:jelly>

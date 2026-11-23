@@ -1,0 +1,4 @@
+unclassified:
+  rotogateGlobalConfig:
+    bruteForceLockoutMinutes: 30
+    provisioningEnabled: true
