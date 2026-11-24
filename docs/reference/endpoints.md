@@ -15,7 +15,7 @@ reached through the console UI rather than directly.
 | `rotogate/nativeLogin` | Native username/password form POST target. |
 | `rotogate/commenceLogin` | Start the Entra OAuth2 flow. |
 | `rotogate/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
-| `rotogate/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
+| `securityRealm/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
 | `descriptorByName/io.jenkins.plugins.rotogate.sso.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
 
 > **Login error codes.** Failed or rejected sign-ins redirect to `loginError?error=<code>`:
