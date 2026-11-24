@@ -69,7 +69,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
         RotogateSecurityRealm realm = getRotogateRealm();
         if (realm == null) {
             return HttpResponses.error(503,
-                    "Omni Auth security realm is not active.");
+                    "Rotogate security realm is not active.");
         }
         return realm.startLogin(req);
     }
@@ -85,7 +85,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
         RotogateSecurityRealm realm = getRotogateRealm();
         if (realm == null) {
             return HttpResponses.error(503,
-                    "Omni Auth security realm is not active.");
+                    "Rotogate security realm is not active.");
         }
         return realm.finishLogin(req);
     }

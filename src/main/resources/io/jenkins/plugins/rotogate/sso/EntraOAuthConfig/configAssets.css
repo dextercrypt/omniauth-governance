@@ -1,7 +1,7 @@
 /*
  * Entra OAuth config — Test Connection button layout.
  * Loaded as a Jenkins adjunct:
- *   <st:adjunct includes="io.jenkins.plugins.rotogate.EntraOAuthConfig.configAssets"/>
+ *   <st:adjunct includes="io.jenkins.plugins.rotogate.sso.EntraOAuthConfig.configAssets"/>
  * Externalised from config.jelly's inline <style> for CSP compliance (Jenkins hosting).
  *
  * Jenkins floats the validate button right and stacks the progress ABOVE and the result

@@ -13,10 +13,10 @@ reached through the console UI rather than directly.
 |---|---|
 | `securityRealm/login` | The custom login page (native + SSO). |
 | `rotogate/nativeLogin` | Native username/password form POST target. |
-| `securityRealm/commenceLogin` | Start the Entra OAuth2 flow. |
+| `rotogate/commenceLogin` | Start the Entra OAuth2 flow. |
 | `rotogate/finishLogin` | OAuth2 redirect/callback (must match the Entra redirect URI). |
 | `rotogate/loginLogo` (`doLoginLogo`) | Serve the branded login logo pre-authentication. |
-| `descriptorByName/io.jenkins.plugins.rotogate.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
+| `descriptorByName/io.jenkins.plugins.rotogate.sso.EntraOAuthConfig/testConnection` (`doTestConnection`) | Validate Entra credentials via a real MSAL client-credentials token grant. `@RequirePOST`, admin-gated. |
 
 > **Login error codes.** Failed or rejected sign-ins redirect to `loginError?error=<code>`:
 > `locked` (brute-force lockout), `activation` (account not yet activated), `entra` (Entra/SSO

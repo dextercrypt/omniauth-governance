@@ -3951,11 +3951,11 @@ public class RotogateManagementLink extends ManagementLink {
         try {
             hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
             if (!(strat instanceof RotogateAuthorizationStrategy)) return;
-            RotogateAuthorizationStrategy omniStrat = (RotogateAuthorizationStrategy) strat;
+            RotogateAuthorizationStrategy rgStrat = (RotogateAuthorizationStrategy) strat;
             Permission readPerm = Permission.fromId("hudson.model.Hudson.Read");
             if (readPerm == null) return;
             PermissionEntry entry = new PermissionEntry(atype, sid);
-            omniStrat.add(readPerm, entry);
+            rgStrat.add(readPerm, entry);
             Jenkins.get().save();
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Could not auto-grant Hudson.Read to " + sid, e);
@@ -3972,12 +3972,12 @@ public class RotogateManagementLink extends ManagementLink {
         try {
             hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
             if (!(strat instanceof RotogateAuthorizationStrategy)) return;
-            RotogateAuthorizationStrategy omniStrat = (RotogateAuthorizationStrategy) strat;
+            RotogateAuthorizationStrategy rgStrat = (RotogateAuthorizationStrategy) strat;
             PermissionEntry entry = new PermissionEntry(atype, sid);
             for (String pid : permIds) {
                 if (RotogateAuthorizationStrategy.isDangerousPermission(pid)) continue; // never grant admin-equivalent permissions
                 Permission p = Permission.fromId(pid);
-                if (p != null) omniStrat.add(p, entry);
+                if (p != null) rgStrat.add(p, entry);
             }
             Jenkins.get().save();
         } catch (Exception e) {

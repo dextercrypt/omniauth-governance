@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
 
-  <st:adjunct includes="io.jenkins.plugins.rotogate.EntraOAuthConfig.configAssets"/>
+  <st:adjunct includes="io.jenkins.plugins.rotogate.sso.EntraOAuthConfig.configAssets"/>
 
   <f:entry title="Tenant ID" field="tenantId"
            help="/plugin/rotogate/help/tenantId.html">
