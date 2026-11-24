@@ -3,9 +3,11 @@
 > The plugin's HTTP endpoints, grouped by function. Paths are relative to the Jenkins
 > context (`/<prefix>`).
 
-These are Stapler `do*` handlers exposed by the security realm, the JIT action, and the
-management console. Most administrative endpoints require appropriate permissions and are
-reached through the console UI rather than directly.
+These are a mix of Stapler `do*` action handlers and management-console **pages** (Jelly views
+served at `rotogate-management/<name>`, with no `do` prefix), exposed by the security realm, the
+root action, and the management console. Rows written as `doXxx` are action handlers; rows written
+as a bare name are page views. Most administrative endpoints require appropriate permissions and
+are reached through the console UI rather than directly.
 
 ## Authentication & login (security realm)
 
@@ -35,19 +37,19 @@ reached through the console UI rather than directly.
 
 | Endpoint | Purpose |
 |---|---|
-| `doBreakGlass` | Break-glass entry page. |
+| `emergencyAccess` | Break-glass / emergency-access page. |
 | `doBreakGlassEnrollInit` / `doBreakGlassEnrollVerify` / `doBreakGlassEnrollRemove` | TOTP enrollment lifecycle. |
 | `doBreakGlassActivate` / `doBreakGlassDeactivate` | Activate/deactivate emergency access. |
-| `doTotpReminder` / `doTotpReminderSkip` | TOTP enrollment reminders. |
+| `totpReminder` (page) / `doTotpReminderSkip` | TOTP enrollment reminder page and its skip action. |
 
 ## Access management
 
 | Endpoint | Purpose |
 |---|---|
-| `doAccessManagement` | Access management page. |
+| `accessManagement` | Access management page. |
 | `doAddUser` / `doDeleteUser` | Manage user entries. |
 | `doGrantAssignment` / `doEditAssignment` / `doRevokeAssignment` | User assignment lifecycle. |
-| `doGrantGroupAssignment` / `doRevokeGroupAssignment` / `doGroupDetail` / `doRemoveGroup` | Group assignment lifecycle. |
+| `doGrantGroupAssignment` / `doRevokeGroupAssignment` / `groupDetail` (page) / `doRemoveGroup` | Group assignment lifecycle. |
 | `doGrantScopedAccess` / `doRevokeScopedAccess` / `doScopedAccess` / `doAllScopedAccess` | Scoped (job/folder) access. |
 | `doSetNodePermission` / `doRemoveNodePermission` | Node-level permissions. |
 | `doCheckAccess` / `doConfirmAccess` / `doConfirmAllAccess` / `doRemoveUserAccess` | Access checks/confirmation. |
@@ -57,7 +59,7 @@ reached through the console UI rather than directly.
 
 | Endpoint | Purpose |
 |---|---|
-| `doAccessReview` | Access review queue. |
+| `accessReview` | Access review queue. |
 | `doConfirmAccess` / `doConfirmAllAccess` / `doRevokeFromReview` | Keep / keep-all / revoke during review. |
 
 ## JIT access
@@ -67,7 +69,7 @@ reached through the console UI rather than directly.
 | `doRequest` | Submit a JIT request. |
 | `doStatus` | JIT request status for the current user. |
 | `doCancel` | Cancel a pending JIT request. |
-| `doJitRequests` | JIT requests queue (admin). |
+| `jitRequests` | JIT requests queue (admin). |
 | `doApproveJit` / `doDenyJit` / `doRevokeActiveJit` | Approve / deny / revoke JIT. |
 | `doSuggestApprovers` | Approver suggestions. |
 
@@ -75,33 +77,33 @@ reached through the console UI rather than directly.
 
 | Endpoint | Purpose |
 |---|---|
-| `doSessions` | Active sessions view. |
+| `sessions` | Active sessions view. |
 | `doRevokeSession` | Revoke a session. |
 
 ## Users & cleanup
 
 | Endpoint | Purpose |
 |---|---|
-| `doStaleUsers` | Stale users view. |
-| `doProtectedUsers` / `doSaveProtectedUsers` | Manage protected users. |
+| `staleUsers` | Stale users view. |
+| `protectedUsers` (page) / `doSaveProtectedUsers` | Manage protected users. |
 | `doMarkForDeletion` / `doUnmarkForDeletion` | Cleanup marking. |
 | `doRunCleanupNow` | Trigger a cleanup run. |
-| `doUserOverview` / `doUserStatus` / `doStatus` | User status views. |
+| `userOverview` / `userStatus` | User overview and status pages. |
 
 ## Notifications
 
 | Endpoint | Purpose |
 |---|---|
-| `doNotifications` / `doSaveNotifications` | Notification settings. |
+| `notifications` (page) / `doSaveNotifications` | Notification settings page and save action. |
 | `doPreviewEmail` | Email template preview. |
 | `doSendTestEmail` / `doSendTestSlack` / `doSendTestTeams` | Channel test sends. |
-| `doNotificationLog` / `doClearNotificationLog` | Notification delivery log. |
+| `notificationLog` (page) / `doClearNotificationLog` | Notification delivery log and clear action. |
 
 ## Provisioning (admin queue)
 
 | Endpoint | Purpose |
 |---|---|
-| `doProvisioning` | Provisioning request queue. |
+| `provisioning` | Provisioning request queue. |
 | `doApproveProvisioning` / `doRejectProvisioning` | Approve / reject a request. |
 | `doResendActivation` | Resend a native account's activation link. |
 | `doResetProvisioningBreaker` | Reset the native request rate-limit breaker. |
@@ -120,7 +122,7 @@ Served under `request-access` (`ProvisioningPortalAction`).
 
 | Endpoint | Purpose |
 |---|---|
-| `doBackup` | Download a configuration backup. |
+| `backup` | Backup & restore page (download via `doExportConfig`). |
 | `doExportConfig` / `doImportConfig` | Export / import roles, scoped assignments, groups and settings. |
 | `doPreviewImport` / `doPreviewRevert` | Preview an import or a rollback before applying. |
 | `doRevertImport` | Roll back to a prior restore point. |
@@ -129,17 +131,17 @@ Served under `request-access` (`ProvisioningPortalAction`).
 
 | Endpoint | Purpose |
 |---|---|
-| `doAuditLog` / `doPurgeAuditLog` | View / purge audit log. |
-| `doSecurity` | Security overview page. |
+| `auditLog` (page) / `doPurgeAuditLog` | View / purge audit log. |
+| `security` | Security overview page. |
 | `doClearBruteForce` | Reset brute-force counters. |
-| `doSettings` / `doSaveSettings` | Plugin settings (incl. branding). |
+| `settings` (page) / `doSaveSettings` | Plugin settings (incl. branding). |
 | `doUploadLoginLogo` / `doRemoveLoginLogo` | Manage the login logo. |
 | `doOverviewMetrics` | JSON KPI metrics for dashboard polling (admin-gated). |
-| `doAbout` | About/info page. |
+| `about` | About/info page. |
 
-> This reference is generated from the plugin's `do*` handlers. Exact HTTP method
-> (GET/POST) and required permission are defined on each handler; interact through the
-> console UI unless integrating directly.
+> This reference lists both `do*` action handlers and the management-console page views
+> (served at `rotogate-management/<name>`). Exact HTTP method (GET/POST) and required
+> permission are defined on each handler; interact through the console UI unless integrating directly.
 
 ---
 _Related: [Architecture](../developer/architecture.md) · [Permissions reference](permissions.md)_

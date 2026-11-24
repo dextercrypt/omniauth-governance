@@ -722,7 +722,7 @@
                   <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
                   Break Glass
                 </div>
-                <a href="breakGlass" class="rg-widget__link">Manage →</a>
+                <a href="emergencyAccess" class="rg-widget__link">Manage →</a>
               </div>
               <div style="padding:0 16px 14px;">
 
