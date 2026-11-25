@@ -1,16 +1,14 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
-  <st:documentation>
+  <!--
     The notification event checkbox grid for one channel. The three channels (email / Slack / Teams)
     offer the identical event list and differ only in the checkbox group name, so the markup lives
-    here once. Each label carries Jenkins' native tooltip attribute for its description (hover),
-    replacing the old JS that set data-tooltip from a title map.
-    <st:attribute name="name" use="required">
-      The checkbox group name: smtpEvents, slackEvents or teamsEvents.
-    </st:attribute>
-  </st:documentation>
-
-  <j:set var="n" value="${attrs.name}"/>
+    here once and is pulled in with <st:include page="eventGrid.jelly"/>. The caller sets the
+    checkbox group name in the shared Jelly context before including, e.g.
+    <j:set var="eventGridName" value="smtpEvents"/>. Each label carries Jenkins' native tooltip
+    attribute for its description (hover).
+  -->
+  <j:set var="n" value="${eventGridName}"/>
   <div class="rg-event-grid">
     <label class="rg-event-label" tooltip="Report after each automated cleanup run (dry-run or live)."><input type="checkbox" name="${n}" value="cleanup"/> <span>Stale cleanup ran</span></label>
     <label class="rg-event-label" tooltip="Alert when an admin manually deletes a user via the Rotogate UI."><input type="checkbox" name="${n}" value="userDeleted"/> <span>User manually deleted</span></label>

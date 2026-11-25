@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form" xmlns:rg="/lib/rg">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
   <l:layout permission="${app.ADMINISTER}" title="Rotogate — Notifications" norefresh="true">
     <l:side-panel>
@@ -329,7 +329,8 @@
                 <!-- SMTP event subscriptions -->
                 <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send via Email</div>
-                  <rg:eventGrid name="smtpEvents"/>
+                  <j:set var="eventGridName" value="smtpEvents"/>
+                  <st:include page="eventGrid.jelly"/>
                 </div>
 
               </div>
@@ -390,7 +391,8 @@
                 <!-- Slack event subscriptions -->
                 <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Slack</div>
-                  <rg:eventGrid name="slackEvents"/>
+                  <j:set var="eventGridName" value="slackEvents"/>
+                  <st:include page="eventGrid.jelly"/>
                 </div>
               </div>
             </div>
@@ -451,7 +453,8 @@
                 <!-- Teams event subscriptions -->
                 <div style="border-top: 1px solid var(--rg-card-border); padding-top: 14px;">
                   <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 10px;">Events to Send to Microsoft Teams</div>
-                  <rg:eventGrid name="teamsEvents"/>
+                  <j:set var="eventGridName" value="teamsEvents"/>
+                  <st:include page="eventGrid.jelly"/>
                 </div>
               </div>
             </div>
