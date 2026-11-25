@@ -17,16 +17,24 @@ import jakarta.mail.internet.MimeMultipart;
 
 /**
  * Handles SMTP email delivery for Rotogate notifications.
- * Each event type has its own typed HTML builder — swap LOGO_DEFAULT to change branding.
+ * Each event type has its own typed HTML builder — swap LOGO_DEFAULT_PATH to change branding.
  */
 public class SmtpHelper {
 
     private static final Logger LOGGER = Logger.getLogger(SmtpHelper.class.getName());
 
-    // Default logo — swap with a base64 data URI for offline/air-gapped deployments:
-    // "data:image/png;base64,<base64-encoded-png>"
-    static final String LOGO_DEFAULT =
-            "https://www.jenkins.io/images/logos/jenkins/jenkins.svg";
+    // Default logo: the Rotogate mark, served from the plugin's own resources. Being same-origin
+    // it renders in the in-app email preview (external URLs are blocked by the page CSP) and in
+    // real emails from any reachable Jenkins URL — always on-brand, no dependency on an outside
+    // host. For a fully air-gapped deployment whose recipients cannot reach the Jenkins URL, an
+    // admin can set a custom logo URL (or a "data:image/png;base64,…" URI) on the Notifications
+    // page, which takes precedence over this default.
+    static final String LOGO_DEFAULT_PATH = "/plugin/rotogate/images/rotogate-mark.png";
+
+    /** Absolute URL of the default Rotogate logo (Jenkins root URL + {@link #LOGO_DEFAULT_PATH}). */
+    static String defaultLogoUrl() {
+        return rootUrl() + LOGO_DEFAULT_PATH;
+    }
 
     private SmtpHelper() {}
 
@@ -601,16 +609,10 @@ public class SmtpHelper {
         }) + gap(12)
         + notice("#fffbeb", "#fde68a", "#92400e",
                 "<strong>Reason:</strong> <em>" + esc(req.getReason()) + "</em>")
-        + gap(16)
-        + "<table width='100%' cellpadding='0' cellspacing='0'><tr>"
-        + "<td align='center'>"
-        + "<a href='" + actionUrl + "' style='display:inline-block;padding:12px 28px;"
-        + "background:#d97706;color:#fff;border-radius:6px;font-weight:700;font-size:14px;"
-        + "text-decoration:none;'>Take Action &rarr;</a>"
-        + "</td></tr></table>"
-        + gap(8)
-        + "<p style='font-size:11px;color:#9ca3af;text-align:center;margin:0;'>"
-        + "This link is unique to you. No login required. Expires when the approval window closes.</p>";
+        + gap(14)
+        + "<p style='font-size:12px;color:#94a3b8;line-height:1.5;margin:0;'>"
+        + "This approval link is unique to you &mdash; no login required, and it expires "
+        + "when the approval window closes.</p>";
 
         return card(logoSrc(cfg), ts,
                 "#d97706", "#fffbeb", "&#9889;", "#d97706",
@@ -671,7 +673,7 @@ public class SmtpHelper {
                 {"Test Sent To",  code(esc(to))},
                 {"Tested At",     ts}
         });
-        return card(LOGO_DEFAULT, ts,
+        return card(defaultLogoUrl(), ts,
                 "#16a34a", "#dcfce7", "&#10003;", "#16a34a",
                 "#dcfce7", "#166534", "#16a34a",
                 "Success &nbsp;&middot;&nbsp; Connection Verified",
@@ -721,7 +723,7 @@ public class SmtpHelper {
             + "<td style='vertical-align:middle;'>"
             + "<table cellpadding='0' cellspacing='0'><tr>"
             + "<td style='padding-right:9px;vertical-align:middle;'>"
-            + "<img src='" + esc(logoSrc) + "' height='34' alt='Jenkins' "
+            + "<img src='" + esc(logoSrc) + "' height='34' alt='Rotogate'"
             + "style='display:block;height:34px;width:auto;border:0;'>"
             + "</td>"
             + "<td style='vertical-align:middle;'>"
@@ -733,24 +735,19 @@ public class SmtpHelper {
             + "</tr></table>"
             + "</td></tr>"
 
-            // Accent bar
-            + "<tr><td height='4' bgcolor='" + accentColor + "' style='line-height:4px;font-size:4px;'>&nbsp;</td></tr>"
+            // Thin severity rule
+            + "<tr><td height='3' bgcolor='" + accentColor + "' style='line-height:3px;font-size:3px;'>&nbsp;</td></tr>"
 
-            // Hero
-            + "<tr><td style='padding:32px 28px 24px;'>"
-            + "<div style='width:52px;height:52px;border-radius:14px;background:" + iconBg + ";"
-            + "text-align:center;line-height:52px;margin-bottom:18px;'>"
-            + "<span style='font-size:22px;color:" + iconColor + ";font-weight:700;'>" + iconChar + "</span>"
-            + "</div>"
-            + "<div style='display:inline-block;font-size:10px;font-weight:700;letter-spacing:.09em;"
-            + "text-transform:uppercase;padding:3px 10px 3px 8px;border-radius:20px;"
-            + "background:" + badgeBg + ";color:" + badgeFg + ";margin-bottom:10px;'>"
-            + "<span style='display:inline-block;width:5px;height:5px;border-radius:50%;"
-            + "background:" + badgeDot + ";vertical-align:middle;margin-right:5px;margin-top:-1px;'></span>"
+            // Hero — small severity label + title + subtitle (no icon tile, no pill)
+            + "<tr><td style='padding:28px 28px 6px;'>"
+            + "<div style='font-size:11px;font-weight:700;letter-spacing:.09em;"
+            + "text-transform:uppercase;color:" + accentColor + ";'>"
+            + "<span style='display:inline-block;width:6px;height:6px;border-radius:50%;"
+            + "background:" + accentColor + ";vertical-align:middle;margin-right:7px;'></span>"
             + badgeText + "</div>"
-            + "<div style='font-size:23px;font-weight:800;color:#0c1628;line-height:1.2;"
-            + "letter-spacing:-.035em;margin-bottom:10px;margin-top:6px;'>" + title + "</div>"
-            + "<div style='font-size:14px;color:#64748b;line-height:1.72;'>" + subtitle + "</div>"
+            + "<div style='font-size:23px;font-weight:700;color:#0f172a;line-height:1.25;"
+            + "letter-spacing:-.02em;margin:12px 0 8px;'>" + title + "</div>"
+            + "<div style='font-size:14px;color:#64748b;line-height:1.6;'>" + subtitle + "</div>"
             + "</td></tr>"
 
             // Divider
@@ -759,38 +756,23 @@ public class SmtpHelper {
             // Content
             + "<tr><td style='padding:24px 28px;'>" + contentHtml + "</td></tr>"
 
-            // CTA
-            + "<tr><td style='padding:4px 28px 28px;'>"
+            // CTA — quiet navy button, left-aligned (ctaBg intentionally ignored for a consistent look)
+            + "<tr><td style='padding:8px 28px 28px;'>"
             + "<a href='" + esc(ctaUrl) + "' "
-            + "style='display:block;padding:14px;border-radius:10px;text-decoration:none;"
-            + "text-align:center;font-family:" + fontStack + ";"
-            + "font-weight:700;font-size:14px;color:#ffffff;background:" + ctaBg + ";'>"
+            + "style='display:inline-block;padding:11px 20px;border-radius:8px;text-decoration:none;"
+            + "font-family:" + fontStack + ";font-weight:600;font-size:13.5px;color:#ffffff;background:#0f172a;'>"
             + ctaLabel + "</a>"
             + "</td></tr>"
 
-            // Footer
-            + "<tr><td bgcolor='#f8fafc' style='border-top:1px solid #f0f4f8;padding:18px 28px;'>"
-            + "<table width='100%' cellpadding='0' cellspacing='0'><tr>"
-            + "<td style='vertical-align:middle;'>"
-            + "<table cellpadding='0' cellspacing='0'><tr>"
-            + "<td style='padding-right:8px;vertical-align:middle;'>"
-            + "<img src='" + esc(logoSrc) + "' height='18' alt='Jenkins' "
-            + "style='display:block;height:18px;width:auto;border:0;opacity:.45;filter:grayscale(1);'>"
-            + "</td>"
-            + "<td style='vertical-align:middle;font-size:12px;font-weight:600;color:#94a3b8;'>"
-            + "Rotogate for Jenkins</td>"
-            + "</tr></table></td>"
-            + "<td align='right' style='vertical-align:middle;font-size:11px;color:#b0bac7;'>"
-            + footerRight + "</td>"
-            + "</tr></table>"
-            + "<div style='height:1px;background:#e8edf3;margin:12px 0;'></div>"
+            // Footer — minimal, left-aligned, muted
+            + "<tr><td style='border-top:1px solid #f1f3f5;padding:16px 28px;'>"
             + (footerNote != null && !footerNote.isEmpty()
-                ? "<div style='font-size:11px;color:#64748b;line-height:1.6;text-align:center;"
-                  + "margin-bottom:8px;'>" + esc(footerNote) + "</div>"
+                ? "<div style='font-size:12px;color:#64748b;line-height:1.6;margin-bottom:8px;'>"
+                  + esc(footerNote) + "</div>"
                 : "")
-            + "<div style='font-size:10.5px;color:#b0bac7;line-height:1.7;text-align:center;'>"
-            + "You are receiving this because you are listed as a security notification contact.<br>"
-            + "Jenkins Rotogate Plugin &nbsp;&middot;&nbsp; Your Jenkins Instance"
+            + "<div style='font-size:11px;color:#9aa3af;line-height:1.65;'>"
+            + "Rotogate for Jenkins &nbsp;&middot;&nbsp; " + footerRight + "<br>"
+            + "You are receiving this because you are listed as a security notification contact."
             + "</div>"
             + "</td></tr>"
 
@@ -809,20 +791,21 @@ public class SmtpHelper {
     }
 
     private static String kvTable(String[][] rows) {
+        // Direction A: clean hairline rows, no bordered box; label muted-left, value right.
         StringBuilder sb = new StringBuilder();
-        sb.append("<div style='border:1px solid #e8edf3;border-radius:10px;overflow:hidden;padding:0 16px;'>");
+        sb.append("<table width='100%' cellpadding='0' cellspacing='0'>");
         for (int i = 0; i < rows.length; i++) {
-            String border = i < rows.length - 1 ? "border-bottom:1px solid #f1f5f9;" : "";
-            sb.append("<table width='100%' cellpadding='0' cellspacing='0'><tr>")
-              .append("<td style='padding:11px 16px 11px 0;").append(border)
-              .append("font-size:13px;color:#94a3b8;font-weight:500;width:40%;vertical-align:middle;'>")
-              .append(esc(rows[i][0])).append("</td>")
+            String border = i < rows.length - 1 ? "border-bottom:1px solid #f1f3f5;" : "";
+            sb.append("<tr>")
               .append("<td style='padding:11px 0;").append(border)
-              .append("font-size:13px;color:#0f172a;font-weight:500;vertical-align:middle;'>")
+              .append("font-size:13px;color:#6b7280;vertical-align:top;'>")
+              .append(esc(rows[i][0])).append("</td>")
+              .append("<td align='right' style='padding:11px 0 11px 16px;").append(border)
+              .append("font-size:13.5px;color:#111827;font-weight:500;vertical-align:top;'>")
               .append(rows[i][1]).append("</td>")
-              .append("</tr></table>");
+              .append("</tr>");
         }
-        sb.append("</div>");
+        sb.append("</table>");
         return sb.toString();
     }
 
@@ -856,34 +839,30 @@ public class SmtpHelper {
             }
         }
         return "<tr style='border-top:1px solid #f1f5f9;'>"
-                + "<td style='padding:10px 14px;font-size:12px;font-weight:600;color:#334155;"
+                + "<td style='padding:11px 14px;font-size:12.5px;font-weight:500;color:#0f172a;"
                 + "font-family:\"SF Mono\",Menlo,Consolas,monospace;'>" + esc(key) + "</td>"
-                + "<td style='padding:10px 14px;'>"
-                + "<span style='font-family:\"SF Mono\",Menlo,Consolas,monospace;font-size:12px;"
-                + "background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:4px;'>"
-                + esc(before) + "</span></td>"
-                + "<td style='padding:10px 14px;'>"
-                + "<span style='font-family:\"SF Mono\",Menlo,Consolas,monospace;font-size:12px;"
-                + "background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:4px;'>"
-                + esc(after) + "</span></td>"
+                + "<td style='padding:11px 14px;font-family:\"SF Mono\",Menlo,Consolas,monospace;"
+                + "font-size:12.5px;color:#9aa3af;'>" + esc(before) + "</td>"
+                + "<td style='padding:11px 14px;font-family:\"SF Mono\",Menlo,Consolas,monospace;"
+                + "font-size:12.5px;color:#0f172a;font-weight:600;'>" + esc(after) + "</td>"
                 + "</tr>";
     }
 
     private static String diffTableClose() { return "</table>"; }
 
     private static String notice(String bg, String border, String textColor, String text) {
-        return "<div style='display:flex;gap:12px;align-items:flex-start;padding:13px 15px;"
-                + "border-radius:9px;border:1px solid " + border + ";background:" + bg + ";'>"
-                + "<span style='font-size:14px;color:" + textColor + ";flex-shrink:0;'>&#9432;</span>"
-                + "<span style='font-size:13px;color:" + textColor + ";line-height:1.65;'>" + text + "</span>"
-                + "</div>";
+        // Direction A: subtle note with a severity-coloured left rule (bg/border args ignored
+        // so every notice reads consistently rather than as a bright filled box).
+        return "<div style='padding:12px 15px;border-left:3px solid " + textColor + ";"
+                + "background:#fcfcfd;border-radius:0 8px 8px 0;font-size:12.5px;color:#64748b;"
+                + "line-height:1.55;'>" + text + "</div>";
     }
 
     private static String personCard(String id, String name, String meta) {
         return "<div style='display:flex;align-items:center;gap:12px;padding:13px 16px;"
                 + "background:#f8fafd;border:1px solid #e8edf3;border-radius:9px;'>"
-                + "<div style='width:38px;height:38px;border-radius:50%;background:" + avatarColor(id) + ";"
-                + "text-align:center;line-height:38px;font-size:13px;font-weight:700;color:#fff;"
+                + "<div style='width:38px;height:38px;border-radius:50%;background:#eef2f7;"
+                + "text-align:center;line-height:38px;font-size:13px;font-weight:700;color:#475569;"
                 + "flex-shrink:0;'>" + esc(initials(id)) + "</div>"
                 + "<div>"
                 + "<div style='font-size:14px;font-weight:600;color:#0f172a;'>" + esc(name) + "</div>"
@@ -894,8 +873,8 @@ public class SmtpHelper {
     private static String userItem(String id, String avatarBg, String name, String meta) {
         return "<div style='display:flex;align-items:center;gap:12px;padding:11px 14px;"
                 + "background:#f8fafd;border:1px solid #e8edf3;border-radius:9px;margin-bottom:7px;'>"
-                + "<div style='width:36px;height:36px;border-radius:50%;background:" + avatarBg + ";"
-                + "text-align:center;line-height:36px;font-size:12px;font-weight:700;color:#fff;"
+                + "<div style='width:36px;height:36px;border-radius:50%;background:#eef2f7;"
+                + "text-align:center;line-height:36px;font-size:12px;font-weight:700;color:#475569;"
                 + "flex-shrink:0;'>" + esc(initials(id)) + "</div>"
                 + "<div>"
                 + "<div style='font-size:13.5px;font-weight:600;color:#0f172a;'>" + esc(name) + "</div>"
@@ -905,8 +884,8 @@ public class SmtpHelper {
 
     private static String avatar(String id) {
         return "<span style='display:inline-block;width:22px;height:22px;border-radius:50%;"
-                + "background:" + avatarColor(id) + ";text-align:center;line-height:22px;"
-                + "font-size:9px;font-weight:700;color:#fff;vertical-align:middle;'>"
+                + "background:#eef2f7;text-align:center;line-height:22px;"
+                + "font-size:9px;font-weight:700;color:#475569;vertical-align:middle;'>"
                 + esc(initials(id)) + "</span>";
     }
 
@@ -941,9 +920,9 @@ public class SmtpHelper {
     }
 
     private static String code(String value) {
+        // Direction A: plain monospace, no pill — technical values read inline, not as chips.
         return "<span style='font-family:\"SF Mono\",\"Fira Code\",Menlo,Consolas,monospace;"
-                + "font-size:12px;background:#f1f5f9;color:#334155;"
-                + "padding:2px 8px;border-radius:5px;border:1px solid #e2e8f0;'>" + value + "</span>";
+                + "font-size:12.5px;color:#0f172a;'>" + value + "</span>";
     }
 
     // -------------------------------------------------------------------------
@@ -961,7 +940,7 @@ public class SmtpHelper {
             String url = cfg.getNotificationLogoUrl();
             if (url != null && !url.trim().isEmpty()) return url.trim();
         }
-        return LOGO_DEFAULT;
+        return defaultLogoUrl();
     }
 
     private static String now() {

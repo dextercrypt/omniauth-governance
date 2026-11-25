@@ -1198,6 +1198,35 @@ public class RotogateManagementLink extends ManagementLink {
                 String to   = cfg != null ? cfg.getNotifyEmails()    : "admin@corp.com";
                 html = SmtpHelper.buildSmtpTestHtml(host, port, from, to); break;
             }
+            case "jitRequest": {
+                RotogateJitRequest jr = RotogateJitRequest.create(
+                        "dave.dev", "platform/payments-api",
+                        "Hotfix for prod incident INC-4821", 4, 24);
+                String jitActionUrl = (jenkins.model.Jenkins.get().getRootUrl() != null
+                        ? jenkins.model.Jenkins.get().getRootUrl() : "")
+                        + "rotogate-jit/action?token=preview-sample";
+                html = SmtpHelper.buildJitApproverRequestHtml(cfg, jr, "jane.admin", jitActionUrl);
+                break;
+            }
+            case "jitApproved": {
+                RotogateJitRequest jr = RotogateJitRequest.create(
+                        "dave.dev", "platform/payments-api",
+                        "Hotfix for prod incident INC-4821", 4, 24);
+                jr.setApproverId("jane.admin");
+                jr.setExpiresAt(java.time.Instant.now()
+                        .plus(4, java.time.temporal.ChronoUnit.HOURS).toString());
+                html = SmtpHelper.buildJitApprovedHtml(cfg, jr);
+                break;
+            }
+            case "jitDenied": {
+                RotogateJitRequest jr = RotogateJitRequest.create(
+                        "dave.dev", "platform/payments-api",
+                        "Hotfix for prod incident INC-4821", 4, 24);
+                jr.setApproverId("jane.admin");
+                jr.setApproverComment("Use the standard change-request process for payments-api.");
+                html = SmtpHelper.buildJitDeniedHtml(cfg, jr);
+                break;
+            }
             default: // configChanged
                 html = SmtpHelper.buildConfigChangedHtml(cfg, "admin", now,
                     java.util.Arrays.asList(
@@ -1210,7 +1239,7 @@ public class RotogateManagementLink extends ManagementLink {
             String savedLogo = (cfg != null && cfg.getNotificationLogoUrl() != null
                                 && !cfg.getNotificationLogoUrl().trim().isEmpty())
                 ? cfg.getNotificationLogoUrl().trim()
-                : SmtpHelper.LOGO_DEFAULT;
+                : SmtpHelper.defaultLogoUrl();
             // Escape the caller-supplied logo URL — it lands inside a single-quoted src
             // attribute in an HTML document served from the Jenkins origin, so an un-escaped
             // value (e.g. "x' onerror='…") would be reflected XSS running as the viewing admin.
