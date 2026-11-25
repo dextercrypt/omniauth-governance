@@ -67,6 +67,13 @@ public class CrumbExclusionScopeTest {
         return r;
     }
 
+    private boolean runFinishLogin(String path) throws Exception {
+        RecordingChain chain = new RecordingChain();
+        boolean r = new FinishLoginCrumbExclusion().process(reqWithPath(path), null, chain);
+        assertExemptConsistency(r, chain, path);
+        return r;
+    }
+
     /** The two observable signals (return value and chain invocation) must always agree. */
     private void assertExemptConsistency(boolean returned, RecordingChain chain, String path) {
         assertExempt(returned, returned, chain, path);
@@ -124,5 +131,31 @@ public class CrumbExclusionScopeTest {
 
     @Test public void provisioning_nullPath_isNotExempt() throws Exception {
         assertFalse(runProvisioning(null));
+    }
+
+    // ── FinishLoginCrumbExclusion: ONLY /rotogate/finishLogin (the Entra form_post callback) ─
+
+    @Test public void finish_finishLoginPath_isExempt() throws Exception {
+        // Entra returns the OIDC authorization response as a form_post (no crumb possible);
+        // the flow's own OAuth2 state/nonce/PKCE provide CSRF protection.
+        assertTrue(runFinishLogin("/rotogate/finishLogin"));
+    }
+
+    @Test public void finish_commenceLoginPath_isNotExempt() throws Exception {
+        // commenceLogin is reached by GET and needs no exemption.
+        assertFalse(runFinishLogin("/rotogate/commenceLogin"));
+    }
+
+    @Test public void finish_nativeLoginPath_isNotExempt() throws Exception {
+        assertFalse(runFinishLogin("/rotogate/nativeLogin"));
+    }
+
+    @Test public void finish_prefixLookalikePath_isNotExempt() throws Exception {
+        // Exact match only — a trailing segment must not sneak through.
+        assertFalse(runFinishLogin("/rotogate/finishLogin/evil"));
+    }
+
+    @Test public void finish_nullPath_isNotExempt() throws Exception {
+        assertFalse(runFinishLogin(null));
     }
 }

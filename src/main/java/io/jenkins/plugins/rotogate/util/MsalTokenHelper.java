@@ -65,7 +65,27 @@ public class MsalTokenHelper implements TokenHelper {
                 .nonce(nonce)
                 .build();
 
-        return msalApp.getAuthorizationRequestUrl(params).toString();
+        return forceQueryResponseMode(msalApp.getAuthorizationRequestUrl(params).toString());
+    }
+
+    /**
+     * Force {@code response_mode=query} on the authorization URL.
+     *
+     * <p>We request {@link ResponseMode#QUERY} above, but MSAL4J 1.17.0 ignores it and emits
+     * {@code response_mode=form_post}. With form_post, Entra returns the authorization response
+     * as a cross-site HTTP <strong>POST</strong> to {@code finishLogin}; the browser omits our
+     * {@code SameSite=Lax} session cookie on a cross-site POST, so the OAuth2 state, nonce and
+     * PKCE verifier stashed in the HTTP session at {@code commenceLogin} are gone and
+     * {@code finishLogin} fails with a state mismatch ({@code login?error=session}). With query,
+     * Entra returns the code via a top-level GET redirect, which <em>does</em> carry the session
+     * cookie. The authorization code is single-use and PKCE-bound, so returning it in the query
+     * string is safe (a leaked code cannot be redeemed without the verifier held server-side).
+     *
+     * <p>Idempotent: if MSAL ever honours query, or omits {@code response_mode} entirely
+     * (Entra then defaults to query for {@code response_type=code}), this is a no-op.
+     */
+    static String forceQueryResponseMode(String authorizationUrl) {
+        return authorizationUrl.replace("response_mode=form_post", "response_mode=query");
     }
 
     /**
