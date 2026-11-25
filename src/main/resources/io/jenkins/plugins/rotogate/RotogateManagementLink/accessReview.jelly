@@ -96,7 +96,7 @@
                     <th>Role</th>
                     <th>Scope</th>
                     <th>Overdue</th>
-                    <th>Action</th>
+                    <th style="text-align:right;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -154,7 +154,7 @@
                       </td>
 
                       <!-- Overdue cell -->
-                      <td style="text-align:center;">
+                      <td style="text-align:left;">
                         <span style="background:var(--rg-warning-bg);color:var(--rg-warning-fg);padding:3px 10px;border-radius:12px;font-size:0.78em;font-weight:700;white-space:nowrap;">
                           <j:choose>
                             <j:when test="${item.daysAgo == -1}">unknown age</j:when>
