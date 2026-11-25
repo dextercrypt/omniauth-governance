@@ -126,10 +126,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.8em;
-  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  font-weight: 700;
   white-space: nowrap;
 }
 .rg-su-badge--blue   { background: var(--rg-info-bg); color: var(--rg-info-fg); }

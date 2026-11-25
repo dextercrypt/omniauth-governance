@@ -10,7 +10,7 @@
         .oam-count { background:var(--rg-neutral-bg);color:var(--text-color-secondary);border-radius:10px;font-size:.78em;font-weight:700;padding:1px 7px;min-width:18px;text-align:center; }
         .oam-th { padding:10px 16px;text-align:left;font-size:.78em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary);white-space:nowrap; }
         .user-row:hover { background:var(--rg-neutral-bg) !important; }
-        .oam-type-badge { font-size:.75em;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--rg-neutral-bg);color:var(--rg-neutral-fg);display:inline-block; }
+        .oam-type-badge { font-size:.75em;font-weight:700;padding:2px 9px;border-radius:10px;background:var(--rg-neutral-bg);color:var(--rg-neutral-fg);display:inline-block; }
         .oam-role-badge { font-size:.78em;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block;background:var(--rg-neutral-bg);color:var(--text-color); }
         .oam-label { font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-color-secondary);margin-bottom:6px; }
         details[open] .arr { display:inline-block;transform:rotate(90deg); }
