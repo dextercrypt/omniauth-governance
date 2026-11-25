@@ -413,7 +413,7 @@
                       <tr>
                         <td style="font-weight:600;">${g.userId}</td>
                         <td style="color:var(--text-color-secondary,var(--text-color-secondary));">${g.roleId}</td>
-                        <td style="text-align:right;">
+                        <td style="text-align:left;">
                           <j:choose>
                             <j:when test="${g.daysLeft eq 0}"><span style="color:var(--error-color);font-weight:700;">Today</span></j:when>
                             <j:when test="${g.daysLeft eq 1}"><span style="color:var(--error-color);font-weight:600;">Tomorrow</span></j:when>

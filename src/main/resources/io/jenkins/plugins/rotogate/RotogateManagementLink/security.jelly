@@ -54,7 +54,7 @@
                     <tr>
                       <td><strong>${bf.userId}</strong></td>
                       <td>${bf.fullName}</td>
-                      <td style="text-align:center;">
+                      <td style="text-align:left;">
                         <j:choose>
                           <j:when test="${bf.failureCount > 0}">
                             <strong style="color:var(--error-color);">${bf.failureCount}</strong>

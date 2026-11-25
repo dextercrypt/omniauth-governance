@@ -253,7 +253,7 @@
                       <tr>
                         <td style="font-weight:600;font-size:0.9em;">${r.name}</td>
                         <td style="font-size:0.85em;color:var(--text-color-secondary,#777);">${r.description}</td>
-                        <td style="text-align:center;">
+                        <td style="text-align:left;">
                           <span style="font-size:0.8em;background:var(--rg-info-bg);color:var(--blue);padding:2px 9px;border-radius:10px;font-weight:700;">${r.permissionCount}</span>
                         </td>
                         <td style="text-align:right;white-space:nowrap;">
