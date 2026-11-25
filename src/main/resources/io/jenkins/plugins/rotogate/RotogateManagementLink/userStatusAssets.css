@@ -30,8 +30,7 @@
         /* these keep the fixed column layout plus the shaded, uppercase header this table has always
            used (the jenkins-table frame itself is kept; only the duplicate wrapper frame was removed). */
         .us-table { table-layout:fixed; }
-        .us-th    { text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
-                    background:var(--rg-neutral-bg); }
+        .us-th    { white-space:nowrap; }
         .us-td    { vertical-align:middle;overflow:hidden; }
         .us-row   { cursor:pointer;transition:background .1s; }
         .us-row:hover { background:var(--rg-neutral-bg); }
