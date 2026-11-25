@@ -74,7 +74,8 @@ Most recent notable changes (newest first):
 - **Baseline raised to Jenkins 2.555.3 / Java 21** (from 2.541.2), preparing for Update Center
   hosting. Jenkins 2.555.x removed Java 17, so **Java 21 is now required**. Parent plugin POM bumped
   to `6.2236.v12dd4c483242`; dependency versions moved onto the `bom-2.555.x` plugin BOM. Artifact
-  id renamed `omni-auth` → `rotogate` (Java package, class names and URLs unchanged).
+  id renamed `omni-auth` → `rotogate`, along with the Java package
+  (`io.jenkins.plugins.rotogate`), all class names (`Rotogate*`) and URLs (`/rotogate/*`).
 - JIT access banner countdown now shows hours and minutes (e.g. `3h 15m 02s`) instead of raw minutes.
 - Reframed the plugin as an **authentication and access-governance** platform (not just SSO);
   dropped all legacy "Dual Auth" naming.
