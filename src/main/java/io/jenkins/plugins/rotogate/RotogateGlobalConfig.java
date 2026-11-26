@@ -264,6 +264,10 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
     public int getJitHistoryRetentionDays() { return lifecycle.getJitHistoryRetentionDays(); }
     public void setJitHistoryRetentionDays(int v) { lifecycle.setJitHistoryRetentionDays(v); }
 
+    // Provisioning (access-request) history retention (0 = keep forever)
+    public int getProvisioningRetentionDays() { return provisioning.getProvisioningRetentionDays(); }
+    @DataBoundSetter public void setProvisioningRetentionDays(int v) { provisioning.setProvisioningRetentionDays(v); }
+
     // Brute force
     public int getBruteForceThreshold() { return security.getBruteForceThreshold(); }
     @DataBoundSetter public void setBruteForceThreshold(int v) { security.setBruteForceThreshold(v); }

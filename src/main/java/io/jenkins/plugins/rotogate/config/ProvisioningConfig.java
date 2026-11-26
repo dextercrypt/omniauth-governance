@@ -25,6 +25,7 @@ public class ProvisioningConfig {
     private int     provisioningBreakerCooldownMin = 30;   // native: pause duration once tripped
     private int     provisioningExpiryReminderDays = 7;    // email the account this many days before expiry (0 = off)
     private int     activationLinkTtlHours         = 72;   // native approval: one-time activation link lifetime
+    private int     provisioningRetentionDays      = 365;  // purge decided requests older than this (0 = keep forever)
 
     public ProvisioningConfig() { }
 
@@ -64,6 +65,9 @@ public class ProvisioningConfig {
     public int     getProvisioningBreakerCooldownMin()        { return provisioningBreakerCooldownMin > 0 ? provisioningBreakerCooldownMin : 30; }
     public void    setProvisioningBreakerCooldownMin(int v)   { this.provisioningBreakerCooldownMin = v > 0 ? v : 30; }
 
+    public int     getProvisioningRetentionDays()        { return Math.max(0, provisioningRetentionDays); }
+    public void    setProvisioningRetentionDays(int v)   { this.provisioningRetentionDays = Math.max(0, v); }
+
     /** True when the portal is on and at least one request type is allowed. */
     public boolean isProvisioningUsable() {
         return provisioningEnabled && (provisioningAllowEntra || provisioningAllowNative);
@@ -83,6 +87,7 @@ public class ProvisioningConfig {
         setProvisioningBreakerCooldownMin(parseIntOr(req.getParameter("provisioningBreakerCooldownMin"), 30));
         setProvisioningExpiryReminderDays(parseIntOr(req.getParameter("provisioningExpiryReminderDays"), 7));
         setActivationLinkTtlHours(parseIntOr(req.getParameter("activationLinkTtlHours"), 72));
+        setProvisioningRetentionDays(parseIntOr(req.getParameter("provisioningRetentionDays"), 365));
     }
 
     private static int parseIntOr(String v, int fallback) {

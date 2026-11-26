@@ -138,6 +138,10 @@
                   <label for="pset-actttl">Activation link lifetime (hours)</label>
                   <input id="pset-actttl" type="number" min="1" name="activationLinkTtlHours" value="${cfg.getActivationLinkTtlHours()}"/>
                 </div>
+                <div class="pr-field">
+                  <label for="pset-retain">Keep decided requests (days, 0 = forever)</label>
+                  <input id="pset-retain" type="number" min="0" name="provisioningRetentionDays" value="${cfg.getProvisioningRetentionDays()}"/>
+                </div>
               </div>
 
               <!-- Group 3: flood protection for the anonymous native form -->
