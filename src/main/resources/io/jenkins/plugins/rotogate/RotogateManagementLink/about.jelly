@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Info" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Info" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -42,7 +42,7 @@
                       <span style="background:var(--rg-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;">SSO</span>
                     </j:when>
                     <j:otherwise>
-                      <span style="background:var(--rg-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO — not enabled</span>
+                      <span style="background:var(--rg-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO - not enabled</span>
                     </j:otherwise>
                   </j:choose>
                 </span>
@@ -54,7 +54,7 @@
                 <j:choose>
                   <j:when test="${it.rotogateRealm}">
                     <div class="jenkins-alert jenkins-alert-info" style="margin: 0;">
-                      Single sign-on is not enabled — native sign-in only. Connect a provider in
+                      Single sign-on is not enabled - native sign-in only. Connect a provider in
                       Configure Global Security to enable SSO.
                     </div>
                   </j:when>
@@ -133,7 +133,7 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
               <tr>
                 <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; border-bottom: 1px solid var(--rg-card-border);">Name</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Rotogate — Authentication &amp; Access Governance</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Rotogate - Authentication &amp; Access Governance</td>
               </tr>
               <tr>
                 <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Version</td>

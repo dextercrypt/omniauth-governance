@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Access Requests" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Access Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -16,7 +16,7 @@
         <!-- Flash messages -->
         <j:if test="${request2.getParameter('approved') != null}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">
-            Approved — account <b>${request2.getParameter('approved')}</b> has been created<j:choose><j:when test="${request2.getParameter('role') != null}"> and granted the <b>${request2.getParameter('role')}</b> role.</j:when><j:otherwise> with sign-in access.</j:otherwise></j:choose>
+            Approved - account <b>${request2.getParameter('approved')}</b> has been created<j:choose><j:when test="${request2.getParameter('role') != null}"> and granted the <b>${request2.getParameter('role')}</b> role.</j:when><j:otherwise> with sign-in access.</j:otherwise></j:choose>
             <j:set var="tmp" value="${it.provisioningTempPassword}"/>
             <j:if test="${tmp != null}">
               <div style="margin-top:8px;">
@@ -40,10 +40,10 @@
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">A fresh activation link was emailed to <strong>${request2.getParameter('resent')}</strong>.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'activated'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">That account has already been activated — no link was sent.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">That account has already been activated - no link was sent.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'exists'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists — the request was rejected instead.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists - the request was rejected instead.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'notFound'}">
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:14px;">That request no longer exists or was already decided.</div>
@@ -149,21 +149,21 @@
               <div class="pr-hint">Pauses the anonymous native form if it is flooded. Microsoft (Entra) requests are identity-proven and never throttled.</div>
               <div class="pr-grid">
                 <div class="pr-field">
-                  <label for="pset-bmax">Breaker — max requests</label>
+                  <label for="pset-bmax">Breaker - max requests</label>
                   <input id="pset-bmax" type="number" min="1" name="provisioningBreakerMax" value="${cfg.getProvisioningBreakerMax()}"/>
                 </div>
                 <div class="pr-field">
-                  <label for="pset-bwin">Breaker — window (minutes)</label>
+                  <label for="pset-bwin">Breaker - window (minutes)</label>
                   <input id="pset-bwin" type="number" min="1" name="provisioningBreakerWindowMin" value="${cfg.getProvisioningBreakerWindowMin()}"/>
                 </div>
                 <div class="pr-field">
-                  <label for="pset-bcool">Breaker — cooldown (minutes)</label>
+                  <label for="pset-bcool">Breaker - cooldown (minutes)</label>
                   <input id="pset-bcool" type="number" min="1" name="provisioningBreakerCooldownMin" value="${cfg.getProvisioningBreakerCooldownMin()}"/>
                 </div>
               </div>
 
               <div class="pr-url">
-                Public request page: <code>${rootURL}/request-access/</code> — share this link with people who need access.
+                Public request page: <code>${rootURL}/request-access/</code> - share this link with people who need access.
               </div>
 
               <div style="margin-top:18px;">
@@ -195,7 +195,7 @@
             <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
               <div class="rg-notice--success">
                 <l:notice title="All caught up" icon="symbol-checkmark-circle plugin-ionicons-api">
-                  You're all caught up — no pending access requests.
+                  You're all caught up - no pending access requests.
                 </l:notice>
               </div>
             </j:when>
@@ -307,7 +307,7 @@
                           <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
                             <f:form method="post" action="resendActivation" class="rg-inline-form">
                               <input type="hidden" name="requestId" value="${r.requestId}"/>
-                              <button type="submit" class="jenkins-button jenkins-button--tertiary pr-resend" title="Still awaiting activation — email a fresh one-time activation link">Resend link</button>
+                              <button type="submit" class="jenkins-button jenkins-button--tertiary pr-resend" title="Still awaiting activation - email a fresh one-time activation link">Resend link</button>
                             </f:form>
                           </j:if>
                         </td>

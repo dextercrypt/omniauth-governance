@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 
 /**
- * Adds "Rotogate — Entra User Management" under Manage Jenkins → Security.
+ * Adds "Rotogate - Entra User Management" under Manage Jenkins → Security.
  *
  * Sub-pages are served by Stapler's automatic view routing: a GET to
  * {@code /manage/rotogate-management/<name>} renders {@code <name>.jelly} with no routing method, and
@@ -91,7 +91,7 @@ public class RotogateManagementLink extends ManagementLink {
 
     /**
      * True when the current admin signs in through SSO (Entra) and so has no local password to
-     * re-enter. Sensitive-action confirmations fall back to a typed phrase for these users —
+     * re-enter. Sensitive-action confirmations fall back to a typed phrase for these users -
      * {@code manager2.authenticate} can never succeed for an account with no password hash.
      */
     public boolean isCurrentUserSso() {
@@ -125,7 +125,7 @@ public class RotogateManagementLink extends ManagementLink {
                 rsp.getWriter().write("{\"error\":\"wrongPassword\"}");
                 return;
             }
-            // Suppress the login event that manager2.authenticate() fires — this is a password
+            // Suppress the login event that manager2.authenticate() fires - this is a password
             // verification, not a real login, so it should not appear in the audit log
             LoginContextFilter.FRESH_LOGINS.remove(currentUser);
         }
@@ -133,7 +133,7 @@ public class RotogateManagementLink extends ManagementLink {
         RotogateAuditLog log = RotogateAuditLog.get();
         if (log != null) {
             int deleted = log.purgeAll();
-            // Record the purge AFTER deletion so the entry survives in a fresh log file —
+            // Record the purge AFTER deletion so the entry survives in a fresh log file -
             // destruction of the audit trail must itself leave a trace.
             log.logAuditPurged(currentUser, deleted);
         }
@@ -190,7 +190,7 @@ public class RotogateManagementLink extends ManagementLink {
         if (!Jenkins.get().getACL().hasPermission2(Jenkins.getAuthentication2(), Jenkins.ADMINISTER)) {
             RotogateConfigBackup.applyParsed(RotogateConfigBackup.parse(snapshot));
             rsp.sendRedirect(base + "?error=" + enc(
-                    "Import refused: it would remove your own administrator access. Reverted — no changes applied."));
+                    "Import refused: it would remove your own administrator access. Reverted - no changes applied."));
             return;
         }
 
@@ -206,8 +206,8 @@ public class RotogateManagementLink extends ManagementLink {
     }
 
     /**
-     * Returns the import "plan" as JSON — what applying the uploaded config would add / remove /
-     * change relative to the live configuration — without applying anything. Powers the preview
+     * Returns the import "plan" as JSON - what applying the uploaded config would add / remove /
+     * change relative to the live configuration - without applying anything. Powers the preview
      * modal the admin confirms before a real import.
      */
     @POST
@@ -225,8 +225,8 @@ public class RotogateManagementLink extends ManagementLink {
     }
 
     /**
-     * Returns the "plan" for rolling back to a chosen snapshot — the same diff shown for an import,
-     * but computed against the snapshot's contents — without applying anything. Powers the preview
+     * Returns the "plan" for rolling back to a chosen snapshot - the same diff shown for an import,
+     * but computed against the snapshot's contents - without applying anything. Powers the preview
      * modal before a rollback, so a restore is as auditable as an import.
      */
     @POST
@@ -475,7 +475,7 @@ public class RotogateManagementLink extends ManagementLink {
         return Jenkins.get().getSecurityRealm() instanceof RotogateSecurityRealm;
     }
 
-    /** True when SSO sign-in is actually available — the toggle is on and a provider is configured. */
+    /** True when SSO sign-in is actually available - the toggle is on and a provider is configured. */
     public boolean isSsoConfigured() {
         Jenkins j = Jenkins.get();
         return (j.getSecurityRealm() instanceof RotogateSecurityRealm)
@@ -526,7 +526,7 @@ public class RotogateManagementLink extends ManagementLink {
         String account = (bgProp != null && bgProp.getEntraUpn() != null && !bgProp.getEntraUpn().isEmpty())
                 ? bgProp.getEntraUpn() : userId;
 
-        // Issuer: "Jenkins (hostname) OA" — fits on mobile, identifies instance, hints Rotogate
+        // Issuer: "Jenkins (hostname) OA" - fits on mobile, identifies instance, hints Rotogate
         String rootUrl = Jenkins.get().getRootUrl();
         String host = "jenkins";
         if (rootUrl != null) {
@@ -705,7 +705,7 @@ public class RotogateManagementLink extends ManagementLink {
 
     // ── SOS Mode (lockout recovery) ────────────────────────────────────────────
 
-    /** Back-compat alias — SOS recovery codes now live on the unified Emergency Access page. */
+    /** Back-compat alias - SOS recovery codes now live on the unified Emergency Access page. */
     /** Generate a fresh set of SOS recovery codes for the current admin; returns the raw codes once. */
     @POST
     public void doSosGenerateCodes(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -795,10 +795,10 @@ public class RotogateManagementLink extends ManagementLink {
         return req != null && req.getParameter("enroll") != null && getSosUnusedCount() == 0;
     }
 
-    /** Enrolled but every code has been used up — strong "regenerate now" state. */
+    /** Enrolled but every code has been used up - strong "regenerate now" state. */
     public boolean isSosNoCodesLeft() { return isSosEnrolled() && getSosUnusedCount() == 0; }
 
-    /** Enrolled and running low (1–2 unused) — soft "regenerate soon" nudge. */
+    /** Enrolled and running low (1-2 unused) - soft "regenerate soon" nudge. */
     public boolean isSosLowOnCodes() {
         int n = getSosUnusedCount();
         return isSosEnrolled() && n > 0 && n <= SOS_LOW_THRESHOLD;
@@ -915,7 +915,7 @@ public class RotogateManagementLink extends ManagementLink {
             boolean slackHadEvent = config.isSlackEvent("configChanged");
             boolean teamsHadEvent = config.isTeamsEvent("configChanged");
 
-            // Capture raw SMTP credentials before the save — used if SMTP gets disabled in the same operation
+            // Capture raw SMTP credentials before the save - used if SMTP gets disabled in the same operation
             final String snapHost      = config.getSmtpHost();
             final int    snapPort      = config.getSmtpPort();
             final String snapUsername  = config.getSmtpUsername();
@@ -938,7 +938,7 @@ public class RotogateManagementLink extends ManagementLink {
             config.save();
 
             // Fire a farewell alert on any channel that previously had configChanged enabled
-            // but no longer does — using PRE-SAVE credentials so disabling SMTP/master cannot silence it.
+            // but no longer does - using PRE-SAVE credentials so disabling SMTP/master cannot silence it.
             boolean smtpLost  = smtpHadConfigChanged  && !(config.isNotificationsEnabled() && config.isSmtpEnabled()  && config.isSmtpEvent("configChanged"));
             boolean slackLost = slackHadConfigChanged && !(config.isNotificationsEnabled() && config.isSlackEnabled() && config.isSlackEvent("configChanged"));
             boolean teamsLost = teamsHadConfigChanged && !(config.isNotificationsEnabled() && config.isTeamsEnabled() && config.isTeamsEvent("configChanged"));
@@ -1035,7 +1035,7 @@ public class RotogateManagementLink extends ManagementLink {
                 for (String line : diff) body.append("  + ").append(line).append("\n");
                 body.append(mgmtCta("Review Settings", "notifications"));
                 body.append("\n---\nJenkins Rotogate Plugin");
-                // Use new config — channels are now live; respect master toggle
+                // Use new config - channels are now live; respect master toggle
                 if (config.isNotificationsEnabled()) {
                     if (smtpGained)  SmtpHelper.send(config, subject, body.toString());
                     if (slackGained) SlackHelper.send(config, subject, body.toString());
@@ -1244,7 +1244,7 @@ public class RotogateManagementLink extends ManagementLink {
                                 && !cfg.getNotificationLogoUrl().trim().isEmpty())
                 ? cfg.getNotificationLogoUrl().trim()
                 : SmtpHelper.defaultLogoUrl();
-            // Escape the caller-supplied logo URL — it lands inside a single-quoted src
+            // Escape the caller-supplied logo URL - it lands inside a single-quoted src
             // attribute in an HTML document served from the Jenkins origin, so an un-escaped
             // value (e.g. "x' onerror='…") would be reflected XSS running as the viewing admin.
             String safeLogo = logoOverride
@@ -1388,8 +1388,8 @@ public class RotogateManagementLink extends ManagementLink {
     // -------------------------------------------------------------------------
 
     // Well-known Jenkins internal/virtual users that must never appear in plugin user lists.
-    // SYSTEM  — Jenkins itself (runs internal tasks, scheduled jobs)
-    // anonymous — unauthenticated visitors
+    // SYSTEM  - Jenkins itself (runs internal tasks, scheduled jobs)
+    // anonymous - unauthenticated visitors
     private static final java.util.Set<String> INTERNAL_USERS = new java.util.HashSet<>(
             java.util.Arrays.asList("SYSTEM", "anonymous"));
 
@@ -1418,7 +1418,7 @@ public class RotogateManagementLink extends ManagementLink {
 
     public int getActiveSessionCount()  { return ActiveSessionManager.getAll().size(); }
 
-    // Break Glass live state — reads from current HTTP session
+    // Break Glass live state - reads from current HTTP session
     public boolean isBreakGlassActive() {
         try {
             org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
@@ -1426,7 +1426,7 @@ public class RotogateManagementLink extends ManagementLink {
             jakarta.servlet.http.HttpSession sess = req.getSession(false);
             if (sess == null) return false;
             // Stored as epoch-millis Long by doBreakGlassActivate (and read as Long by the page
-            // decorator) — reading it as String threw ClassCastException, which the catch swallowed,
+            // decorator) - reading it as String threw ClassCastException, which the catch swallowed,
             // so this status always reported inactive even during an active override.
             Long expiry = (Long) sess.getAttribute("rotogate.breakGlass.expiry");
             return expiry != null && System.currentTimeMillis() < expiry;
@@ -1573,7 +1573,7 @@ public class RotogateManagementLink extends ManagementLink {
         return pwd.toString();
     }
 
-    /** Approve a pending request — create the account (mirroring doAddUser) and mark it approved. */
+    /** Approve a pending request - create the account (mirroring doAddUser) and mark it approved. */
     @POST
     public void doApproveProvisioning(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -1584,7 +1584,7 @@ public class RotogateManagementLink extends ManagementLink {
 
         String admin = Jenkins.getAuthentication2().getName();
 
-        // Never clobber an existing account — reject the (now redundant) request instead.
+        // Never clobber an existing account - reject the (now redundant) request instead.
         if (User.getById(r.getUserId(), false) != null) {
             store.markRejected(requestId, admin, "An account with this id already exists");
             rsp.sendRedirect("provisioning?error=exists"); return;
@@ -1630,7 +1630,7 @@ public class RotogateManagementLink extends ManagementLink {
             NotificationService.sendProvisioningApprovedEntra(cfg, r);
         }
 
-        // Stash the one-time temp password for display (NATIVE only) as an email-failure fallback —
+        // Stash the one-time temp password for display (NATIVE only) as an email-failure fallback -
         // the admin can convey it manually if delivery fails.
         if (tmpPwd != null) {
             req.getSession().setAttribute("rotogate.provTmpPwd", tmpPwd);
@@ -1979,7 +1979,7 @@ public class RotogateManagementLink extends ManagementLink {
         return "24";
     }
 
-    /** Failed logins within the selected window — backs security.jelly without a routing method. */
+    /** Failed logins within the selected window - backs security.jelly without a routing method. */
     public List<FailedLoginEntry> getFailedLoginsForWindow() {
         return getFailedLogins(Integer.parseInt(getSecurityWindowHours()));
     }
@@ -2111,7 +2111,7 @@ public class RotogateManagementLink extends ManagementLink {
     /**
      * True only when the property carries a real Entra identity (an object id). {@link RotogateUserProperty}
      * is also attached to <em>native</em> users purely to hold Break Glass enrollment, so its mere presence
-     * must not be read as "this is an Entra user" — otherwise a native account (e.g. admin) that enrolled a
+     * must not be read as "this is an Entra user" - otherwise a native account (e.g. admin) that enrolled a
      * Break Glass device would be mislabelled "Entra · Individual".
      */
     static boolean isEntraIdentity(RotogateUserProperty p) {
@@ -2178,14 +2178,14 @@ public class RotogateManagementLink extends ManagementLink {
             );
             if (histProp != null) info.setLatestEvent(histProp.getLatestEvent());
 
-            // Time-limited account expiry (provisioning portal duration) — surface it if present.
+            // Time-limited account expiry (provisioning portal duration) - surface it if present.
             RotogateAccountExpiryProperty expProp = user.getProperty(RotogateAccountExpiryProperty.class);
             if (expProp != null && expProp.getExpiresAt() != null && !expProp.getExpiresAt().isBlank()) {
                 info.setAccountExpiresAt(expProp.getExpiresAt());
                 info.setAccountDisabledByExpiry(expProp.isDisabled());
             }
 
-            // Extended fields — only for real Entra identities (not break-glass-only natives).
+            // Extended fields - only for real Entra identities (not break-glass-only natives).
             if (isEntra) {
                 info.setProvisioningSource(entraProp.getProvisioningSource());
                 info.setEntraUpn(entraProp.getEntraUpn());
@@ -2204,7 +2204,7 @@ public class RotogateManagementLink extends ManagementLink {
                             }
                         }
                     }
-                    // Orphaned — fall back to last known group name/OID saved at orphan time
+                    // Orphaned - fall back to last known group name/OID saved at orphan time
                     if (!foundActive) {
                         info.setGroupName(entraProp.getLastKnownGroupName());
                         info.setGroupOid(entraProp.getLastKnownGroupOid());
@@ -2214,7 +2214,7 @@ public class RotogateManagementLink extends ManagementLink {
                 info.setProvisioningSource("NATIVE");
             }
 
-            // Stale warning — would this user be flagged by cleanup?
+            // Stale warning - would this user be flagged by cleanup?
             Instant staleCutoff = Instant.now().minus(staleThresholdDays(), ChronoUnit.DAYS);
             boolean isStale = (lastLogin == null) || Instant.parse(lastLogin).isBefore(staleCutoff);
             info.setStaleWarning(isStale);
@@ -2252,7 +2252,7 @@ public class RotogateManagementLink extends ManagementLink {
             RotogateUserProperty entraProp = user.getProperty(RotogateUserProperty.class);
             LastLoginProperty    loginProp = user.getProperty(LastLoginProperty.class);
 
-            // Exclude pending deletion accounts — shown in their own section
+            // Exclude pending deletion accounts - shown in their own section
             if (entraProp != null && entraProp.isPendingDeletion()) continue;
 
             String lastLogin = resolveLastLogin(entraProp, loginProp);
@@ -2352,14 +2352,14 @@ public class RotogateManagementLink extends ManagementLink {
             LOGGER.log(Level.WARNING, "Could not check permissions for user: " + userId, e);
         }
 
-        // Job access — scan all jobs and check per-job permissions via impersonation
+        // Job access - scan all jobs and check per-job permissions via impersonation
         List<JobAccessInfo> jobAccess = buildJobAccessList(userId);
 
         // Last login
         LastLoginProperty loginProp = user.getProperty(LastLoginProperty.class);
         String lastLogin = resolveLastLogin(entraProp, loginProp);
 
-        // Authorization strategy name — shown in UI to help diagnose per-job permission support
+        // Authorization strategy name - shown in UI to help diagnose per-job permission support
         String authStrategy = Jenkins.get().getAuthorizationStrategy().getClass().getSimpleName();
 
         // Login history
@@ -2380,10 +2380,10 @@ public class RotogateManagementLink extends ManagementLink {
                 loginHistory
         );
 
-        // Provisioning source — only meaningful for real Entra identities.
+        // Provisioning source - only meaningful for real Entra identities.
         if (isEntra) accessInfo.setProvisioningSource(entraProp.getProvisioningSource());
 
-        // Time-limited account expiry (provisioning portal duration) — surface if present.
+        // Time-limited account expiry (provisioning portal duration) - surface if present.
         RotogateAccountExpiryProperty detailExp = user.getProperty(RotogateAccountExpiryProperty.class);
         if (detailExp != null && detailExp.getExpiresAt() != null && !detailExp.getExpiresAt().isBlank()) {
             accessInfo.setAccountExpiresAt(detailExp.getExpiresAt());
@@ -2410,7 +2410,7 @@ public class RotogateManagementLink extends ManagementLink {
             accessInfo.setGroupOid(gOid);
         }
 
-        // Rotogate grants — all assignments for this user (direct + via groups)
+        // Rotogate grants - all assignments for this user (direct + via groups)
         RotogateAssignmentConfig config = RotogateAssignmentConfig.get();
         RotogateRoleConfig roleConfig   = RotogateRoleConfig.get();
         List<GrantDisplay> rotogateGrants = new ArrayList<>();
@@ -2634,12 +2634,12 @@ public class RotogateManagementLink extends ManagementLink {
         if (userId != null && !userId.isEmpty()) {
             RotogateGlobalConfig config = RotogateGlobalConfig.get();
             if (isActiveGroupUser(userId)) {
-                LOGGER.warning("Deletion blocked — user is managed via active Entra group: " + userId);
+                LOGGER.warning("Deletion blocked - user is managed via active Entra group: " + userId);
                 rsp.sendRedirect(back + "?error=activeGroup");
                 return;
             }
             if (config != null && config.isProtected(userId)) {
-                LOGGER.warning("Deletion blocked — user is protected: " + userId);
+                LOGGER.warning("Deletion blocked - user is protected: " + userId);
                 rsp.sendRedirect(back + "?error=protected");
                 return;
             }
@@ -2652,7 +2652,7 @@ public class RotogateManagementLink extends ManagementLink {
                 RotogateAuditLog audit = RotogateAuditLog.get();
                 if (audit != null) audit.logUserDeleted(deletedBy, userId);
             }
-            // Always wipe matrix entries — user object may already be gone but entries linger
+            // Always wipe matrix entries - user object may already be gone but entries linger
             purgeMatrixEntries(userId);
         }
         rsp.sendRedirect(back + "?deleted=true");
@@ -2704,7 +2704,7 @@ public class RotogateManagementLink extends ManagementLink {
 
     /**
      * Revoke all GLOBAL permission entries for a sid (rebuilds the global strategy without them).
-     * Used by the account-expiry worker to disable an account — losing global Read effectively
+     * Used by the account-expiry worker to disable an account - losing global Read effectively
      * locks the user out. Static so background work can call it without a console instance.
      */
     static void purgeGlobalMatrix(String userId) {
@@ -2726,7 +2726,7 @@ public class RotogateManagementLink extends ManagementLink {
     }
 
     private void purgeMatrixEntries(String userId) {
-        // 1. Global matrix — remove both USER and GROUP entries (belt-and-suspenders)
+        // 1. Global matrix - remove both USER and GROUP entries (belt-and-suspenders)
         hudson.security.AuthorizationStrategy strat = Jenkins.get().getAuthorizationStrategy();
         if (strat instanceof RotogateAuthorizationStrategy) {
             RotogateAuthorizationStrategy current = (RotogateAuthorizationStrategy) strat;
@@ -2816,7 +2816,7 @@ public class RotogateManagementLink extends ManagementLink {
         sid = sid.trim();
 
         // Rebuild: keep all other entries, replace this user's entries.
-        // Preserve Hudson.Read for this user — login access comes from account creation, not role.
+        // Preserve Hudson.Read for this user - login access comes from account creation, not role.
         Permission hudsonRead = Permission.fromId("hudson.model.Hudson.Read");
         RotogateAuthorizationStrategy rebuilt = new RotogateAuthorizationStrategy();
         for (Map.Entry<Permission, Set<PermissionEntry>> e : current.getGrantedPermissionEntries().entrySet()) {
@@ -3266,7 +3266,7 @@ public class RotogateManagementLink extends ManagementLink {
             }
             RotogateAssignmentConfig config = RotogateAssignmentConfig.get();
             if (config != null) config.addAssignment(assignment);
-            // Ensure user can log in — Hudson.Read at global is required for any access
+            // Ensure user can log in - Hudson.Read at global is required for any access
             grantGlobalRead(sid, atype);
             RotogateAuditLog audit = RotogateAuditLog.get();
             if (audit != null) audit.logGrant(Jenkins.getAuthentication2().getName(), sid, roleName, scope, expiresAt);
@@ -3274,7 +3274,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
     }
 
-    /** Typeahead endpoint — returns up to 10 users + groups whose id/name contains the query. */
+    /** Typeahead endpoint - returns up to 10 users + groups whose id/name contains the query. */
     // lgtm false positive: Read-only GET page/AJAX render, already guarded by checkPermission(ADMINISTER); no state mutation, so CSRF protection does not apply.
     @SuppressWarnings("lgtm[jenkins/csrf]")
     public void doSuggestApprovers(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -3285,7 +3285,7 @@ public class RotogateManagementLink extends ManagementLink {
 
         java.util.List<String> results = new java.util.ArrayList<>();
 
-        // Groups first — from Rotogate group assignments (unique group IDs)
+        // Groups first - from Rotogate group assignments (unique group IDs)
         RotogateAssignmentConfig assignmentConfig = RotogateAssignmentConfig.get();
         if (assignmentConfig != null) {
             java.util.LinkedHashSet<String> seen = new java.util.LinkedHashSet<>();
@@ -3300,7 +3300,7 @@ public class RotogateManagementLink extends ManagementLink {
             }
         }
 
-        // Users — remaining slots up to 10 total
+        // Users - remaining slots up to 10 total
         int remaining = 10 - results.size();
         for (User user : User.getAll()) {
             if (remaining <= 0) break;
@@ -3344,7 +3344,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
     }
 
-    /** Edit (replace) an existing assignment — scope stays the same, role/permissions/expiry may change. */
+    /** Edit (replace) an existing assignment - scope stays the same, role/permissions/expiry may change. */
     @POST
     public void doEditAssignment(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -3710,7 +3710,7 @@ public class RotogateManagementLink extends ManagementLink {
                 user.addProperty(new RotogateForcePasswordProperty(true));
                 user.save();
             }
-            // Store temp password in session — read once by userDetail, then cleared
+            // Store temp password in session - read once by userDetail, then cleared
             req.getSession().setAttribute("rotogate.tmpPwd", tmpPwd);
             req.getSession().setAttribute("rotogate.tmpPwdSid", sid);
             RotogateAuditLog audit = RotogateAuditLog.get();
@@ -3763,7 +3763,7 @@ public class RotogateManagementLink extends ManagementLink {
      * Admin: reset a native (local-password) account's password. Generates a one-time temporary
      * password, forces a change at next login, invalidates the user's existing sessions, and shows
      * the new password once via the same modal as account creation. Never for SSO/Entra users (no
-     * local password) — the admin never learns a password the user will keep.
+     * local password) - the admin never learns a password the user will keep.
      */
     @POST
     public void doResetPassword(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
@@ -3781,7 +3781,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
         String tmpPwd = generateTempPassword();
         try {
-            // fromPlainPassword is package-private in Jenkins core — same reflection the self-service
+            // fromPlainPassword is package-private in Jenkins core - same reflection the self-service
             // password-change flow uses (RotogateRootAction.doSubmitPasswordChange).
             java.lang.reflect.Method m = hudson.security.HudsonPrivateSecurityRealm.Details.class
                     .getDeclaredMethod("fromPlainPassword", String.class);
@@ -3793,7 +3793,7 @@ public class RotogateManagementLink extends ManagementLink {
             LOGGER.log(Level.WARNING, "Rotogate: admin password reset failed for " + sid, e);
             rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=USER&error=resetFailed"); return;
         }
-        // Force the user to set their own password at next login — the admin-set temp password is transient.
+        // Force the user to set their own password at next login - the admin-set temp password is transient.
         user.addProperty(new RotogateForcePasswordProperty(true));
         user.save();
         // Invalidate the target's existing sessions so a stolen/open session can't outlive the reset.
@@ -3846,7 +3846,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
     }
 
-    /** Attach/replace the Mailer e-mail property — same reflective approach as {@link #doAddUser}. */
+    /** Attach/replace the Mailer e-mail property - same reflective approach as {@link #doAddUser}. */
     private static void setUserEmail(User user, String email) {
         try {
             ClassLoader uberCl = Jenkins.get().getPluginManager().uberClassLoader;
@@ -3914,12 +3914,12 @@ public class RotogateManagementLink extends ManagementLink {
                 remaining.remove(groupOid);
 
                 if (remaining.isEmpty()) {
-                    // No other groups — revoke all active sessions for this user immediately
+                    // No other groups - revoke all active sessions for this user immediately
                     String uid = user.getId();
                     ActiveSessionManager.getAll().stream()
                             .filter(s -> uid.equals(s.getUserId()))
                             .forEach(s -> ActiveSessionManager.revoke(s.getSessionId()));
-                    LOGGER.log(Level.INFO, "Session revoked for {0} — group {1} removed",
+                    LOGGER.log(Level.INFO, "Session revoked for {0} - group {1} removed",
                             new Object[]{uid, groupOid});
                 }
 
@@ -3997,7 +3997,7 @@ public class RotogateManagementLink extends ManagementLink {
 
     /**
      * Additively grant a set of permission ids at global scope (used by approve-with-a-role for a
-     * freshly created account). Mirrors {@link #grantGlobalRead} — additive, so no existing-entry
+     * freshly created account). Mirrors {@link #grantGlobalRead} - additive, so no existing-entry
      * rebuild is needed for a brand-new user.
      */
     private void grantGlobalRole(String sid, AuthorizationType atype, Set<String> permIds) {
@@ -4018,7 +4018,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
     }
 
-    /** Called from userDetail.jelly — reads the one-time temp password from session. */
+    /** Called from userDetail.jelly - reads the one-time temp password from session. */
     public String getTempPassword() {
         org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
         if (req == null) return null;
@@ -4083,7 +4083,7 @@ public class RotogateManagementLink extends ManagementLink {
         try {
             for (Job<?, ?> job : Jenkins.get().getAllItems(Job.class)) {
                 for (Run<?, ?> run : job.getBuilds()) {
-                    // Builds are ordered newest first — stop when we pass the cutoff
+                    // Builds are ordered newest first - stop when we pass the cutoff
                     if (run.getTime().toInstant().isBefore(cutoff)) break;
                     hudson.model.Cause.UserIdCause cause =
                             run.getCause(hudson.model.Cause.UserIdCause.class);
@@ -4164,9 +4164,9 @@ public class RotogateManagementLink extends ManagementLink {
                 }
             }
         }
-        // Check job itself (already have the object — no lookup needed)
+        // Check job itself (already have the object - no lookup needed)
         if (hasMatrixGrant(job, auth)) return "Direct";
-        // Check folder ancestors — use SYSTEM context to avoid recursive hasPermission2
+        // Check folder ancestors - use SYSTEM context to avoid recursive hasPermission2
         try {
             Jenkins j = Jenkins.getInstanceOrNull();
             if (j != null) {
@@ -4368,7 +4368,7 @@ public class RotogateManagementLink extends ManagementLink {
         return members;
     }
 
-    /** Returns the RotogateGroupEntity for a given OID — used by groupDetail.jelly. */
+    /** Returns the RotogateGroupEntity for a given OID - used by groupDetail.jelly. */
     public RotogateGroupEntity getGroupEntity() {
         org.kohsuke.stapler.StaplerRequest2 req = org.kohsuke.stapler.Stapler.getCurrentRequest2();
         if (req == null) return null;
@@ -4694,7 +4694,7 @@ public class RotogateManagementLink extends ManagementLink {
                 ? PermissionEntry.group(sid) : PermissionEntry.user(sid);
 
         // Only item/run-scoped permissions belong in a job/folder property.
-        // Global-scope permissions (Hudson.Read, View.Read) are silently ignored here —
+        // Global-scope permissions (Hudson.Read, View.Read) are silently ignored here -
         // login access is managed separately via Add User / global grants.
         Set<String> itemPermIds = new HashSet<>();
         for (String pid : permIds) {
@@ -4801,7 +4801,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
     }
 
-    /** Sets NonInheritingStrategy on a folder if not already set — idempotent, never reverts. */
+    /** Sets NonInheritingStrategy on a folder if not already set - idempotent, never reverts. */
     private void setNonInheriting(AbstractFolder<?> folder) {
         try {
             com.cloudbees.hudson.plugins.folder.properties.AuthorizationMatrixProperty fp =

@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — JIT Requests" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - JIT Requests" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -113,7 +113,7 @@
                           <f:form method="post" action="approveJit" class="rg-inline-form">
                             <input type="hidden" name="requestId" value="${r.requestId}"/>
                             <div class="jenkins-select" style="margin-right:4px;vertical-align:middle;">
-                            <select name="durationHours" title="Grant duration — up to the ${r.requestedDurationHours}h requested" class="jenkins-select__input"
+                            <select name="durationHours" title="Grant duration - up to the ${r.requestedDurationHours}h requested" class="jenkins-select__input"
                                     style="font-size:0.78em;">
                               <j:forEach var="h" begin="1" end="${r.requestedDurationHours}">
                                 <j:choose>
@@ -266,7 +266,7 @@
             <input type="text" name="comment" class="jenkins-input"
                    placeholder="e.g. Outside deployment window, deployment not scheduled"
                    style="width:100%;box-sizing:border-box;"/>
-            <div style="font-size:0.74em;color:var(--text-color-secondary, #aaa);margin-top:3px;">Optional but recommended — shown to the requester.</div>
+            <div style="font-size:0.74em;color:var(--text-color-secondary, #aaa);margin-top:3px;">Optional but recommended - shown to the requester.</div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
             <button type="button" id="jitDenyCancel" class="jenkins-button" >Cancel</button>

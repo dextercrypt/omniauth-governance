@@ -130,7 +130,7 @@ public class RotogateSosTest {
     @Test
     public void notArmed_whenRealmIsNotRotogate() throws Exception {
         // Realm gate: a Jenkins that does not use Rotogate to log in must never arm SOS,
-        // even with a fresh trigger file — this closes idle / abandoned-install backdoors.
+        // even with a fresh trigger file - this closes idle / abandoned-install backdoors.
         j.jenkins.setSecurityRealm(hudson.security.SecurityRealm.NO_AUTHENTICATION);
         arm();
         assertFalse(RotogateSos.isArmed(), "SOS must stay dark when Rotogate is not the active realm");

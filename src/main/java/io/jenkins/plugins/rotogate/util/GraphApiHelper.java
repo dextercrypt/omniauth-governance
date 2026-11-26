@@ -83,7 +83,7 @@ public class GraphApiHelper {
                 }
             }
 
-            // Follow pagination link if present — validate it stays within the known
+            // Follow pagination link if present - validate it stays within the known
             // Graph API base to prevent SSRF if the response body were ever tampered with.
             JsonNode nextLink = root.get("@odata.nextLink");
             if (nextLink != null && !nextLink.isNull()) {
@@ -91,7 +91,7 @@ public class GraphApiHelper {
                 if (candidate.startsWith(GRAPH_BASE)) {
                     nextUrl = candidate;
                 } else {
-                    LOGGER.log(Level.WARNING, "Graph API nextLink rejected — unexpected URL: {0}", candidate);
+                    LOGGER.log(Level.WARNING, "Graph API nextLink rejected - unexpected URL: {0}", candidate);
                     nextUrl = null;
                 }
             } else {

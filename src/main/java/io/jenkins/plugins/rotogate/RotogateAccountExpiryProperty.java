@@ -26,7 +26,7 @@ public class RotogateAccountExpiryProperty extends UserProperty {
     public String getExpiresAt()            { return expiresAt; }
     public void   setExpiresAt(String v)    {
         // Changing the expiry (e.g. an admin extends the account) starts a fresh reminder
-        // window — otherwise the already-sent flag would suppress the reminder for the new date.
+        // window - otherwise the already-sent flag would suppress the reminder for the new date.
         if (v == null ? this.expiresAt != null : !v.equals(this.expiresAt)) {
             this.reminderSent = false;
         }

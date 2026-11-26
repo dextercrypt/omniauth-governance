@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Guards that every Rotogate management page is gated by ADMINISTER. These pages carry sensitive
  * data (audit log, sessions, access config), and the management-link framework does NOT gate the
- * sub-URLs on its own — each page must enforce the permission itself (historically via a per-page
+ * sub-URLs on its own - each page must enforce the permission itself (historically via a per-page
  * checkPermission in the do* method, now via {@code <l:layout permission="${app.ADMINISTER}">} once
  * the boilerplate render methods are dropped). This test fails if any page becomes reachable by a
  * non-admin, which is the exact regression the routing refactor could introduce.

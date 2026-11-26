@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Stale Users" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Stale Users" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -15,7 +15,7 @@
           <j:when test="${it.rotogateGlobalConfig.cleanupDryRun}">
             <button type="button" class="jenkins-button jenkins-button--primary js-rg-cleanup"
                     data-dryrun="true"
-                    title="Dry-run mode is ON — no users will be deleted">
+                    title="Dry-run mode is ON - no users will be deleted">
               Run Cleanup Now
               <span style="font-size:0.78em;font-weight:500;opacity:0.85;">(Dry-run)</span>
             </button>
@@ -90,12 +90,12 @@
         <!-- ── Flash Banners (action result) ─────────────────────────────── -->
         <j:if test="${request2.getParameter('error') == 'activeGroup'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">
-            Deletion blocked — this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
+            Deletion blocked - this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
           </div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'protected'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">
-            Deletion blocked — that user is protected. Remove protection first on the
+            Deletion blocked - that user is protected. Remove protection first on the
             <a href="protectedUsers">Protected Users</a> page.
           </div>
         </j:if>
@@ -111,7 +111,7 @@
         </j:if>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             SECTION 1 — PENDING DELETION
+             SECTION 1 - PENDING DELETION
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rg-su-section-hdr rg-su-section-hdr--danger">
           <span class="rg-su-sh-dot"></span>
@@ -189,7 +189,7 @@
         </j:choose>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             SECTION 2 — STALE USERS
+             SECTION 2 - STALE USERS
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rg-su-section-hdr rg-su-section-hdr--warn">
           <span class="rg-su-sh-dot"></span>
@@ -227,7 +227,7 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                           <a href="userDetail?sid=${u.userId}&amp;type=USER" class="rg-su-ulink">${u.userId}</a>
                           <j:if test="${isProtected}">
-                            <span class="rg-su-badge rg-su-badge--shield" title="Protected — cannot be deleted">
+                            <span class="rg-su-badge rg-su-badge--shield" title="Protected - cannot be deleted">
                               <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
                               Protected
                             </span>
@@ -284,7 +284,7 @@
         </j:choose>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             SECTION 3 — CLEANUP HISTORY (collapsible)
+             SECTION 3 - CLEANUP HISTORY (collapsible)
              ═══════════════════════════════════════════════════════════════ -->
         <j:set var="history" value="${cfg.cleanupHistory}"/>
         <div id="rgHistoryToggle" class="rg-su-section-hdr rg-su-section-hdr--neutral rg-su-drawer-toggle"
@@ -374,10 +374,10 @@
           <div id="rgModalDryRun">
             <div class="rg-modal-header rg-modal-header--warn">
               <l:icon src="symbol-warning plugin-ionicons-api" class="icon-md"/>
-              Run Cleanup — Dry-run Mode
+              Run Cleanup - Dry-run Mode
             </div>
             <div class="rg-modal-body">
-              <p style="margin:0 0 12px 0;">This will scan all users and log which ones <strong>would</strong> be deleted — but <strong>no accounts will be removed</strong>.</p>
+              <p style="margin:0 0 12px 0;">This will scan all users and log which ones <strong>would</strong> be deleted - but <strong>no accounts will be removed</strong>.</p>
               <div style="background:var(--rg-warning-bg);border:1px solid var(--rg-warning-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--warning-color);">
                 Dry-run mode is ON. To perform live deletions, disable it in
                 <a href="settings" style="color:var(--warning-color);font-weight:600;">Settings → Automated Cleanup</a>.
@@ -391,7 +391,7 @@
           <div id="rgModalLive">
             <div class="rg-modal-header rg-modal-header--danger">
               <l:icon src="symbol-trash plugin-ionicons-api" class="icon-md"/>
-              Run Cleanup — Live Mode
+              Run Cleanup - Live Mode
             </div>
             <div class="rg-modal-body">
               <p style="margin:0 0 12px 0;">This will <strong>permanently delete</strong> all stale users inactive beyond the configured threshold, plus any accounts marked for pending deletion.</p>

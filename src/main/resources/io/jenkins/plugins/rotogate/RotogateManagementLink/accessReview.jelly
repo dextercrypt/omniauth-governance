@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Access Review" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Access Review" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -16,12 +16,12 @@
 
         <j:if test="${request2.getParameter('confirmed') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 16px;">
-            Access kept — review clock reset.
+            Access kept - review clock reset.
           </div>
         </j:if>
         <j:if test="${request2.getParameter('confirmedAll') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 16px;">
-            All overdue assignments kept — review clocks reset.
+            All overdue assignments kept - review clocks reset.
           </div>
         </j:if>
         <j:if test="${request2.getParameter('revoked') == 'true'}">
@@ -77,7 +77,7 @@
             </j:if>
           </div>
 
-          <!-- All-clear empty state — Jenkins' standard empty-state notice -->
+          <!-- All-clear empty state - Jenkins' standard empty-state notice -->
           <j:if test="${items.isEmpty()}">
             <div class="rg-notice--success">
               <l:notice title="All caught up" icon="symbol-shield-checkmark plugin-ionicons-api">

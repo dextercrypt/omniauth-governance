@@ -63,7 +63,7 @@ public class RotogateItemACL extends ACL {
             if (impliedBy(granted, permission)) return true;
         }
 
-        // Check GROUP assignments — iterate the user's Azure AD group authorities
+        // Check GROUP assignments - iterate the user's Azure AD group authorities
         for (GrantedAuthority authority : auth.getAuthorities()) {
             if (authority instanceof EntraGroupDetails) {
                 EntraGroupDetails group = (EntraGroupDetails) authority;
@@ -91,7 +91,7 @@ public class RotogateItemACL extends ACL {
                                                     String userId) {
         String scope = assignment.getScope();
 
-        // Global assignment — full role permissions apply everywhere
+        // Global assignment - full role permissions apply everywhere
         if (scope.isEmpty()) {
             return resolvePermissions(assignment, roleConfig, userId, scope);
         }
@@ -118,7 +118,7 @@ public class RotogateItemACL extends ACL {
                 // WorkflowJob's own ACL check to its *direct parent* folder, so the pipeline's
                 // Build button needs build-enabling permissions to arrive on that immediate parent.
                 // The direct parent gets ONLY the build-related subset (Read/Build/Cancel) that the
-                // role actually grants — never Configure/Delete/WipeOut, which would let a one-job
+                // role actually grants - never Configure/Delete/WipeOut, which would let a one-job
                 // grant reconfigure or delete the parent folder. Higher ancestors get nav-only.
                 int lastSlash = scope.lastIndexOf('/');
                 String directParent = lastSlash > 0 ? scope.substring(0, lastSlash) : "";
@@ -133,7 +133,7 @@ public class RotogateItemACL extends ACL {
     }
 
     /**
-     * Permissions to delegate to the granted job's DIRECT PARENT folder — only the build-enabling
+     * Permissions to delegate to the granted job's DIRECT PARENT folder - only the build-enabling
      * subset (Read + Build + Cancel) that the role actually grants, plus Read for navigation. This
      * keeps a pipeline's Build working (Jenkins routes that check through the parent) without
      * leaking the role's Configure/Delete/WipeOut onto the folder. Respects the JIT gate: nav-only
@@ -144,7 +144,7 @@ public class RotogateItemACL extends ACL {
                                                     String userId, String scope) {
         Set<String> full = resolvePermissions(assignment, roleConfig, userId, scope);
         if (full.equals(NAV_PERMISSIONS)) {
-            return NAV_PERMISSIONS; // JIT inactive — see (no build on) the job only
+            return NAV_PERMISSIONS; // JIT inactive - see (no build on) the job only
         }
         Set<String> delegated = new HashSet<>(NAV_PERMISSIONS); // always Item.Read (navigation)
         for (String p : new String[]{
@@ -161,16 +161,16 @@ public class RotogateItemACL extends ACL {
         if (!assignment.isJit()) {
             return getRolePermissions(assignment, roleConfig);
         }
-        // JIT — only grant full permissions if there is an active JIT request for this user+scope
+        // JIT - only grant full permissions if there is an active JIT request for this user+scope
         RotogateJitRequestStore store = RotogateJitRequestStore.get();
         if (store != null && store.findActiveForUser(userId, assignment.getScope()) != null) {
             return getRolePermissions(assignment, roleConfig);
         }
-        // No active JIT request — grant navigation only so they can see (but not build) the job
+        // No active JIT request - grant navigation only so they can see (but not build) the job
         return NAV_PERMISSIONS;
     }
 
-    /** Walks the impliedBy chain — if any granted permission directly or transitively implies the requested one. */
+    /** Walks the impliedBy chain - if any granted permission directly or transitively implies the requested one. */
     private static boolean impliedBy(Set<String> granted, Permission permission) {
         Permission p = permission;
         while (p != null) {

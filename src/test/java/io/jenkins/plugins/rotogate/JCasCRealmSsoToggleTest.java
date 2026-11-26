@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>Scope note: this pins JCasC <em>import</em> only, which is the direction Rotogate relies on
  * (declarative config applied from YAML). The realm is deliberately not round-tripped through
- * {@code casc export} — the Entra client secret cannot be emitted in plaintext, so the security
+ * {@code casc export} - the Entra client secret cannot be emitted in plaintext, so the security
  * realm is excluded from export just as it is from the plugin's own backup/restore. The
  * authoritative on-disk persistence is {@code config.xml} (XStream), which stores {@code ssoEnabled}
  * explicitly; see {@link RotogateSecurityRealmTest} for the toggle's behavioural coverage.

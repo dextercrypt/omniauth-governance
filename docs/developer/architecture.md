@@ -100,7 +100,7 @@ implementation points:
 
 ## Design decisions of note
 
-- **Extends `HudsonPrivateSecurityRealm`** rather than reimplementing native login — full
+- **Extends `HudsonPrivateSecurityRealm`** rather than reimplementing native login - full
   native compatibility for free.
 - **`java.net.http.HttpClient`** for Graph (no OkHttp) to avoid a Kotlin/ASM build issue.
 - **Explicit session-seed handling** across the OAuth redirect to keep the authenticated

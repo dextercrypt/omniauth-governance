@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Protected Users" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Protected Users" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -57,7 +57,7 @@
                 <j:set var="isGroupManaged" value="${it.isActiveGroupUser(u.userId)}"/>
                 <j:choose>
                   <j:when test="${isGroupManaged}">
-                    <!-- Group-managed user — toggle disabled, show badge instead -->
+                    <!-- Group-managed user - toggle disabled, show badge instead -->
                     <div data-uid="${u.userId}" data-name="${u.fullName}"
                          class="rg-user-row"
                          style="display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--rg-card-border);opacity:0.7;cursor:default;">
@@ -82,7 +82,7 @@
                     </div>
                   </j:when>
                   <j:when test="${u.pendingDeletion}">
-                    <!-- Pending deletion — cannot be protected -->
+                    <!-- Pending deletion - cannot be protected -->
                     <j:set var="isOrphanedGroup" value="${u.provisioningSource == 'VIA_ENTRA_GROUP'}"/>
                     <div data-uid="${u.userId}" data-name="${u.fullName}"
                          class="rg-user-row"
@@ -113,7 +113,7 @@
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <j:choose>
                           <j:when test="${isOrphanedGroup}">
-                            <span style="font-size:0.75em;color:var(--error-color);font-weight:600;">Provisioned via group — cannot protect</span>
+                            <span style="font-size:0.75em;color:var(--error-color);font-weight:600;">Provisioned via group - cannot protect</span>
                           </j:when>
                           <j:otherwise>
                             <span style="font-size:0.75em;color:var(--error-color);font-style:italic;">Unmark first</span>
@@ -170,7 +170,7 @@
                           </j:choose>
                         </div>
                       </div>
-                      <!-- Toggle — ON -->
+                      <!-- Toggle - ON -->
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <span class="rg-tlabel" style="font-size:0.78em;font-weight:600;color:var(--blue);min-width:54px;text-align:right;">Protected</span>
                         <div class="rg-track rg-track--on" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--blue);">
@@ -227,7 +227,7 @@
                           </j:choose>
                         </div>
                       </div>
-                      <!-- Toggle — OFF -->
+                      <!-- Toggle - OFF -->
                       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:120px;justify-content:flex-end;">
                         <span class="rg-tlabel" style="font-size:0.78em;font-weight:600;color:transparent;min-width:54px;text-align:right;">Protected</span>
                         <div class="rg-track" style="width:42px;height:22px;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0;background:var(--rg-card-border);">

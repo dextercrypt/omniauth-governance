@@ -1,6 +1,6 @@
 # Overview dashboard
 
-> The at-a-glance landing page for Rotogate — posture, attention items, and sign-in activity.
+> The at-a-glance landing page for Rotogate - posture, attention items, and sign-in activity.
 
 The **Overview** (the landing page at **Manage Jenkins → Rotogate**) is a glance-and-triage
 surface: in a few seconds it answers *"is anything wrong, and what's my current posture?"*.
@@ -31,8 +31,8 @@ It reads **All clear** when there is nothing to act on.
 
 ## Login Activity chart
 
-A 14-day, dependency-free chart of sign-ins per day — **SSO success**, **native success**, and
-**failures** — so a spike or a cliff is visible at a glance. Click a day to open the
+A 14-day, dependency-free chart of sign-ins per day - **SSO success**, **native success**, and
+**failures** - so a spike or a cliff is visible at a glance. Click a day to open the
 [audit log](../security/audit-logging.md) filtered to that date. (For brute-force source IPs,
 targeted accounts, and live lockouts, use the **Security** page.)
 
@@ -44,9 +44,9 @@ A quick active-vs-stale breakdown of the user base.
 
 A compact status panel showing the effective security posture:
 
-- **Sign-in methods** — *Native + SSO* or *Native* only, depending on whether Entra is configured.
-- **Group Sync** — on / off (read from the Entra config), or *N/A* when SSO isn't configured.
-- **PKCE + Nonce** — shown as **Always on** (always enforced on the OAuth flow; not a toggle).
+- **Sign-in methods** - *Native + SSO* or *Native* only, depending on whether Entra is configured.
+- **Group Sync** - on / off (read from the Entra config), or *N/A* when SSO isn't configured.
+- **PKCE + Nonce** - shown as **Always on** (always enforced on the OAuth flow; not a toggle).
 
 ---
 _Related: [Administration overview](index.md) · [Audit logging](../security/audit-logging.md)_

@@ -14,14 +14,14 @@ are retired.
 
 **Pre-provisioning:** because the Jenkins user id is the user's email, you can create
 [access assignments](access-management.md) for `user@company.com` *before* their first
-login — the permissions apply the moment they sign in. This avoids "ghost" placeholder
+login - the permissions apply the moment they sign in. This avoids "ghost" placeholder
 accounts and the red-strikethrough state in the permission matrix.
 
 ## Force password change {#force-password-change}
 
 For native accounts, you can require a user to set a new password before they are allowed a
 session. The implementation is **fail-closed**: until the new password is set, **no session
-is issued** on any path — login form, HTTP BASIC, API token, or CLI. The user is presented
+is issued** on any path - login form, HTTP BASIC, API token, or CLI. The user is presented
 with a branded set-password page and cannot proceed until they comply.
 
 Use this for:
@@ -31,7 +31,7 @@ Use this for:
 ## Managing native accounts {#native-account-management}
 
 For **native (local) accounts**, an administrator can reset the password and edit profile
-details directly from the plugin — no need to use Jenkins' own user pages. Open a user from
+details directly from the plugin - no need to use Jenkins' own user pages. Open a user from
 **Manage Jenkins → Rotogate → Access Management** (or the User Overview) to reach their detail
 view; these controls appear only for native password accounts (SSO/Entra identities are managed
 in the identity provider, so they are not shown).
@@ -41,8 +41,8 @@ in the identity provider, so they are not shown).
 | **Reset password** | Generates a **one-time temporary password**, shown **once** in a dialog. It automatically sets the [force-password-change](#force-password-change) flag (the user must choose a new password at next login) and **revokes the account's active sessions**, so any existing logins are cut immediately. Audited as `password_reset`. |
 | **Edit details** | Updates the account's **full name** and **email address** (the email is used for notifications). |
 
-> **Why no username change?** A Jenkins user id is an immutable primary key — it anchors the user
-> directory, the permission matrix, scoped assignments, audit records and build history — so the
+> **Why no username change?** A Jenkins user id is an immutable primary key - it anchors the user
+> directory, the permission matrix, scoped assignments, audit records and build history - so the
 > login id cannot be renamed in place. To change it, create a new account and migrate access.
 
 The reset confirmation and the temporary-password display are in-app dialogs; the temporary
@@ -50,7 +50,7 @@ password is never emailed. See [Sessions](sessions.md) for how the active-sessio
 
 ## Protected users
 
-Some accounts must never be touched by automated cleanup — for example, break-glass admins
+Some accounts must never be touched by automated cleanup - for example, break-glass admins
 or service accounts. Add them to the **Protected users** list
 (**Manage Jenkins → Rotogate → Protected users**). Protected users are exempt from stale
 warnings and cleanup.
@@ -89,7 +89,7 @@ Beyond [protected users](#protected-users), `StaleUserCleanupWork` skips two fur
 account regardless of inactivity:
 
 - **Group-owned accounts.** An account whose access comes from an active Azure AD group
-  membership (`isViaGroup` and the group still resolves via `hasGroup`) is never cleaned up —
+  membership (`isViaGroup` and the group still resolves via `hasGroup`) is never cleaned up -
   its lifecycle is owned by the directory group, not by inactivity.
 - **Accounts awaiting activation.** A provisioned native account that has never logged in and is
   still awaiting its one-time activation link is not auto-deleted, so cleanup cannot destroy an
@@ -101,7 +101,7 @@ An administrator can explicitly flag an account for removal independently of sta
 user's detail page, **Mark for deletion** (`doMarkForDeletion`) sets
 `RotogateUserProperty.pendingDeletion` and records the audit event `user_marked_deletion`;
 **Unmark** (`doUnmarkForDeletion`) clears it. `StaleUserCleanupWork` deletes any account flagged
-pending-deletion on its next run **regardless of staleness** — so this is the way to retire an
+pending-deletion on its next run **regardless of staleness** - so this is the way to retire an
 account promptly without waiting for the stale threshold.
 
 ## Offboarding checklist

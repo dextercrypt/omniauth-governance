@@ -15,11 +15,11 @@ import java.util.logging.Logger;
  * enforcement (temporary account lockout).
  *
  * <p>Counting is observational: {@link #recordFailure} increments on every failed
- * login (any channel — web form, HTTP BASIC, API token, CLI), {@link #recordSuccess}
+ * login (any channel - web form, HTTP BASIC, API token, CLI), {@link #recordSuccess}
  * resets on a successful one. When enforcement is enabled, reaching the configured
  * threshold also <em>locks</em> the account for a cooldown window: {@link #isLocked}
  * then returns {@code true} and the realm's authentication path rejects the login
- * before the password is even checked — so a correct password cannot get in while
+ * before the password is even checked - so a correct password cannot get in while
  * locked. Protected users (admins) are never locked, which removes the deliberate
  * admin-lockout denial-of-service.
  *
@@ -33,7 +33,7 @@ public class BruteForceTracker {
 
     private static final Logger LOGGER = Logger.getLogger(BruteForceTracker.class.getName());
 
-    /** Hard cap on tracked usernames per map — prevents unbounded growth / OOM. */
+    /** Hard cap on tracked usernames per map - prevents unbounded growth / OOM. */
     private static final int MAX_TRACKED = 10_000;
     /** Idle entries older than this (since last failure) are eligible for pruning. */
     private static final long FAILURE_RETENTION_MS = 60L * 60L * 1000L; // 1 hour
@@ -46,7 +46,7 @@ public class BruteForceTracker {
 
     private static final ConcurrentHashMap<String, Counter> FAILURES = new ConcurrentHashMap<>();
 
-    /** Users who hit the threshold — persists through successful login until manually cleared. */
+    /** Users who hit the threshold - persists through successful login until manually cleared. */
     private static final ConcurrentHashMap<String, String> ALERTED = new ConcurrentHashMap<>();
 
     /** Locked accounts → epoch-millis the lock expires. Absent = not locked. */
@@ -202,7 +202,7 @@ public class BruteForceTracker {
 
     /**
      * Opportunistic cleanup, run on failure writes. Removes expired locks and idle
-     * failure/alert entries, and — if a map is still over the cap after that — drops the
+     * failure/alert entries, and - if a map is still over the cap after that - drops the
      * oldest-looking entries so a flood of distinct usernames cannot grow the maps without
      * bound. Only runs its full pass when a map is near the cap, so the common path is cheap.
      */
@@ -226,7 +226,7 @@ public class BruteForceTracker {
         if (ALERTED.size() >= MAX_TRACKED) {
             ALERTED.keySet().removeIf(k -> !FAILURES.containsKey(k) && !LOCKED.containsKey(k));
         }
-        // Last resort — if a flood kept everything "fresh", clear the oldest half of FAILURES.
+        // Last resort - if a flood kept everything "fresh", clear the oldest half of FAILURES.
         if (FAILURES.size() >= MAX_TRACKED) {
             FAILURES.entrySet().stream()
                     .sorted((a, b) -> Long.compare(a.getValue().lastFailureMs, b.getValue().lastFailureMs))
@@ -249,7 +249,7 @@ public class BruteForceTracker {
         // Direct (already-canonical) match first.
         if (cfg.isProtected(canonicalKey)) return true;
         // The stored protected names are compared as the admin typed them, but our key is
-        // canonicalized (e.g. lower-cased for the case-insensitive realm) — canonicalize the
+        // canonicalized (e.g. lower-cased for the case-insensitive realm) - canonicalize the
         // stored names too, so a protected "Admin" still matches a login attempt keyed "admin"
         // and keeps its lockout immunity.
         for (String p : cfg.getProtectedUsers()) {

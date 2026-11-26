@@ -1,6 +1,6 @@
 # Security model
 
-> How Rotogate authenticates, authorizes, and protects sessions — and the guarantees and
+> How Rotogate authenticates, authorizes, and protects sessions - and the guarantees and
 > limits you should design around.
 
 ## Authentication assurances
@@ -20,7 +20,7 @@ MFA for SSO users is enforced by **Microsoft Entra** (Conditional Access), not b
 
 - Sessions rely on Jenkins' session-seed mechanism; revoking a session invalidates the
   seed so the next request re-authenticates.
-- Session revocation is available to administrators for incident response — see
+- Session revocation is available to administrators for incident response - see
   [Sessions](../administration/sessions.md).
 - Logout ends the Jenkins session but not the Microsoft session (by design; see
   [Sessions → Entra interaction](../administration/sessions.md#interaction-with-entra-sso)).
@@ -41,7 +41,7 @@ MFA for SSO users is enforced by **Microsoft Entra** (Conditional Access), not b
 | Control | Purpose |
 |---|---|
 | **Force password change (fail-closed)** | No session on any path until a new password is set. |
-| **Break Glass (TOTP)** | Second-factor step-up for an already-authenticated admin before sensitive actions — not a lockout recovery. |
+| **Break Glass (TOTP)** | Second-factor step-up for an already-authenticated admin before sensitive actions - not a lockout recovery. |
 | **Brute-force lockout (enforced)** | After a threshold of failures, locks the account for a cooldown window (protected users exempt); rejected before the password check. |
 | **SSO domain allowlist** | Rejects a Microsoft-verified sign-in whose email domain isn't on the allowed list, even if pre-provisioned or in an allowed group. |
 | **Protected users** | Shields critical accounts from automated cleanup and lockout. |
@@ -58,11 +58,11 @@ email/Slack/Teams in real time.
 - **Brute-force lockout is local to native authentication.** It enforces a cooldown lockout
   for native accounts past the failure threshold (protected users exempt); SSO sign-ins are
   governed by the identity provider's own protections, not this threshold.
-- **No provider-side logout on Jenkins logout** — a signed-out user may be silently
+- **No provider-side logout on Jenkins logout** - a signed-out user may be silently
   re-authenticated by the identity provider on the next SSO attempt (subject to the
   provider's session/MFA policy).
 - **SSO is Microsoft Entra today.** The realm's provider selector lists other OAuth2/OIDC
-  providers as *planned* — they are on the roadmap, not yet available. Don't assume
+  providers as *planned* - they are on the roadmap, not yet available. Don't assume
   vendor-neutral SSO: the sign-in path is Entra-coupled (MSAL4J / Microsoft Graph).
 
 ## Hardening checklist

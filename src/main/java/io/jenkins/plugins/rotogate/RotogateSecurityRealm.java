@@ -60,18 +60,18 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
      *
      * <p>Nullable on purpose, to tell three states apart across upgrades:
      * <ul>
-     *   <li>{@code null}  — config persisted before this field existed. SSO is treated as active iff
+     *   <li>{@code null}  - config persisted before this field existed. SSO is treated as active iff
      *       {@code entraConfig} is set, which preserves pre-upgrade behaviour: an install that already
      *       had Entra configured stays on SSO after the plugin updates.</li>
-     *   <li>{@code true}  — SSO on (it still only becomes <em>active</em> when a provider is fully
+     *   <li>{@code true}  - SSO on (it still only becomes <em>active</em> when a provider is fully
      *       configured).</li>
-     *   <li>{@code false} — SSO explicitly off; any stored {@code entraConfig} is kept but dormant.</li>
+     *   <li>{@code false} - SSO explicitly off; any stored {@code entraConfig} is kept but dormant.</li>
      * </ul>
      */
     private Boolean ssoEnabled;
 
     /**
-     * Cached MSAL4J helper — created once on first use and reused for all subsequent logins.
+     * Cached MSAL4J helper - created once on first use and reused for all subsequent logins.
      *
      * Why transient: RotogateSecurityRealm is serialised by XStream for Jenkins config
      * persistence. ConfidentialClientApplication (inside MsalTokenHelper) is not
@@ -119,7 +119,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     /**
      * True when SSO sign-in is actually available: the toggle is on <em>and</em> a provider is fully
      * configured. Everything that gates runtime SSO behaviour (the login button, the OAuth
-     * endpoints, group sync, pre-provisioning) keys off this, not off {@code entraConfig} alone — so
+     * endpoints, group sync, pre-provisioning) keys off this, not off {@code entraConfig} alone - so
      * a dormant-but-preserved config never leaks SSO back on.
      */
     public boolean isSsoActive() {
@@ -128,7 +128,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
 
     /**
      * Self-signup is disabled (onboarding goes through the Rotogate provisioning portal). Anyone
-     * who reaches the inherited {@code /securityRealm/signup} URL directly — e.g. an old bookmark —
+     * who reaches the inherited {@code /securityRealm/signup} URL directly - e.g. an old bookmark -
      * is redirected to the login page instead of being shown a sign-up form that could not succeed.
      * Account creation itself is already blocked by {@code allowsSignup == false}; this just avoids a
      * misleading dead-end page.
@@ -141,8 +141,8 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
 
     /**
      * Wrap the inherited {@link AuthenticationManager} so that a native user with the
-     * force-password-change flag set cannot authenticate on <em>any</em> channel — web
-     * form, HTTP BASIC, API token or CLI — until they have chosen a new password.
+     * force-password-change flag set cannot authenticate on <em>any</em> channel - web
+     * form, HTTP BASIC, API token or CLI - until they have chosen a new password.
      *
      * <p>The delegate verifies the password exactly as Jenkins' own realm does; only
      * <em>after</em> a successful credential check do we reject the login with a
@@ -150,7 +150,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
      * so no session or {@code SecurityContext} is created. This is fail-closed by
      * construction: there is no privileged session to contain.
      *
-     * <p>The interactive browser flow deliberately bypasses this manager — it posts to
+     * <p>The interactive browser flow deliberately bypasses this manager - it posts to
      * {@code /rotogate/nativeLogin}, which validates the temporary password directly and
      * sends the user to the branded set-password page without logging them in.
      */
@@ -326,7 +326,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     // -------------------------------------------------------------------------
-    // Override only the login URL — everything else is inherited from
+    // Override only the login URL - everything else is inherited from
     // HudsonPrivateSecurityRealm without change.
     // -------------------------------------------------------------------------
 
@@ -363,7 +363,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     /**
      * Called by Jenkins when resolving a group name in the authorization matrix UI.
      * When group sync is enabled, we accept any group name as valid so that admins
-     * can pre-add Azure AD group names to the Project Matrix before any member logs in —
+     * can pre-add Azure AD group names to the Project Matrix before any member logs in -
      * preventing the red strikethrough that would otherwise appear.
      */
     @Override
@@ -379,11 +379,11 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     // -------------------------------------------------------------------------
-    // SSO login — forwarded to the configured provider
+    // SSO login - forwarded to the configured provider
     // -------------------------------------------------------------------------
 
     /**
-     * Step 1 — begin SSO sign-in. Forwards to the configured provider's {@code startLogin}.
+     * Step 1 - begin SSO sign-in. Forwards to the configured provider's {@code startLogin}.
      * Called by RotogateRootAction at GET /rotogate/commenceLogin[?from=\u2026].
      */
     public HttpResponse startLogin(StaplerRequest2 req) throws Exception {
@@ -395,7 +395,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     /**
-     * Step 2 — complete SSO sign-in from the provider callback. Forwards to the configured
+     * Step 2 - complete SSO sign-in from the provider callback. Forwards to the configured
      * provider's {@code finishLogin}. Called by RotogateRootAction at GET /rotogate/finishLogin.
      */
     public HttpResponse finishLogin(StaplerRequest2 req) throws Exception {
@@ -435,7 +435,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
                 }
             }
         }
-        // Slow path: UPN may have changed — scan all users by OID
+        // Slow path: UPN may have changed - scan all users by OID
         for (User u : User.getAll()) {
             RotogateUserProperty prop = u.getProperty(RotogateUserProperty.class);
             if (prop != null && oid.equals(prop.getEntraObjectId())) {
@@ -443,7 +443,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
                 return u;
             }
         }
-        // New user — provision with UPN as Jenkins user ID
+        // New user - provision with UPN as Jenkins user ID
         String userId = (upn != null && !upn.isEmpty()) ? upn : oid;
         User newUser = User.getOrCreateByIdOrFullName(userId);
         newUser.setFullName(displayName != null ? displayName : upn);
@@ -454,7 +454,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     public boolean isPreProvisioned(String oid, String upn, List<EntraGroupDetails> groups) {
-        // Check 1 — individually pre-provisioned (provisioningSource = INDIVIDUAL or legacy account)
+        // Check 1 - individually pre-provisioned (provisioningSource = INDIVIDUAL or legacy account)
         if (upn != null && !upn.isEmpty()) {
             User existing = User.getById(upn, false);
             if (existing != null) {
@@ -462,7 +462,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
                 if (prop != null && !prop.isViaGroup()) {
                     // Guard against UPN reuse: if this account already has a stable OID bound
                     // and the incoming token's OID differs, the UPN now points at a different
-                    // directory object — do NOT let them inherit the existing account. When no
+                    // directory object - do NOT let them inherit the existing account. When no
                     // OID is stored yet (pre-provisioned by UPN, or legacy), allow the match and
                     // let getOrCreateEntraUser bind the OID on this first login.
                     String storedOid = prop.getEntraObjectId();
@@ -470,7 +470,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
                         return true;
                     }
                     LOGGER.log(Level.WARNING, "Entra UPN {0} matches a provisioned account with a "
-                            + "different stable OID — rejecting the UPN match (possible UPN reuse)", upn);
+                            + "different stable OID - rejecting the UPN match (possible UPN reuse)", upn);
                 }
             }
         }
@@ -481,7 +481,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
             }
         }
 
-        // Check 2 — VIA_ENTRA_GROUP: re-validate group membership on every login
+        // Check 2 - VIA_ENTRA_GROUP: re-validate group membership on every login
         RotogateAssignmentConfig assignmentConfig = RotogateAssignmentConfig.get();
         if (assignmentConfig != null && assignmentConfig.hasAnyGroups()) {
             for (EntraGroupDetails g : groups) {
@@ -490,7 +490,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
         }
 
         // (A group-provisioned user whose groups no longer match falls through to the
-        // return false below — re-validation already happened in Check 2 above.)
+        // return false below - re-validation already happened in Check 2 above.)
         return false;
     }
 
@@ -551,7 +551,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
 
         // Set provisioning source
         if (!matchingGroupOids.isEmpty()) {
-            // Check if previously individually provisioned — preserve INDIVIDUAL if so
+            // Check if previously individually provisioned - preserve INDIVIDUAL if so
             RotogateUserProperty existing = user.getProperty(RotogateUserProperty.class);
             if (existing != null && !existing.isViaGroup()) {
                 prop.setProvisioningSource("INDIVIDUAL");
@@ -574,7 +574,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     /**
      * Returns the shared MsalTokenHelper, creating it on first call (lazy init).
      *
-     * ConfidentialClientApplication is designed to be long-lived and thread-safe — MSAL4J
+     * ConfidentialClientApplication is designed to be long-lived and thread-safe - MSAL4J
      * caches authority metadata, token cache, and discovery results on it. Creating a new
      * instance per login throws all that away and re-runs the authority discovery call on
      * every login. We create it once and reuse it for the lifetime of this realm instance.
@@ -598,12 +598,12 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     /**
      * Returns true only for relative URLs that stay within this server.
      * Rejects absolute URLs (http/https), protocol-relative URLs (//evil.com),
-     * and backslash paths (\evil.com) — all of which browsers treat as external redirects.
+     * and backslash paths (\evil.com) - all of which browsers treat as external redirects.
      * Only paths starting with a single "/" are accepted as safe post-login destinations.
      */
     public static boolean isSafeRedirectUrl(String url) {
         if (url == null || url.isEmpty() || url.charAt(0) != '/') return false;
-        // Reject //host and /\host — browsers normalise the backslash form to a
+        // Reject //host and /\host - browsers normalise the backslash form to a
         // protocol-relative URL, so /\evil.com would navigate off-site.
         if (url.length() > 1 && (url.charAt(1) == '/' || url.charAt(1) == '\\')) return false;
         // Reject any backslash or control char anywhere (they can confuse URL parsing).
@@ -631,7 +631,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
 
         @Override
         public String getDisplayName() {
-            return "Rotogate — Jenkins' own user database + Single Sign-On";
+            return "Rotogate - Jenkins' own user database + Single Sign-On";
         }
 
         @Override

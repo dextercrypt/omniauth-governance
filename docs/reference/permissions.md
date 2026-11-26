@@ -34,7 +34,7 @@ The exact catalog depends on installed plugins. The commonly-used groups are:
 | **Credentials** | Create, Update, View, Delete, ManageDomains |
 | **SCM** | Tag |
 
-> **Overall/Administer** is full control — grant it to as few subjects as possible and watch
+> **Overall/Administer** is full control - grant it to as few subjects as possible and watch
 > for [conflicts](../administration/access-management.md#conflict-detection).
 
 ## Evaluation order (conceptual)

@@ -1,10 +1,10 @@
 # Provisioning portal (self-service access requests)
 
 > A governed front door for access: people request access, admins approve, and only then is
-> an account created — with optional time limits.
+> an account created - with optional time limits.
 
 The provisioning portal lets prospective users ask for access instead of an administrator
-having to pre-create every account by hand. Nothing is created on submission — each request
+having to pre-create every account by hand. Nothing is created on submission - each request
 sits in a queue as **pending** until an admin approves it, at which point Rotogate creates
 the Jenkins account and grants sign-in access. This eliminates ghost accounts and gives a
 full request → decision audit trail.
@@ -17,25 +17,25 @@ full request → decision audit trail.
 Rotogate pre-provisions access (an account must exist before someone can sign in). That is
 secure but puts the admin in the position of creating every account up front. The portal adds
 the missing self-service layer: the user initiates, the admin approves, the account is created
-with the right permissions — a governed workflow rather than manual account creation.
+with the right permissions - a governed workflow rather than manual account creation.
 
 ## Request flows
 
 The page offers up to two paths, depending on settings:
 
-- **Request access with Microsoft (Entra)** — the user signs in through Microsoft first, so
+- **Request access with Microsoft (Entra)** - the user signs in through Microsoft first, so
   their identity (name, email, UPN, object id) is **verified** by the identity provider. They are
   then shown a short **reason page** ("why do you need access?", plus an optional duration) and the
-  request is created from the verified identity and that reason. No password, no account — just a
+  request is created from the verified identity and that reason. No password, no account - just a
   pending request. If they already have access, or a request is already pending, no reason is asked.
-- **Native (username/password) form** — an anonymous form (username, full name, email, reason,
+- **Native (username/password) form** - an anonymous form (username, full name, email, reason,
   duration). Because it is unauthenticated, it is **off by default** and protected by a circuit
   breaker (below). Responses are identical whether or not the account/request already exists, so
   the form can't be used to discover who has an account.
 
 Both paths require a **reason** and a free-text **"what access do you need?"** note, and end
 at the same place: a **pending `ProvisioningRequest`**. (The portal never shows requesters a role or
-folder picker — that would leak your structure to unauthenticated users; the admin maps the request to a
+folder picker - that would leak your structure to unauthenticated users; the admin maps the request to a
 role at approval.)
 
 ## Admin queue
@@ -52,11 +52,11 @@ stated intent when deciding what to grant.
 | **Reject** | Records the decision with an optional reason. No account is created. |
 
 **Approve with a role:** the role dropdown grants the chosen role's permissions at **global** scope on
-approval — the common "make them a Developer" case in one click. For **scoped** grants (a specific
+approval - the common "make them a Developer" case in one click. For **scoped** grants (a specific
 job/folder), custom permissions, JIT or expiry, approve with sign-in only and use the full grant drawer
 on the [user detail page](access-management.md).
 
-An existing account is never clobbered — approving a request whose id already exists rejects it
+An existing account is never clobbered - approving a request whose id already exists rejects it
 instead.
 
 ## Time-limited accounts
@@ -64,9 +64,9 @@ instead.
 If a request carries a non-zero **duration**, the created account is stamped with an expiry. A
 background worker (every 6 hours) then enforces it per the **expiry action** setting:
 
-- **Disable** (default) — revokes the account's access (it can no longer do anything); the
+- **Disable** (default) - revokes the account's access (it can no longer do anything); the
   stale-user cleanup removes it later.
-- **Delete** — removes the account outright.
+- **Delete** - removes the account outright.
 
 The same worker also emails the account a **pre-expiry reminder** a configurable number of days
 before expiry (`provisioningExpiryReminderDays`, default 7; 0 disables it).
@@ -94,11 +94,11 @@ Configure the portal from the **Portal settings** panel on the Access Requests p
 | Default access duration (days, 0 = permanent) | 0 | Pre-fills the request duration |
 | On expiry | Disable | Disable vs delete expired accounts |
 | Max pending requests per user (Entra) | 1 | Caps duplicate SSO requests |
-| Native breaker — max / window / cooldown | 100 / 10 min / 30 min | Flood protection |
+| Native breaker - max / window / cooldown | 100 / 10 min / 30 min | Flood protection |
 
 ## Security notes
 
-- Approval is **always required** — there is no auto-approve.
+- Approval is **always required** - there is no auto-approve.
 - The native form is anonymous; keep it **off** unless you need it, and rely on the breaker plus
   the allowed-domains gate when it is on.
 - Every approval/rejection and account creation is recorded in the

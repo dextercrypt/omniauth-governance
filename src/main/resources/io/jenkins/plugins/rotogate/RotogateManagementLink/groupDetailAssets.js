@@ -166,7 +166,7 @@ function udxWireGroupDetail() {
       udxShowEdit(this.dataset.scope, this.dataset.scopeDisplay, this.dataset.role, perms, this.dataset.expires);
     });
   });
-  // Per-row Revoke buttons — confirmation handled by the shared in-app modal (rg/rgConfirm.js)
+  // Per-row Revoke buttons - confirmation handled by the shared in-app modal (rg/rgConfirm.js)
   // via each button's data-confirm attribute; no native confirm() here.
   // Scope-type radios
   document.querySelectorAll('.js-udx-scope-radio').forEach(function(el) {

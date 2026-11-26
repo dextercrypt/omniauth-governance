@@ -1,5 +1,5 @@
 /*
- * SOS Mode banner — a fixed red bar shown to admins while emergency recovery
+ * SOS Mode banner - a fixed red bar shown to admins while emergency recovery
  * is armed, with a "Deactivate now" action.
  *
  * Served as an external, same-origin script (CSP script-src 'self'); the
@@ -46,7 +46,7 @@
           if (r.ok) { window.location.reload(); }
           else { btn.disabled = false; btn.textContent = "Deactivate now"; alert("You must be an administrator to deactivate SOS Mode."); }
         })
-        .catch(function () { btn.disabled = false; btn.textContent = "Deactivate now"; alert("Could not deactivate — network error."); });
+        .catch(function () { btn.disabled = false; btn.textContent = "Deactivate now"; alert("Could not deactivate - network error."); });
     });
   } catch (e) { /* never break the page */ }
 })();

@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Overview" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Overview" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -237,7 +237,7 @@
             <j:forEach var="d" items="${act.days}" varStatus="st">
               <!-- Click a day to open the Audit Log filtered to that date. -->
               <a class="rg-chart-col" href="auditLog?from=${d.label}&amp;to=${d.label}"
-                 title="${d.label} — ${d.ssoSuccess} SSO, ${d.nativeSuccess} native, ${d.failure} failed">
+                 title="${d.label} - ${d.ssoSuccess} SSO, ${d.nativeSuccess} native, ${d.failure} failed">
                 <div class="rg-chart-bars">
                   <!-- Success bar: native (green) base, SSO (blue) stacked on top -->
                   <div class="rg-chart-stack">
@@ -307,8 +307,8 @@
                       <span class="rg-attention-row__text">
                         <strong>${staleCount}</strong> stale user<j:if test="${staleCount != 1}">s</j:if>
                         <j:choose>
-                          <j:when test="${cleanupActive}"> — will be auto-removed</j:when>
-                          <j:otherwise> — review or remove</j:otherwise>
+                          <j:when test="${cleanupActive}"> - will be auto-removed</j:when>
+                          <j:otherwise> - review or remove</j:otherwise>
                         </j:choose>
                       </span>
                       <span class="rg-attention-row__arrow">→</span>
@@ -321,7 +321,7 @@
                       <l:icon src="symbol-trash plugin-ionicons-api" class="icon-sm"/>
                       <span class="rg-attention-row__text">
                         <strong>${pendingDel}</strong> user<j:if test="${pendingDel != 1}">s</j:if> pending deletion
-                        <j:if test="${cleanupActive}"> — queued for next run</j:if>
+                        <j:if test="${cleanupActive}"> - queued for next run</j:if>
                       </span>
                       <span class="rg-attention-row__arrow">→</span>
                     </a>
@@ -331,7 +331,7 @@
                   <j:if test="${failingChannels.size() gt 0}">
                     <a href="notifications" class="rg-attention-row rg-attention-row--danger">
                       <l:icon src="symbol-notifications-off plugin-ionicons-api" class="icon-sm"/>
-                      <span class="rg-attention-row__text"><strong>${failingChannels}</strong> notification<j:if test="${failingChannels.size() != 1}">s</j:if> failing — security alerts not delivered</span>
+                      <span class="rg-attention-row__text"><strong>${failingChannels}</strong> notification<j:if test="${failingChannels.size() != 1}">s</j:if> failing - security alerts not delivered</span>
                       <span class="rg-attention-row__arrow">→</span>
                     </a>
                   </j:if>
@@ -340,7 +340,7 @@
                   <j:if test="${noProtected}">
                     <a href="protectedUsers" class="rg-attention-row rg-attention-row--warn">
                       <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
-                      <span class="rg-attention-row__text">No protected users — admin accounts at risk of auto-cleanup</span>
+                      <span class="rg-attention-row__text">No protected users - admin accounts at risk of auto-cleanup</span>
                       <span class="rg-attention-row__arrow">→</span>
                     </a>
                   </j:if>
@@ -349,7 +349,7 @@
                   <j:if test="${orphanedAccounts gt 0}">
                     <a href="userStatus" class="rg-attention-row rg-attention-row--warn">
                       <l:icon src="symbol-person-remove plugin-ionicons-api" class="icon-sm"/>
-                      <span class="rg-attention-row__text"><strong>${orphanedAccounts}</strong> orphaned group account<j:if test="${orphanedAccounts != 1}">s</j:if> — group removed from Access Management</span>
+                      <span class="rg-attention-row__text"><strong>${orphanedAccounts}</strong> orphaned group account<j:if test="${orphanedAccounts != 1}">s</j:if> - group removed from Access Management</span>
                       <span class="rg-attention-row__arrow">→</span>
                     </a>
                   </j:if>
@@ -389,7 +389,7 @@
             <div class="rg-widget__header">
               <div class="rg-widget__title">
                 <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
-                Expiring Access — Next 14 Days
+                Expiring Access - Next 14 Days
               </div>
               <a href="accessManagement" class="rg-widget__link">Manage →</a>
             </div>
@@ -446,7 +446,7 @@
               </div>
               <div style="padding:0 16px 16px; display:flex; flex-direction:column; gap:12px;">
 
-                <!-- SSO vs Native — SVG donut (circumference 2πr with r=40 ≈ 251) -->
+                <!-- SSO vs Native - SVG donut (circumference 2πr with r=40 ≈ 251) -->
                 <div style="display:flex; align-items:center; gap:16px;">
                   <svg width="104" height="104" viewBox="0 0 120 120" style="flex-shrink:0;">
                     <circle cx="60" cy="60" r="40" fill="none" stroke="var(--rg-neutral-bg)" stroke-width="14"/>
@@ -604,7 +604,7 @@
                         <div class="rg-audit-desc">
                           <j:choose>
                             <j:when test="${action eq 'login_success'}">Login by <strong>${entry.get('user')}</strong> via ${entry.get('authType')}</j:when>
-                            <j:when test="${action eq 'login_failure'}">Failed login attempt — <strong>${entry.get('user')}</strong><j:if test="${entry.get('ip') != null and entry.get('ip') != ''}"><span style="margin-left:0.25em">from ${entry.get('ip')}</span></j:if></j:when>
+                            <j:when test="${action eq 'login_failure'}">Failed login attempt - <strong>${entry.get('user')}</strong><j:if test="${entry.get('ip') != null and entry.get('ip') != ''}"><span style="margin-left:0.25em">from ${entry.get('ip')}</span></j:if></j:when>
                             <j:when test="${action eq 'grant'}"><strong>${entry.get('by')}</strong> granted <em>${entry.get('role')}</em> to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
                             <j:when test="${action eq 'revoke'}"><strong>${entry.get('by')}</strong> revoked access for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}</j:when>
                             <j:when test="${action eq 'edit'}"><strong>${entry.get('by')}</strong> changed <strong>${entry.get('user')}</strong>: <em>${entry.get('oldRole')}</em> → <em>${entry.get('newRole')}</em></j:when>
@@ -619,15 +619,15 @@
                             <j:when test="${action eq 'role_created'}">Role created: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'role_edited'}">Role edited: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'role_deleted'}">Role deleted: <em>${entry.get('role')}</em> by <strong>${entry.get('by')}</strong></j:when>
-                            <j:when test="${action eq 'permission_granted'}"><strong>${entry.get('by')}</strong> granted permissions to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
-                            <j:when test="${action eq 'permission_revoked'}"><strong>${entry.get('by')}</strong> revoked permissions for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'permission_granted'}"><strong>${entry.get('by')}</strong> granted permissions to <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> - ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'permission_revoked'}"><strong>${entry.get('by')}</strong> revoked permissions for <strong>${entry.get('user')}</strong> on ${entry.get('scope')}<j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> - ${entry.get('detail')}</j:if></j:when>
                             <j:when test="${action eq 'session_revoked'}"><strong>${entry.get('by')}</strong> force-revoked the session of <strong>${entry.get('user')}</strong></j:when>
                             <j:when test="${action eq 'bruteforce_cleared'}"><strong>${entry.get('by')}</strong> cleared the lockout for <strong>${entry.get('user')}</strong></j:when>
                             <j:when test="${action eq 'audit_purged'}">Audit log purged by <strong>${entry.get('by')}</strong> (${entry.get('count')} file(s))</j:when>
-                            <j:when test="${action eq 'config_changed'}"><strong>${entry.get('by')}</strong> changed <em>${entry.get('area')}</em><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'config_changed'}"><strong>${entry.get('by')}</strong> changed <em>${entry.get('area')}</em><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> - ${entry.get('detail')}</j:if></j:when>
                             <j:when test="${action eq 'config_exported'}">Configuration exported by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'config_imported'}">Configuration imported by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> (${entry.get('detail')})</j:if></j:when>
-                            <j:when test="${action eq 'config_reverted'}">Configuration reverted by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> — ${entry.get('detail')}</j:if></j:when>
+                            <j:when test="${action eq 'config_reverted'}">Configuration reverted by <strong>${entry.get('by')}</strong><j:if test="${entry.get('detail') != null and entry.get('detail') != ''}"> - ${entry.get('detail')}</j:if></j:when>
                             <j:when test="${action eq 'user_marked_deletion'}"><strong>${entry.get('user')}</strong> marked for deletion by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'user_unmarked_deletion'}">Pending deletion cleared for <strong>${entry.get('user')}</strong> by <strong>${entry.get('by')}</strong></j:when>
                             <j:when test="${action eq 'password_changed'}">Password set by <strong>${entry.get('user')}</strong></j:when>
@@ -681,8 +681,8 @@
                 </div>
                 <div class="rg-config-row">
                   <span class="rg-config-label">PKCE + Nonce</span>
-                  <!-- Always enforced on the OAuth flow — not a toggle. -->
-                  <span class="rg-pill rg-pill--blue" title="Always enforced on the SSO flow — cannot be disabled">Always on</span>
+                  <!-- Always enforced on the OAuth flow - not a toggle. -->
+                  <span class="rg-pill rg-pill--blue" title="Always enforced on the SSO flow - cannot be disabled">Always on</span>
                 </div>
                 <div class="rg-config-row">
                   <span class="rg-config-label">Group Sync</span>

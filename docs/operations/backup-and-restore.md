@@ -32,7 +32,7 @@ restore-point history, and a colour-coded, Terraform-style plan modal shown befo
 import and rollback so you can review the exact field-level changes first. See the
 [Backup & restore design](../developer/backup-restore-design.md) for the details.
 
-- **Covers:** roles, scoped access assignments, groups, and settings — exported as
+- **Covers:** roles, scoped access assignments, groups, and settings - exported as
   JCasC-shaped YAML.
 - **Does NOT cover:** the security realm and secrets (no client secret / SMTP password).
 - **Known scope gap:** the global permission matrix is **not** captured, so a bare native
@@ -51,7 +51,7 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 1. Optionally quiet down / stop Jenkins for a consistent snapshot.
 2. Archive `JENKINS_HOME` (or at minimum the files above **plus** `secrets/`).
-3. Store the archive securely — it contains security configuration and encrypted secrets.
+3. Store the archive securely - it contains security configuration and encrypted secrets.
 
 ## Restore procedure
 
@@ -65,7 +65,7 @@ together with the config**, or the encrypted values cannot be recovered on resto
 ## Migration between instances
 
 - Prefer [Configuration as Code](configuration-as-code.md) for the declarative parts
-  (realm, Entra, strategy) — commit YAML with secrets as `${VARS}`.
+  (realm, Entra, strategy) - commit YAML with secrets as `${VARS}`.
 - For assignments/roles/JIT/audit, copy the corresponding XML files, or re-create via JCasC
   where supported.
 - If the target instance has a different `secret.key`, re-enter secrets (client secret, SMTP
@@ -73,11 +73,11 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 ## Disaster recovery tips
 
-- Keep at least one **native admin** credential outside the SSO dependency — your first line of
+- Keep at least one **native admin** credential outside the SSO dependency - your first line of
   defence if Entra is unavailable (Break Glass is *not* a recovery path; it requires you to
   already be signed in as admin).
 - Have each admin generate **SOS recovery codes** (Manage Jenkins → Rotogate → Emergency Access)
-  while things are healthy — enrollment is mandatory, but confirm it. If no admin can sign in at
+  while things are healthy - enrollment is mandatory, but confirm it. If no admin can sign in at
   all, use **SOS Mode**: drop an `rotogate-sos.request` file in `JENKINS_HOME` (no restart) and
   enter a recovery code at `/sos/recover` to regain admin for a 30-minute window. See [Break Glass
   → If you are actually locked out](../administration/break-glass.md).

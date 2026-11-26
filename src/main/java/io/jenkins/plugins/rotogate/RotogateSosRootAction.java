@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 /**
  * The SOS recovery endpoint at {@code /sos/recover}, reachable without a login (it exists precisely
- * for when no admin can log in). It is <b>dark</b> — redirects to the normal login page — unless
+ * for when no admin can log in). It is <b>dark</b> - redirects to the normal login page - unless
  * {@link RotogateSos#isArmed() SOS Mode is armed}. While armed it accepts a single
  * {@link RotogateRecoveryCodesProperty recovery code} (no username); a match identifies the admin,
  * re-grants {@link Jenkins#ADMINISTER}, and signs them in. See {@link RotogateSos} for the full model.
@@ -55,7 +55,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
         RotogateSos.noteArmedIfNeeded();
 
         // If the viewer already holds admin (e.g. they just recovered), there is nothing to recover.
-        // Don't re-prompt — that would waste a single-use code — and don't frame it as a lockout.
+        // Don't re-prompt - that would waste a single-use code - and don't frame it as a lockout.
         boolean alreadyAdmin = currentUserIsAdmin();
 
         if ("POST".equalsIgnoreCase(req.getMethod())) {
@@ -134,7 +134,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
         }
     }
 
-    // ----- page rendering (standalone — the user may be fully locked out) -----
+    // ----- page rendering (standalone - the user may be fully locked out) -----
 
     private static void writePage(StaplerResponse2 rsp, int status, String html) throws java.io.IOException {
         rsp.setStatus(status);
@@ -171,7 +171,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
 
     private static String alreadyAdminPage(String ctx, String sid, StaplerRequest2 req) {
         String who = (sid == null || sid.isEmpty()) ? "an administrator" : "<strong>" + esc(sid) + "</strong>";
-        // Deactivation is a plain form POST — no JavaScript — so it works under a strict Content-Security-Policy
+        // Deactivation is a plain form POST - no JavaScript - so it works under a strict Content-Security-Policy
         // (which blocks inline scripts and inline on* handlers) and on a degraded recovery session. The viewer
         // is a confirmed admin, so a CSRF crumb is available; embed it as a hidden field. The hidden "fromForm"
         // marker tells doSosDeactivate to 302 back to Jenkins instead of writing its JSON (fetch) response.
@@ -194,7 +194,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
             + "<div class='badge'>SOS MODE ACTIVE</div>"
             + "<h1>You already have access</h1>"
             + "<p class='sub'>You are signed in as " + who + " with administrator access, so there is nothing to "
-            + "recover. SOS Mode is still open — deactivate it once you no longer need the recovery window.</p>"
+            + "recover. SOS Mode is still open - deactivate it once you no longer need the recovery window.</p>"
             + "<form method='POST' action='" + esc(ctx) + "/manage/rotogate-management/sosDeactivate' style='margin:0;'>"
             + crumbInput
             + "<input type='hidden' name='fromForm' value='1'/>"

@@ -17,7 +17,7 @@ import jakarta.mail.internet.MimeMultipart;
 
 /**
  * Handles SMTP email delivery for Rotogate notifications.
- * Each event type has its own typed HTML builder — swap LOGO_DEFAULT_PATH to change branding.
+ * Each event type has its own typed HTML builder - swap LOGO_DEFAULT_PATH to change branding.
  */
 public class SmtpHelper {
 
@@ -25,7 +25,7 @@ public class SmtpHelper {
 
     // Default logo: the Rotogate mark, served from the plugin's own resources. Being same-origin
     // it renders in the in-app email preview (external URLs are blocked by the page CSP) and in
-    // real emails from any reachable Jenkins URL — always on-brand, no dependency on an outside
+    // real emails from any reachable Jenkins URL - always on-brand, no dependency on an outside
     // host. For a fully air-gapped deployment whose recipients cannot reach the Jenkins URL, an
     // admin can set a custom logo URL (or a "data:image/png;base64,…" URI) on the Notifications
     // page, which takes precedence over this default.
@@ -42,7 +42,7 @@ public class SmtpHelper {
     // Public async send
     // -------------------------------------------------------------------------
 
-    // 3-arg overload for callers that only have plain text — wraps in a minimal readable HTML envelope
+    // 3-arg overload for callers that only have plain text - wraps in a minimal readable HTML envelope
     static void send(RotogateGlobalConfig cfg, String subject, String body) {
         String fontStack = "-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif";
         String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
@@ -62,12 +62,12 @@ public class SmtpHelper {
     static void send(RotogateGlobalConfig cfg, String subject, String htmlBody, String plainBody) {
         if (cfg == null || !cfg.isNotificationsEnabled() || !cfg.isSmtpEnabled()) return;
         if (!cfg.isSmtpConfigured()) {
-            LOGGER.warning("Rotogate SMTP not configured — skipping: " + subject);
+            LOGGER.warning("Rotogate SMTP not configured - skipping: " + subject);
             return;
         }
         String recipients = cfg.getNotifyEmails();
         if (recipients == null || recipients.trim().isEmpty()) {
-            LOGGER.warning("Rotogate SMTP no recipients — skipping: " + subject);
+            LOGGER.warning("Rotogate SMTP no recipients - skipping: " + subject);
             return;
         }
         final String host     = cfg.getSmtpHost();
@@ -96,7 +96,7 @@ public class SmtpHelper {
         if (toEmail == null || toEmail.isBlank() || !toEmail.contains("@")
                 || toEmail.indexOf(',') >= 0 || toEmail.indexOf(';') >= 0
                 || toEmail.chars().anyMatch(c -> c == '\r' || c == '\n' || Character.isWhitespace(c))) {
-            LOGGER.warning("Rotogate SMTP sendTo: invalid recipient '" + toEmail + "' — skipping: " + subject);
+            LOGGER.warning("Rotogate SMTP sendTo: invalid recipient '" + toEmail + "' - skipping: " + subject);
             return;
         }
         final String host     = cfg.getSmtpHost();
@@ -216,7 +216,7 @@ public class SmtpHelper {
                 {"Duration", esc(r.durationLabel())}
         }) + gap(12)
         + notice("#eff6ff", "#bfdbfe", "#1e40af",
-                "No account exists yet — approving this request creates it. Review and approve or reject in the queue.");
+                "No account exists yet - approving this request creates it. Review and approve or reject in the queue.");
         return simpleCard(cfg, "#2563eb", "#dbeafe", "#1e40af", "&#128276;",
                 "Action Needed &nbsp;&middot;&nbsp; Access Request",
                 "New access request", "Someone has requested access to Jenkins and is awaiting your decision.",
@@ -224,7 +224,7 @@ public class SmtpHelper {
                 "Review Access Requests &rarr;", "Access Governance");
     }
 
-    /** Requester (native): approved — carries the one-time activation link. */
+    /** Requester (native): approved - carries the one-time activation link. */
     public static String buildProvisioningApprovedNativeHtml(RotogateGlobalConfig cfg, ProvisioningRequest r,
                                                              String activationUrl, int ttlHours) {
         String content = kvTable(new String[][]{
@@ -240,7 +240,7 @@ public class SmtpHelper {
                 content, activationUrl, "Set Password &amp; Sign In &rarr;", "Access Governance");
     }
 
-    /** Requester (Entra): approved — just sign in with Microsoft. */
+    /** Requester (Entra): approved - just sign in with Microsoft. */
     public static String buildProvisioningApprovedEntraHtml(RotogateGlobalConfig cfg, ProvisioningRequest r) {
         String content = kvTable(new String[][]{
                 {"Account", code(esc(r.getUserId()))},
@@ -534,7 +534,7 @@ public class SmtpHelper {
                 "#dc2626", "#fee2e2", "&#9888;", "#dc2626",
                 "#fee2e2", "#991b1b", "#dc2626",
                 "Critical &nbsp;&middot;&nbsp; Integration Failure",
-                "Graph API Failure — Group Sync Broken",
+                "Graph API Failure - Group Sync Broken",
                 "Microsoft Graph API returned an error during group sync. User group membership cannot be resolved.",
                 content,
                 "#dc2626", rootUrl() + "/manage/rotogate-management/",
@@ -558,7 +558,7 @@ public class SmtpHelper {
                 "#16a34a", "#f0fdf4", "&#10003;", "#16a34a",
                 "#f0fdf4", "#166534", "#16a34a",
                 "Approved &nbsp;&middot;&nbsp; JIT Access Active",
-                "JIT Access Approved — " + esc(req.getScope()),
+                "JIT Access Approved - " + esc(req.getScope()),
                 "Your request to build this pipeline has been approved. Access is now active.",
                 content,
                 "#16a34a", rootUrl() + "/job/" + req.getScope().replace("/", "/job/"),
@@ -587,7 +587,7 @@ public class SmtpHelper {
                 "#dc2626", "#fef2f2", "&#10007;", "#dc2626",
                 "#fef2f2", "#991b1b", "#dc2626",
                 "Denied &nbsp;&middot;&nbsp; JIT Request",
-                "JIT Request Denied — " + esc(req.getScope()),
+                "JIT Request Denied - " + esc(req.getScope()),
                 "Your request for temporary build access to this pipeline was not approved.",
                 content,
                 "#6b7280", rootUrl() + "/manage/rotogate-management/",
@@ -618,7 +618,7 @@ public class SmtpHelper {
                 "#d97706", "#fffbeb", "&#9889;", "#d97706",
                 "#fffbeb", "#92400e", "#d97706",
                 "Action Required &nbsp;&middot;&nbsp; JIT Access Request",
-                "JIT Request — " + esc(req.getScope()),
+                "JIT Request - " + esc(req.getScope()),
                 esc(req.getRequesterId()) + " is requesting temporary access. Your approval is needed.",
                 content,
                 "#d97706", actionUrl,
@@ -656,7 +656,7 @@ public class SmtpHelper {
                 "#c2410c", "#fff7ed", "&#9200;", "#c2410c",
                 "#fff7ed", "#9a3412", "#c2410c",
                 "Timed Out &nbsp;&middot;&nbsp; JIT Request",
-                "JIT Request Timed Out — " + esc(req.getScope()),
+                "JIT Request Timed Out - " + esc(req.getScope()),
                 "Your request expired before all approvers responded.",
                 content,
                 "#6b7280", rootUrl() + "/manage/rotogate-management/",
@@ -687,7 +687,7 @@ public class SmtpHelper {
     }
 
     // -------------------------------------------------------------------------
-    // Card template — full email HTML with inline CSS
+    // Card template - full email HTML with inline CSS
     // -------------------------------------------------------------------------
 
     private static String card(
@@ -738,7 +738,7 @@ public class SmtpHelper {
             // Thin severity rule
             + "<tr><td height='3' bgcolor='" + accentColor + "' style='line-height:3px;font-size:3px;'>&nbsp;</td></tr>"
 
-            // Hero — small severity label + title + subtitle (no icon tile, no pill)
+            // Hero - small severity label + title + subtitle (no icon tile, no pill)
             + "<tr><td style='padding:28px 28px 6px;'>"
             + "<div style='font-size:11px;font-weight:700;letter-spacing:.09em;"
             + "text-transform:uppercase;color:" + accentColor + ";'>"
@@ -756,7 +756,7 @@ public class SmtpHelper {
             // Content
             + "<tr><td style='padding:24px 28px;'>" + contentHtml + "</td></tr>"
 
-            // CTA — quiet navy button, left-aligned (ctaBg intentionally ignored for a consistent look)
+            // CTA - quiet navy button, left-aligned (ctaBg intentionally ignored for a consistent look)
             + "<tr><td style='padding:8px 28px 28px;'>"
             + "<a href='" + esc(ctaUrl) + "' "
             + "style='display:inline-block;padding:11px 20px;border-radius:8px;text-decoration:none;"
@@ -764,7 +764,7 @@ public class SmtpHelper {
             + ctaLabel + "</a>"
             + "</td></tr>"
 
-            // Footer — minimal, left-aligned, muted
+            // Footer - minimal, left-aligned, muted
             + "<tr><td style='border-top:1px solid #f1f3f5;padding:16px 28px;'>"
             + (footerNote != null && !footerNote.isEmpty()
                 ? "<div style='font-size:12px;color:#64748b;line-height:1.6;margin-bottom:8px;'>"
@@ -920,7 +920,7 @@ public class SmtpHelper {
     }
 
     private static String code(String value) {
-        // Direction A: plain monospace, no pill — technical values read inline, not as chips.
+        // Direction A: plain monospace, no pill - technical values read inline, not as chips.
         return "<span style='font-family:\"SF Mono\",\"Fira Code\",Menlo,Consolas,monospace;"
                 + "font-size:12.5px;color:#0f172a;'>" + value + "</span>";
     }
@@ -1001,7 +1001,7 @@ public class SmtpHelper {
         props.put("mail.smtp.auth.mechanisms", "PLAIN LOGIN");
         if (port == 465) {
             // Implicit TLS (SMTPS): the whole connection is encrypted from the first byte. This is
-            // the modern-secure default and the standard meaning of port 465 — STARTTLS does not
+            // the modern-secure default and the standard meaning of port 465 - STARTTLS does not
             // apply here. The branch below is for the submission port 587 (or legacy plaintext 25).
             props.put("mail.smtp.ssl.enable",              "true");
             props.put("mail.smtp.ssl.checkserveridentity", "true");
@@ -1013,7 +1013,7 @@ public class SmtpHelper {
     }
 
     // -------------------------------------------------------------------------
-    // Synchronous test — throws on failure so the caller can surface the error
+    // Synchronous test - throws on failure so the caller can surface the error
     // -------------------------------------------------------------------------
 
     public static void test(String host, int port, String username, String password,
@@ -1040,7 +1040,7 @@ public class SmtpHelper {
         String name = (fromName != null && !fromName.isEmpty()) ? fromName : "Jenkins Rotogate";
         msg.setFrom(new InternetAddress(fromAddress, name));
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-        msg.setSubject("[Jenkins Rotogate] Test email — SMTP is working");
+        msg.setSubject("[Jenkins Rotogate] Test email - SMTP is working");
         if (replyTo != null && !replyTo.trim().isEmpty())
             msg.setReplyTo(InternetAddress.parse(replyTo));
 

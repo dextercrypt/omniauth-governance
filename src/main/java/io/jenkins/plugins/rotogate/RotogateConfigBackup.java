@@ -21,11 +21,11 @@ import java.util.TreeMap;
  * <p><b>Scope (deliberately narrow and safe):</b> roles, assignments, Access-Management groups, and
  * the non-secret global settings. This explicitly <b>excludes</b>:
  * <ul>
- *   <li>the <b>security realm</b> (Entra sign-in config) — set by hand or via JCasC; leaving it out
+ *   <li>the <b>security realm</b> (Entra sign-in config) - set by hand or via JCasC; leaving it out
  *       means an import can never change how you log in, so it cannot lock you out;</li>
- *   <li>all <b>secrets</b> (any {@link Secret}-typed field) — stripped on export, never read on
+ *   <li>all <b>secrets</b> (any {@link Secret}-typed field) - stripped on export, never read on
  *       import, so existing secrets are preserved and nothing sensitive lands in the file;</li>
- *   <li>operational data (JIT/provisioning queues, logs) — never config.</li>
+ *   <li>operational data (JIT/provisioning queues, logs) - never config.</li>
  * </ul>
  *
  * <p>The document mirrors the JCasC structure (keys under {@code unclassified}) so an exported file
@@ -394,7 +394,7 @@ public final class RotogateConfigBackup {
     }
 
     /**
-     * Computes what applying {@code incoming} would change relative to the live configuration —
+     * Computes what applying {@code incoming} would change relative to the live configuration -
      * the "plan" shown before an import. Roles/groups are keyed by their identity; assignments by
      * (user, scope); settings compare only keys the import carries (an import sets only those).
      * For a changed item, each differing field becomes a readable {@code current → incoming} line.

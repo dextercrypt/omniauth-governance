@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 /**
  * Enforces time-limited accounts created by the provisioning portal. Accounts carrying an
  * {@link RotogateAccountExpiryProperty} whose expiry has passed are, per the portal's
- * expiry-action setting, either <b>disabled</b> (global access revoked — the user can no longer
+ * expiry-action setting, either <b>disabled</b> (global access revoked - the user can no longer
  * do anything, and the existing stale-cleanup eventually removes them) or <b>deleted</b> outright.
  *
  * <p>Protected users are always skipped.
@@ -51,7 +51,7 @@ public class RotogateAccountExpiryWorker extends AsyncPeriodicWork {
                 if (reminderDays > 0 && !p.isReminderSent() && daysLeft >= 0 && daysLeft <= reminderDays
                         && !(cfg != null && cfg.isProtected(id))) {
                     String email = resolveEmail(user);
-                    // Only mark reminded once we actually have somewhere to send — otherwise an address
+                    // Only mark reminded once we actually have somewhere to send - otherwise an address
                     // added later would never get a reminder. With no email we simply re-check next run.
                     if (email != null) {
                         // Guard the send too, so one failure here can't abort the sweep for the
@@ -64,12 +64,12 @@ public class RotogateAccountExpiryWorker extends AsyncPeriodicWork {
                         }
                     }
                 }
-                continue; // not expired yet — nothing more to do
+                continue; // not expired yet - nothing more to do
             }
 
             // --- Expired: enforce ---
             if (cfg != null && cfg.isProtected(id)) {
-                LOGGER.log(Level.FINE, "Account {0} expired but is protected — skipping", id);
+                LOGGER.log(Level.FINE, "Account {0} expired but is protected - skipping", id);
                 continue;
             }
 
@@ -95,7 +95,7 @@ public class RotogateAccountExpiryWorker extends AsyncPeriodicWork {
         }
     }
 
-    /** Best-effort read of a user's email from the Mailer user property (reflective — Mailer is optional). */
+    /** Best-effort read of a user's email from the Mailer user property (reflective - Mailer is optional). */
     private static String resolveEmail(User user) {
         try {
             ClassLoader uberCl = jenkins.model.Jenkins.get().getPluginManager().uberClassLoader;

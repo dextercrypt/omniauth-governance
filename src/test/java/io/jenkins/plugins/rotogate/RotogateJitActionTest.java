@@ -26,7 +26,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link RotogateJitAction} — the user-facing JIT endpoints (/rotogate-jit/).
+ * Tests for {@link RotogateJitAction} - the user-facing JIT endpoints (/rotogate-jit/).
  * Focus:
  *  - doCancel IDOR regression: user A cannot cancel user B's request (userId.equals(requesterId))
  *  - doRequest: rejects anonymous, requires job+reason, caps reason, caps duration to assignment
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * StaplerRequest2/Response are java.lang.reflect.Proxy fakes (house style). The current
  * authentication is set with ACL.as2(...) using a UsernamePasswordAuthenticationToken built
- * directly (the user need not exist in a realm — avoids User.impersonate2()'s requirement).
+ * directly (the user need not exist in a realm - avoids User.impersonate2()'s requirement).
  */
 @WithJenkins
 public class RotogateJitActionTest {
@@ -166,7 +166,7 @@ public class RotogateJitActionTest {
 
     @Test
     public void doCancel_cannotRevokeAnotherUsersActiveGrant() throws Exception {
-        // The active branch calls revoke(), which does not itself enforce ownership —
+        // The active branch calls revoke(), which does not itself enforce ownership -
         // the action's userId.equals(requesterId) guard is what stops the IDOR.
         RotogateJitRequest bobReq = RotogateJitRequest.create("bob", "folder/job", "r", 2, 4);
         bobReq.initApprovalEntries(Arrays.asList("x@x", "y@x"));

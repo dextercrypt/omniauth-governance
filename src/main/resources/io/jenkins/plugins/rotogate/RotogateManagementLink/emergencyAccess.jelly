@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Emergency Access" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Emergency Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -17,7 +17,7 @@
           <strong>Break Glass</strong> is for when you are <em>already signed in</em> and need temporary,
           audited access to the Authorization table (TOTP step-up). <strong>SOS recovery codes</strong> are
           for when you are <em>locked out</em> entirely and need a way back in. They are separate mechanisms
-          with different second factors — enroll both.
+          with different second factors - enroll both.
         </div>
 
         <st:include page="breakGlassSection.jelly"/>

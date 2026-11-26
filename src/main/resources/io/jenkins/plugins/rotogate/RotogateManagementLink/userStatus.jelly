@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — User Status" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - User Status" norefresh="true">
     <l:side-panel><st:include page="sidepanel.jelly"/></l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
@@ -15,22 +15,22 @@
         <!-- Flash banners -->
         <j:if test="${request2.getParameter('error') == 'activeGroup'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">
-            Deletion blocked — this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
+            Deletion blocked - this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
           </div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'protected'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">
-            Deletion blocked — this user is protected. Remove protection first on the <a href="protectedUsers">Protected Users</a> page.
+            Deletion blocked - this user is protected. Remove protection first on the <a href="protectedUsers">Protected Users</a> page.
           </div>
         </j:if>
         <j:if test="${request2.getParameter('deleted') == 'true'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">User deleted successfully.</div>
         </j:if>
         <j:if test="${request2.getParameter('marked') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">User marked for deletion — will be removed on the next cleanup run.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">User marked for deletion - will be removed on the next cleanup run.</div>
         </j:if>
         <j:if test="${request2.getParameter('unmarked') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Pending deletion mark removed — account is safe.</div>
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Pending deletion mark removed - account is safe.</div>
         </j:if>
 
         <!-- Stats bar -->
@@ -159,7 +159,7 @@
                     </j:choose>
                   </td>
 
-                  <!-- Status — pending > stale > login state -->
+                  <!-- Status - pending > stale > login state -->
                   <td class="us-td">
                     <j:choose>
                       <j:when test="${u.pendingDeletion}"><span class="us-badge us-crimson" title="Queued for deletion on next cleanup run">Pending Deletion</span></j:when>
@@ -198,13 +198,13 @@
                         <div class="us-menu-divider"></div>
                         <j:choose>
                           <j:when test="${isGroupManaged}">
-                            <span class="us-menu-item us-menu-disabled" title="Managed via Azure Entra group — remove from group in Azure to revoke access">
+                            <span class="us-menu-item us-menu-disabled" title="Managed via Azure Entra group - remove from group in Azure to revoke access">
                               <l:icon src="symbol-people plugin-ionicons-api" class="icon-sm"/>
                               Group managed
                             </span>
                           </j:when>
                           <j:when test="${isProtected}">
-                            <span class="us-menu-item us-menu-disabled" title="Protected — remove protection first on the Protected Users page">
+                            <span class="us-menu-item us-menu-disabled" title="Protected - remove protection first on the Protected Users page">
                               <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
                               Protected
                             </span>
@@ -214,7 +214,7 @@
                             <j:set var="orphanedGroup" value="${u.pendingDeletion and u.provisioningSource == 'VIA_ENTRA_GROUP' and !u.activeGroupUser}"/>
                             <j:choose>
                               <j:when test="${u.pendingDeletion and !orphanedGroup}">
-                                <!-- Manually marked INDIVIDUAL — allow unmark -->
+                                <!-- Manually marked INDIVIDUAL - allow unmark -->
                                 <button class="us-menu-item us-menu-warn js-us-unmark"
                                         data-userid="${u.userId}"
                                         data-crumb-field="${app.crumbRequestField}"
@@ -224,7 +224,7 @@
                                 </button>
                               </j:when>
                               <j:when test="${orphanedGroup}">
-                                <!-- Orphaned group account — grayed + instant CSS tooltip -->
+                                <!-- Orphaned group account - grayed + instant CSS tooltip -->
                                 <span class="us-menu-item us-menu-disabled us-menu-tipped">
                                   <l:icon src="symbol-arrow-undo plugin-ionicons-api" class="icon-sm"/>
                                   Remove Deletion Mark
@@ -232,7 +232,7 @@
                                 </span>
                               </j:when>
                               <j:otherwise>
-                                <!-- Not marked yet — allow manual mark -->
+                                <!-- Not marked yet - allow manual mark -->
                                 <button class="us-menu-item us-menu-warn js-us-mark"
                                         data-userid="${u.userId}"
                                         data-crumb-field="${app.crumbRequestField}"

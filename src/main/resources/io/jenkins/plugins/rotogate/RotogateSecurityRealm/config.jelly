@@ -28,7 +28,7 @@
     <!-- Single sign-on provider. Modelled as an RotogateSsoProvider extension point: the dropdown
          lists every registered provider (Microsoft Entra today) and renders the selected one's own
          config form. Adding a provider later is just a new RotogateSsoProvider subclass + its
-         config.jelly — this form needs no change. -->
+         config.jelly - this form needs no change. -->
     <f:dropdownDescriptorSelector field="provider" title="${%Single sign-on provider}"/>
 
     <!-- Roadmap note. The dropdown above only lists providers that exist as a real extension

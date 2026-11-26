@@ -1,9 +1,9 @@
 # Just-in-Time (JIT) access
 
-> Grant elevated access only when needed, only for as long as needed — with approval and
+> Grant elevated access only when needed, only for as long as needed - with approval and
 > automatic expiry.
 
-JIT access (also known as PIM — Privileged Identity Management) removes standing privilege.
+JIT access (also known as PIM - Privileged Identity Management) removes standing privilege.
 Instead of permanently holding an elevated role, a user **requests** it for a bounded
 window; an admin **approves**; the access **auto-expires**; and everything is **audited**.
 
@@ -24,7 +24,7 @@ elevation against a **specific job or folder** that is covered by a scoped JIT a
 3. The request enters the **pending** queue and the assignment's approvers are notified.
 
 > **JIT is scoped-only.** It applies to a specific job/folder scope, never to global access.
-> There is no central "request page" where users pick an arbitrary role or scope — the eligible
+> There is no central "request page" where users pick an arbitrary role or scope - the eligible
 > scope is whatever a scoped JIT assignment already covers.
 
 ## Admin flow
@@ -35,15 +35,15 @@ approval does not activate access.
 
 Approvers can act two ways:
 
-- **Tokenized email links** — each approver receives a unique per-entry link
+- **Tokenized email links** - each approver receives a unique per-entry link
   `…/rotogate-jit/action?token=<token>` (served by a `RootAction`, so it bypasses the
-  `ADMINISTER` management gate — no Jenkins login required to decide).
-- **In-product** — at **Manage Jenkins → Rotogate → JIT requests**, admins approve or deny via
+  `ADMINISTER` management gate - no Jenkins login required to decide).
+- **In-product** - at **Manage Jenkins → Rotogate → JIT requests**, admins approve or deny via
   `doApproveJit` / `doDenyJit`.
 
 | Action | Result |
 |---|---|
-| **Approve** | Records this approver's decision — optionally for a **shorter window** than requested (see below); once **all** approvers have approved, the elevated access becomes active for the granted window; audited. |
+| **Approve** | Records this approver's decision - optionally for a **shorter window** than requested (see below); once **all** approvers have approved, the elevated access becomes active for the granted window; audited. |
 | **Deny** | The request is rejected (with optional reason); the requester is notified. |
 | **Revoke** | An active JIT grant is ended early. |
 
@@ -53,7 +53,7 @@ When approving, each approver can **grant a shorter window than the user request
 in-product Approve form and the tokenized email page show a **"grant for"** selector offering
 `1 … requestedHours`, defaulting to the full request.
 
-With multiple approvers, the activated grant uses the **minimum** of their chosen durations — the
+With multiple approvers, the activated grant uses the **minimum** of their chosen durations - the
 shortest cap wins, and no approver can grant more than was requested
 (`RotogateJitRequest.effectiveGrantedDurationHours()`). An approver who leaves the default grants
 the full requested window, so a plain Approve behaves exactly as before. The management queue's
@@ -65,7 +65,7 @@ request, and the audit log records the granted duration (not the requested one).
 `RotogateJitExpiryWorker` drives two separate timeouts:
 
 - **Approval timeout.** A pending request not fully approved before its `approvalDeadline`
-  transitions to **`TIMED_OUT`** (audit `logJitTimedOut`) — it never activates.
+  transitions to **`TIMED_OUT`** (audit `logJitTimedOut`) - it never activates.
 - **Grant expiry.** An active grant past its duration transitions to **`EXPIRED`** (audit
   `logJitExpired`) and the elevated access is removed automatically.
 
@@ -84,7 +84,7 @@ JIT history is retained for a configurable number of days (see the
 ## Prerequisites
 
 JIT relies on the same authorization strategy and on session handling used elsewhere in the
-plugin — see [Access management](access-management.md) and [Sessions](sessions.md).
+plugin - see [Access management](access-management.md) and [Sessions](sessions.md).
 
 ---
 _Next: [Sessions](sessions.md)_

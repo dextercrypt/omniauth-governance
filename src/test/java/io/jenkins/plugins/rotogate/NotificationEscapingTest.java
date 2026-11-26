@@ -150,7 +150,7 @@ public class NotificationEscapingTest {
         assertFalse(out.contains(">"));
     }
 
-    // ─── SlackHelper.buildPayload — structural + escaping safety ─────────────
+    // ─── SlackHelper.buildPayload - structural + escaping safety ─────────────
     //
     // SlackHelper.buildPayload previously emitted STRUCTURALLY MALFORMED JSON (a
     // double comma "}},,{" before the footer/CTA block). That has been fixed (the
@@ -160,7 +160,7 @@ public class NotificationEscapingTest {
 
     @Test
     public void slackBuildPayload_maliciousTitle_isEmbeddedOnlyInEscapedForm() {
-        String evilTitle = "pwn\",\"x\":\"y"; // pwn","x":"y  — attempts to close + inject a key
+        String evilTitle = "pwn\",\"x\":\"y"; // pwn","x":"y  - attempts to close + inject a key
         String json = SlackHelper.buildPayload(evilTitle, "plain body");
         assertTrue(json.contains("pwn\\\",\\\"x\\\":\\\"y"), "escaped form must be present");
         assertFalse(json.contains(evilTitle), "raw unescaped breakout must NOT appear");
@@ -193,7 +193,7 @@ public class NotificationEscapingTest {
         assertNotNull(MAPPER.readTree(json));
     }
 
-    // ─── TeamsHelper.buildPayload — end-to-end injection safety ──────────────
+    // ─── TeamsHelper.buildPayload - end-to-end injection safety ──────────────
 
     @Test
     public void teamsBuildPayload_isWellFormedJson() throws Exception {

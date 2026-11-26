@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for StaleUserCleanupWork — the cron-field matcher (pure logic) and the
+ * Tests for StaleUserCleanupWork - the cron-field matcher (pure logic) and the
  * cleanup-sweep safety guards (null lastLogin never deleted, unparseable timestamp
  * skipped without aborting the sweep, and the maxDeletions cap honoured).
  *
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * User.getAll()), then drive runCleanup() and assert which accounts survived.
  *
  * RotogateGlobalConfig exposes no setters for the cleanup knobs (they are only set via
- * configure(json)), so the sweep tests set the private fields reflectively — exactly the
+ * configure(json)), so the sweep tests set the private fields reflectively - exactly the
  * values an admin would configure on the Notifications page.
  */
 @WithJenkins
@@ -203,7 +203,7 @@ public class StaleUserCleanupWorkTest {
         StaleUserCleanupWork.runCleanup(RotogateGlobalConfig.get());
 
         assertNotNull(User.getById("sweep-garbage", false), "the corrupt-timestamp user is skipped, not deleted");
-        assertNull(User.getById("sweep-stale-sibling", false), "one corrupt timestamp must not abort the whole sweep — the stale sibling is still deleted");
+        assertNull(User.getById("sweep-stale-sibling", false), "one corrupt timestamp must not abort the whole sweep - the stale sibling is still deleted");
     }
 
     @Test

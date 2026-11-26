@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Group Access" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Group Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -50,7 +50,7 @@
         <!-- Pending banner -->
         <j:if test="${!group.resolved}">
           <div class="jenkins-alert jenkins-alert-info" style="margin-bottom:16px;font-size:0.88em;">
-            &#8505; Display name not yet resolved — will be set automatically when the first group member signs in with Microsoft.
+            &#8505; Display name not yet resolved - will be set automatically when the first group member signs in with Microsoft.
           </div>
         </j:if>
 

@@ -24,7 +24,7 @@ public class LoginHistoryProperty extends UserProperty {
 
     public synchronized List<LoginEvent> getEvents() {
         if (events == null) events = new ArrayList<>();
-        return new ArrayList<>(events); // defensive copy — addEvent mutates under the same lock
+        return new ArrayList<>(events); // defensive copy - addEvent mutates under the same lock
     }
 
     public synchronized LoginEvent getLatestEvent() {

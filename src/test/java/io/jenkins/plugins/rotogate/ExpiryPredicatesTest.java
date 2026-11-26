@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Pure unit tests for the time-based predicates that govern access revocation. The security
- * requirement is that a CORRUPT / unparseable timestamp FAILS CLOSED — i.e. the grant is
+ * requirement is that a CORRUPT / unparseable timestamp FAILS CLOSED - i.e. the grant is
  * treated as expired / timed out and revoked, never silently kept alive. These are plain
  * POJOs, so no JenkinsRule is needed.
  */

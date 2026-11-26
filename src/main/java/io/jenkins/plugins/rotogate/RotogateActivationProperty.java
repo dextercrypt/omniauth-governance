@@ -49,7 +49,7 @@ public class RotogateActivationProperty extends UserProperty {
 
     // ----- token helpers -----------------------------------------------------
 
-    /** A fresh URL-safe random token (raw — emailed to the requester, never stored). */
+    /** A fresh URL-safe random token (raw - emailed to the requester, never stored). */
     public static String newRawToken() {
         byte[] buf = new byte[32];
         new SecureRandom().nextBytes(buf);

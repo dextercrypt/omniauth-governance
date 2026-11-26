@@ -23,7 +23,7 @@ function jitInit() {
       openDenyModal(this.dataset.requestId, this.dataset.requesterId, this.dataset.scope);
     });
   });
-  // Revoke active JIT — confirmation handled by the shared in-app modal (rg/rgConfirm.js) via the
+  // Revoke active JIT - confirmation handled by the shared in-app modal (rg/rgConfirm.js) via the
   // button's data-confirm attribute; no native confirm() here.
   var backdrop = document.getElementById('jitDenyBackdrop');
   if (backdrop) backdrop.addEventListener('click', function() { closeDenyModal(); });

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Anti-open-redirect gate tests. Pure string logic — no Jenkins needed.
+ * Anti-open-redirect gate tests. Pure string logic - no Jenkins needed.
  *
  * Covers the two guards that decide whether a post-login {@code from=} / redirect
  * target may be followed:

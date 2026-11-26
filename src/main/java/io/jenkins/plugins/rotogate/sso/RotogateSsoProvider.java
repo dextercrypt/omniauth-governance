@@ -14,7 +14,7 @@ import org.kohsuke.stapler.StaplerRequest2;
  *
  * <p>Today the only implementation is {@link EntraOAuthConfig} (Microsoft Entra / Azure AD), but
  * modelling providers as an extension point means a new provider (Okta, Google, a generic OIDC/SAML
- * one, …) is added by writing a new subclass with its own {@code config.jelly} — the realm's
+ * one, …) is added by writing a new subclass with its own {@code config.jelly} - the realm's
  * provider dropdown ({@code <f:dropdownDescriptorSelector field="ssoProvider"/>}) then offers it and
  * shows its configuration form, with no change to the realm itself.
  *
@@ -66,7 +66,7 @@ public abstract class RotogateSsoProvider extends AbstractDescribableImpl<Rotoga
      */
     public abstract HttpResponse finishLogin(RotogateSecurityRealm realm, StaplerRequest2 req) throws Exception;
 
-    /** All registered SSO provider descriptors — backs the provider selector on the realm config. */
+    /** All registered SSO provider descriptors - backs the provider selector on the realm config. */
     public static DescriptorExtensionList<RotogateSsoProvider, Descriptor<RotogateSsoProvider>> all() {
         return Jenkins.get().getDescriptorList(RotogateSsoProvider.class);
     }

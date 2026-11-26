@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the pure helpers and the break-glass gating of RotogatePageDecorator.
  *
- *   - htmlEsc                     — escapes & < > " ' (private static, reflection)
- *   - buildBreakGlassActiveScript — embeds the expiry epoch-millis into the injected script
- *   - resolveScript               — the Long-expiry gate: a FUTURE Long emits the active-override
+ *   - htmlEsc                     - escapes & < > " ' (private static, reflection)
+ *   - buildBreakGlassActiveScript - embeds the expiry epoch-millis into the injected script
+ *   - resolveScript               - the Long-expiry gate: a FUTURE Long emits the active-override
  *                                   script, a PAST Long does not (the attr is a Long, read as Long)
  *
  * The three servlet filters' full doFilter paths need a real servlet pipeline and are not
@@ -92,7 +92,7 @@ public class RotogatePageDecoratorTest {
         assertTrue(tags.contains("/plugin/rotogate/js/breakglass-gate.js"));
     }
 
-    // ─── resolveScript — Long-expiry gate (MatrixDisableFilter) ──────────────
+    // ─── resolveScript - Long-expiry gate (MatrixDisableFilter) ──────────────
 
     private static String resolveScript(HttpServletRequest req) throws Exception {
         Class<?> c = Class.forName(MATRIX_FILTER);

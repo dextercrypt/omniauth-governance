@@ -31,7 +31,7 @@ import java.util.Enumeration;
 public class RotogatePageDecorator {
 
     // ── SVG icon constants (currentColor, used in injected scripts and action page) ────────────
-    // All use double-quoted attributes — safe to embed in JS single-quoted strings.
+    // All use double-quoted attributes - safe to embed in JS single-quoted strings.
 
     private static final String SVG_BOLT =
         "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"currentColor\""
@@ -172,7 +172,7 @@ public class RotogatePageDecorator {
                             if (System.currentTimeMillis() < expiry) {
                                 activeExpiry = expiry;
                             } else {
-                                // Expired — clean up
+                                // Expired - clean up
                                 session.removeAttribute("rotogate.breakGlass.expiry");
                                 session.removeAttribute("rotogate.breakGlass.user");
                                 session.removeAttribute("rotogate.breakGlass.reason");
@@ -255,7 +255,7 @@ public class RotogatePageDecorator {
                 int  skips  = prop != null ? prop.getBreakGlassEnrollSkips() : 0;
                 boolean forced = skips >= 3;
 
-                // Always allow through if SESSION_DONE is set — covers the "last reminder dismiss"
+                // Always allow through if SESSION_DONE is set - covers the "last reminder dismiss"
                 // case where doTotpReminderSkip sets SESSION_DONE just as skips reaches 3.
                 // Next login the session is fresh, forced mode will show the wall.
                 jakarta.servlet.http.HttpSession sess = httpReq.getSession(false);
@@ -329,7 +329,7 @@ public class RotogatePageDecorator {
                 if (!(jenkins.getAuthorizationStrategy() instanceof RotogateAuthorizationStrategy)) { chain.doFilter(req, res); return; }
                 // Only inject on a real buildable job. The JIT banner is about requesting access to
                 // BUILD a job, so it has no business on a folder, the "New Item" form, or other
-                // item-management pages — and buffering/rewriting those responses interferes with
+                // item-management pages - and buffering/rewriting those responses interferes with
                 // Jenkins' own form scripts (it left the folder "Create" button permanently
                 // disabled). Resolving the URL to a hudson.model.Job excludes all of those.
                 if (!resolvesToJob(jenkins, httpReq.getContextPath(), path))          { chain.doFilter(req, res); return; }
@@ -482,7 +482,7 @@ public class RotogatePageDecorator {
             }
             if (!jitReq.isPending()) {
                 String msg = "ACTIVE".equals(jitReq.getStatus())
-                        ? "This request has already been fully approved — access is now active."
+                        ? "This request has already been fully approved - access is now active."
                         : "This request has already been processed (" + jitReq.statusLabel() + ").";
                 renderSimplePage(rsp, 200, "Already Processed", msg, "#6b7280");
                 return;
@@ -582,7 +582,7 @@ public class RotogatePageDecorator {
         private static String actionPageHtml(RotogateJitRequest req, String token, String submitUrl, String approversHtml) {
             return "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>"
                 + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-                + "<title>JIT Access Request — Take Action</title>"
+                + "<title>JIT Access Request - Take Action</title>"
                 + "<style>*{box-sizing:border-box;}body{margin:0;padding:24px 16px;background:#f3f4f6;"
                 + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#1f2937;}"
                 + ".card{background:#fff;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,0.08);max-width:560px;margin:0 auto;overflow:hidden;}"
@@ -606,7 +606,7 @@ public class RotogatePageDecorator {
                 + ".btn-approve{background:#16a34a;color:#fff;}.btn-deny{background:#dc2626;color:#fff;}"
                 + "</style></head><body>"
                 + "<div class='card'>"
-                + "<div class='hdr'><span style='display:inline-flex;align-items:center;'>" + SVG_BOLT + "</span><h1>JIT Access Request — Action Required</h1></div>"
+                + "<div class='hdr'><span style='display:inline-flex;align-items:center;'>" + SVG_BOLT + "</span><h1>JIT Access Request - Action Required</h1></div>"
                 + "<div class='body'>"
                 + "<table class='kv'>"
                 + "<tr><td>Requested by</td><td><strong>" + htmlEsc(req.getRequesterId()) + "</strong></td></tr>"
@@ -789,7 +789,7 @@ public class RotogatePageDecorator {
             HttpServletResponse httpRes = (HttpServletResponse) res;
 
             String path = httpReq.getRequestURI();
-            // Show the banner only to admins — the only ones who can Deactivate, and the ones it's
+            // Show the banner only to admins - the only ones who can Deactivate, and the ones it's
             // meant for. This also keeps it off the public login page (no anonymous "SOS active"
             // broadcast, and no Deactivate button that an unauthenticated visitor can't use).
             if (!"GET".equalsIgnoreCase(httpReq.getMethod()) || isBannerExcluded(path)
@@ -841,7 +841,7 @@ public class RotogatePageDecorator {
 
         private static boolean isBannerExcluded(String path) {
             return path.contains("/sos/")        ||
-                   // Never on a login page — anonymous visitors must not be told the
+                   // Never on a login page - anonymous visitors must not be told the
                    // recovery window is open (that would advertise /sos/recover to an
                    // attacker), and it is useless to an already-authenticated admin there.
                    path.endsWith("/login")        ||

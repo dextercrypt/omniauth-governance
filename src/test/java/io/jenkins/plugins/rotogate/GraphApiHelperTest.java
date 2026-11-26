@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * so no second HTTP request is ever issued to an attacker-controlled URL even if the
  * response body were tampered with.
  *
- * No real network I/O: a fake HttpClient subclass (NOT a Jenkins class — safe to subclass)
+ * No real network I/O: a fake HttpClient subclass (NOT a Jenkins class - safe to subclass)
  * returns canned responses from a queue and records every requested URI. The fake is
  * injected into GraphApiHelper's private httpClient field by reflection.
  */
@@ -164,7 +164,7 @@ public class GraphApiHelperTest {
 
     @Test
     public void groupNodeMissingDisplayName_isSkipped() throws Exception {
-        // One well-formed node and one missing displayName — only the complete one is kept.
+        // One well-formed node and one missing displayName - only the complete one is kept.
         String body = "{\"value\":["
                 + "{\"id\":\"ok\",\"displayName\":\"Good-Group\"},"
                 + "{\"id\":\"bad\"}"  // no displayName

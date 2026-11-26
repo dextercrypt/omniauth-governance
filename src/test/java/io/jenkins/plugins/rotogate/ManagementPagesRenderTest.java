@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Server-side render smoke test for the Rotogate management pages. Each parameter-less page is
- * GET-ed and must return HTTP 200 — this catches Jelly errors (an unknown tag, a missing view,
+ * GET-ed and must return HTTP 200 - this catches Jelly errors (an unknown tag, a missing view,
  * a bad EL expression) that would otherwise only surface when a human opens the page. It is the
  * headless counterpart to clicking through every page.
  *

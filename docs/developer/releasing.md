@@ -4,7 +4,7 @@
 
 ## Where the version comes from
 
-The plugin version is **derived from the build** — never hardcoded in source or docs.
+The plugin version is **derived from the build** - never hardcoded in source or docs.
 
 - At runtime it is read from the plugin wrapper (`PluginWrapper.getVersion()`), surfaced on the
   **About / Info** page (**Manage Jenkins → Rotogate → Info**).
@@ -18,9 +18,9 @@ About page, manifest, and update-center metadata all follow.
 
 The project follows [Semantic Versioning](https://semver.org/):
 
-- **MAJOR** — incompatible changes to configuration, stored data shape, or the permission model.
-- **MINOR** — backward-compatible features.
-- **PATCH** — backward-compatible fixes.
+- **MAJOR** - incompatible changes to configuration, stored data shape, or the permission model.
+- **MINOR** - backward-compatible features.
+- **PATCH** - backward-compatible fixes.
 
 Pre-release builds use a suffix, e.g. `1.0.0-beta.1`.
 
@@ -38,7 +38,7 @@ There is **no Jenkins CD pipeline** for this plugin; releases are cut manually.
 ## First public release
 
 The first public release is tagged **`v1.0.0-beta.1`**. It marks the feature-complete baseline
-documented in the [CHANGELOG](../CHANGELOG.md) — authentication (native + Entra SSO),
+documented in the [CHANGELOG](../CHANGELOG.md) - authentication (native + Entra SSO),
 authorization and access governance, JIT, provisioning portal, audit + retention, dashboard,
 backup/restore, and notifications.
 

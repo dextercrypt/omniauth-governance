@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Backup &amp; Restore" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Backup &amp; Restore" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -16,7 +16,7 @@
         <!-- Status messages -->
         <j:if test="${request2.getParameter('imported') == '1'}">
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 20px;">
-            Configuration imported — ${request2.getParameter('roles')} role(s),
+            Configuration imported - ${request2.getParameter('roles')} role(s),
             ${request2.getParameter('assignments')} assignment(s),
             ${request2.getParameter('groups')} group(s). If you imported from another controller,
             re-enter your secrets (Entra client secret, SMTP password, Slack/Teams webhooks) on the
@@ -38,7 +38,7 @@
         <div class="jenkins-card" style="padding: 16px 20px; margin-bottom: 20px;">
           <p style="margin: 0 0 8px 0; color: var(--text-color-secondary); font-size: 0.9em;">
             Back up and restore Rotogate <strong>roles, assignments, Access-Management groups, and
-            global settings</strong> as a portable YAML file — useful for replicating access
+            global settings</strong> as a portable YAML file - useful for replicating access
             configuration onto another controller.
           </p>
           <p style="margin: 0; color: var(--text-color-secondary); font-size: 0.85em;">

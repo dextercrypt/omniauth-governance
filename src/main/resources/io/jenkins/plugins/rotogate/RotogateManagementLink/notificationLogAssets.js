@@ -22,9 +22,9 @@ function goPage(p) {
   });
 
   document.getElementById('pageInfo').textContent =
-    'Showing ' + (start + 1) + '–' + Math.min(end, rows.length) + ' of ' + rows.length;
+    'Showing ' + (start + 1) + '-' + Math.min(end, rows.length) + ' of ' + rows.length;
 
-  // Page number buttons — show window of 5 around current
+  // Page number buttons - show window of 5 around current
   var btns = document.getElementById('pageButtons');
   btns.innerHTML = '';
   var wStart = Math.max(1, p - 2);

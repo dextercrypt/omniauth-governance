@@ -118,7 +118,7 @@ function rgFetchMetrics() {
       });
       rgRenderAgo();
     })
-    .catch(function(){ /* transient — keep last values */ });
+    .catch(function(){ /* transient - keep last values */ });
 }
 function rgStartLive() {
   rgRenderAgo();

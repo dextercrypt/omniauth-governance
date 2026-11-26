@@ -16,7 +16,7 @@ import java.io.IOException;
  *
  * <p>{@code /request-access/submitNative} and {@code /request-access/submitEntraReason} are
  * posted by <em>anonymous</em> users, for whom a Jelly-issued crumb is unreliable. CSRF adds
- * little here — both endpoints only create a {@code PENDING} request that still requires admin
+ * little here - both endpoints only create a {@code PENDING} request that still requires admin
  * approval; the native form is additionally guarded by the {@link ProvisioningBreaker}, and the
  * Entra reason page requires a Microsoft-verified identity already stashed on the session.
  */

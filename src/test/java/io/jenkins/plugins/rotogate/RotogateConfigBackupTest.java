@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for {@link RotogateConfigBackup} — the UI Backup &amp; Restore serializer.
+ * Tests for {@link RotogateConfigBackup} - the UI Backup &amp; Restore serializer.
  *
  * <p>Pins the safety-critical properties: the export never contains the realm or any secret;
  * import round-trips roles/assignments/groups/global settings with replace semantics; import
@@ -158,17 +158,17 @@ public class RotogateConfigBackupTest {
         // Correctly-decoded non-ASCII content must parse fine (the bug was decoding, not parsing).
         String yaml = "unclassified:\n"
                 + "  rotogateGlobalConfig:\n"
-                + "    loginHeading: \"Café — Build\"\n"
+                + "    loginHeading: \"Café - Build\"\n"
                 + "    smtpFromName: \"Jenkins Ömni\"\n";
         RotogateConfigBackup.Parsed p = RotogateConfigBackup.parse(yaml);
-        assertEquals("Café — Build", p.globals.get("loginHeading"));
+        assertEquals("Café - Build", p.globals.get("loginHeading"));
     }
 
     @Test
     public void parseToleratesCharsetMangledUpload() {
         // Reproduces the browser-import bug: a UTF-8 file whose bytes the servlet container decoded
         // as ISO-8859-1, turning the em-dash into a C1 control char. Parse must still succeed.
-        String original = "# Rotogate backup — note\n"
+        String original = "# Rotogate backup - note\n"
                 + "unclassified:\n  rotogateGlobalConfig:\n    smtpHost: mangled-ok\n";
         String mangled = new String(original.getBytes(java.nio.charset.StandardCharsets.UTF_8),
                                     java.nio.charset.StandardCharsets.ISO_8859_1);
@@ -194,7 +194,7 @@ public class RotogateConfigBackupTest {
                 new RotogateRoleConfig.RoleDefinition("r2", "", List.of())));
         String yamlA = RotogateConfigBackup.export();
 
-        // State B (live now): r1 (desc "two" — changed), r3 (added); r2 dropped.
+        // State B (live now): r1 (desc "two" - changed), r3 (added); r2 dropped.
         rc.setRoles(Arrays.asList(
                 new RotogateRoleConfig.RoleDefinition("r1", "two", List.of()),
                 new RotogateRoleConfig.RoleDefinition("r3", "", List.of())));

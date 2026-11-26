@@ -15,7 +15,7 @@ import java.util.List;
  * trivially through XStream and JCasC without a Describable), and evaluated at render time against
  * server local time by {@link #isActiveAt}. Days use ISO numbering (1 = Monday … 7 = Sunday); an
  * empty day list means "every day". Times are minutes-from-midnight; a window whose start is after
- * its end wraps past midnight (e.g. 22:00–02:00).
+ * its end wraps past midnight (e.g. 22:00-02:00).
  */
 public class ScheduledAnnouncement {
 
@@ -66,7 +66,7 @@ public class ScheduledAnnouncement {
 
     // ── JSON round-trip (the on-disk form is a JSON array string) ──────────────
 
-    /** Parse a JSON array string into rules; never throws — a malformed blob yields an empty list. */
+    /** Parse a JSON array string into rules; never throws - a malformed blob yields an empty list. */
     public static List<ScheduledAnnouncement> parseList(String json) {
         List<ScheduledAnnouncement> out = new ArrayList<>();
         if (json == null || json.isBlank()) return out;
@@ -119,7 +119,7 @@ public class ScheduledAnnouncement {
         return arr.toString();
     }
 
-    /** Parse then re-serialise, dropping malformed entries — the canonical on-disk form. */
+    /** Parse then re-serialise, dropping malformed entries - the canonical on-disk form. */
     public static String normalise(String json) {
         return toJson(parseList(json));
     }

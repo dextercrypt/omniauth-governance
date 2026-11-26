@@ -5,7 +5,7 @@
   <j:set var="forced"   value="${it.breakGlassEnrollmentForced}"/>
   <j:set var="afterThis" value="${it.breakGlassSkipsAfterThis}"/>
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Authenticator Setup" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Authenticator Setup" norefresh="true">
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.totpReminderAssets"/>
@@ -24,7 +24,7 @@
             <!-- Action-required banner -->
             <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--rg-danger-bg); border:1px solid var(--rg-danger-border); border-radius:8px; margin-bottom:20px;">
               <l:icon src="symbol-information-circle plugin-ionicons-api" class="icon-sm"/>
-              <span style="font-size:0.88em; color:var(--rg-danger-fg);"><strong>Action Required</strong> — You've used all 3 reminders. Enroll a TOTP device to continue using Jenkins.</span>
+              <span style="font-size:0.88em; color:var(--rg-danger-fg);"><strong>Action Required</strong> - You've used all 3 reminders. Enroll a TOTP device to continue using Jenkins.</span>
             </div>
 
             <!-- Enrollment card -->
@@ -39,7 +39,7 @@
                   <div>
                     <div style="font-size:1em; font-weight:700; color:var(--text-color); margin-bottom:3px;">Enroll Your Authenticator</div>
                     <div style="font-size:0.83em; color:var(--text-color-secondary); line-height:1.4;">
-                      This is a one-time setup. Scan the QR code into any TOTP app — takes under 2 minutes.
+                      This is a one-time setup. Scan the QR code into any TOTP app - takes under 2 minutes.
                     </div>
                   </div>
                 </div>
@@ -51,7 +51,7 @@
                 <div style="margin-bottom:18px;">
                   <label style="display:block; font-size:0.88em; font-weight:600; margin-bottom:4px;">Device name</label>
                   <input id="device-name" type="text" class="jenkins-input" style="width:280px;"
-                         placeholder="e.g. iPhone — Google Authenticator"/>
+                         placeholder="e.g. iPhone - Google Authenticator"/>
                   <div style="font-size:0.78em; color:var(--text-color-secondary); margin-top:4px;">Helps you identify this device later.</div>
                 </div>
 
@@ -94,7 +94,7 @@
                       </div>
                       <div style="margin-bottom:14px;">
                         <label style="display:block; font-size:0.88em; font-weight:600; margin-bottom:6px;">
-                          Verify — enter 6-digit code from your app
+                          Verify - enter 6-digit code from your app
                         </label>
                         <input id="verify-code" type="text" inputmode="numeric" maxlength="6" autocomplete="off"
                                placeholder="123456" class="jenkins-input"
@@ -150,7 +150,7 @@
               </h2>
               <p style="text-align:center; margin:0 auto 22px; max-width:460px; font-size:0.88em; color:var(--text-color-secondary); line-height:1.65;">
                 As a Jenkins administrator, enrolling a TOTP device lets you activate
-                <strong>Emergency Override</strong> — an audited safety mechanism for recovery
+                <strong>Emergency Override</strong> - an audited safety mechanism for recovery
                 scenarios where direct access to the Authorization table is needed.
               </p>
 
@@ -174,7 +174,7 @@
                   <j:when test="${skips eq 2}">
                     <button type="button" class="js-rg-skip-reminder"
                             style="padding:9px 20px; border:1px solid var(--rg-warning-border); border-radius:6px; background:var(--rg-card-bg); color:var(--rg-warning-fg); font-size:0.88em; font-weight:600; cursor:pointer;">
-                      Last reminder — Dismiss
+                      Last reminder - Dismiss
                     </button>
                   </j:when>
                   <j:otherwise>

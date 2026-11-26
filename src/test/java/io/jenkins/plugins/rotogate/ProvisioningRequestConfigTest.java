@@ -213,7 +213,7 @@ public class ProvisioningRequestConfigTest {
 
     @Test
     public void cancel_nullRequesterAllowed() {
-        // null requesterId means an administrative cancel — ownership not enforced.
+        // null requesterId means an administrative cancel - ownership not enforced.
         ProvisioningRequestConfig s = store();
         ProvisioningRequest r = pending("pam");
         s.addRequest(r);

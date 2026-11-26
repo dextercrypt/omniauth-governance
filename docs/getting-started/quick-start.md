@@ -34,12 +34,12 @@ Full walkthrough: [Microsoft Entra setup](../administration/entra-setup.md).
 
 Then, in the security realm configuration:
 
-1. Turn on **Connect a single sign-on provider (SSO)** (off by default — Rotogate is native-first).
+1. Turn on **Connect a single sign-on provider (SSO)** (off by default - Rotogate is native-first).
 2. Enter **Tenant ID**, **Client ID**, **Client Secret**.
 3. (Optional) Enable **Group Sync** to import Azure AD groups.
 4. **Save**.
 
-> Leave the SSO toggle off to run native-only — step 2 above is skipped entirely and the login
+> Leave the SSO toggle off to run native-only - step 2 above is skipped entirely and the login
 > page stays username/password. You can turn SSO on later without losing anything.
 
 ## 4. Test both login paths
@@ -52,7 +52,7 @@ Open `https://<jenkins-host>/<prefix>/securityRealm/login` in a private window:
 ## 5. Grant some access
 
 1. **Manage Jenkins → Rotogate**.
-2. Open a user (or add one), then grant a role/permission — global or scoped to a
+2. Open a user (or add one), then grant a role/permission - global or scoped to a
    job/folder, optionally with an expiry date.
 
 See [Access management](../administration/access-management.md).
@@ -66,7 +66,7 @@ Before you rely on SSO, configure at least one of:
 
 ## 7. (Recommended) Turn on notifications
 
-**Manage Jenkins → Rotogate → Notifications** — enable email, Slack, or Teams and send a
+**Manage Jenkins → Rotogate → Notifications** - enable email, Slack, or Teams and send a
 test message. See [Notifications](../administration/notifications.md).
 
 ---

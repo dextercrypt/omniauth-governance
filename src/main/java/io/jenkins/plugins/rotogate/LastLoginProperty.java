@@ -37,7 +37,7 @@ public class LastLoginProperty extends UserProperty {
 
         @Override
         public boolean isEnabled() {
-            return false; // internal use only — not shown in user config UI
+            return false; // internal use only - not shown in user config UI
         }
 
         @Override

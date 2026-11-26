@@ -31,7 +31,7 @@ public class AccessReviewWork extends AsyncPeriodicWork {
     protected void execute(TaskListener listener) throws IOException, InterruptedException {
         RotogateGlobalConfig config = RotogateGlobalConfig.get();
         if (config == null || !config.isAccessReviewEnabled()) return;
-        // Fire weekly on Monday at 09:00 — reuse stale warning cron mechanism
+        // Fire weekly on Monday at 09:00 - reuse stale warning cron mechanism
         if (!StaleUserCleanupWork.cronMatches("0 9 * * 1")) return;
         runDigest(config);
     }

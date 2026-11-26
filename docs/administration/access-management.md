@@ -4,7 +4,7 @@
 
 Rotogate's authorization strategy (`RotogateAuthorizationStrategy`) builds on Jenkins'
 Project-based Matrix Authorization and adds a friendlier permission model, group grants,
-job/folder scoping, expiry, and conflict detection — all managed from
+job/folder scoping, expiry, and conflict detection - all managed from
 **Manage Jenkins → Rotogate → Access management**.
 
 > Requires the **Rotogate Authorization Strategy** to be selected under
@@ -27,7 +27,7 @@ Assignments are stored by `RotogateAssignmentConfig`; role definitions by
 
 1. **Manage Jenkins → Rotogate → Access management**.
 2. Select an existing user/group, or add a subject.
-3. Choose a **scope** — global, or pick a job/folder from the tree picker.
+3. Choose a **scope** - global, or pick a job/folder from the tree picker.
 4. Choose a **role** and/or individual permissions.
 5. (Optional) Set an **expiry date**.
 6. Save the grant.
@@ -41,7 +41,7 @@ When you scope a grant to a job or folder:
 - **Parent folders are automatically granted Read** so the user can navigate to the scoped
   item.
 
-Scoped grants are the recommended default — grant the narrowest scope that lets the user do
+Scoped grants are the recommended default - grant the narrowest scope that lets the user do
 their job.
 
 ### Group grants {#group-grants}
@@ -66,9 +66,9 @@ Roles are named permission bundles you define once and reuse across assignments.
 them alongside access management; definitions are stored by `RotogateRoleConfig`.
 
 Typical roles:
-- **Admin** — full control (use sparingly; watch for [conflicts](#conflict-detection)).
-- **Developer** — configure/build jobs within a scope.
-- **Reader** — read-only visibility.
+- **Admin** - full control (use sparingly; watch for [conflicts](#conflict-detection)).
+- **Developer** - configure/build jobs within a scope.
+- **Reader** - read-only visibility.
 
 See the [Permissions reference](../reference/permissions.md) for the grouped permission
 catalog Rotogate presents.

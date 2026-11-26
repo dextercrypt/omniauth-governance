@@ -1,5 +1,5 @@
 <!--
-  Jenkins 2.541.2 login page — verbatim copy with Microsoft Entra button added.
+  Jenkins 2.541.2 login page - verbatim copy with Microsoft Entra button added.
   The native form is 100% identical to Jenkins' own login page.
 -->
 <?jelly escape-by-default='true'?>
@@ -83,7 +83,7 @@
                 <st:include it="${simpleDecorator}" page="simple-header.jelly" />
 
                 <!-- ============================================================
-                     NATIVE JENKINS LOGIN — identical to Jenkins 2.541.2
+                     NATIVE JENKINS LOGIN - identical to Jenkins 2.541.2
                      ============================================================ -->
                 <form name="login" action="${rootURL}/rotogate/nativeLogin"
                     method="post">
@@ -168,7 +168,7 @@
                 </form>
 
                 <!-- ============================================================
-                     EXTERNAL SSO LOGIN — label + logo come from the configured
+                     EXTERNAL SSO LOGIN - label + logo come from the configured
                      provider (RotogateSsoProvider#getId/getButtonLabel); today: Microsoft.
                      ============================================================ -->
                 <j:if test="${it.ssoProvider != null}">

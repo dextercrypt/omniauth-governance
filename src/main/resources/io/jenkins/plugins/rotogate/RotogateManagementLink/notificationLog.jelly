@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Notification Log" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Notification Log" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -31,7 +31,7 @@
                 ${entries.size()} notification(s) recorded
               </span>
               <span style="margin-left: 8px; font-size: 0.8em; color: var(--text-color-secondary);">
-                — last 200, persists across restarts
+                - last 200, persists across restarts
               </span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -54,7 +54,7 @@
             </l:notice>
           </j:if>
 
-          <!-- Table (hidden initially — JS shows correct page) -->
+          <!-- Table (hidden initially - JS shows correct page) -->
           <j:if test="${!entries.isEmpty()}">
             <table id="logTable" class="jenkins-table jenkins-table--medium" style="width: 100%;">
               <thead>

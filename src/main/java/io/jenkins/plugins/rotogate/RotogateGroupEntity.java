@@ -34,7 +34,7 @@ public class RotogateGroupEntity {
 
     public boolean isResolved() { return displayName != null && !displayName.isEmpty(); }
 
-    /** Human-readable name for UI display — resolved name or label or OID. */
+    /** Human-readable name for UI display - resolved name or label or OID. */
     public String getEffectiveName() {
         if (isResolved()) return displayName;
         if (label != null && !label.isEmpty()) return label;

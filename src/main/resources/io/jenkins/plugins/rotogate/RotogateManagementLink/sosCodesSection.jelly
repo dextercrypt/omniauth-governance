@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <!--
   SOS Recovery Codes section. Rendered as a section of the unified "Emergency Access" page
-  (emergencyAccess.jelly) via st:include — NOT a standalone layout. All element IDs here are
+  (emergencyAccess.jelly) via st:include - NOT a standalone layout. All element IDs here are
   sos-* and do not collide with the Break Glass section.
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
@@ -13,7 +13,7 @@
     <h2 style="margin:0; font-size:1.05em; font-weight:600;">SOS Recovery Codes</h2>
   </div>
   <p style="margin:0 0 16px; font-size:0.85em; color:var(--text-color-secondary); line-height:1.6;">
-    Used when you are <strong>locked out</strong> — SSO is down or the authorization strategy is broken, so
+    Used when you are <strong>locked out</strong> - SSO is down or the authorization strategy is broken, so
     no admin can sign in. An operator drops a trigger file on the host to arm <code>/sos/recover</code>, where
     one of these single-use codes regains admin access. Only salted hashes are stored, so a copy of
     <code>JENKINS_HOME</code> cannot reveal them.
@@ -106,7 +106,7 @@
     </div>
   </div>
 
-  <!-- Regenerate confirmation modal (styled — mirrors the Break Glass Remove Device modal) -->
+  <!-- Regenerate confirmation modal (styled - mirrors the Break Glass Remove Device modal) -->
   <div id="sos-regen-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:var(--rg-card-bg); border-radius:8px; padding:24px; max-width:440px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
       <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
@@ -116,7 +116,7 @@
         <div>
           <h3 style="margin:0 0 4px; font-size:15px; font-weight:600; color:var(--text-color);">Regenerate recovery codes?</h3>
           <p style="margin:0; font-size:13px; color:var(--text-color-secondary); line-height:1.5;">
-            This generates a fresh set of 10 codes and <strong>immediately invalidates your current ones</strong> —
+            This generates a fresh set of 10 codes and <strong>immediately invalidates your current ones</strong> -
             any unused codes stop working. The new codes are shown once; save them before you leave the page.
           </p>
         </div>

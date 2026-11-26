@@ -2,8 +2,8 @@
 
 > Route access and security events to email, Slack, and Microsoft Teams.
 
-Rotogate can notify administrators and stakeholders about security-relevant events —
-new JIT requests, access changes, stale-account warnings, access-review digests, and more —
+Rotogate can notify administrators and stakeholders about security-relevant events -
+new JIT requests, access changes, stale-account warnings, access-review digests, and more -
 across three channels, each independently configurable with its own event subscriptions.
 
 Managed at **Manage Jenkins → Rotogate → Notifications**.

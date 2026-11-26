@@ -23,7 +23,7 @@ in YAML.
 | `rotogateProvisioningRequests` | Provisioning request store | `ProvisioningRequestConfig` |
 
 > `RotogateGlobalConfig` (global settings: brute-force lockout, notifications, branding,
-> audit retention) has **no** `@Symbol` — it is a plain `GlobalConfiguration`, so it
+> audit retention) has **no** `@Symbol` - it is a plain `GlobalConfiguration`, so it
 > round-trips under its global-configuration descriptor rather than a named symbol. Its
 > settings are still JCasC-definable.
 
@@ -56,7 +56,7 @@ unclassified:
 ```
 
 > **`ssoEnabled`** is the authoritative SSO switch. Omit it (or set `false`) for a native-only
-> realm — leave `entraConfig` out entirely in that case. Setting `entraConfig` without
+> realm - leave `entraConfig` out entirely in that case. Setting `entraConfig` without
 > `ssoEnabled` keeps SSO on (back-compat: a provider implies on), but stating `ssoEnabled`
 > explicitly is clearest. Setting `ssoEnabled: false` while keeping `entraConfig` preserves the
 > provider settings but makes sign-in native-only.
@@ -84,7 +84,7 @@ Secrets are stored encrypted in Jenkins once applied.
 ## Notes
 
 - Assignments, roles, and JIT requests are also persisted as XML in `JENKINS_HOME`; JCasC is
-  the declarative front door, while those files are the runtime store — see
+  the declarative front door, while those files are the runtime store - see
   [Backup & restore](backup-and-restore.md).
 - Global settings on `RotogateGlobalConfig` round-trip under the global-configuration section,
   including `auditRetentionDays` (audit-log retention in days).

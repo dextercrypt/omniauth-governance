@@ -23,7 +23,7 @@ public class NotificationConfig {
     public static final String[] ALL_EVENTS = {
         "cleanup", "userDeleted", "configChanged", "protectedListChanged",
         "graphApiFailure", "adminGranted", "bruteForce", "staleWarning", "accessReview",
-        // JIT (were dispatched but missing from the catalog, so they defaulted off — now included)
+        // JIT (were dispatched but missing from the catalog, so they defaulted off - now included)
         "jitRequest", "jitApproved", "jitDenied",
         // Provisioning + account lifecycle (admin-facing)
         "provisionRequest", "accountExpired", "accountLocked"

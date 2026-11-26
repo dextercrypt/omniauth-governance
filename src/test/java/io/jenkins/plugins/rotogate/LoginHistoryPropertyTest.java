@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Pure unit tests for {@link LoginHistoryProperty}: newest-first ordering, the 10-event
  * capacity cap, and thread-safe reads that hand back a defensive copy (no CME).
  *
- * No Jenkins required — the property's list operations never touch Jenkins core.
+ * No Jenkins required - the property's list operations never touch Jenkins core.
  */
 public class LoginHistoryPropertyTest {
 

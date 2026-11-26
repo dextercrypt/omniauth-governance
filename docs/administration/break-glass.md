@@ -6,14 +6,14 @@
 "Break Glass" is a **deliberate, audited step-up**: an administrator who is **already
 authenticated with Overall/Administer** proves presence with a one-time TOTP code to open a
 short, logged window for sensitive operations. It exists so that the riskiest actions require
-a fresh, second-factor confirmation and leave a clear trail — not so that someone can get *in*.
+a fresh, second-factor confirmation and leave a clear trail - not so that someone can get *in*.
 
 Managed at **Manage Jenkins → Rotogate → Break Glass**.
 
-> **Important — this is NOT a lockout recovery path.** Activating Break Glass requires you to
+> **Important - this is NOT a lockout recovery path.** Activating Break Glass requires you to
 > already hold Overall/Administer (the handler checks `ADMINISTER` before anything else). If
-> you are genuinely locked out — no admin can sign in, the authorization strategy misfired, or
-> the last admin password is lost — Break Glass cannot help, because you can't reach it. Use
+> you are genuinely locked out - no admin can sign in, the authorization strategy misfired, or
+> the last admin password is lost - Break Glass cannot help, because you can't reach it. Use
 > Jenkins' standard out-of-band recovery instead: see [If you are actually locked
 > out](#if-you-are-actually-locked-out) below.
 
@@ -43,15 +43,15 @@ trusted administrator is recommended per your policy.
 1. Go to **Break Glass** and choose **Activate**.
 2. Enter a **reason** (required, for the audit trail) and the current **6-digit TOTP code**.
 3. On success, the confirmed window is open for **15 minutes**, then expires automatically.
-4. **Deactivate** as soon as you are done — don't wait for the timeout.
+4. **Deactivate** as soon as you are done - don't wait for the timeout.
 
 Activation, deactivation, and failed attempts are recorded in the
 [audit log](../security/audit-logging.md).
 
 ## If you are actually locked out
 
-Because Break Glass sits *behind* authorization, a true lockout — every admin is SSO-only and
-Entra is down, or the authorization strategy misfired so no one holds **Administer** — is
+Because Break Glass sits *behind* authorization, a true lockout - every admin is SSO-only and
+Entra is down, or the authorization strategy misfired so no one holds **Administer** - is
 recovered from the **controller host**, not the UI. The best first line of defence is simply to
 keep at least one **native** administrator account that does not depend on SSO.
 
@@ -69,9 +69,9 @@ are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal them
    ```
    touch "$JENKINS_HOME/rotogate-sos.request"
    ```
-   No restart is needed — the file is checked live. SOS Mode arms immediately and stays armed for
+   No restart is needed - the file is checked live. SOS Mode arms immediately and stays armed for
    **30 minutes** from the file's timestamp.
-2. In a browser, go to **`/sos/recover`** (it is dark — redirects to the login page — unless SOS
+2. In a browser, go to **`/sos/recover`** (it is dark - redirects to the login page - unless SOS
    is armed). A site-wide banner on every Jenkins page also announces that SOS Mode is active.
 3. Enter one of your **SOS recovery codes**. No username is asked: the matching code identifies
    which admin you are. That admin is re-granted global **Administer** (repairing the "nobody is
@@ -79,17 +79,17 @@ are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal them
 4. Repair a real admin account, then **Deactivate** SOS from the banner or from
    **Settings** (it also auto-closes after 30 minutes, or after 5 failed code attempts).
 
-**Realm gate — SOS only arms when Rotogate is your Security Realm.** SOS is a recovery path *into
+**Realm gate - SOS only arms when Rotogate is your Security Realm.** SOS is a recovery path *into
 Rotogate logins*, so it stays completely inert on any instance that does not use Rotogate to
 authenticate. If the plugin is merely installed (a different realm is active), or you have switched
 away from Rotogate (leaving stale recovery-code hashes on disk), dropping the trigger file does
-**nothing** — `/sos/recover` never leaves its dark state. This is what keeps an idle or abandoned
+**nothing** - `/sos/recover` never leaves its dark state. This is what keeps an idle or abandoned
 install from becoming a backdoor. The genuine lockout cases are unaffected: when your identity
 provider is merely unreachable, or the authorization strategy is misconfigured, Rotogate is still
 the *configured* realm, so SOS arms normally.
 
 **Restoring admin depends on the authorization strategy** (a separate setting from the realm). SOS
-re-grants **Administer** into any *matrix-based* strategy — Rotogate's own, or the stock
+re-grants **Administer** into any *matrix-based* strategy - Rotogate's own, or the stock
 *Matrix-based* / *Project-based Matrix* strategies. If the active strategy is **not** matrix-based
 (Role-Based Strategy, a custom strategy, "anyone can do anything"), SOS still signs you in but tells
 you plainly that admin could not be restored, and you repair it via the host-level steps below.
@@ -98,7 +98,7 @@ Every transition is recorded in the [audit log](../security/audit-logging.md): `
 `sos_recovery_success` (with the resolved admin and IP), `sos_recovery_failed`, `sos_deactivated`,
 `sos_expired`, `sos_locked`. SOS Mode can also be turned off (**Settings → SOS Mode**, `sosEnabled`)
 for environments that forbid it; note that anyone with filesystem access could re-enable it, so
-that toggle is a policy control, not a security boundary — the realm gate above is the real one.
+that toggle is a policy control, not a security boundary - the realm gate above is the real one.
 
 ### Last-resort host recovery
 
@@ -108,7 +108,7 @@ be restored), fall back to the standard Jenkins procedure: start with security d
 (`-Djenkins.model.Jenkins.useSecurity=false`) or edit `config.xml` in `JENKINS_HOME` to reset the
 authorization strategy / security realm, then restart and reconfigure.
 
-This is a deliberate design choice: the plugin never ships a hidden, always-on root bypass — every
+This is a deliberate design choice: the plugin never ships a hidden, always-on root bypass - every
 recovery path is an auditable, host-level action by whoever controls the server.
 
 ## Operational guidance

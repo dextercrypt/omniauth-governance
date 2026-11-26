@@ -23,14 +23,14 @@ import org.jenkinsci.plugins.matrixauth.PermissionEntry;
  * host access to {@code JENKINS_HOME} open a narrow, audited recovery window without disabling
  * security or hand-editing {@code config.xml}.
  *
- * <h3>Arming — file-driven, live-checked, no restart</h3>
+ * <h3>Arming - file-driven, live-checked, no restart</h3>
  * The operator drops an empty file {@code $JENKINS_HOME/rotogate-sos.request}. SOS is
  * <b>armed</b> whenever that file exists, is newer than {@value #WINDOW_MINUTES} minutes, and the
  * feature is enabled in the global config. The state is recomputed from the file on every check,
  * so arming and disarming take effect immediately with no restart. The file's own modification
- * time is the clock — the window cannot be extended by a running process.
+ * time is the clock - the window cannot be extended by a running process.
  *
- * <h3>Recovery — recovery code only, identity from the code</h3>
+ * <h3>Recovery - recovery code only, identity from the code</h3>
  * While armed, {@code /sos/recover} ({@link RotogateSosRootAction}) accepts a single-use
  * {@link RotogateRecoveryCodesProperty recovery code}. A matching code identifies the admin it
  * belongs to (no username is asked), that admin is re-granted {@link Jenkins#ADMINISTER}, and a
@@ -38,7 +38,7 @@ import org.jenkinsci.plugins.matrixauth.PermissionEntry;
  *
  * <h3>Trust model</h3>
  * Only salted hashes of the recovery codes live on disk, so even a full {@code JENKINS_HOME} read
- * does not yield a usable credential — it defeats the partial-access attacker (path-traversal read,
+ * does not yield a usable credential - it defeats the partial-access attacker (path-traversal read,
  * poisoned backup, log leak) that the old "drop a file → instant admin" design did not. Against an
  * attacker who can <em>write</em> arbitrary files as the Jenkins user, host-level {@code config.xml}
  * editing remains the ultimate (and equivalent) escape hatch; SOS does not widen that surface.
@@ -86,7 +86,7 @@ public final class RotogateSos {
     /**
      * True only when Rotogate is the active Jenkins {@link hudson.security.SecurityRealm}. This is the
      * <b>realm gate</b>: SOS is a recovery path <em>into Rotogate logins</em>, so it must stay inert on
-     * any instance that does not use Rotogate to authenticate — an idle install (plugin present but a
+     * any instance that does not use Rotogate to authenticate - an idle install (plugin present but a
      * different realm) or an abandoned one (switched away, leaving stale recovery-code hashes on disk).
      * In both cases SOS never arms, so it cannot be a backdoor. The real lockout cases are unaffected:
      * when SSO is merely unreachable, or the authorization strategy is misconfigured, the configured
@@ -129,7 +129,7 @@ public final class RotogateSos {
         failedAttempts.set(0);
         RotogateAuditLog audit = RotogateAuditLog.get();
         if (audit != null) audit.logSosArmed();
-        LOGGER.log(Level.WARNING, "Rotogate SOS Mode ARMED — recovery open at /sos/recover for {0} minutes.",
+        LOGGER.log(Level.WARNING, "Rotogate SOS Mode ARMED - recovery open at /sos/recover for {0} minutes.",
                 WINDOW_MINUTES);
     }
 
@@ -145,7 +145,7 @@ public final class RotogateSos {
             if (deleteTrigger()) {
                 if (audit != null) audit.logSosLocked();
                 resetState();
-                LOGGER.log(Level.WARNING, "Rotogate SOS Mode LOCKED after {0} failed attempts — disarmed.", n);
+                LOGGER.log(Level.WARNING, "Rotogate SOS Mode LOCKED after {0} failed attempts - disarmed.", n);
             }
             return true;
         }
@@ -171,7 +171,7 @@ public final class RotogateSos {
         if (deleteTrigger()) {
             RotogateAuditLog audit = RotogateAuditLog.get();
             if (audit != null) audit.logSosExpired();
-            LOGGER.log(Level.INFO, "Rotogate SOS Mode window elapsed — auto-disarmed.");
+            LOGGER.log(Level.INFO, "Rotogate SOS Mode window elapsed - auto-disarmed.");
         }
         resetState();
     }
@@ -187,7 +187,7 @@ public final class RotogateSos {
         File f = triggerFile();
         if (f == null || !f.exists()) return false;
         if (!f.delete()) {
-            LOGGER.log(Level.WARNING, "Rotogate SOS: could not delete trigger file {0} — "
+            LOGGER.log(Level.WARNING, "Rotogate SOS: could not delete trigger file {0} - "
                     + "delete it by hand to close the recovery window.", f);
             return false;
         }
@@ -225,13 +225,13 @@ public final class RotogateSos {
 
     /**
      * (Re)grant global {@link Jenkins#ADMINISTER} to {@code sid} on the active <b>matrix-based</b>
-     * authorization strategy — repairs the "nobody is admin" lockout. Additive and idempotent.
+     * authorization strategy - repairs the "nobody is admin" lockout. Additive and idempotent.
      *
-     * <p>Works with any {@link GlobalMatrixAuthorizationStrategy} and its subclasses — Rotogate's own
-     * strategy, plus the stock <em>Matrix-based</em> and <em>Project-based Matrix</em> strategies — since
+     * <p>Works with any {@link GlobalMatrixAuthorizationStrategy} and its subclasses - Rotogate's own
+     * strategy, plus the stock <em>Matrix-based</em> and <em>Project-based Matrix</em> strategies - since
      * they share the same {@code matrixauth} grant API. Returns false for a non-matrix strategy
      * (Role-Based, custom, "anyone can do anything"): the recovered user is still signed in, but admin
-     * could not be restored this way — the caller surfaces that and {@code config.xml} is the fallback.
+     * could not be restored this way - the caller surfaces that and {@code config.xml} is the fallback.
      */
     public static boolean grantAdminister(String sid) {
         try {

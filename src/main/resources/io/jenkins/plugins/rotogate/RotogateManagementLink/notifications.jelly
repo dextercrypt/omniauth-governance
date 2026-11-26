@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Notifications" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Notifications" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -85,7 +85,7 @@
               <div id="rgCustomLogoField" style="margin-top:12px; padding-top:12px;
                    border-top:1px solid var(--rg-card-border);">
                 <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
-                  Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
+                  Custom logo URL (PNG, SVG, or JPEG - ideally 32 px tall)
                 </div>
                 <input type="url" id="rgLogoUrlInput" name="notificationLogoUrl"
                        value="${cfg.notificationLogoUrl}"
@@ -97,7 +97,7 @@
               <div id="rgCustomLogoField" style="display:none; margin-top:12px; padding-top:12px;
                    border-top:1px solid var(--rg-card-border);">
                 <div style="font-size:0.82em; color:var(--text-color-secondary); margin-bottom:6px;">
-                  Custom logo URL (PNG, SVG, or JPEG — ideally 32 px tall)
+                  Custom logo URL (PNG, SVG, or JPEG - ideally 32 px tall)
                 </div>
                 <input type="url" id="rgLogoUrlInput" name="notificationLogoUrl"
                        class="jenkins-input"
@@ -222,7 +222,7 @@
                             background: var(--panel-header-bg,var(--rg-neutral-bg));
                             border: 1px solid var(--rg-card-border);
                             border-radius: 6px; padding: 10px 14px;">
-                  Works with any SMTP relay — Gmail, Outlook, SendGrid, AWS SES, or your own server.
+                  Works with any SMTP relay - Gmail, Outlook, SendGrid, AWS SES, or your own server.
                   Independent of Jenkins' own email configuration.
                 </div>
 
@@ -317,7 +317,7 @@
                          placeholder="admin@example.com, team@example.com"/>
                 </label>
 
-                <!-- Test button — native f:validateButton; posts the SMTP fields to
+                <!-- Test button - native f:validateButton; posts the SMTP fields to
                      RotogateGlobalConfig#doSendTestEmail and renders its FormValidation result. -->
                 <div style="padding-top: 4px; border-top: 1px solid var(--rg-card-border);">
                   <j:set var="descriptor" value="${it.smtpTestDescriptor}"/>
@@ -488,7 +488,7 @@
                     <div style="flex: 1;">
                       <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Account Lockout Enforcement</div>
                       <div style="color: var(--text-color-secondary); font-size: 0.8em;">
-                        When the threshold is reached, lock the account for a cooldown period — a correct password
+                        When the threshold is reached, lock the account for a cooldown period - a correct password
                         is rejected until it expires or an admin clears it. Protected users are never locked.
                       </div>
                     </div>
@@ -519,7 +519,7 @@
                     <div style="font-weight: 600; font-size: 0.88em; margin-bottom: 2px;">Stale User Warning Digest</div>
                     <div style="color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 10px;">
                       Periodic digest listing users who will become stale within the warning window.
-                      E.g. threshold=90, window=14 → warns about users last seen 76–90 days ago.
+                      E.g. threshold=90, window=14 → warns about users last seen 76-90 days ago.
                     </div>
                     <div id="staleWarningConfig" style="display: flex; flex-direction: column; gap: 10px;">
                       <div>
@@ -579,7 +579,7 @@
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">Notification Audit Trail</div>
               <div style="color: var(--text-color-secondary); font-size: 0.82em;">
-                View the last 200 notifications sent by this plugin — timestamp, event, recipients, and delivery status.
+                View the last 200 notifications sent by this plugin - timestamp, event, recipients, and delivery status.
                 Persists across Jenkins restarts.
               </div>
             </div>

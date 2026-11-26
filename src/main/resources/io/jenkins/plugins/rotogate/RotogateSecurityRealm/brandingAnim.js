@@ -1,5 +1,5 @@
 /*
- * Animated login branding panel — DevOps pipeline canvas animation.
+ * Animated login branding panel - DevOps pipeline canvas animation.
  * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateSecurityRealm.brandingAnim"/>
  * Externalised from animated-branding.jelly's inline <script> for CSP compliance (Jenkins hosting).
  * Adjuncts load in <head>, so defer DOM access until the document is parsed.
@@ -327,7 +327,7 @@
     let last=performance.now(),t=0,running=false;
     function startLoop(){if(running)return;running=true;last=performance.now();requestAnimationFrame(tick);}
     function tick(now){
-      // Pause (don't crash) if the panel got hidden or the scene isn't built yet — resize()
+      // Pause (don't crash) if the panel got hidden or the scene isn't built yet - resize()
       // restarts the loop once the panel is visible again. This is what keeps the animation
       // from dying permanently when devtools is opened/closed across a reload.
       if(!W||!H||!modules){running=false;return;}

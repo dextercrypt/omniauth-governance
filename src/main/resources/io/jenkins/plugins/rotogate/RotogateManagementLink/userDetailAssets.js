@@ -421,7 +421,7 @@ function udxChipSearch(q, dropId, chipsId, hiddenId) {
 function udxUpdateExpiryHint(val, hintId) {
   var hint = document.getElementById(hintId);
   if (!hint) return;
-  if (!val) { hint.textContent = 'No expiry — access stays until revoked.'; hint.style.color = ''; return; }
+  if (!val) { hint.textContent = 'No expiry - access stays until revoked.'; hint.style.color = ''; return; }
   var d = new Date(val + 'T00:00:00');
   var opts = { year:'numeric', month:'long', day:'numeric' };
   hint.textContent = 'Access will be revoked after ' + d.toLocaleDateString(undefined, opts) + '.';
@@ -881,7 +881,7 @@ function udxInit() {
     });
   });
 
-  // Revoke assignment buttons (per-row; destructive) — confirmation handled by the shared in-app
+  // Revoke assignment buttons (per-row; destructive) - confirmation handled by the shared in-app
   // modal (rg/rgConfirm.js) via each button's data-confirm attribute; no native confirm() here.
 
   // Drawer open / close

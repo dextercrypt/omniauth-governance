@@ -25,7 +25,7 @@ predictable and its surfaces familiar to plugin developers.
 
 ## JCasC symbols
 
-The descriptors carry `@Symbol` annotations for Configuration as Code — see
+The descriptors carry `@Symbol` annotations for Configuration as Code - see
 [Configuration as Code](../operations/configuration-as-code.md):
 `rotogate`, `entraConfig`, `rotogateAuthorization`, `rotogateAssignments`, `rotogateRoles`,
 `rotogateJitRequests`, `rotogateProvisioningRequests`.

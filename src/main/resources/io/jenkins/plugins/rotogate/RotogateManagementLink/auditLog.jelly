@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Audit Log" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Audit Log" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -199,7 +199,7 @@
         </div>
 
         <j:choose>
-          <!-- SSO/Entra admins have no local password — confirm with a typed phrase instead. -->
+          <!-- SSO/Entra admins have no local password - confirm with a typed phrase instead. -->
           <j:when test="${it.currentUserSso}">
             <div style="font-size:0.87em;color:var(--text-color-secondary, #555);margin-bottom:20px;line-height:1.5;">
               All audit log files will be permanently deleted. Type <strong>DELETE</strong> to confirm.

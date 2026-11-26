@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — User Overview" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - User Overview" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -249,7 +249,7 @@
 
               <j:if test="${!info.perJobSupported}">
                 <div style="background:var(--rg-warning-bg);color:var(--rg-warning-fg);padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:0.88em;border-left:3px solid var(--rg-warning-border);">
-                  Strategy: <strong>${info.authStrategy}</strong> —
+                  Strategy: <strong>${info.authStrategy}</strong> -
                   per-job permissions only enforced with <strong>Project-based Matrix Authorization Strategy</strong>.
                   All jobs reflect global permissions.
                 </div>
@@ -329,7 +329,7 @@
 
               <j:choose>
                 <j:when test="${info.loginHistory.isEmpty()}">
-                  <p style="color:var(--text-color-secondary);font-size:0.9em;margin:0;">No login history yet — captured from the next login onwards.</p>
+                  <p style="color:var(--text-color-secondary);font-size:0.9em;margin:0;">No login history yet - captured from the next login onwards.</p>
                 </j:when>
                 <j:otherwise>
                   <div style="overflow-x:auto;">

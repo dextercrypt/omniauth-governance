@@ -25,7 +25,7 @@ public class SecurityConfig {
     private int bruteForceLockoutMinutes = 15;
 
     // ── "Keep me signed in" (remember-me) duration ────────────────────────────
-    /** Hard ceiling on the remember-me cookie — Jenkins' own default validity (14 days). */
+    /** Hard ceiling on the remember-me cookie - Jenkins' own default validity (14 days). */
     public static final int REMEMBER_ME_MAX_SECONDS = 14 * 24 * 60 * 60; // 1,209,600
     /** The number the admin typed (paired with {@link #rememberMeUnit}); default 8 hours. */
     private int    rememberMeValue = 8;

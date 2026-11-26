@@ -15,11 +15,11 @@ import java.util.List;
 /**
  * Per-admin <b>SOS recovery codes</b>: a set of single-use, high-entropy codes an administrator
  * generates once and stores somewhere safe (password manager, printed). They are the <em>only</em>
- * credential accepted at {@code /sos/recover} while SOS Mode is armed — see {@link RotogateSos}.
+ * credential accepted at {@code /sos/recover} while SOS Mode is armed - see {@link RotogateSos}.
  *
  * <p><b>What is stored.</b> Only a salted SHA-256 hash of each code, never the code itself. A read of
  * {@code JENKINS_HOME} (disk theft, poisoned backup, path-traversal read) therefore yields hashes, not
- * usable codes — this is the core advantage over a password/TOTP whose secret or verifier would be
+ * usable codes - this is the core advantage over a password/TOTP whose secret or verifier would be
  * exposed. The codes are high-entropy, so a fast salted hash is sufficient (no slow KDF needed) and
  * lets the recovery endpoint test a submitted code against every admin cheaply.
  *

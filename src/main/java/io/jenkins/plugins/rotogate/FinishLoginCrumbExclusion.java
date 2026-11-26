@@ -19,13 +19,13 @@ import java.io.IOException;
  * <strong>POST</strong> ({@code form_post}): that POST is a cross-site navigation from Microsoft
  * and can never carry a Jenkins crumb, so without this exemption such a callback would fail with
  * "No valid crumb was included in the request". (form_post also loses the SameSite=Lax session
- * cookie, which is why the flow forces query in the first place — see
+ * cookie, which is why the flow forces query in the first place - see
  * {@code MsalTokenHelper.forceQueryResponseMode}.)
  *
  * <p>This is safe because {@code finishLogin} does not rely on the crumb for CSRF protection:
  * it validates the OAuth2 {@code state} (a single-use random token stashed in the caller's
  * session), the OIDC {@code nonce}, and the PKCE {@code code_verifier}. A forged callback
- * cannot produce a matching state, so cross-site requests are rejected by the flow itself —
+ * cannot produce a matching state, so cross-site requests are rejected by the flow itself -
  * exactly as Jenkins core exempts its own {@code j_spring_security_check} login endpoint.
  *
  * <p>Only the exact {@code /rotogate/finishLogin} path is exempt; {@code commenceLogin} needs

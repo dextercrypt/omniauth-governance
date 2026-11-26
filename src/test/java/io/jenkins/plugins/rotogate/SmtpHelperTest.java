@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link SmtpHelper#sendTo}'s recipient validation — the guard that
+ * Tests for {@link SmtpHelper#sendTo}'s recipient validation - the guard that
  * stops a requester-supplied email field from fanning out to extra recipients
  * or injecting SMTP headers (CRLF). The address is rejected BEFORE any send.
  *
@@ -76,7 +76,7 @@ public class SmtpHelperTest {
         setField(cfg, "notificationsEnabled", true);
         setField(cfg, "smtpEnabled", true);
         setField(cfg, "smtpHost", "127.0.0.1");
-        setField(cfg, "smtpPort", 1);                       // unroutable — valid control fails fast, async
+        setField(cfg, "smtpPort", 1);                       // unroutable - valid control fails fast, async
         setField(cfg, "smtpFromAddress", "from@example.com");
         setField(cfg, "smtpUsername", "user");
         setField(cfg, "smtpPassword", Secret.fromString("pw"));

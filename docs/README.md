@@ -1,9 +1,9 @@
-# Rotogate — Documentation
+# Rotogate - Documentation
 
 > A security and access-governance platform for Jenkins, with flexible native + OAuth login.
 
-Rotogate combines flexible authentication — **native username/password and OAuth2 / OIDC
-single sign-on** — with a full suite of security and management features: access management,
+Rotogate combines flexible authentication - **native username/password and OAuth2 / OIDC
+single sign-on** - with a full suite of security and management features: access management,
 just-in-time elevation, access reviews, session control, emergency break-glass access,
 audit logging, and multi-channel notifications. The value isn't only how users sign in; it's
 everything around it that keeps Jenkins access **secure and easy to manage**.
@@ -37,17 +37,17 @@ developers.
 
 ### Administration
 - [Administration overview](administration/index.md)
-- [Overview dashboard](administration/dashboard.md) — live posture, attention items, login activity
-- [Authentication](administration/authentication.md) — native + OAuth/OIDC SSO + group sync
-- [Microsoft Entra setup](administration/entra-setup.md) — app registration, redirect URIs, permissions
-- [Access management](administration/access-management.md) — roles, permissions, scoped & time-limited grants
+- [Overview dashboard](administration/dashboard.md) - live posture, attention items, login activity
+- [Authentication](administration/authentication.md) - native + OAuth/OIDC SSO + group sync
+- [Microsoft Entra setup](administration/entra-setup.md) - app registration, redirect URIs, permissions
+- [Access management](administration/access-management.md) - roles, permissions, scoped & time-limited grants
 - [Access review & certification](administration/access-review.md)
 - [Just-in-Time (JIT) access](administration/jit-access.md)
 - [Sessions & session revocation](administration/sessions.md)
-- [Break Glass](administration/break-glass.md) — TOTP step-up for sensitive admin actions
-- [Notifications](administration/notifications.md) — email, Slack, Teams
-- [User lifecycle](administration/user-lifecycle.md) — provisioning, stale cleanup, force password change
-- [Provisioning portal](administration/provisioning-portal.md) — self-service access requests + approval
+- [Break Glass](administration/break-glass.md) - TOTP step-up for sensitive admin actions
+- [Notifications](administration/notifications.md) - email, Slack, Teams
+- [User lifecycle](administration/user-lifecycle.md) - provisioning, stale cleanup, force password change
+- [Provisioning portal](administration/provisioning-portal.md) - self-service access requests + approval
 - [Login page branding](administration/login-branding.md)
 
 ### Security
@@ -64,7 +64,7 @@ developers.
 - [Extension points](developer/extension-points.md)
 - [Building & contributing](developer/contributing.md)
 - [Releasing & versioning](developer/releasing.md)
-- [Platform support & upgrade policy](developer/platform-support.md) — Jenkins/Java baseline + forward upgrade playbook
+- [Platform support & upgrade policy](developer/platform-support.md) - Jenkins/Java baseline + forward upgrade playbook
 
 ### Reference
 - [Configuration reference](reference/configuration-reference.md)
@@ -77,8 +77,8 @@ developers.
 
 ## Conventions used in this documentation
 
-- `<prefix>` — the Jenkins context path (e.g. `/jenkins`). Omit if Jenkins is served at root.
-- `<jenkins-host>` — the externally reachable host and port of your Jenkins.
-- **Manage Jenkins → Rotogate** — the plugin's management console, referenced throughout.
+- `<prefix>` - the Jenkins context path (e.g. `/jenkins`). Omit if Jenkins is served at root.
+- `<jenkins-host>` - the externally reachable host and port of your Jenkins.
+- **Manage Jenkins → Rotogate** - the plugin's management console, referenced throughout.
 - Code identifiers (`RotogateSecurityRealm`, `rotogate`, …) refer to classes or JCasC
   symbols; see the [Configuration reference](reference/configuration-reference.md).

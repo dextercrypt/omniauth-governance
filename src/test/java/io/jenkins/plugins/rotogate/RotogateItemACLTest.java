@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Behaviour tests for {@link RotogateItemACL} — the core per-item permission resolver and the
+ * Behaviour tests for {@link RotogateItemACL} - the core per-item permission resolver and the
  * most security-critical class in the plugin.
  *
  * <p>Strategy: an {@link RotogateAuthorizationStrategy} (a ProjectMatrix subclass) with NO matrix
@@ -93,7 +93,7 @@ public class RotogateItemACLTest {
 
     @Test
     public void jobScopedGrant_doesNotElevateAncestorFolder() {
-        // Grant on the JOB only. "folderA" is the grandparent — two levels above the job.
+        // Grant on the JOB only. "folderA" is the grandparent - two levels above the job.
         install(assignment("alice", "USER", DEVELOPER, "folderA/folderB/jobX", "JOB"));
         RotogateItemACL ancestor = new RotogateItemACL("folderA");
         Authentication alice = user("alice");
@@ -128,7 +128,7 @@ public class RotogateItemACLTest {
         assertTrue(directParent.hasPermission2(alice, Item.BUILD), "direct parent gets Build");
         assertTrue(directParent.hasPermission2(alice, Item.CANCEL), "direct parent gets Cancel");
 
-        // But NEVER the mutating permissions — that would let a one-job grant reconfigure/delete
+        // But NEVER the mutating permissions - that would let a one-job grant reconfigure/delete
         // the whole parent folder.
         assertFalse(directParent.hasPermission2(alice, Item.CONFIGURE), "direct parent must NOT get Configure");
         assertFalse(directParent.hasPermission2(alice, Item.DELETE), "direct parent must NOT get Delete");
@@ -166,7 +166,7 @@ public class RotogateItemACLTest {
 
     @Test
     public void folderScopedGrant_ancestorGetsNavReadOnly() {
-        // Grant on nested folder "parent/teamA" — the "parent" ancestor gets nav Read only.
+        // Grant on nested folder "parent/teamA" - the "parent" ancestor gets nav Read only.
         install(assignment("alice", "USER", DEVELOPER, "parent/teamA", "FOLDER"));
         RotogateItemACL parent = new RotogateItemACL("parent");
         Authentication alice = user("alice");
@@ -325,7 +325,7 @@ public class RotogateItemACLTest {
     @Test
     public void acl_sourceNeverReferencesBreakGlassOrTotp() throws Exception {
         // Break-glass and TOTP are real concepts elsewhere in the plugin (RotogateUserProperty et al).
-        // Authorization decisions must depend ONLY on assignments + roles — never on a user's TOTP
+        // Authorization decisions must depend ONLY on assignments + roles - never on a user's TOTP
         // enrolment or break-glass flag. This guards against a future change wiring either into the
         // permission path. (Structural invariant: the class must not reference those identifiers.)
         File src = new File("src/main/java/io/jenkins/plugins/rotogate/RotogateItemACL.java");

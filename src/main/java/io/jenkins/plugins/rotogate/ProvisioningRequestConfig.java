@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  *
  * <p>Mirrors {@link RotogateJitRequestStore}: an {@code @Extension} {@link GlobalConfiguration}
  * that persists a list to {@code JENKINS_HOME}. State transitions ({@code markApproved} /
- * {@code markRejected}) only flip the request status here; the side effects of approval —
- * creating the Jenkins account and applying permissions — are performed by the management-link
+ * {@code markRejected}) only flip the request status here; the side effects of approval -
+ * creating the Jenkins account and applying permissions - are performed by the management-link
  * handler, exactly as the JIT store leaves account/session effects to its caller.
  */
 @Extension
@@ -59,7 +59,7 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
      * The count+add is atomic under the store lock, closing the check-then-act race where two
      * near-simultaneous submissions both pass an external count check and exceed the cap.
      */
-    /** Hard ceiling on total stored requests — a backstop against the public form flooding the store. */
+    /** Hard ceiling on total stored requests - a backstop against the public form flooding the store. */
     private static final int MAX_TOTAL_REQUESTS = 2000;
 
     public synchronized boolean addRequestIfUnderCap(ProvisioningRequest r, int maxPending) {
@@ -68,7 +68,7 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
             return false;
         }
         if (requests.size() >= MAX_TOTAL_REQUESTS) {
-            return false; // store is full — drop silently (enumeration-safe)
+            return false; // store is full - drop silently (enumeration-safe)
         }
         requests.add(r);
         save();
@@ -82,7 +82,7 @@ public class ProvisioningRequestConfig extends GlobalConfiguration {
                 .findFirst().orElse(null);
     }
 
-    /** A still-pending request for this user id, if any — used to block duplicate submissions. */
+    /** A still-pending request for this user id, if any - used to block duplicate submissions. */
     public ProvisioningRequest findPendingForUser(String userId) {
         if (userId == null) return null;
         return requests.stream()

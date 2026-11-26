@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit coverage for {@link ScheduledAnnouncement}: the active-window evaluation (days, time window,
- * midnight wrap, disabled/blank) and the JSON round-trip used for persistence. Pure POJO — no Jenkins
+ * midnight wrap, disabled/blank) and the JSON round-trip used for persistence. Pure POJO - no Jenkins
  * rule needed (net.sf.json is on the classpath).
  *
  * <p>2026-11-27 is a Friday (ISO day 5); 2026-11-26 is a Thursday (used as the "other day").
@@ -50,7 +50,7 @@ class ScheduledAnnouncementTest {
 
     @Test
     void timeWindow_insideAndOutside() {
-        // every evening 18:00–23:59
+        // every evening 18:00-23:59
         ScheduledAnnouncement evening = rule("No deployments", List.of(), false, 18 * 60, 23 * 60 + 59);
         assertTrue(evening.isActiveAt(FRI_20), "20:00 is inside the evening window");
         assertFalse(evening.isActiveAt(FRI_10), "10:00 is outside the evening window");

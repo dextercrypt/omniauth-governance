@@ -32,7 +32,7 @@ public class LoginBrandingConfig {
     // default) and "starburst" (Jenkins' native starburst). New designs can be added later.
     private String loginBackground       = "rotogate";
     // Where the company logo sits on the login form. Known values: "a" (top of the
-    // form column, left-aligned — default), "e" (pinned top-right corner of the panel),
+    // form column, left-aligned - default), "e" (pinned top-right corner of the panel),
     // "f" (logo centred above the form). Only takes effect when a logo is uploaded.
     private String loginLogoPosition     = "a";
     // Company-logo height on the login form, in px. Known values: "20", "30", "40" (default).
@@ -47,7 +47,7 @@ public class LoginBrandingConfig {
     /** Rotation modes: not concrete butlers, resolved per render by getResolvedLoginButler(). */
     private static final Set<String> ROTATION_MODES = Set.of("daily", "random");
     /**
-     * Ordered pool the rotation modes cycle through — the "cool" styled butlers (native excluded).
+     * Ordered pool the rotation modes cycle through - the "cool" styled butlers (native excluded).
      * Santa is gated to December (see buildRotationPool); changing this order changes the daily cadence.
      */
     private static final List<String> ROTATION_POOL = List.of(
@@ -100,7 +100,7 @@ public class LoginBrandingConfig {
         this.loginLogoSize = (t.equals("20") || t.equals("30")) ? t : "40";
     }
 
-    /** Raw stored selection — a concrete butler id OR a rotation mode ("daily"/"random"). */
+    /** Raw stored selection - a concrete butler id OR a rotation mode ("daily"/"random"). */
     public String getLoginButler() {
         String v = loginButler != null ? loginButler.trim() : "";
         return (BUTLERS.contains(v) || ROTATION_MODES.contains(v)) ? v : "default";
@@ -114,7 +114,7 @@ public class LoginBrandingConfig {
     public String getResolvedLoginButler() {
         String raw = getLoginButler();
         if (!ROTATION_MODES.contains(raw)) {
-            return raw; // explicit fixed pick (incl. native) is always respected — festive lock never overrides it
+            return raw; // explicit fixed pick (incl. native) is always respected - festive lock never overrides it
         }
         // Festive lock: Dec 21 → Jan 1, rotation modes always show Santa
         if (isFestiveWindow(LocalDate.now())) {
@@ -138,7 +138,7 @@ public class LoginBrandingConfig {
         return (month == 12 && day >= 21) || (month == 1 && day == 1);
     }
 
-    /** Rotation pool for the current date — Santa only joins in December. */
+    /** Rotation pool for the current date - Santa only joins in December. */
     private static List<String> buildRotationPool() {
         boolean december = LocalDate.now().getMonthValue() == 12;
         List<String> pool = new ArrayList<>();

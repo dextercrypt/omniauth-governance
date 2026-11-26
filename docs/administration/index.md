@@ -5,9 +5,9 @@
 Once the [security realm is enabled](../getting-started/installation.md), all
 administration happens in two places:
 
-1. **Manage Jenkins → Security** — the security realm and authorization strategy
+1. **Manage Jenkins → Security** - the security realm and authorization strategy
    selection, and the Microsoft Entra connection.
-2. **Manage Jenkins → Rotogate** — the management console for everything else.
+2. **Manage Jenkins → Rotogate** - the management console for everything else.
 
 ## The management console
 

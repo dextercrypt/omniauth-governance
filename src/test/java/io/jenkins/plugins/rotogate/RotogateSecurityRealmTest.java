@@ -34,14 +34,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration tests for RotogateSecurityRealm.
  *
  * Uses FakeMsalTokenHelper (a test subclass) to avoid any real Azure AD calls.
- * No HTTP requests are made — Tier 2/3 tests call startLogin / finishLogin
+ * No HTTP requests are made - Tier 2/3 tests call startLogin / finishLogin
  * directly with a fake StaplerRequest proxy and capture the returned HttpResponse
  * through a fake StaplerResponse2 proxy.
  *
  * Test tiers:
- *   Tier 1 — direct method calls, no HTTP (group loading, user loading)
- *   Tier 2 — OAuth2 error cases that return before reaching Azure AD
- *   Tier 3 — full OAuth2 flow with fake token exchange
+ *   Tier 1 - direct method calls, no HTTP (group loading, user loading)
+ *   Tier 2 - OAuth2 error cases that return before reaching Azure AD
+ *   Tier 3 - full OAuth2 flow with fake token exchange
  */
 @WithJenkins
 public class RotogateSecurityRealmTest {
@@ -66,7 +66,7 @@ public class RotogateSecurityRealmTest {
         IAuthenticationResult fakeResult  = null;
         JWTClaimsSet          fakeClaims  = null;
 
-        // Captured by buildAuthorizationUrl — readable by tests after startLogin
+        // Captured by buildAuthorizationUrl - readable by tests after startLogin
         String capturedState;
         String capturedNonce;
 
@@ -209,7 +209,7 @@ public class RotogateSecurityRealmTest {
      *
      * The same FakeSession instance must be shared across the commence + finish
      * calls so that session attributes written by startLogin are visible to
-     * finishLogin — exactly as a real browser session works.
+     * finishLogin - exactly as a real browser session works.
      */
     private StaplerRequest2 fakeRequest(Map<String, String> params, FakeSession session) {
         return (StaplerRequest2) Proxy.newProxyInstance(
@@ -236,14 +236,14 @@ public class RotogateSecurityRealmTest {
      * HttpResponseException calls rsp.setStatus(int) + rsp.getWriter() (for error body).
      *
      * Jenkins' InstallUncaughtExceptionHandler intercepts error responses and calls
-     * req.setAttribute(...) before delegating to the underlying response — so fakeReq2
+     * req.setAttribute(...) before delegating to the underlying response - so fakeReq2
      * must be a non-null proxy that stubs all request methods (not just null).
      */
     private Resp captureResponse(HttpResponse httpResponse) throws Exception {
         int[]    status   = { 0 };
         String[] location = { "" };
 
-        // Stub request — only needed so error-path interceptors can call setAttribute
+        // Stub request - only needed so error-path interceptors can call setAttribute
         StaplerRequest2 fakeReq2 = (StaplerRequest2) Proxy.newProxyInstance(
                 getClass().getClassLoader(),
                 new Class<?>[]{ StaplerRequest2.class },
@@ -294,7 +294,7 @@ public class RotogateSecurityRealmTest {
             // rsp.setStatus(code) and then tries to forward to a Jelly error page
             // via Stapler.invoke(req, rsp, jenkins, "/oops"), which fails in the
             // test environment because our fake request has no real servlet context.
-            // The status code was already captured before the dispatch attempt —
+            // The status code was already captured before the dispatch attempt -
             // only rethrow if we have no useful data at all.
             if (status[0] == 0 && location[0].isEmpty()) throw e;
         }
@@ -356,7 +356,7 @@ public class RotogateSecurityRealmTest {
 
     /**
      * A provider configured with no explicit flag (the legacy/upgrade state: config.xml persisted
-     * before the toggle existed) counts as SSO on — so updating the plugin never silently kills a
+     * before the toggle existed) counts as SSO on - so updating the plugin never silently kills a
      * working SSO setup.
      */
     @Test
@@ -404,7 +404,7 @@ public class RotogateSecurityRealmTest {
         assertEquals("microsoft", realm.getSsoProvider().getId());
     }
 
-    /** The toggle alone cannot activate SSO — a provider must also be configured. */
+    /** The toggle alone cannot activate SSO - a provider must also be configured. */
     @Test
     public void sso_enabledWithoutProvider_staysInactive() {
         RotogateSecurityRealm realm = new RotogateSecurityRealm(false, null);
@@ -524,7 +524,7 @@ public class RotogateSecurityRealmTest {
         j.jenkins.setSecurityRealm(realm);
         FakeSession session = new FakeSession();
 
-        // Manually inject only the state — no code verifier — simulating a session
+        // Manually inject only the state - no code verifier - simulating a session
         // that lost its PKCE state between commenceLogin and finishLogin
         session.setAttribute(EntraOAuthConfig.SESSION_OAUTH_STATE, "my-state");
         // SESSION_CODE_VERIFIER intentionally not set
@@ -552,11 +552,11 @@ public class RotogateSecurityRealmTest {
         j.jenkins.setSecurityRealm(realm);
         FakeSession session = new FakeSession();
 
-        // Step 1: commenceLogin — stores valid state in session
+        // Step 1: commenceLogin - stores valid state in session
         realm.startLogin(fakeRequest(Map.of(), session));
         assertNotNull(fakeHelper.capturedState, "State must be captured from session");
 
-        // Step 2: finishLogin — Azure returns an error (e.g. user cancelled)
+        // Step 2: finishLogin - Azure returns an error (e.g. user cancelled)
         Map<String, String> params = new HashMap<>();
         params.put("state",             fakeHelper.capturedState);
         params.put("error",             "access_denied");
@@ -586,13 +586,13 @@ public class RotogateSecurityRealmTest {
         FakeSession session = new FakeSession();
 
         // Pre-provision the account (SSO login requires the account to already exist under Option B).
-        // A returning user keeps their stored name — only brand-new users take it from the token.
+        // A returning user keeps their stored name - only brand-new users take it from the token.
         hudson.model.User pre = hudson.model.User.getById("testuser@example.com", true);
         pre.setFullName("Test User");
         pre.addProperty(new RotogateUserProperty("test-oid-abc123", "testuser@example.com"));
         pre.save();
 
-        // Step 1: commenceLogin — stores state and nonce in session, captures them in fakeHelper
+        // Step 1: commenceLogin - stores state and nonce in session, captures them in fakeHelper
         realm.startLogin(fakeRequest(Map.of(), session));
         assertNotNull(fakeHelper.capturedNonce, "Nonce must be captured");
 
@@ -630,17 +630,17 @@ public class RotogateSecurityRealmTest {
     public void finishLogin_withNonceMismatchInToken_returns400() throws Exception {
         FakeMsalTokenHelper fakeHelper = new FakeMsalTokenHelper();
         fakeHelper.fakeResult = new FakeAuthResult("fake.id.token", null);
-        // Token always returns the WRONG nonce — will not match what is in the session
+        // Token always returns the WRONG nonce - will not match what is in the session
         fakeHelper.fakeClaims = fakeClaims("wrong-nonce-will-not-match-session");
 
         RotogateSecurityRealm realm = realmWithFakeHelper(testConfig(), fakeHelper);
         j.jenkins.setSecurityRealm(realm);
         FakeSession session = new FakeSession();
 
-        // commenceLogin — stores the real (correct) nonce in the session
+        // commenceLogin - stores the real (correct) nonce in the session
         realm.startLogin(fakeRequest(Map.of(), session));
 
-        // finishLogin — token has wrong nonce → must be rejected
+        // finishLogin - token has wrong nonce → must be rejected
         Map<String, String> params = new HashMap<>();
         params.put("state", fakeHelper.capturedState);
         params.put("code",  "fake-auth-code");
@@ -656,7 +656,7 @@ public class RotogateSecurityRealmTest {
      * user is NOT already provisioned, finishLogin must NOT log in or reject as
      * notProvisioned. Identity is verified, then the user is sent to the reason-capture page
      * ({@code request-access/reason}); the PENDING request is created only when they submit a
-     * reason there (ProvisioningPortalAction#doSubmitEntraReason) — so no request exists yet.
+     * reason there (ProvisioningPortalAction#doSubmitEntraReason) - so no request exists yet.
      */
     @Test
     public void finishLogin_provisionMode_redirectsToReasonPageWithoutCreatingRequest() throws Exception {
@@ -681,7 +681,7 @@ public class RotogateSecurityRealmTest {
         // Step 2: arm the token with the matching nonce.
         fakeHelper.fakeClaims = fakeClaims(fakeHelper.capturedNonce);
 
-        // Step 3: finishLogin — identity is proven, but this is a REQUEST, not a login.
+        // Step 3: finishLogin - identity is proven, but this is a REQUEST, not a login.
         Map<String, String> params = new HashMap<>();
         params.put("state", fakeHelper.capturedState);
         params.put("code",  "fake-auth-code");
@@ -695,7 +695,7 @@ public class RotogateSecurityRealmTest {
         // No Jenkins account should be created for a mere request.
         assertNull(hudson.model.User.getById("testuser@example.com", false), "No user should be provisioned by a request");
 
-        // The request is created only once a reason is submitted — none should exist yet.
+        // The request is created only once a reason is submitted - none should exist yet.
         assertNull(ProvisioningRequestConfig.get().findPendingForUser("testuser@example.com"), "No PENDING request should exist before the reason is submitted");
     }
 }

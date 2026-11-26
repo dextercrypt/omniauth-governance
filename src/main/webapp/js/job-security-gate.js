@@ -34,7 +34,7 @@
       // styling; only the flex layout for the leading icon is added on top.
       b.className = "jenkins-alert jenkins-alert-warning";
       b.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:6px;";
-      b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span><strong>Managed by Rotogate</strong> — Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → Rotogate → Access Management</strong>.</span>';
+      b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span><strong>Managed by Rotogate</strong> - Job-level permission matrix is disabled. Configure access via <strong>Manage Jenkins → Rotogate → Access Management</strong>.</span>';
       w.insertBefore(b, c);
     }
     if (document.readyState === "loading") {

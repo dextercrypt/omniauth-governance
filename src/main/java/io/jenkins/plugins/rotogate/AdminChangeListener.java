@@ -47,7 +47,7 @@ public class AdminChangeListener extends SaveableListener {
         Set<String> last    = lastKnownAdmins;
         lastKnownAdmins = current;
 
-        if (last == null) return; // first run — baseline established, no alert
+        if (last == null) return; // first run - baseline established, no alert
 
         Set<String> added = new HashSet<>(current);
         added.removeAll(last);

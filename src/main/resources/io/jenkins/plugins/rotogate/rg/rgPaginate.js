@@ -3,13 +3,13 @@
  *
  * Tag any table with class `rg-paginated` (optionally `data-page-size="N"`, default 15) and this
  * script slices its rows into pages, inserting a footer control (‹ Prev / "Page X of Y" / Next ›)
- * plus a "Showing A–B of T" label right after the table. The pager only appears once a table
+ * plus a "Showing A-B of T" label right after the table. The pager only appears once a table
  * actually exceeds its page size, so short tables look untouched. Include where needed:
  *   <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
  *
  * Filter-aware by design. The paginator NEVER touches a row's inline `style.display`; it hides
  * out-of-page rows with the `.rg-pg-off` class only. A page that already filters rows (search /
- * status pills) keeps doing exactly what it does — setting `style.display='none'` on non-matches —
+ * status pills) keeps doing exactly what it does - setting `style.display='none'` on non-matches -
  * and simply calls `RGPaginate.refresh(table)` afterwards. The paginator then paginates only the
  * rows the filter left visible (inline display !== 'none'), so paging follows the filtered set and
  * resets to page 1 on every filter change.
@@ -60,7 +60,7 @@
     if (show) {
       var a = total === 0 ? 0 : start + 1;
       var b = Math.min(end, total);
-      state.info.textContent = "Showing " + a + "–" + b + " of " + total;
+      state.info.textContent = "Showing " + a + "-" + b + " of " + total;
       state.pageLbl.textContent = "Page " + state.page + " of " + pages;
       state.prev.disabled = state.page <= 1;
       state.next.disabled = state.page >= pages;

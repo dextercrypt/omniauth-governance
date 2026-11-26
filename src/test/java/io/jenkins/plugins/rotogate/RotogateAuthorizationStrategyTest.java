@@ -33,7 +33,7 @@ public class RotogateAuthorizationStrategyTest {
         j = rule;
         strategy = new RotogateAuthorizationStrategy();
         j.jenkins.setAuthorizationStrategy(strategy);
-        // aclCache is static and survives across tests in the JVM — clear it for isolation.
+        // aclCache is static and survives across tests in the JVM - clear it for isolation.
         RotogateAuthorizationStrategy.invalidateCache();
         config = RotogateAssignmentConfig.get();
         config.setAssignments(new ArrayList<>());
@@ -194,7 +194,7 @@ public class RotogateAuthorizationStrategyTest {
     public void permissionGroups_areDerivedFromJenkinsNotAnOtherBucket() {
         RotogateManagementLink link = j.jenkins.getExtensionList(RotogateManagementLink.class).get(0);
         var groups = link.getAvailablePermissions();
-        // No catch-all "other plugin permissions" dumping ground — everything sits in its real group.
+        // No catch-all "other plugin permissions" dumping ground - everything sits in its real group.
         assertTrue(groups.stream().noneMatch(g -> g.getGroupName().toLowerCase().contains("other plugin")),
                 "permissions should be grouped by their real Jenkins group, not an 'other' bucket");
         // The Item/Job permission group is present and holds the Item.* permissions.

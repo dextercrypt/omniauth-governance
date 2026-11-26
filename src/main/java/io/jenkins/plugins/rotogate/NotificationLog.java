@@ -20,7 +20,7 @@ public class NotificationLog {
     private List<NotificationLogEntry> entries = new ArrayList<>();
 
     // -------------------------------------------------------------------------
-    // Singleton — lazy-loaded, persisted to JENKINS_HOME
+    // Singleton - lazy-loaded, persisted to JENKINS_HOME
     // -------------------------------------------------------------------------
 
     private static volatile NotificationLog INSTANCE;
@@ -34,7 +34,7 @@ public class NotificationLog {
                         try {
                             INSTANCE = (NotificationLog) f.read();
                         } catch (Exception e) {
-                            LOGGER.log(Level.WARNING, "Could not read Rotogate notification log — starting fresh", e);
+                            LOGGER.log(Level.WARNING, "Could not read Rotogate notification log - starting fresh", e);
                             INSTANCE = new NotificationLog();
                         }
                     } else {
@@ -68,7 +68,7 @@ public class NotificationLog {
 
     public synchronized List<NotificationLogEntry> getEntries() {
         // Defensive copy: callers (e.g. the log page) iterate this outside the lock while
-        // async senders append on daemon threads — a live view would risk ConcurrentModificationException.
+        // async senders append on daemon threads - a live view would risk ConcurrentModificationException.
         return new ArrayList<>(entries);
     }
 

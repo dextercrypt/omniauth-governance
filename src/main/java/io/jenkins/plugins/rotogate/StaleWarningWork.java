@@ -49,7 +49,7 @@ public class StaleWarningWork extends AsyncPeriodicWork {
         int windowDays     = config.getStaleWarningWindowDays();
 
         if (windowDays >= thresholdDays) {
-            LOGGER.warning("Stale warning window (" + windowDays + ") >= threshold (" + thresholdDays + ") — skipping");
+            LOGGER.warning("Stale warning window (" + windowDays + ") >= threshold (" + thresholdDays + ") - skipping");
             return;
         }
 
@@ -73,7 +73,7 @@ public class StaleWarningWork extends AsyncPeriodicWork {
                 try {
                     lastLogin = Instant.parse(lastLoginStr);
                 } catch (Exception e) {
-                    // One corrupt timestamp must not abort the whole scan — skip this user.
+                    // One corrupt timestamp must not abort the whole scan - skip this user.
                     continue;
                 }
                 boolean isApproaching = lastLogin.isAfter(staleAt) && !lastLogin.isAfter(warnAt);

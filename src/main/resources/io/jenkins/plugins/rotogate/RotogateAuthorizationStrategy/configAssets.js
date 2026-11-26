@@ -1,5 +1,5 @@
 /*
- * Rotogate authorization-strategy config — permission-import confirmation gate.
+ * Rotogate authorization-strategy config - permission-import confirmation gate.
  * Loaded as a Jenkins adjunct:
  *   <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateAuthorizationStrategy.configAssets"/>
  * Externalised from config.jelly's inline <script> for CSP compliance (Jenkins hosting).

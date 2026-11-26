@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Event-gating tests for {@link NotificationService} / the channel helpers.
  *
  * We cannot (and must not) make real Slack/Teams/SMTP calls, so Slack/Teams are
- * pointed at a loopback {@link HttpServer} that returns 200 instantly — letting
+ * pointed at a loopback {@link HttpServer} that returns 200 instantly - letting
  * us observe, without the network, exactly WHICH events reach a channel and that
  * the persisted log records the redacted webhook label, never the URL.
  *

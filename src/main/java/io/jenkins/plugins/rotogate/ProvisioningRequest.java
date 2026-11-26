@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * A self-service access request submitted through the provisioning portal.
  *
- * <p>No Jenkins account is created when a request is submitted — the request sits in the
+ * <p>No Jenkins account is created when a request is submitted - the request sits in the
  * {@link ProvisioningRequestConfig} store as {@code PENDING} until an administrator approves
  * or rejects it. On approval the admin side creates the account (mirroring {@code doAddUser}),
  * optionally time-limited by {@link #getRequestedDurationDays()}.
@@ -29,7 +29,7 @@ public class ProvisioningRequest {
     private String requestType;   // ENTRA | NATIVE
 
     // Identity of the requested account
-    private String userId;        // UPN/email (ENTRA) or username (NATIVE) — becomes the Jenkins user id
+    private String userId;        // UPN/email (ENTRA) or username (NATIVE) - becomes the Jenkins user id
     private String fullName;
     private String email;
     private String oid;           // Entra object id, when known (ENTRA only)

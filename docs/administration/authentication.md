@@ -6,7 +6,7 @@
 Rotogate's security realm (`RotogateSecurityRealm`) is **native-first**: the Jenkins user
 database is always on (the realm extends `HudsonPrivateSecurityRealm`), so a deployment can run
 on native accounts alone with no external dependency. OAuth2/OIDC single sign-on is an
-**additive capability you turn on** — the realm config has a **"Connect a single sign-on
+**additive capability you turn on** - the realm config has a **"Connect a single sign-on
 provider (SSO)"** toggle, off by default on a new install. When it's off, sign-in is native
 only; turning it on reveals the provider settings. **Microsoft Entra (Azure AD) is the provider
 integrated today; additional OAuth2/OIDC providers are planned.**
@@ -43,15 +43,15 @@ Native accounts are ideal for **service accounts** and **break-glass admins** th
 depend on an external identity provider.
 
 **Native-only deployment.** You don't have to configure SSO at all. With the SSO toggle off,
-Rotogate runs purely on native accounts and still gives you the full governance layer — access
+Rotogate runs purely on native accounts and still gives you the full governance layer - access
 management, JIT, access reviews, audit logging, the provisioning portal, and break-glass. SSO is
 something you add when you want organization sign-in, not a prerequisite.
 
 Related safety features:
-- [Force password change](user-lifecycle.md#force-password-change) — require a user to set a
+- [Force password change](user-lifecycle.md#force-password-change) - require a user to set a
   new password before any session is issued (fail-closed).
-- [Break Glass](break-glass.md) — MFA-protected emergency access.
-- Brute-force **tracking** — repeated failures are counted against a configurable threshold
+- [Break Glass](break-glass.md) - MFA-protected emergency access.
+- Brute-force **tracking** - repeated failures are counted against a configurable threshold
   and can trigger alerts (see [Configuration reference](../reference/configuration-reference.md)).
 
 ## OAuth2 / OIDC single sign-on
@@ -84,7 +84,7 @@ Browser                     Jenkins                         Identity provider (E
 
 Endpoints: `/<prefix>/rotogate/commenceLogin` (start) and `/<prefix>/rotogate/finishLogin`
 (callback), both served by `RotogateRootAction` (they are **not** under `securityRealm/`). The
-callback must match the redirect URI registered with the provider — for Entra, see
+callback must match the redirect URI registered with the provider - for Entra, see
 [Entra setup](entra-setup.md).
 
 ### Identity model
@@ -100,10 +100,10 @@ they apply the moment that user first signs in via SSO.
 
 ### Security hardening
 
-- **PKCE** — a per-login code verifier/challenge protects the code exchange.
-- **State** — CSRF protection across the redirect.
-- **Nonce** — bound into the ID token and validated on return to prevent replay.
-- **Allowed email domains** — an optional Entra sign-in gate: a Microsoft-verified identity
+- **PKCE** - a per-login code verifier/challenge protects the code exchange.
+- **State** - CSRF protection across the redirect.
+- **Nonce** - bound into the ID token and validated on return to prevent replay.
+- **Allowed email domains** - an optional Entra sign-in gate: a Microsoft-verified identity
   whose email domain is outside the configured allowlist is rejected after the pre-provisioning
   check (see [Entra setup → Allowed email domains](entra-setup.md)).
 
@@ -114,9 +114,9 @@ See [Security model](../security/security-model.md) for the full posture.
 The SSO button and labels are driven by a provider preset (`SsoProvider`):
 
 - **Microsoft Entra** is the only preset **implemented and supported today**. The sign-in path
-  itself is Entra-coupled (MSAL4J / Microsoft Graph) — there is a provider *selector* in the
+  itself is Entra-coupled (MSAL4J / Microsoft Graph) - there is a provider *selector* in the
   realm UI, not yet a provider-agnostic abstraction.
-- Other providers (Okta, Auth0, generic OIDC) appear in the selector as *planned* — on the
+- Other providers (Okta, Auth0, generic OIDC) appear in the selector as *planned* - on the
   roadmap, not yet available. Don't assume vendor-neutral SSO today.
 
 For developers: see [Extension points → add an SSO provider](../developer/extension-points.md#where-to-extend).
@@ -128,7 +128,7 @@ after a successful SSO login and maps each group to a Spring Security granted au
 authorities can then drive [group-based access](access-management.md#group-grants).
 
 For Microsoft Entra this uses MS Graph (`/me/memberOf`) and requires the
-`GroupMember.Read.All` permission — see [Entra setup → API permissions](entra-setup.md#api-permissions).
+`GroupMember.Read.All` permission - see [Entra setup → API permissions](entra-setup.md#api-permissions).
 
 ---
 _Next: [Microsoft Entra setup](entra-setup.md) · [Access management](access-management.md)_

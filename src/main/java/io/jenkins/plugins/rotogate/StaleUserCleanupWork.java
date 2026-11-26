@@ -74,7 +74,7 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                     continue;
                 }
 
-                // Skip active group users — their account is owned by AD group membership
+                // Skip active group users - their account is owned by AD group membership
                 RotogateUserProperty groupCheck = user.getProperty(RotogateUserProperty.class);
                 if (groupCheck != null && groupCheck.isViaGroup()) {
                     RotogateAssignmentConfig assignmentConfig = RotogateAssignmentConfig.get();
@@ -94,7 +94,7 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                 boolean isPendingDeletion = (entraProp != null && entraProp.isPendingDeletion());
                 boolean isStale;
                 if (lastLogin == null) {
-                    // Never recorded a login — e.g. a freshly provisioned account still awaiting
+                    // Never recorded a login - e.g. a freshly provisioned account still awaiting
                     // its activation link. Do NOT auto-delete these (avoids destroying accounts
                     // before first use); they stay visible in User Status for manual review.
                     isStale = false;
@@ -102,9 +102,9 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                     try {
                         isStale = Instant.parse(lastLogin).isBefore(cutoff);
                     } catch (Exception e) {
-                        // One corrupt timestamp must not abort the whole sweep — skip just this user.
+                        // One corrupt timestamp must not abort the whole sweep - skip just this user.
                         LOGGER.log(Level.WARNING, "Unparseable lastLogin '" + lastLogin
-                                + "' for " + userId + " — skipping", e);
+                                + "' for " + userId + " - skipping", e);
                         continue;
                     }
                 }
@@ -139,7 +139,7 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                 Instant.now().toString(), dryRun, scanned, affected.size(), skippedProt, affected);
         config.addCleanupRecord(record);
 
-        LOGGER.info("Rotogate cleanup done — scanned=" + scanned
+        LOGGER.info("Rotogate cleanup done - scanned=" + scanned
                 + " affected=" + affected.size()
                 + " skippedProtected=" + skippedProt
                 + " dryRun=" + dryRun);
@@ -163,7 +163,7 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
 
     static boolean fieldMatches(String field, int value) {
         if ("*".equals(field)) return true;
-        // Comma-separated list, e.g. "1,4" — match if any part matches.
+        // Comma-separated list, e.g. "1,4" - match if any part matches.
         if (field.indexOf(',') >= 0) {
             for (String part : field.split(",")) {
                 if (fieldMatches(part.trim(), value)) return true;

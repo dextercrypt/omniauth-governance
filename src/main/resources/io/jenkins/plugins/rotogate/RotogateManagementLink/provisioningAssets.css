@@ -6,7 +6,7 @@
 .pr-wrap { padding: 4px 4px 60px; max-width: 1100px; }
 
 /* KPI tiles and status pills reuse the shared rg-kpi-card / rg-pill
-   components from the adjunct — no local copy needed. */
+   components from the adjunct - no local copy needed. */
 .pr-kpis { display:flex; gap:14px; margin: 6px 0 22px; flex-wrap:wrap; }
 
 .pr-card { padding: 0; overflow:hidden; margin-bottom:22px; border-radius: var(--card-border-radius, 8px); }
@@ -34,7 +34,7 @@
 .pr-user  { font-weight:600; }
 .pr-sub   { font-size:0.84em; color:var(--text-color-secondary); margin-top:2px; }
 
-/* Identity cell — avatar circle + stacked name, matching the User Status table so the
+/* Identity cell - avatar circle + stacked name, matching the User Status table so the
    request tables read as the same component. Avatar is colour-keyed by request source
    (Entra = info/blue, native = neutral/gray), exactly like userStatus' us-av. */
 .pr-ident { display:flex; align-items:center; gap:10px; min-width:0; }

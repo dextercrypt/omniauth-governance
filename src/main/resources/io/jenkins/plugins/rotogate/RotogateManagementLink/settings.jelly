@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Settings" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Settings" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -135,7 +135,7 @@
                 </label>
               </div>
 
-              <!-- Fields — greyed out when cleanup disabled -->
+              <!-- Fields - greyed out when cleanup disabled -->
               <div id="cleanupFields" style="display: flex; flex-direction: column; gap: 16px; padding-top: 4px; border-top: 1px solid var(--rg-card-border); transition: opacity 0.2s;">
 
                 <!-- Dry run -->
@@ -170,7 +170,7 @@
                   <input type="text" name="cleanupCron" id="cleanupCron" value="${cfg.cleanupCron}"
                          class="jenkins-input" style="width: 200px;" placeholder="0 2 * * 0"/>
                   <div id="cronError" style="margin-top: 6px; font-size: 0.78em; color: var(--error-color); display: none;">
-                    Invalid cron — must be 5 fields: minute hour day month weekday (e.g. <code>0 2 * * 0</code>)
+                    Invalid cron - must be 5 fields: minute hour day month weekday (e.g. <code>0 2 * * 0</code>)
                   </div>
                   <div id="cronOk" style="margin-top: 6px; font-size: 0.78em; color: var(--rg-success-fg); display: none;">
                     Valid cron expression.
@@ -247,18 +247,18 @@
               <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
                 A host-level fail-safe for a true admin lockout (all admins SSO-only with the identity
                 provider down, or a misconfigured authorization strategy). An operator drops an empty file
-                <code>rotogate-sos.request</code> in <code>JENKINS_HOME</code> — no restart needed — which
+                <code>rotogate-sos.request</code> in <code>JENKINS_HOME</code> - no restart needed - which
                 arms SOS Mode and opens <code>/sos/recover</code> for 30 minutes. There an admin enters one
                 of their <a href="emergencyAccess">SOS recovery codes</a> to regain access; the window then
                 auto-closes (or after 5 failed attempts). Only salted hashes of the codes are stored, so a
                 copy of <code>JENKINS_HOME</code> cannot reveal them. Distinct from Break Glass (in-session
-                TOTP step-up). Disabling this is a policy control only — anyone with filesystem access can
+                TOTP step-up). Disabling this is a policy control only - anyone with filesystem access can
                 still recover via host-level <code>config.xml</code>.
               </div>
 
               <j:if test="${it.sosArmed}">
                 <div class="jenkins-alert" style="margin-bottom:14px; background:var(--rg-error-bg,#fdecea); border-color:var(--rg-error-border,#f5c2c0); color:var(--rg-error-fg,#8a1c17); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-                  <span><strong>SOS Mode is currently active</strong> — recovery is open and auto-closes in about ${it.sosMinutesRemaining} minute(s).</span>
+                  <span><strong>SOS Mode is currently active</strong> - recovery is open and auto-closes in about ${it.sosMinutesRemaining} minute(s).</span>
                   <button type="button" class="jenkins-button" id="sosDeactivateBtn">Deactivate now</button>
                 </div>
               </j:if>
@@ -319,7 +319,7 @@
             </div>
             <div class="rg-card-body">
               <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
-                Recurring banners shown on the login page during set weekly windows — e.g. "No production
+                Recurring banners shown on the login page during set weekly windows - e.g. "No production
                 deployments" every Friday, or "No deployments" every evening. They appear <strong>alongside</strong>
                 the manual announcement (which always takes the top slot); at most 2 banners show at once,
                 highest priority first. Times use the server's local timezone.
@@ -383,7 +383,7 @@
                 <div class="jenkins-select" style="width: 360px; max-width: 100%;">
                 <select name="loginButler" class="jenkins-select__input">
                   <j:set var="btl" value="${cfg.loginButler}"/>
-                  <option value="default" selected="${btl == 'default' ? 'selected' : null}">Jenkins Butler (native) — default</option>
+                  <option value="default" selected="${btl == 'default' ? 'selected' : null}">Jenkins Butler (native) - default</option>
                   <option value="austin"  selected="${btl == 'austin'  ? 'selected' : null}">Willie Nelson (Austin butler)</option>
                   <option value="jenkinsx" selected="${btl == 'jenkinsx' ? 'selected' : null}">JayeX (Jenkins X butler)</option>
                   <option value="general"  selected="${btl == 'general'  ? 'selected' : null}">General butler</option>
@@ -429,7 +429,7 @@
                   Shown above the sign-in form. The Jenkins butler stays on the branding panel. PNG, JPG, SVG, or GIF. Max 2 MB. Leave empty to hide.
                 </div>
 
-                <!-- Preview row — shown when a logo is already uploaded -->
+                <!-- Preview row - shown when a logo is already uploaded -->
                 <j:choose>
                   <j:when test="${it.loginLogoUploaded}">
                     <div id="rgLogoPreview" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
@@ -485,7 +485,7 @@
                 <div class="jenkins-select" style="width: 360px; max-width: 100%;">
                 <select name="loginLogoPosition" class="jenkins-select__input">
                   <j:set var="llp" value="${cfg.loginLogoPosition}"/>
-                  <option value="a" selected="${llp == 'a' ? 'selected' : null}">Top left (above the heading) — default</option>
+                  <option value="a" selected="${llp == 'a' ? 'selected' : null}">Top left (above the heading) - default</option>
                   <option value="e" selected="${llp == 'e' ? 'selected' : null}">Top-right corner of the panel</option>
                   <option value="f" selected="${llp == 'f' ? 'selected' : null}">Centered (above the heading)</option>
                 </select>
@@ -503,7 +503,7 @@
                   <j:set var="lls" value="${cfg.loginLogoSize}"/>
                   <option value="20" selected="${lls == '20' ? 'selected' : null}">Small (20px)</option>
                   <option value="30" selected="${lls == '30' ? 'selected' : null}">Medium (30px)</option>
-                  <option value="40" selected="${lls == '40' ? 'selected' : null}">Large (40px) — default</option>
+                  <option value="40" selected="${lls == '40' ? 'selected' : null}">Large (40px) - default</option>
                 </select>
                 </div>
               </div>
@@ -516,7 +516,7 @@
                   Leave empty to hide.
                 </div>
                 <textarea name="loginAnnouncementText" rows="2"
-                          placeholder="e.g. Maintenance tonight 22:00–02:00 UTC. Sign-in may be temporarily unavailable."
+                          placeholder="e.g. Maintenance tonight 22:00-02:00 UTC. Sign-in may be temporarily unavailable."
                           class="jenkins-input"
                           style="width: 100%; max-width: 480px; resize: vertical; font-family: inherit;">${cfg.loginAnnouncementText}</textarea>
               </div>

@@ -16,11 +16,11 @@ import java.util.logging.Logger;
  *
  * <p>Renders a page (index.jelly) offering, per the admin settings:
  * <ul>
- *   <li>"Request access via Microsoft" — identity-proven Entra flow (wired in a later increment), and</li>
+ *   <li>"Request access via Microsoft" - identity-proven Entra flow (wired in a later increment), and</li>
  *   <li>a native (username/password) request form (this increment).</li>
  * </ul>
  *
- * <p>Nothing is created here — a submission produces a {@code PENDING}
+ * <p>Nothing is created here - a submission produces a {@code PENDING}
  * {@link ProvisioningRequest} for an admin to approve. The native form is guarded by the
  * {@link ProvisioningBreaker} and responds identically whether or not the account/request
  * already exists, to avoid account enumeration.
@@ -118,12 +118,12 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             rsp.sendRedirect(ctx + "/request-access/"); return;
         }
 
-        // Flood guard first — count every attempt, valid or not.
+        // Flood guard first - count every attempt, valid or not.
         if (!ProvisioningBreaker.tryAcquire(c)) {
             rsp.sendRedirect(ctx + "/request-access/?error=unavailable"); return;
         }
 
-        // Bound every field — this endpoint is public and unauthenticated, so without caps a
+        // Bound every field - this endpoint is public and unauthenticated, so without caps a
         // flood of large values would grow the persisted request store without limit.
         String username = cap(trim(req.getParameter("username")), 64);
         String fullName = cap(trim(req.getParameter("fullName")), 128);
@@ -136,12 +136,12 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             rsp.sendRedirect(ctx + "/request-access/?error=missing"); return;
         }
 
-        // Hard domain gate (not enumeration-sensitive — it's about the requester's own address).
+        // Hard domain gate (not enumeration-sensitive - it's about the requester's own address).
         if (!domainAllowed(email, c.getProvisioningAllowedDomains())) {
             rsp.sendRedirect(ctx + "/request-access/?error=domain"); return;
         }
 
-        // Enumeration-safe: never reveal that the account or a request already exists —
+        // Enumeration-safe: never reveal that the account or a request already exists -
         // silently no-op and show the same confirmation.
         boolean duplicate = User.getById(username, false) != null;
         ProvisioningRequestConfig store = ProvisioningRequestConfig.get();
@@ -168,7 +168,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
     /**
      * POST from the Entra reason-capture page. The requester's identity was already proven by
      * Microsoft and stashed on the session; here we add their reason and create the PENDING
-     * request. No account is created — an admin still approves.
+     * request. No account is created - an admin still approves.
      */
     // lgtm false positive: Public access-request intake (provisioning portal) -- by design usable by people who have no account yet, so there is no permission to check. A crumb-protected @POST that only creates a PENDING request for an admin to approve.
     @SuppressWarnings("lgtm[jenkins/no-permission-check]")
@@ -197,7 +197,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
             rsp.sendRedirect(ctx + "/request-access/reason?error=missing"); return;
         }
 
-        // Consume the stash — one reason page per verified round-trip.
+        // Consume the stash - one reason page per verified round-trip.
         s.removeAttribute(SESSION_ENTRA_OID);
         s.removeAttribute(SESSION_ENTRA_USERID);
         s.removeAttribute(SESSION_ENTRA_NAME);
@@ -232,7 +232,7 @@ public class ProvisioningPortalAction implements UnprotectedRootAction {
         return s.length() <= max ? s : s.substring(0, max);
     }
 
-    /** Upper bound on a requested access duration — this is a public, unauthenticated form, so an
+    /** Upper bound on a requested access duration - this is a public, unauthenticated form, so an
      *  absurd value (e.g. 999999) must not become the account expiry if an admin approves in haste. */
     private static final int MAX_DURATION_DAYS = 3650; // ~10 years
 

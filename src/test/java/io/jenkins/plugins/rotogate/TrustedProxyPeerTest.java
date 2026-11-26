@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Pure unit tests for {@link RotogateAuditLog#isTrustedProxyPeer(String)} — the gate that
+ * Pure unit tests for {@link RotogateAuditLog#isTrustedProxyPeer(String)} - the gate that
  * decides whether an X-Forwarded-For header may be believed. It must return {@code true}
  * ONLY when the direct TCP peer is a loopback / private / link-local / IPv6-ULA address
  * (a reverse proxy we control), and {@code false} for any public address or garbage input.
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>This locks down the just-fixed MEDIUM: without the gate, an authenticated user on a
  * public network could forge the IP recorded against their own audit events by setting XFF.
  *
- * <p>No JenkinsRule — the method is a package-private static pure function. Inputs that
+ * <p>No JenkinsRule - the method is a package-private static pure function. Inputs that
  * contain a ':' are parsed as IPv6 literals and fail fast on error (no DNS); garbage inputs
  * are therefore chosen to contain ':' so the test never performs a network lookup.
  */
@@ -63,7 +63,7 @@ public class TrustedProxyPeerTest {
     @Test public void publicGoogleDns_isUntrusted()       { assertUntrusted("8.8.8.8"); }
     @Test public void publicCloudflareDns_isUntrusted()   { assertUntrusted("1.1.1.1"); }
     @Test public void publicArbitrary_isUntrusted()       { assertUntrusted("203.0.113.5"); }
-    // Just outside the 172.16.0.0/12 block — must be treated as public.
+    // Just outside the 172.16.0.0/12 block - must be treated as public.
     @Test public void justAbove172Block_isUntrusted()     { assertUntrusted("172.32.0.1"); }
     @Test public void justBelow172Block_isUntrusted()     { assertUntrusted("172.15.255.255"); }
     @Test public void publicIpv6Google_isUntrusted()      { assertUntrusted("2001:4860:4860::8888"); }

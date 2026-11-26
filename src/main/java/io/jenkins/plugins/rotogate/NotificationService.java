@@ -143,7 +143,7 @@ public class NotificationService {
     public static void sendBruteForceAlert(RotogateGlobalConfig cfg,
                                             String username, int failureCount) {
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] Possible brute force — "
+        String subject = "[Jenkins Rotogate] Possible brute force - "
                 + failureCount + " failed logins for: " + username;
         String plain = "Rotogate Brute Force Alert\n"
                 + "==========================\n\n"
@@ -176,14 +176,14 @@ public class NotificationService {
                 + "Wants:     " + nz(r.getRequestedAccess()) + "\n"
                 + "Reason:    " + nz(r.getReason()) + "\n"
                 + "Duration:  " + r.durationLabel() + "\n\n"
-                + "No account exists yet — approving creates it.\n"
+                + "No account exists yet - approving creates it.\n"
                 + ctaLine("Review Access Requests", "provisioning")
                 + "\n---\nJenkins Rotogate Plugin";
         dispatch(cfg, "provisionRequest", subject, plain,
                 SmtpHelper.buildProvisioningRequestedHtml(cfg, r));
     }
 
-    /** Requester (native): approved — emails the one-time activation link directly to them. */
+    /** Requester (native): approved - emails the one-time activation link directly to them. */
     public static void sendProvisioningApprovedNative(RotogateGlobalConfig cfg, ProvisioningRequest r,
                                                       String activationUrl, int ttlHours) {
         if (cfg == null || r == null || r.getEmail().isEmpty()) return;
@@ -198,7 +198,7 @@ public class NotificationService {
                 SmtpHelper.buildProvisioningApprovedNativeHtml(cfg, r, activationUrl, ttlHours), plain);
     }
 
-    /** Requester (Entra): approved — sign in with Microsoft. */
+    /** Requester (Entra): approved - sign in with Microsoft. */
     public static void sendProvisioningApprovedEntra(RotogateGlobalConfig cfg, ProvisioningRequest r) {
         if (cfg == null || r == null || r.getEmail().isEmpty()) return;
         String subject = "[Jenkins Rotogate] Your access request was approved";
@@ -359,9 +359,9 @@ public class NotificationService {
 
     public static void sendJitRequested(RotogateGlobalConfig cfg,
                                          RotogateJitRequest req, String approverGroup) {
-        // Slack / Teams broadcast — single message to webhook
+        // Slack / Teams broadcast - single message to webhook
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] JIT Request — " + req.getRequesterId()
+        String subject = "[Jenkins Rotogate] JIT Request - " + req.getRequesterId()
                 + " wants access to " + req.getScope();
         String plain = "Rotogate JIT Access Request\n"
                 + "===========================\n\n"
@@ -384,7 +384,7 @@ public class NotificationService {
                                                RotogateJitRequest.ApprovalEntry entry) {
         if (cfg == null || !cfg.isNotificationsEnabled() || !cfg.isSmtpEnabled()) return;
         String actionUrl = rootUrl() + "/rotogate-jit/action?token=" + entry.getToken();
-        String subject = "[Action Required] JIT Access Request — " + req.getRequesterId()
+        String subject = "[Action Required] JIT Access Request - " + req.getRequesterId()
                 + " → " + req.getScope();
         String plain = "JIT Access Request\n"
                 + "==================\n\n"
@@ -403,7 +403,7 @@ public class NotificationService {
     /** Sent to requester when their JIT request timed out but had partial approvals. */
     public static void sendJitTimedOutPartial(RotogateGlobalConfig cfg, RotogateJitRequest req) {
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] JIT Request Timed Out — " + req.getScope();
+        String subject = "[Jenkins Rotogate] JIT Request Timed Out - " + req.getScope();
         StringBuilder plain = new StringBuilder();
         plain.append("Rotogate JIT Request Timed Out\n")
              .append("==============================\n\n")
@@ -425,7 +425,7 @@ public class NotificationService {
 
     public static void sendJitApproved(RotogateGlobalConfig cfg, RotogateJitRequest req) {
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] JIT Access Approved — " + req.getScope();
+        String subject = "[Jenkins Rotogate] JIT Access Approved - " + req.getScope();
 
         String plain = "Rotogate JIT Access Approved\n"
                 + "============================\n\n"
@@ -446,7 +446,7 @@ public class NotificationService {
 
     public static void sendJitDenied(RotogateGlobalConfig cfg, RotogateJitRequest req) {
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] JIT Request Denied — " + req.getScope();
+        String subject = "[Jenkins Rotogate] JIT Request Denied - " + req.getScope();
 
         String plain = "Rotogate JIT Request Denied\n"
                 + "===========================\n\n"
@@ -467,7 +467,7 @@ public class NotificationService {
     public static void sendGraphApiFailed(RotogateGlobalConfig cfg,
                                            String userId, String errorMessage) {
         if (cfg == null) return;
-        String subject = "[Jenkins Rotogate] Graph API failure — group sync broken";
+        String subject = "[Jenkins Rotogate] Graph API failure - group sync broken";
         String plain = "Rotogate Graph API Failure\n"
                 + "==========================\n\n"
                 + "User affected: " + userId + "\n"

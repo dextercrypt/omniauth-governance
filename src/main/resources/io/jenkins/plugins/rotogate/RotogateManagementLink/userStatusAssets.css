@@ -59,7 +59,7 @@
         .us-muted      { color:var(--text-color-secondary); }
         .us-small      { font-size:.74em;margin-top:2px;display:block; }
 
-        /* Tooltip — appears below the i icon (inverts with the theme) */
+        /* Tooltip - appears below the i icon (inverts with the theme) */
         .us-tipwrap { position:relative;display:inline-flex;align-items:center; }
         .us-tipicon { display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;background:var(--text-color-secondary);color:var(--rg-card-bg);font-size:8px;font-weight:700;cursor:default;font-family:serif;flex-shrink:0; }
         .us-tipbox  { display:none;position:fixed;background:var(--text-color);color:var(--rg-card-bg);font-size:.76em;padding:6px 10px;border-radius:5px;white-space:nowrap;z-index:8000;pointer-events:none;line-height:1.6;box-shadow:0 4px 14px rgba(0,0,0,.2); }
@@ -71,7 +71,7 @@
         .us-kebab-btn  { display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font-size:1.1em;color:var(--text-color-secondary);transition:all .12s;line-height:1; }
         .us-kebab-btn:hover, .us-kebab-btn.us-open { background:var(--rg-neutral-bg);border-color:var(--rg-card-border);color:var(--text-color); }
 
-        /* Dropdown menu — fixed so it escapes overflow:hidden parents */
+        /* Dropdown menu - fixed so it escapes overflow:hidden parents */
         .us-menu { display:none;position:fixed;background:var(--rg-card-bg);border:1px solid var(--rg-card-border);border-radius:7px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:168px;z-index:9000;padding:4px 0;animation:usMenuIn .1s ease; }
         .us-menu.us-open { display:block; }
         @keyframes usMenuIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests for the newly-wired {@link RotogateAuditLog} event types — the coverage pass that
+ * Tests for the newly-wired {@link RotogateAuditLog} event types - the coverage pass that
  * extended the audit trail beyond the original curated set to the matrix-permission path,
  * config changes, security-response actions, provisioning lifecycle, and JIT expiry/timeout.
  *
@@ -165,7 +165,7 @@ public class RotogateAuditLogTest {
     }
 
     /**
-     * readRecent must return the NEWEST events even when older month files exist — the prior
+     * readRecent must return the NEWEST events even when older month files exist - the prior
      * implementation prepended older files and then took the first N, returning the OLDEST events
      * (so the UI showed only months-old entries). This seeds an old-month file alongside today's.
      */

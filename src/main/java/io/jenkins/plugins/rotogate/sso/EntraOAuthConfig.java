@@ -113,7 +113,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
     }
 
     /**
-     * Step 1 — redirect browser to Azure AD login page.
+     * Step 1 - redirect browser to Azure AD login page.
      * Called by RotogateRootAction at GET /rotogate/commenceLogin[?from=…]
      */
     @Override
@@ -135,9 +135,9 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
             req.getSession().removeAttribute(SESSION_PROVISION_MODE);
         }
 
-        // PKCE — generate a cryptographically random code verifier and derive its challenge
+        // PKCE - generate a cryptographically random code verifier and derive its challenge
         // The verifier stays in the session; only the SHA-256 hash (challenge) goes to Azure.
-        // On token exchange, Azure re-hashes the verifier and compares — proving the same
+        // On token exchange, Azure re-hashes the verifier and compares - proving the same
         // server that started the login is completing it.
         byte[] verifierBytes = new byte[32];
         new SecureRandom().nextBytes(verifierBytes);
@@ -147,7 +147,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(challengeBytes);
         req.getSession().setAttribute(SESSION_CODE_VERIFIER, codeVerifier);
 
-        // Nonce — embedded in the ID token by Azure AD and validated on return.
+        // Nonce - embedded in the ID token by Azure AD and validated on return.
         // Prevents token replay attacks where an attacker tries to reuse a previously
         // captured ID token to establish a new session.
         String nonce = UUID.randomUUID().toString();
@@ -161,7 +161,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
     }
 
     /**
-     * Step 2 — Azure AD posts back with an authorization code.
+     * Step 2 - Azure AD posts back with an authorization code.
      * Called by RotogateRootAction at GET /rotogate/finishLogin?code=…&state=…
      */
     @Override
@@ -171,7 +171,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         String returnedState = req.getParameter("state");
         String sessionState  = (String) req.getSession().getAttribute(SESSION_OAUTH_STATE);
         if (returnedState == null || !returnedState.equals(sessionState)) {
-            LOGGER.log(Level.WARNING, "OAuth2 state mismatch — session likely expired, redirecting to login");
+            LOGGER.log(Level.WARNING, "OAuth2 state mismatch - session likely expired, redirecting to login");
             return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
         }
         req.getSession().removeAttribute(SESSION_OAUTH_STATE);
@@ -179,7 +179,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         // Azure AD error (e.g. user cancelled)
         String error = req.getParameter("error");
         if (error != null) {
-            LOGGER.log(Level.WARNING, "Azure AD error: {0} — {1}",
+            LOGGER.log(Level.WARNING, "Azure AD error: {0} - {1}",
                     new Object[]{error, req.getParameter("error_description")});
             return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=entra");
         }
@@ -189,13 +189,13 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
             return HttpResponses.error(400, "No authorization code received from Azure AD.");
         }
 
-        // PKCE — retrieve the verifier stored during commenceLogin and send it to Azure.
+        // PKCE - retrieve the verifier stored during commenceLogin and send it to Azure.
         // Azure hashes it and checks it matches the challenge sent earlier. An attacker
         // who intercepted the authorization code cannot exchange it without this verifier.
         String codeVerifier = (String) req.getSession().getAttribute(SESSION_CODE_VERIFIER);
         req.getSession().removeAttribute(SESSION_CODE_VERIFIER);
         if (codeVerifier == null) {
-            LOGGER.log(Level.WARNING, "PKCE code verifier missing from session — possible session expiry");
+            LOGGER.log(Level.WARNING, "PKCE code verifier missing from session - possible session expiry");
             return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
         }
 
@@ -205,13 +205,13 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
 
         JWTClaimsSet claims = helper.parseIdToken(result.idToken());
 
-        // Nonce validation — confirm the ID token was issued for this exact login attempt.
+        // Nonce validation - confirm the ID token was issued for this exact login attempt.
         // Azure AD embeds the nonce we sent in the token; we verify it matches what we stored.
         String sessionNonce = (String) req.getSession().getAttribute(SESSION_NONCE);
         req.getSession().removeAttribute(SESSION_NONCE);
         String tokenNonce = MsalTokenHelper.getStringClaim(claims, "nonce");
         if (sessionNonce == null || !sessionNonce.equals(tokenNonce)) {
-            LOGGER.log(Level.SEVERE, "ID token nonce mismatch — possible token replay attack, rejecting login");
+            LOGGER.log(Level.SEVERE, "ID token nonce mismatch - possible token replay attack, rejecting login");
             return HttpResponses.error(400, "Authentication failed: nonce validation error.");
         }
 
@@ -221,7 +221,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         String email = MsalTokenHelper.getStringClaim(claims, "email");
 
         if (oid == null) {
-            LOGGER.log(Level.SEVERE, "ID token missing 'oid' claim — cannot identify user");
+            LOGGER.log(Level.SEVERE, "ID token missing 'oid' claim - cannot identify user");
             return HttpResponses.error(500, "Microsoft did not return a valid user identifier.");
         }
 
@@ -234,7 +234,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
             try {
                 groups = new GraphApiHelper().getGroupMemberships(result.accessToken());
             } catch (IOException | InterruptedException e) {
-                LOGGER.log(Level.WARNING, "Graph API group sync failed — continuing without groups", e);
+                LOGGER.log(Level.WARNING, "Graph API group sync failed - continuing without groups", e);
                 NotificationService.sendGraphApiFailed(RotogateGlobalConfig.get(),
                         upn != null ? upn : oid, e.getMessage());
             }
@@ -251,7 +251,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         // Gate: only individually pre-provisioned users or members of allowed groups can log in.
         if (!realm.isPreProvisioned(oid, upn, groups)) {
             String displayId = upn != null ? upn : oid;
-            LOGGER.log(Level.WARNING, "Rejected SSO login — not pre-provisioned: {0}", displayId);
+            LOGGER.log(Level.WARNING, "Rejected SSO login - not pre-provisioned: {0}", displayId);
             RotogateAuditLog audit = RotogateAuditLog.get();
             if (audit != null) audit.logLoginFailure(displayId, req.getRemoteAddr());
             // If the rejected user was previously VIA_ENTRA_GROUP, clear their group OIDs
@@ -269,7 +269,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
             String displayId = upn != null ? upn : oid;
             int at = emailForDomain.lastIndexOf('@');
             String domain = at >= 0 ? emailForDomain.substring(at + 1) : "(none)";
-            LOGGER.log(Level.WARNING, "Rejected SSO login — domain not allowed: {0}", displayId);
+            LOGGER.log(Level.WARNING, "Rejected SSO login - domain not allowed: {0}", displayId);
             RotogateAuditLog audit = RotogateAuditLog.get();
             if (audit != null) audit.logLoginDeniedDomain(displayId, domain, req.getRemoteAddr());
             return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "loginError?error=domainNotAllowed");
@@ -283,7 +283,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
                 jenkinsUser.getId(), name, email, oid, groups);
         EntraAuthenticationToken auth = new EntraAuthenticationToken(userDetails);
 
-        // Use SecurityContextImpl explicitly — Spring Security 6's holder may return
+        // Use SecurityContextImpl explicitly - Spring Security 6's holder may return
         // a deferred/lazy wrapper that doesn't serialize cleanly into the HTTP session.
         SecurityContext securityContext = new SecurityContextImpl(auth);
         SecurityContextHolder.setContext(securityContext);
@@ -346,7 +346,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         // The Jenkins user id mirrors the login flow: UPN (email) when present, else the OID.
         String userId = (upn != null && !upn.isEmpty()) ? upn : oid;
 
-        // Already has access (individually or via group)? Don't create a request — tell them.
+        // Already has access (individually or via group)? Don't create a request - tell them.
         if (realm.isPreProvisioned(oid, upn, groups) || User.getById(userId, false) != null) {
             return HttpResponses.redirectTo(root + "request-access/?already=1");
         }
@@ -416,7 +416,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
 
     /**
      * Returns the OAuth2 scopes to request. Always includes openid, profile, email.
-     * Adds the Graph API scope whenever group information may be needed — i.e. group sync
+     * Adds the Graph API scope whenever group information may be needed - i.e. group sync
      * is enabled OR any GROUP entity exists in Access Management. (Otherwise group-based
      * access would silently break: the token would lack the Graph scope, the /me/memberOf
      * call would 403, and every group-gated user would be rejected at login.)
@@ -450,7 +450,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         }
 
         /**
-         * The full redirect URI to register in Azure, built from the configured Jenkins URL — so it
+         * The full redirect URI to register in Azure, built from the configured Jenkins URL - so it
          * can be copied straight into the App Registration. Falls back to a placeholder if the
          * Jenkins URL isn't set yet.
          */
@@ -548,14 +548,14 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
                 app.acquireToken(params).get();
                 return FormValidation.okWithMarkup(statusHtml(
                         "var(--success-color, #2e7d32)", ICON_CELEBRATE,
-                        "Connection successful — Microsoft Entra accepted these credentials."));
+                        "Connection successful - Microsoft Entra accepted these credentials."));
             } catch (Exception e) {
                 // MSAL wraps the AADSTS error (bad secret, unknown client, wrong tenant, …) in the
                 // cause; surface the clearest message we have so the admin knows which field to fix.
                 Throwable cause = e.getCause() != null ? e.getCause() : e;
                 String msg = cause.getMessage();
                 if (msg == null || msg.isBlank()) msg = e.toString();
-                // msg is from Microsoft — escape it before embedding in markup.
+                // msg is from Microsoft - escape it before embedding in markup.
                 return FormValidation.errorWithMarkup(statusHtml(
                         "var(--error-color, #c0392b)", ICON_X,
                         "Connection failed: " + Util.escape(msg)));

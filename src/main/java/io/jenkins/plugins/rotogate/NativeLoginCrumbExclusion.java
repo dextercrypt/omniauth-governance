@@ -17,7 +17,7 @@ import java.io.IOException;
  * <p>Only {@code /rotogate/nativeLogin} (the username/password submission itself) is
  * exempt, mirroring core's own {@code j_spring_security_check} login endpoint. The
  * first-login set-password endpoint ({@code /rotogate/submitPasswordChange}) is NOT
- * exempt — its form carries a real CSRF crumb — so a malicious page can't set a
+ * exempt - its form carries a real CSRF crumb - so a malicious page can't set a
  * mid-flow user's password on their behalf.
  */
 @Extension

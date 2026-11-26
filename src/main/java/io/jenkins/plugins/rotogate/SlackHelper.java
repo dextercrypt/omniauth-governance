@@ -14,7 +14,7 @@ public class SlackHelper {
     private SlackHelper() {}
 
     // -------------------------------------------------------------------------
-    // Dispatch — async
+    // Dispatch - async
     // -------------------------------------------------------------------------
 
     public static void send(RotogateGlobalConfig cfg, String subject, String body) {
@@ -32,7 +32,7 @@ public class SlackHelper {
     }
 
     // -------------------------------------------------------------------------
-    // Test — synchronous, throws on failure
+    // Test - synchronous, throws on failure
     // -------------------------------------------------------------------------
 
     public static void test(String webhookUrl) throws Exception {
@@ -93,10 +93,10 @@ public class SlackHelper {
         StringBuilder blocks = new StringBuilder("[");
 
         // Blocks use a leading-comma convention: the header is the first block (no leading comma),
-        // and every subsequent block prepends its own comma. No block emits a trailing comma —
+        // and every subsequent block prepends its own comma. No block emits a trailing comma -
         // emitting both produced a "}},,{" double comma that made the whole payload invalid JSON.
 
-        // Header (first block — no leading comma)
+        // Header (first block - no leading comma)
         blocks.append("{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":")
               .append(esc(title)).append(",\"emoji\":true}}");
 

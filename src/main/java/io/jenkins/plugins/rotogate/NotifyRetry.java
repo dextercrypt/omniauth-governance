@@ -3,7 +3,7 @@ package io.jenkins.plugins.rotogate;
 import java.util.logging.Logger;
 
 /**
- * Retry wrapper for notification sends — 3 attempts with 5s / 15s backoff.
+ * Retry wrapper for notification sends - 3 attempts with 5s / 15s backoff.
  */
 class NotifyRetry {
 
@@ -33,7 +33,7 @@ class NotifyRetry {
                     long delay = BACKOFF_MS[attempt - 1];
                     logger.warning("Rotogate " + channel + " failed (attempt " + attempt
                             + "/" + MAX_ATTEMPTS + "), retrying in " + (delay / 1000)
-                            + "s — " + subject + ": " + e.getMessage());
+                            + "s - " + subject + ": " + e.getMessage());
                     try {
                         Thread.sleep(delay);
                     } catch (InterruptedException ie) {

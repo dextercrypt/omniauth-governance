@@ -3,14 +3,14 @@
  *
  * Shows/hides the single-sign-on provider settings off the "Connect a single sign-on provider"
  * checkbox (field="ssoEnabled", rendered by Jenkins as input name "_.ssoEnabled"). The settings
- * block stays in the DOM when hidden — only its visibility changes — so a save while SSO is off
+ * block stays in the DOM when hidden - only its visibility changes - so a save while SSO is off
  * still submits and preserves the stored provider settings. Include via:
  *   <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgSsoToggle"/>
  *
  * CSP-safe: external same-origin script, all wiring via addEventListener, no inline on* handlers.
  *
  * The realm config fragment is injected dynamically when the admin selects the Rotogate radio on
- * "Configure Global Security", and Jenkins de-duplicates adjunct scripts per page — so this cannot
+ * "Configure Global Security", and Jenkins de-duplicates adjunct scripts per page - so this cannot
  * rely on running after the checkbox exists. It uses a delegated change listener plus a short-lived
  * observer so it wires up whenever (and however often) the fragment appears.
  */
@@ -30,7 +30,7 @@
       return;
     }
     // The settings div is a later sibling within the same realm config block; fall back to the
-    // whole document if the structure ever changes (correctness over precision — never leave it
+    // whole document if the structure ever changes (correctness over precision - never leave it
     // hidden while enabled).
     var scope = checkbox.closest ? checkbox.closest("form, .jenkins-form, body") : null;
     var panel = (scope || document).querySelector(SETTINGS);
@@ -48,7 +48,7 @@
     }
   }
 
-  // Delegated change listener — survives dynamic injection and script de-duplication.
+  // Delegated change listener - survives dynamic injection and script de-duplication.
   document.addEventListener("change", function (e) {
     var t = e.target;
     if (t && t.matches && t.matches(CHECKBOX)) {
@@ -69,7 +69,7 @@
     });
     obs.observe(document.documentElement, { childList: true, subtree: true });
   } catch (err) {
-    // MutationObserver unavailable — the delegated listener and initial pass still cover the
+    // MutationObserver unavailable - the delegated listener and initial pass still cover the
     // common cases; nothing else to do.
   }
 })();

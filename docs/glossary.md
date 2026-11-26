@@ -12,14 +12,14 @@
 | **Entra (Microsoft Entra)** | Microsoft's cloud identity platform, formerly Azure Active Directory (Azure AD). |
 | **Grant** | See *access assignment*. |
 | **Group sync** | Importing a user's Azure AD group memberships via MS Graph and exposing them as authorities. |
-| **JCasC** | Jenkins Configuration as Code — declarative YAML configuration. See [Configuration as Code](operations/configuration-as-code.md). |
+| **JCasC** | Jenkins Configuration as Code - declarative YAML configuration. See [Configuration as Code](operations/configuration-as-code.md). |
 | **JIT (Just-in-Time) access** | Time-bounded elevated access granted on request and auto-expired. Also known as PIM. |
 | **MSAL4J** | Microsoft Authentication Library for Java, used for the OAuth2 code flow. |
 | **Native login** | Jenkins' built-in username/password authentication (bcrypt), inherited from `HudsonPrivateSecurityRealm`. |
 | **Nonce** | A single-use value bound into the OIDC ID token to prevent replay. |
 | **OID (Object ID)** | The stable Azure identifier for a user; used as the identity anchor even if the email/UPN changes. |
-| **PIM** | Privileged Identity Management — Microsoft's term for JIT elevation. |
-| **PKCE** | Proof Key for Code Exchange — an OAuth2 hardening for the authorization-code flow. |
+| **PIM** | Privileged Identity Management - Microsoft's term for JIT elevation. |
+| **PKCE** | Proof Key for Code Exchange - an OAuth2 hardening for the authorization-code flow. |
 | **Pre-provisioning** | Creating access assignments for a user by email **before** their first login, so permissions apply immediately. |
 | **Protected user** | A user exempted from automated actions such as stale-account cleanup. |
 | **Scope** | The target of an assignment: global, or a specific job/folder (parents auto-granted Read). |
@@ -28,7 +28,7 @@
 | **SSO** | Single Sign-On, provided here via Microsoft Entra OAuth2/OIDC. |
 | **Stale user** | An account inactive beyond a configured threshold, eligible for warning/cleanup. |
 | **TOTP** | Time-based One-Time Password, the second factor used by Break Glass. |
-| **UPN** | User Principal Name — the user's Entra sign-in name (typically their email). Used as the Jenkins user id. |
+| **UPN** | User Principal Name - the user's Entra sign-in name (typically their email). Used as the Jenkins user id. |
 
 ---
 _See also: [Configuration reference](reference/configuration-reference.md) · [Architecture](developer/architecture.md)_

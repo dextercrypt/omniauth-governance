@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Covers the form-binding {@code updateFrom} methods on the per-area config holders — the path the
+ * Covers the form-binding {@code updateFrom} methods on the per-area config holders - the path the
  * save handlers now take instead of hand-assembling JSON. Verifies the semantics that path has to
  * preserve: checkbox presence (present = on, absent = off), partial text fields (an absent parameter
  * leaves the stored value untouched), the pasted {@code host:port} split, keeping an existing

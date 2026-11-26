@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — User Access" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - User Access" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -50,10 +50,10 @@
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Could not reset the password. Check the Jenkins log for details.</div>
         </j:if>
         <j:if test="${request2.getParameter('reviewed') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access confirmed — review clock reset.</div>
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access confirmed - review clock reset.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'lastAdmin'}">
-          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Cannot remove — this would leave Jenkins with no administrators.</div>
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Cannot remove - this would leave Jenkins with no administrators.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'notRotogate'}">
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Rotogate Authorization Strategy must be active.</div>
@@ -68,7 +68,7 @@
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">User or group ID is required.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'noPermissions'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">No permissions selected — choose at least one permission from the Custom picker.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">No permissions selected - choose at least one permission from the Custom picker.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'jitMinApprovers'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">JIT assignments require at least 2 approvers. Add a second approver and save again.</div>
@@ -80,7 +80,7 @@
             <span style="flex-shrink:0;display:inline-flex;"><l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/></span>
             <span>
               <strong>Group-provisioned user.</strong>
-              Access is controlled by the Azure AD group assignment — individual grants are not permitted.
+              Access is controlled by the Azure AD group assignment - individual grants are not permitted.
               To change this user's permissions, edit the group entity in Access Management.
             </span>
           </div>
@@ -139,7 +139,7 @@
               </div>
               <button type="button" id="udxTmpPwdDone"
                       class="jenkins-button jenkins-button--primary" style="width:100%">
-                Done — I've copied the password
+                Done - I've copied the password
               </button>
             </div>
           </div>
@@ -308,7 +308,7 @@
                           </span>
                         </j:if>
                         <j:if test="${userIsGlobalAdmin and !a.global}">
-                          <span title="This assignment has no effect — the user's global Admin role supersedes all scoped restrictions."
+                          <span title="This assignment has no effect - the user's global Admin role supersedes all scoped restrictions."
                                 style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;
                                        font-size:0.72em;font-weight:700;padding:2px 7px;border-radius:10px;
                                        background:var(--rg-warning-bg);border:1px solid var(--rg-warning-border);color:var(--warning-color);cursor:help;">
@@ -375,7 +375,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- Grant / Edit access — unified slide-over drawer              -->
+        <!-- Grant / Edit access - unified slide-over drawer              -->
         <!-- (suppressed entirely for group-managed users)               -->
         <!-- ============================================================ -->
         <j:if test="${header == null or !header.groupManaged}">
@@ -445,7 +445,7 @@
                   <!-- EDIT mode (scope fixed) -->
                   <div id="udxScopeFixed" style="display:none;">
                     <div class="udx-scope-ro" id="udxEditScopeDisplay"></div>
-                    <div class="udx-hint">Scope can't be changed — revoke and re-grant to move it.</div>
+                    <div class="udx-hint">Scope can't be changed - revoke and re-grant to move it.</div>
                   </div>
                 </div>
               </section>
@@ -482,7 +482,7 @@
                       </select>
                     </div>
                     <j:if test="${roles.isEmpty()}">
-                      <div class="udx-emptyroles">No saved roles yet — use <b>Custom permissions</b>, or create roles in the Roles tab.</div>
+                      <div class="udx-emptyroles">No saved roles yet - use <b>Custom permissions</b>, or create roles in the Roles tab.</div>
                     </j:if>
                     <div id="udxRolePreview" class="udx-preview"></div>
                   </div>
@@ -531,7 +531,7 @@
                   <div class="udx-step__t">Expiry <span class="udx-opt">optional</span></div>
                   <div class="udx-step__d">Automatically revoke at the end of a chosen day.</div>
                   <input type="date" name="expiresAt" id="udxExpiresAt" class="udx-date"/>
-                  <div id="udxExpiryHint" class="udx-hint">No expiry — access stays until revoked.</div>
+                  <div id="udxExpiryHint" class="udx-hint">No expiry - access stays until revoked.</div>
                 </div>
               </section>
 
@@ -622,7 +622,7 @@
             <div style="font-weight:700;font-size:1em;margin-bottom:6px;">User already has global Admin access</div>
             <div style="font-size:0.875em;color:var(--text-color-secondary,#555);line-height:1.55;">
               <strong id="udxConflictSid"></strong> has an existing global Administrator role which grants
-              full Jenkins access. A scoped assignment will have no effect — the Admin role supersedes all restrictions.
+              full Jenkins access. A scoped assignment will have no effect - the Admin role supersedes all restrictions.
             </div>
           </div>
         </div>

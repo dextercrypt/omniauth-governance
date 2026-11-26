@@ -32,7 +32,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  * RotogateSecurityRealm extends HudsonPrivateSecurityRealm, which configures
  * Spring Security to require authentication for all paths except the built-in
  * login/logout/signup pages. Our commenceLogin and finishLogin endpoints must
- * be reachable by unauthenticated users (that is the whole point — they are
+ * be reachable by unauthenticated users (that is the whole point - they are
  * trying to log in). UnprotectedRootAction is the Jenkins-supported mechanism
  * for exactly this use case: Jenkins automatically adds /rotogate/** to the
  * Spring Security permit list for all UnprotectedRootAction implementations.
@@ -46,20 +46,20 @@ public class RotogateRootAction implements UnprotectedRootAction {
         return "rotogate";
     }
 
-    /** No icon — this action is not visible in the side panel. */
+    /** No icon - this action is not visible in the side panel. */
     @Override
     public String getIconFileName() {
         return null;
     }
 
-    /** No display name — hidden from the Jenkins UI. */
+    /** No display name - hidden from the Jenkins UI. */
     @Override
     public String getDisplayName() {
         return null;
     }
 
     /**
-     * Step 1 — redirect browser to Azure AD login page.
+     * Step 1 - redirect browser to Azure AD login page.
      * URL: GET /rotogate/commenceLogin[?from=…]
      */
     // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
@@ -75,7 +75,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
     }
 
     /**
-     * Step 2 — Azure AD posts back with an authorization code.
+     * Step 2 - Azure AD posts back with an authorization code.
      * URL: GET /rotogate/finishLogin?code=…&state=…
      */
     // lgtm false positive: Unauthenticated-by-design endpoint on an UnprotectedRootAction (SSO login callback, account activation, or set-password page). Reached by GET and secured by the OAuth2 state/nonce, a single-use token, or a pending-set-password marker -- not a Jenkins crumb or permission; adding either would break sign-in.
@@ -133,7 +133,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
             Authentication auth = realm.getSecurityComponents().manager2.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
 
-            // Normal user — log them in ourselves, mirroring Jenkins' own form login.
+            // Normal user - log them in ourselves, mirroring Jenkins' own form login.
             establishSession(req, auth);
             if (isChecked(req.getParameter("remember_me"))) {
                 try {
@@ -153,7 +153,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
             rsp.sendRedirect(safeFrom(from, ctx));
 
         } catch (PasswordChangeRequiredException e) {
-            // Credentials were valid, but a password change is owed — do NOT log in.
+            // Credentials were valid, but a password change is owed - do NOT log in.
             HttpSession s = req.getSession(true);
             s.setAttribute(PENDING_USER, username);
             s.setAttribute(PENDING_AT, System.currentTimeMillis());
@@ -161,7 +161,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
 
         } catch (org.springframework.security.authentication.LockedException e) {
             // Too many failed attempts. We rejected BEFORE the delegate ran, so core
-            // fires no failure event — fire it ourselves to record the attempt and
+            // fires no failure event - fire it ourselves to record the attempt and
             // slide the cooldown, and show the dedicated "locked" message.
             SecurityListener.fireFailedToAuthenticate(username);
             rsp.sendRedirect(ctx + "/loginError?error=locked");

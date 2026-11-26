@@ -95,7 +95,7 @@ public class RotogateAssignmentConfig extends GlobalConfiguration {
 
     /**
      * Removes all currently-expired assignments and returns exactly those that were removed,
-     * evaluated once under the lock — so the caller can audit precisely what it deleted
+     * evaluated once under the lock - so the caller can audit precisely what it deleted
      * (no second isExpired() pass that could diverge as time moves).
      */
     public synchronized java.util.List<RotogateAssignment> removeExpiredReturning() {
@@ -168,7 +168,7 @@ public class RotogateAssignmentConfig extends GlobalConfiguration {
         return !groups.isEmpty();
     }
 
-    /** Resolves display name for a group — called when first member logs in. */
+    /** Resolves display name for a group - called when first member logs in. */
     public synchronized void resolveGroupDisplayName(String groupOid, String displayName) {
         for (RotogateGroupEntity g : groups) {
             if (g.getGroupOid().equals(groupOid) && !g.isResolved()) {

@@ -17,7 +17,7 @@ public class RotogateJitExpiryWorker extends AsyncPeriodicWork {
 
     @Override
     public long getRecurrencePeriod() {
-        return MIN; // every minute — JIT windows can be as short as 1 hour
+        return MIN; // every minute - JIT windows can be as short as 1 hour
     }
 
     @Override

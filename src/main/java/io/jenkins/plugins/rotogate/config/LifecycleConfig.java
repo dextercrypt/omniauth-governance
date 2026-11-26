@@ -32,7 +32,7 @@ public class LifecycleConfig {
     private boolean cleanupDryRun       = true;
     private String  cleanupCron         = "0 2 * * 0";
     private int     cleanupMaxDeletions = 50;
-    private String  cleanupNotifyEmail  = ""; // legacy — kept for migration, replaced by notifyEmails
+    private String  cleanupNotifyEmail  = ""; // legacy - kept for migration, replaced by notifyEmails
 
     // ── Stale warning ─────────────────────────────────────────────────────────
     private boolean staleWarningEnabled    = false;

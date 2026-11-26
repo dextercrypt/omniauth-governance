@@ -26,9 +26,9 @@ public final class PermissionInfo {
                 desc = p.description.toString();
             }
         } catch (RuntimeException ignore) {
-            // a plugin's Localizable can throw if its resource bundle is missing — skip the tooltip
+            // a plugin's Localizable can throw if its resource bundle is missing - skip the tooltip
         }
-        // Shown as the de-emphasised qualifier, e.g. "Lockable Resources/Steal" — the form CasC
+        // Shown as the de-emphasised qualifier, e.g. "Lockable Resources/Steal" - the form CasC
         // understands, instead of a raw class name like "LockableResourcesManager.Steal".
         String qualified = groupTitle + "/" + p.name;
         String impliedBy = p.impliedBy != null ? p.impliedBy.getId() : "";

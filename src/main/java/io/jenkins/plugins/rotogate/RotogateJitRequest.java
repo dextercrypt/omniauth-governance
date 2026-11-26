@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public class RotogateJitRequest {
 
-    // ── Approval entry — one per named approver, XStream-serializable ────────
+    // ── Approval entry - one per named approver, XStream-serializable ────────
 
     public static class ApprovalEntry {
         private String approverIdentity; // email or Jenkins username
         // lgtm false positive: Not a credential: a random UUID used only to address the per-approver email action link; carries no secret.
         @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-        private String token;            // unique UUID — used in the email action link
+        private String token;            // unique UUID - used in the email action link
         private String decision;         // null = pending, "APPROVED", "DENIED"
         private String remarks;
         private String decidedAt;        // ISO-8601 UTC
@@ -175,7 +175,7 @@ public class RotogateJitRequest {
      * Hours to grant when this request goes active: the MINIMUM of every approver's chosen duration.
      * An approver who did not shorten (grantedDurationHours == 0) counts as the full requested
      * duration, and any value is clamped to [1, requestedDurationHours] so no approver can grant more
-     * than was asked. The shortest wins — one approver can cap the window below what another intended.
+     * than was asked. The shortest wins - one approver can cap the window below what another intended.
      * With no approved entries yet, falls back to the requested duration.
      */
     public int effectiveGrantedDurationHours() {

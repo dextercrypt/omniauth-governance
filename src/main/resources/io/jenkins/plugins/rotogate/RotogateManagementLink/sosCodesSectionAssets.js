@@ -5,7 +5,7 @@
  * Externalised from sosCodesSection.jelly's inline <script> for CSP compliance (Jenkins hosting).
  * The sosGenerate/sosCopy/sosDownload/sosContinue functions stay GLOBAL because the jelly's inline
  * onclick= handlers call them. The one server value (it.sosEnrollMode) is no longer interpolated
- * into the JS — it is read from a <script type="application/json" id="sosData"> island.
+ * into the JS - it is read from a <script type="application/json" id="sosData"> island.
  * Load-time addEventListener wiring is deferred until the DOM is parsed (adjuncts load in <head>).
  */
 var sosEnrollMode = false;

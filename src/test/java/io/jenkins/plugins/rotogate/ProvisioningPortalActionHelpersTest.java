@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Pure unit tests for the private/package-private static helpers on
  * {@link ProvisioningPortalAction}: {@code domainAllowed}, {@code parseDays}, {@code cap}.
  *
- * <p>No Jenkins is required — these helpers are static pure logic. {@code domainAllowed} is
+ * <p>No Jenkins is required - these helpers are static pure logic. {@code domainAllowed} is
  * package-private so it is called directly; {@code parseDays}/{@code cap} are private and are
  * invoked via reflection (the cleanest way to exercise them without touching production code).
  */

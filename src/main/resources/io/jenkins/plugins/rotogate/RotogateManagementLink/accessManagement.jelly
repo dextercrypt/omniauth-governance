@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Access Management" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Access Management" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -26,13 +26,13 @@
           <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Role deleted.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'lastAdmin'}">
-          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Cannot save — this would remove the last administrator.</div>
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Cannot save - this would remove the last administrator.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'notRotogate'}">
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Rotogate Authorization Strategy must be active to manage permissions here.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'invalidRole'}">
-          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Role not found — check the Roles tab.</div>
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Role not found - check the Roles tab.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'missingSid'}">
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">User ID / Group OID is required.</div>
@@ -44,7 +44,7 @@
           <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:12px;">Assignment configuration is not available.</div>
         </j:if>
         <j:if test="${request2.getParameter('reviewed') == 'true'}">
-          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access confirmed — review clock reset.</div>
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">Access confirmed - review clock reset.</div>
         </j:if>
         <j:if test="${request2.getParameter('error') == 'missingRoleName'}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">Role name is required.</div>
@@ -52,7 +52,7 @@
 
         <j:if test="${!it.rotogateActive}">
           <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:16px;">
-            Active strategy is not Rotogate — permission writes are disabled.
+            Active strategy is not Rotogate - permission writes are disabled.
             Switch to <strong>Rotogate Authorization Strategy</strong> in
             <a href="${rootURL}/manage/configureSecurity/">Configure Global Security</a>.
           </div>
@@ -388,10 +388,10 @@
                 <input id="auGroupLabel" type="text" name="groupLabel"
                        class="jenkins-input" placeholder="e.g. Payments Team Developers"
                        style="width:100%;box-sizing:border-box;"/>
-                <div style="font-size:0.76em;color:#888;margin-top:4px;">Your own note — shown until display name resolves on first login.</div>
+                <div style="font-size:0.76em;color:#888;margin-top:4px;">Your own note - shown until display name resolves on first login.</div>
               </div>
               <div style="margin-bottom:16px;padding:10px 12px;background:var(--rg-warning-bg);border:1px solid var(--rg-warning-border);border-radius:6px;font-size:0.82em;color:var(--warning-color);">
-                <l:icon src="symbol-people plugin-ionicons-api" class="icon-xs"/>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login — removing this group immediately revokes access.
+                <l:icon src="symbol-people plugin-ionicons-api" class="icon-xs"/>All members of this Azure AD group will be able to log in via Microsoft SSO. Jenkins accounts are created automatically on first login. Access is re-validated on every login - removing this group immediately revokes access.
               </div>
               <div style="padding:10px 12px;background:var(--rg-info-bg);border:1px solid var(--rg-info-border);border-radius:6px;font-size:0.82em;color:var(--rg-info-fg);">
                 &#8505; Display name will be resolved automatically when the first group member signs in with Microsoft.

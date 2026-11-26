@@ -9,11 +9,11 @@
 /* ===== Dark right panel + soft glow (verbatim from login.jelly) ===== */
 .app-sign-in-register__content {
   position: relative;
-  /* Taller than the login form — allow vertical scroll instead of clipping
+  /* Taller than the login form - allow vertical scroll instead of clipping
      the heading. The glow + vignette are baked into this element's own
      background (stacked layers, painted top→bottom) rather than into scrolling
      ::before/::after overlays, so they stay fixed to the panel and don't drift
-     away as the form scrolls — keeping the panel uniform top to bottom. */
+     away as the form scrolls - keeping the panel uniform top to bottom. */
   overflow-y: auto;
   overflow-x: hidden;
   background:
@@ -65,7 +65,7 @@
 }
 .app-sign-in-register__content-inner textarea { min-height: 76px; resize: vertical; font-family: inherit; }
 
-/* submit button — matches login */
+/* submit button - matches login */
 .app-sign-in-register__content-inner button[type=submit] {
   background: #1f57e0;
   color: #fff;
@@ -77,7 +77,7 @@
   border: none; border-radius: var(--form-input-border-radius,4px); cursor: pointer;
 }
 
-/* Microsoft / SSO request button — verbatim styling from login.jelly */
+/* Microsoft / SSO request button - verbatim styling from login.jelly */
 .app-sign-in-register__content-inner a[href*='commenceLogin']:hover { background: #16223a !important; }
 
 /* request-form specifics (mirrors set-password page tokens) */

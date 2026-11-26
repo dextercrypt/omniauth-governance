@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * <p>Mirrors {@link RotogateAuditRetentionWork} and the JIT retention sweep: pending requests are
  * never touched, only terminal ones (approved / rejected / cancelled) past the cutoff. Without this,
  * the provisioning store only had a 2000-record hard cap after which new requests were silently
- * dropped — this ages decided records out so the store stays within its cap in normal operation.
+ * dropped - this ages decided records out so the store stays within its cap in normal operation.
  */
 @Extension
 public class RotogateProvisioningRetentionWork extends AsyncPeriodicWork {

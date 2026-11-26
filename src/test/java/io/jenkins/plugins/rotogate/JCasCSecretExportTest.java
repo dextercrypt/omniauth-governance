@@ -52,7 +52,7 @@ public class JCasCSecretExportTest {
         assertFalse(yaml.contains(TEAMS), "Teams webhook leaked in plaintext");
         assertFalse(yaml.contains(SMTP_PW), "SMTP password leaked in plaintext");
 
-        // (2) They ARE exported now (so backup is complete) — as encrypted attributes.
+        // (2) They ARE exported now (so backup is complete) - as encrypted attributes.
         assertTrue(yaml.contains("slackWebhookUrl"), "slackWebhookUrl should be exported");
         assertTrue(yaml.contains("teamsWebhookUrl"), "teamsWebhookUrl should be exported");
         assertTrue(yaml.contains("smtpPassword"), "smtpPassword should be exported");

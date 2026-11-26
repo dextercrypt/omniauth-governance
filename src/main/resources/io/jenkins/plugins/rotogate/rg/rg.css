@@ -1,12 +1,12 @@
 /*
- * Rotogate shared stylesheet — the single source of truth for the plugin's
+ * Rotogate shared stylesheet - the single source of truth for the plugin's
  * admin UI components (the `rg-*` family) and its semantic colour tokens.
  *
  * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
  * (injected once per page, cache-versioned by core).
  *
  * THEME: every colour here resolves through a Jenkins core token, so light/dark
- * follow the active theme automatically — no hard-coded hex, no per-theme block.
+ * follow the active theme automatically - no hard-coded hex, no per-theme block.
  * Core builds --alert-*-bg/text-color from --success/--warning/--error-color,
  * which in turn alias --green/--orange/--red; the dark-theme plugin redefines
  * those primitives, so our tokens flip with it.
@@ -244,7 +244,7 @@
 .rg-field-hint  { color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px; }
 
 /* "All-clear" empty states: keep Jenkins' native l:notice, tint only its icon green
-   (reviewer-endorsed — the title/body text stay default). */
+   (reviewer-endorsed - the title/body text stay default). */
 .rg-notice--success .jenkins-notice > svg { color: var(--rg-success-solid); }
 
 /* Data tables that sit inside a card. A native jenkins-table draws its own card frame (background,

@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Global configuration for the plugin. The actual settings now live in cohesive per-area holders —
+ * Global configuration for the plugin. The actual settings now live in cohesive per-area holders -
  * {@link NotificationConfig}, {@link SecurityConfig}, {@link LifecycleConfig},
- * {@link LoginBrandingConfig} and {@link ProvisioningConfig} — and this class is a thin facade over
+ * {@link LoginBrandingConfig} and {@link ProvisioningConfig} - and this class is a thin facade over
  * them: it keeps the flat accessor surface (so JCasC, the backup reflection and every jelly/helper
  * caller stay unchanged) and delegates each call to the relevant holder.
  *
@@ -409,7 +409,7 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
         if (json.has("cleanupCron"))         lifecycle.setCleanupCron(jsonStr(json, "cleanupCron",         lifecycle.getCleanupCron()));
         if (json.has("cleanupMaxDeletions")) lifecycle.setCleanupMaxDeletions(jsonInt(json, "cleanupMaxDeletions", lifecycle.getCleanupMaxDeletions()));
 
-        // SMTP — split host:port if the user pasted a combined value.
+        // SMTP - split host:port if the user pasted a combined value.
         boolean portSetFromHost = false;
         if (json.has("smtpHost")) {
             String rawHost = jsonStr(json, "smtpHost", "");
@@ -534,7 +534,7 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Legacy flat fields — ONLY read a pre-split config.xml. Populated by XStream from the old flat
+    // Legacy flat fields - ONLY read a pre-split config.xml. Populated by XStream from the old flat
     // elements and lifted into the holders by readResolve(); never written to or read elsewhere.
     // Remove this block once no pre-split config.xml can still exist in the wild.
     // ══════════════════════════════════════════════════════════════════════════

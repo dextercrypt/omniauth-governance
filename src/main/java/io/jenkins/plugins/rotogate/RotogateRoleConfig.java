@@ -124,7 +124,7 @@ public class RotogateRoleConfig extends GlobalConfiguration {
             this.name = name;
             this.description = description;
             // Strip admin-equivalent ("dangerous") permissions (RunScripts, ConfigureUpdateCenter,
-            // UploadPlugins) so they can never be stored in a role — whether set via the UI, JCasC
+            // UploadPlugins) so they can never be stored in a role - whether set via the UI, JCasC
             // import, or programmatically. See RotogateAuthorizationStrategy#isDangerousPermission.
             List<String> safe = new ArrayList<>();
             if (permissionIds != null) {

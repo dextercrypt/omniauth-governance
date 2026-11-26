@@ -132,7 +132,7 @@ function rgResetLoginBranding() {
   var statusEl = document.getElementById('rgLogoUploadStatus');
   if (statusEl) {
     statusEl.style.color = '#888';
-    statusEl.textContent = 'Defaults restored — click Save Settings to apply.';
+    statusEl.textContent = 'Defaults restored - click Save Settings to apply.';
   }
 }
 
@@ -180,7 +180,7 @@ function rgUpdateRememberMax(clamp) {
   out.textContent = 'Maximum: ' + maxForUnit.toLocaleString() + ' ' + label + ' (14 days)';
 }
 
-// Initial sync — deferred until the DOM is ready (adjunct loads in <head>).
+// Initial sync - deferred until the DOM is ready (adjunct loads in <head>).
 (function() {
   function init() {
     toggleCleanupFields();

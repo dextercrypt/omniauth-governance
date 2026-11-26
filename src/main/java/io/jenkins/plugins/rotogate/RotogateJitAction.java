@@ -13,7 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.List;
 
 /**
- * User-facing JIT endpoints — accessible to any authenticated user, not just admins.
+ * User-facing JIT endpoints - accessible to any authenticated user, not just admins.
  * Mounted at /rotogate-jit/ (RootAction, bypasses ManagementLink ADMINISTER gate).
  */
 @Extension
@@ -164,7 +164,7 @@ public class RotogateJitAction implements RootAction {
             writeJson(rsp, "{\"ok\":false,\"error\":\"A request is already pending for this scope\"}"); return;
         }
 
-        // Rate limit — prevent re-submission within 10 minutes of any previous request for this scope
+        // Rate limit - prevent re-submission within 10 minutes of any previous request for this scope
         RotogateJitRequest last = store.findLastRequestForUser(userId, requestScope);
         if (last != null && last.getRequestedAt() != null && !last.getRequestedAt().isBlank()) {
             try {
@@ -218,7 +218,7 @@ public class RotogateJitAction implements RootAction {
         RotogateJitRequest jitReq = store.findById(requestId);
         if (jitReq != null) {
             // Self-service endpoint: a user may only cancel/revoke their OWN request.
-            // (The active branch calls revoke(), which — unlike cancel() — does not enforce
+            // (The active branch calls revoke(), which - unlike cancel() - does not enforce
             // ownership itself, so without this check any authenticated user who learned
             // another user's requestId could tear down that user's active grant.)
             if (!userId.equals(jitReq.getRequesterId())) {

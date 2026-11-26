@@ -6,7 +6,7 @@
 
 - **JDK 21** (Amazon Corretto 21 recommended).
 - **Maven 3.9.x**.
-- No separate Jenkins download is needed — the plugin runs via `mvn hpi:run` (see below).
+- No separate Jenkins download is needed - the plugin runs via `mvn hpi:run` (see below).
 
 ## Build
 
@@ -22,7 +22,7 @@ Run the tests with a normal `mvn test` / `mvn verify`.
 The `pom.xml` intentionally disables two checks that are incompatible with the current
 Maven/JDK toolchain:
 
-- `license-maven-plugin` is bound to `phase: none`, and `license.skip=true` — its Groovy/ASM
+- `license-maven-plugin` is bound to `phase: none`, and `license.skip=true` - its Groovy/ASM
   stack cannot parse some newer class files on Maven 3.9.13's classpath.
 - `spotless.check.skip=true`.
 
@@ -40,7 +40,7 @@ mvn hpi:run -Dport=9090
 # → http://localhost:9090/jenkins/
 ```
 
-To pick up source changes, stop and restart `hpi:run` — it recompiles and repackages on launch.
+To pick up source changes, stop and restart `hpi:run` - it recompiles and repackages on launch.
 
 > Stop `hpi:run` before running `mvn test`: the test harness forks its own Jenkins and will
 > conflict with a running instance on the same port.

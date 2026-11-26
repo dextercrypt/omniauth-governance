@@ -65,7 +65,7 @@ public class LoginContextFilter {
                     ? (HttpServletRequest) request : null;
             if (http != null) {
                 // Only honour X-Forwarded-For when the direct peer is a trusted (loopback/private)
-                // proxy — otherwise any client could forge the IP recorded in the audit log and
+                // proxy - otherwise any client could forge the IP recorded in the audit log and
                 // login history. Mirrors RotogateAuditLog's trusted-peer gate.
                 String forwarded = http.getHeader("X-Forwarded-For");
                 String peer = http.getRemoteAddr();
@@ -81,7 +81,7 @@ public class LoginContextFilter {
                 ua = http.getHeader("User-Agent");
             }
 
-            // Record fresh login events — SecurityContextHolder already has auth loaded
+            // Record fresh login events - SecurityContextHolder already has auth loaded
             if (ua != null && !FRESH_LOGINS.isEmpty()) {
                 try {
                     String browser  = LoginEvent.parseBrowser(ua);
@@ -98,7 +98,7 @@ public class LoginContextFilter {
                             if (user != null) {
                                 RotogateUserProperty p = user.getProperty(RotogateUserProperty.class);
                                 // Entra identity (object id) ⇒ Entra login; otherwise native. The
-                                // property's mere presence isn't enough — a native user with a Break
+                                // property's mere presence isn't enough - a native user with a Break
                                 // Glass device also has one (that mislabelled their logins "Entra").
                                 String method = (p != null && p.hasEntraIdentity()) ? "Entra" : "Native";
                                 LoginHistoryProperty.record(user,

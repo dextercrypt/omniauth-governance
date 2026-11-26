@@ -6,7 +6,7 @@
  *   <st:adjunct includes="io.jenkins.plugins.rotogate.rg.permImplied"/>
  *
  * Each permission checkbox carries data-implied-by="<implying permission id>" (empty if none).
- * A forced checkbox is left disabled, so its value is not submitted — that is correct, because
+ * A forced checkbox is left disabled, so its value is not submitted - that is correct, because
  * RotogateItemACL grants an implied permission at check time whenever the implying one is granted
  * (it walks the impliedBy chain), exactly as Jenkins core does.
  *

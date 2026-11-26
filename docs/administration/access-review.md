@@ -1,6 +1,6 @@
 # Access review & certification
 
-> Periodically confirm that existing access is still needed — a core compliance control.
+> Periodically confirm that existing access is still needed - a core compliance control.
 
 Access review turns your permission matrix into a recurring certification exercise:
 administrators are prompted to **keep** or **revoke** each standing grant, with a schedule
@@ -19,8 +19,8 @@ recently confirm they still need it?"*
    by an [expiry date](access-management.md#time-limited-access) can be excluded, since they
    self-clean).
 2. Reviewers see each grant with subject, scope, and role, and choose:
-   - **Keep** — certify the access; the review timestamp is recorded.
-   - **Revoke** — remove the access (audited).
+   - **Keep** - certify the access; the review timestamp is recorded.
+   - **Revoke** - remove the access (audited).
 3. Bulk actions (e.g. **Keep all**) speed up large reviews.
 4. A summary/digest can be emailed to administrators.
 
@@ -46,7 +46,7 @@ Set these under the plugin settings / notifications (see the
 ## Relationship to other features
 
 - Use [time-limited access](access-management.md#time-limited-access) for grants with a
-  known end date — they auto-expire and need no review.
+  known end date - they auto-expire and need no review.
 - Use access review for **standing** access that must be periodically justified.
 - Every keep/revoke is written to the [audit log](../security/audit-logging.md).
 

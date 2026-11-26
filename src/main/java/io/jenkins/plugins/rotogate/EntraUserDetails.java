@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Spring Security UserDetails implementation for a Microsoft Entra authenticated user.
- * Entra users have no local password — authentication is delegated entirely to Azure AD.
+ * Entra users have no local password - authentication is delegated entirely to Azure AD.
  */
 public class EntraUserDetails implements UserDetails {
 

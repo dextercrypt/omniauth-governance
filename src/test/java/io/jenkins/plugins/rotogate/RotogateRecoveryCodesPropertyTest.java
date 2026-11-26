@@ -7,7 +7,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the hashed, single-use SOS recovery codes — no Jenkins instance needed.
+ * Unit tests for the hashed, single-use SOS recovery codes - no Jenkins instance needed.
  */
 public class RotogateRecoveryCodesPropertyTest {
 
@@ -43,7 +43,7 @@ public class RotogateRecoveryCodesPropertyTest {
     public void matchAndConsume_isCaseAndSeparatorInsensitive() {
         RotogateRecoveryCodesProperty p = new RotogateRecoveryCodesProperty();
         String raw = p.regenerate().get(0);
-        // Lowercase, strip dashes, add stray spaces — all should still match.
+        // Lowercase, strip dashes, add stray spaces - all should still match.
         String messy = "  " + raw.toLowerCase(java.util.Locale.ROOT).replace("-", " ") + "  ";
         assertTrue(p.matchAndConsume(messy));
     }

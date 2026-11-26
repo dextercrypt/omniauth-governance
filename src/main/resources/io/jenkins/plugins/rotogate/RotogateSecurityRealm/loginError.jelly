@@ -5,7 +5,7 @@
   This delegates to login.jelly with error=true so the error page ALWAYS
   inherits every login-page customisation (animated background, background
   selector, company logo, dark panel, banner, footer) automatically.
-  Single source of truth — no duplication, no drift.
+  Single source of truth - no duplication, no drift.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * constant-time (MessageDigest.isEqual), the token is single-use (overwritten with an expired
  * marker once consumed), TTL/expiry is enforced, and the token carries 256 bits of entropy.
  *
- * No Jenkins is required — every method under test is pure.
+ * No Jenkins is required - every method under test is pure.
  */
 public class RotogateActivationPropertyTest {
 
@@ -108,7 +108,7 @@ public class RotogateActivationPropertyTest {
     @Test
     public void matches_tokenWithWrongLength_rejectedAndDoesNotThrow() {
         // MessageDigest.isEqual compares the hashes (always equal length), so a short/garbage raw
-        // token hashes to a 43-char value that simply differs — rejected, never throwing.
+        // token hashes to a 43-char value that simply differs - rejected, never throwing.
         String raw = RotogateActivationProperty.newRawToken();
         RotogateActivationProperty p = propFor(raw, System.currentTimeMillis() + HOUR);
 

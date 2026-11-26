@@ -351,7 +351,7 @@ public class RotogateAuditLog {
     }
 
     // -------------------------------------------------------------------------
-    // Read for UI — returns last maxLines events across current + previous month
+    // Read for UI - returns last maxLines events across current + previous month
     // -------------------------------------------------------------------------
 
     public int[] getFailureCountsByDay(int days) {
@@ -365,7 +365,7 @@ public class RotogateAuditLog {
 
     /**
      * Per-day login series over the last {@code days} days, oldest-first. Each row is
-     * {@code [ssoSuccess, nativeSuccess, failure]} — successes split by the recorded authType
+     * {@code [ssoSuccess, nativeSuccess, failure]} - successes split by the recorded authType
      * ("Entra" ⇒ SSO, anything else ⇒ native), so the dashboard can show the SSO/native mix.
      */
     public int[][] getLoginSeriesByDay(int days) {
@@ -523,7 +523,7 @@ public class RotogateAuditLog {
                     || a.isSiteLocalAddress() || a.isLinkLocalAddress()) {
                 return true;
             }
-            // IPv6 unique-local (fc00::/7) — isSiteLocalAddress only covers the deprecated
+            // IPv6 unique-local (fc00::/7) - isSiteLocalAddress only covers the deprecated
             // fec0::/10, so match the modern ULA range used by real dual-stack deployments.
             byte[] b = a.getAddress();
             return b.length == 16 && (b[0] & 0xFE) == 0xFC;
@@ -573,7 +573,7 @@ public class RotogateAuditLog {
 
     /**
      * Cheap write-path cleanup: deletes whole month-files entirely older than the retention window
-     * (month-granular, filename-based — no file reads). The boundary month is kept; its stale lines
+     * (month-granular, filename-based - no file reads). The boundary month is kept; its stale lines
      * are trimmed precisely by {@link #pruneOlderThan} on the daily retention worker. A hard ceiling
      * guards against runaway growth even when retention is "keep forever".
      */
@@ -744,7 +744,7 @@ public class RotogateAuditLog {
         }
     }
 
-    /** Single left-to-right pass — handles the escape character first, so e.g. a stored \\ then \" round-trips correctly. */
+    /** Single left-to-right pass - handles the escape character first, so e.g. a stored \\ then \" round-trips correctly. */
     private static String unescape(String v) {
         StringBuilder sb = new StringBuilder(v.length());
         for (int i = 0; i < v.length(); i++) {

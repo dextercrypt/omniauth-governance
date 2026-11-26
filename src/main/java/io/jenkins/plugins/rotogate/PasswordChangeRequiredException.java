@@ -11,7 +11,7 @@ import org.springframework.security.authentication.AccountStatusException;
  * {@code DisabledException}) so Spring Security treats it as an authentication
  * <em>failure</em>: no {@code SecurityContext} is established and no session is created.
  * This makes the force-password-change state fail-closed across <em>every</em>
- * authentication channel — web form, HTTP BASIC, API token and CLI — rather than
+ * authentication channel - web form, HTTP BASIC, API token and CLI - rather than
  * relying on a request filter to contain an already-authenticated session.
  *
  * <p>The interactive browser flow does not go through this manager: it posts to

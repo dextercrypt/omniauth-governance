@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class RotogateUserProperty extends UserProperty {
 
-    /** Azure AD Object ID — stable, unique identifier across tenant changes / UPN renames. */
+    /** Azure AD Object ID - stable, unique identifier across tenant changes / UPN renames. */
     private final String entraObjectId;
 
-    /** User Principal Name (preferred_username claim) — human-readable email address. */
+    /** User Principal Name (preferred_username claim) - human-readable email address. */
     private final String entraUpn;
 
     /** ISO-8601 timestamp of last successful group sync. */
@@ -34,8 +34,8 @@ public class RotogateUserProperty extends UserProperty {
 
     /**
      * How this account was provisioned.
-     * "INDIVIDUAL" — admin explicitly pre-provisioned this user.
-     * "VIA_ENTRA_GROUP" — auto-created on first login via Azure AD group membership.
+     * "INDIVIDUAL" - admin explicitly pre-provisioned this user.
+     * "VIA_ENTRA_GROUP" - auto-created on first login via Azure AD group membership.
      */
     private String provisioningSource;
 
@@ -54,16 +54,16 @@ public class RotogateUserProperty extends UserProperty {
      */
     private boolean pendingDeletion;
 
-    /** Last known Azure group display name — preserved when the account is orphaned. */
+    /** Last known Azure group display name - preserved when the account is orphaned. */
     private String lastKnownGroupName;
 
-    /** Last known Azure group OID — preserved when the account is orphaned. */
+    /** Last known Azure group OID - preserved when the account is orphaned. */
     private String lastKnownGroupOid;
 
     /** Number of times this admin skipped the Break Glass TOTP enrollment reminder. Resets to 0 when last device is removed. */
     private int breakGlassEnrollSkips;
 
-    /** Kept for migration only — replaced by breakGlassDevices list. */
+    /** Kept for migration only - replaced by breakGlassDevices list. */
     @Deprecated
     private String breakGlassTotpSecret;
 
@@ -74,7 +74,7 @@ public class RotogateUserProperty extends UserProperty {
     public static class BreakGlassDevice {
         private String id;
         private String name;
-        // TOTP shared secret — credential-equivalent, so stored encrypted at rest via
+        // TOTP shared secret - credential-equivalent, so stored encrypted at rest via
         // hudson.util.Secret. Secret's XStream converter reads legacy plaintext values
         // transparently, so already-enrolled devices keep working and are re-encrypted
         // on the next save.
@@ -112,7 +112,7 @@ public class RotogateUserProperty extends UserProperty {
     /**
      * True when this property actually carries an Entra identity (an object id). The property is
      * also attached to <em>native</em> users purely to hold Break Glass enrollment, so callers must
-     * use this — not the property's mere presence — to decide "is this an Entra user / login".
+     * use this - not the property's mere presence - to decide "is this an Entra user / login".
      */
     public boolean hasEntraIdentity() {
         return entraObjectId != null && !entraObjectId.isEmpty();
@@ -236,7 +236,7 @@ public class RotogateUserProperty extends UserProperty {
         @Override
         public boolean isEnabled() {
             // Hidden from the per-user config UI. This property holds the user's linked Entra identity
-            // (object id + UPN), set only during Entra login — it is not user-editable and has no
+            // (object id + UPN), set only during Entra login - it is not user-editable and has no
             // config.jelly. Leaving it enabled made the core "Account" settings page
             // (UserPropertyCategoryAccountAction) <st:include> a config.jelly that does not exist, which
             // threw and broke the whole page render. Rendering it as an editable form section would also

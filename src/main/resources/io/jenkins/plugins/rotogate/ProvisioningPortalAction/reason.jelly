@@ -51,11 +51,11 @@
             <h1>Request access</h1>
 
             <j:choose>
-              <!-- No verified identity on the session — expired or reached directly. -->
+              <!-- No verified identity on the session - expired or reached directly. -->
               <j:when test="${!it.entraReasonReady}">
                 <div class="pa-sub">Your session has expired before the request could be completed.</div>
                 <div class="pa-banner pa-warn">
-                  Please start again — identity is verified with Microsoft each time.
+                  Please start again - identity is verified with Microsoft each time.
                 </div>
                 <div class="pa-foot"><a href="${rootURL}/request-access/">Back to request access</a></div>
               </j:when>

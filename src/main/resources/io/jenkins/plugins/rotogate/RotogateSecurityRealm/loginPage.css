@@ -9,13 +9,13 @@
    that Jenkins 2.580.1 introduced around the branding panel (2.541.2 was full-bleed). */
 body.app-sign-in-register { background: #0a1226; }
 
-/* ===== Dark login — right side, SOFT glow (maps design .right-panel) ===== */
+/* ===== Dark login - right side, SOFT glow (maps design .right-panel) ===== */
 .app-sign-in-register__content {
   position: relative;
   overflow: hidden;
   background: linear-gradient(160deg, #0a1226 0%, #0c1730 60%, #0a1426 100%);
 }
-/* edge-bleed glow from the panel seam — removes the hard divide */
+/* edge-bleed glow from the panel seam - removes the hard divide */
 .app-sign-in-register__content::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
@@ -33,11 +33,11 @@ body.app-sign-in-register { background: #0a1226; }
 /* ===== company-logo placement (Settings → Logo Position: a|e|f) ===== */
 /* height is set inline on each <img> (it.loginLogoSize); the rest is static. */
 .brand-logo img { width: auto; max-width: none; object-fit: contain; display: block; }
-/* A — top of column, left-aligned (default) */
+/* A - top of column, left-aligned (default) */
 .pos-a .brand-logo { align-self: flex-start; margin: 0 0 18px 0; }
-/* E — pinned to the panel's top-right corner */
+/* E - pinned to the panel's top-right corner */
 .pos-e .brand-logo { position: absolute; top: 28px; right: 9%; z-index: 3; }
-/* F — center the logo only; heading and everything else stay left/default */
+/* F - center the logo only; heading and everything else stay left/default */
 .pos-f .brand-logo { align-self: center; margin: 0 auto 18px auto; }
 
 /* text */
@@ -60,7 +60,7 @@ body.app-sign-in-register { background: #0a1226; }
   outline: none;
 }
 
-/* sign-in button — gentle lift, no bloom. !important on colour overrides
+/* sign-in button - gentle lift, no bloom. !important on colour overrides
    jenkins-button--primary, which sets a dark text colour with !important. */
 .app-sign-in-register__content-inner button[type=submit] {
   background: #1f57e0;
@@ -93,7 +93,7 @@ body.app-sign-in-register { background: #0a1226; }
   color: #9fb2d0;
 }
 .pw-toggle:hover { color: #e2e9f5; }
-/* force a sensible icon size — Jenkins core shrinks bare svg icons otherwise */
+/* force a sensible icon size - Jenkins core shrinks bare svg icons otherwise */
 .pw-toggle svg { width: 20px !important; height: 20px !important; display: block; }
 .pw-toggle .icon-eye-off { display: none; }
 .pw-toggle.revealed .icon-eye { display: none; }

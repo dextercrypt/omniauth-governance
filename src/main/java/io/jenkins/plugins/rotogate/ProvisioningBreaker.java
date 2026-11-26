@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * limits are spoofable. Instead this is a single global breaker: if more than
  * {@code breakerMax} requests arrive within the last {@code breakerWindowMin} minutes, native
  * intake is paused for {@code breakerCooldownMin} minutes ("try again later") and an admin is
- * alerted. Approval remains the real backstop — the breaker only protects the queue from floods.
+ * alerted. Approval remains the real backstop - the breaker only protects the queue from floods.
  *
  * <p>Entra requests are identity-proven and per-user capped elsewhere, so they are never gated
  * by this breaker.
@@ -76,7 +76,7 @@ final class ProvisioningBreaker {
         return true;
     }
 
-    /** Admin manual reset — clears the cooldown and the window. */
+    /** Admin manual reset - clears the cooldown and the window. */
     static synchronized void reset() {
         trippedUntil = 0L;
         HITS.clear();

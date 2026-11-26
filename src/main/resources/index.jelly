@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <div>
-  Rotogate — authentication and access governance for Jenkins. Combines native
+  Rotogate - authentication and access governance for Jenkins. Combines native
   username/password accounts with Single Sign-On (currently Microsoft Entra / Azure AD),
   and adds role- and matrix-based authorization, scoped and just-in-time access,
   group sync, self-service provisioning, and audit logging.

@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
 
-  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Security" norefresh="true">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate - Security" norefresh="true">
     <l:side-panel>
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
@@ -17,13 +17,13 @@
 
         <!-- ── Brute Force State ─────────────────────────────────── -->
         <div class="jenkins-card" style="padding:16px;margin-bottom:16px;">
-          <h3 style="margin:0 0 12px;">Brute Force — Active Counters</h3>
+          <h3 style="margin:0 0 12px;">Brute Force - Active Counters</h3>
           <p style="color:var(--text-color-secondary);font-size:0.85em;margin:0 0 12px;">
             Users with consecutive failed logins. Counters reset on successful login.
             Alert fires at <strong>${cfg.bruteForceThreshold}</strong> failures.
             <j:choose>
               <j:when test="${cfg.bruteForceLockoutEnabled}">
-                Lockout is <strong style="color:var(--rg-success-fg);">enforced</strong> — a reached account is locked for
+                Lockout is <strong style="color:var(--rg-success-fg);">enforced</strong> - a reached account is locked for
                 <strong>${cfg.bruteForceLockoutMinutes} min</strong> (protected users exempt).
               </j:when>
               <j:otherwise>

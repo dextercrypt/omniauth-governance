@@ -15,7 +15,7 @@ public class TeamsHelper {
     private TeamsHelper() {}
 
     // -------------------------------------------------------------------------
-    // Dispatch — async
+    // Dispatch - async
     // -------------------------------------------------------------------------
 
     public static void send(RotogateGlobalConfig cfg, String subject, String body) {
@@ -33,7 +33,7 @@ public class TeamsHelper {
     }
 
     // -------------------------------------------------------------------------
-    // Test — synchronous, throws on failure
+    // Test - synchronous, throws on failure
     // -------------------------------------------------------------------------
 
     public static void test(String webhookUrl) throws Exception {
@@ -105,7 +105,7 @@ public class TeamsHelper {
 
         StringBuilder items = new StringBuilder();
 
-        // Header container — severity chip + event title
+        // Header container - severity chip + event title
         items.append("{\"type\":\"Container\",\"style\":\"").append(accentStyle).append("\","
                 + "\"bleed\":true,\"items\":["
                 + "{\"type\":\"TextBlock\",\"text\":").append(esc(severityLabel))

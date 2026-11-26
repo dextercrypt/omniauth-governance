@@ -17,7 +17,7 @@
         details > summary::-webkit-details-marker { display:none; }
 
         /* ============================================================ */
-        /* Grant / Edit access — slide-over drawer                      */
+        /* Grant / Edit access - slide-over drawer                      */
         /* ============================================================ */
         .udx-drawer {
           --udx-accent: var(--accent-color, var(--blue));

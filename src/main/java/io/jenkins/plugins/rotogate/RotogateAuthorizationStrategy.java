@@ -26,7 +26,7 @@ public class RotogateAuthorizationStrategy extends ProjectMatrixAuthorizationStr
 
     /**
      * True when the permission id names an admin-equivalent ("dangerous") permission that must never
-     * be granted through Rotogate — {@code RunScripts}, {@code ConfigureUpdateCenter} and
+     * be granted through Rotogate - {@code RunScripts}, {@code ConfigureUpdateCenter} and
      * {@code UploadPlugins}. Each is effectively full control of Jenkins (arbitrary code execution),
      * which is why core/matrix-auth hide them from the normal permission matrix. We source the set
      * from matrix-auth's own {@link GlobalMatrixAuthorizationStrategy#DANGEROUS_PERMISSIONS} so any
@@ -55,7 +55,7 @@ public class RotogateAuthorizationStrategy extends ProjectMatrixAuthorizationStr
     }
 
     /**
-     * Evicts cached per-item ACLs when items are renamed, moved or deleted — otherwise the
+     * Evicts cached per-item ACLs when items are renamed, moved or deleted - otherwise the
      * cache (keyed by full name) accumulates stale entries for the JVM's lifetime. Clearing
      * the whole cache is cheap: entries are rebuilt lazily on the next permission check.
      */

@@ -7,7 +7,7 @@
 > pluggable OAuth2/OIDC provider framework, so more providers are planned; this page covers
 > the Entra integration specifically.
 
-> Use an **OAuth2 / OIDC App Registration** — **not** a SAML Enterprise Application.
+> Use an **OAuth2 / OIDC App Registration** - **not** a SAML Enterprise Application.
 
 ## 1. Create the app registration
 
@@ -16,7 +16,7 @@ registrations → New registration**:
 
 | Field | Recommended value |
 |---|---|
-| **Name** | `Jenkins — Rotogate` (any descriptive name) |
+| **Name** | `Jenkins - Rotogate` (any descriptive name) |
 | **Supported account types** | *Accounts in this organizational directory only* (single tenant) |
 | **Redirect URI** | Platform **Web**, value below |
 
@@ -73,7 +73,7 @@ tenant requires it; the plugin uses the authorization-code flow with PKCE.
 ## 6. Connect Rotogate
 
 In Jenkins: **Manage Jenkins → Security → Security Realm → Rotogate**, then turn on **"Connect a
-single sign-on provider (SSO)"** to reveal the provider settings (it's off by default — Rotogate
+single sign-on provider (SSO)"** to reveal the provider settings (it's off by default - Rotogate
 is native-first). Fill the Entra configuration:
 
 | Field | Value |
@@ -90,7 +90,7 @@ Before the first sign-in, click **Test Connection** to validate the tenant ID, c
 client secret without saving. It performs a **real** MSAL client-credentials token grant for
 the Graph `.default` scope against your tenant and reports a green success or a red error
 inline. The button is admin-only and POST-only. Note it exercises **app-only** (client-credentials)
-authentication, whereas interactive sign-in uses **delegated** permissions — so a passing test
+authentication, whereas interactive sign-in uses **delegated** permissions - so a passing test
 confirms the credentials and app registration, and sign-in additionally depends on the delegated
 permissions and consent from [step 4](#api-permissions).
 
@@ -112,7 +112,7 @@ audit event `login_denied_domain`). This is **distinct** from the
 | Symptom | Likely cause |
 |---|---|
 | `AADSTS50011` redirect mismatch | Redirect URI in Entra ≠ `.../rotogate/finishLogin` (check prefix/host/scheme) |
-| Login loops back to the login page | Session/seed issue behind a reverse proxy — verify external URL and cookies |
+| Login loops back to the login page | Session/seed issue behind a reverse proxy - verify external URL and cookies |
 | Groups not appearing | `GroupMember.Read.All` not admin-consented, or Group Sync disabled |
 | `AADSTS7000215` invalid secret | Client secret expired or mistyped |
 

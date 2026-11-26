@@ -3,7 +3,7 @@
  * Loaded as a Jenkins adjunct:
  *   <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.backupAssets"/>
  * Externalised from backup.jelly's inline <script> for CSP compliance (Jenkins hosting).
- * Contains NO server EL — the CSRF crumb is applied via Jenkins' global crumb.wrap() helper.
+ * Contains NO server EL - the CSRF crumb is applied via Jenkins' global crumb.wrap() helper.
  * Adjuncts load in <head>, so DOM access is deferred until the document is parsed.
  */
 (function () {
@@ -111,7 +111,7 @@
       planBody.innerHTML = '';
       if (data.empty) {
         planBody.appendChild(el('p', null,
-          'No changes — the live configuration already matches.'));
+          'No changes - the live configuration already matches.'));
         return;
       }
       var summary = el('p', null, 'Summary: ' + data.summary);

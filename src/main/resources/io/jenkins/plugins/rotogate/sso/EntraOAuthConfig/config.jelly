@@ -35,7 +35,7 @@
 
   <f:entry title="Allowed email domains" field="allowedDomains"
            help="/plugin/rotogate/help/allowedDomains.html">
-    <f:textbox placeholder="Leave blank to allow any domain — or list domains, e.g. example.com, example.org"/>
+    <f:textbox placeholder="Leave blank to allow any domain - or list domains, e.g. example.com, example.org"/>
   </f:entry>
 
   <f:block>

@@ -196,7 +196,7 @@ public class RotogateJitRequestStore extends GlobalConfiguration {
         if (r == null) return ActionResult.TOKEN_NOT_FOUND;
         if (!r.isPending()) return ActionResult.ALREADY_PROCESSED;
         // Fail closed on the approval deadline at action time, mirroring findActiveForUser's
-        // check-time expiry test — don't trust the per-minute worker to have flipped the status
+        // check-time expiry test - don't trust the per-minute worker to have flipped the status
         // (it lags, or stalls if it errors). A timed-out request must not be approvable.
         if (r.isTimedOut()) {
             r.setStatus(RotogateJitRequest.STATUS_TIMED_OUT);
@@ -245,14 +245,14 @@ public class RotogateJitRequestStore extends GlobalConfiguration {
     }
 
     /**
-     * Admin approves via the Jenkins page — only works if approverId is a listed approver.
+     * Admin approves via the Jenkins page - only works if approverId is a listed approver.
      * durationHours = this approver's chosen grant window (0 = full requested), clamped to
      * [1, requested]. Returns true if the request went ACTIVE.
      */
     public synchronized boolean approveAsApprover(String requestId, String approverId, int durationHours) {
         RotogateJitRequest r = findById(requestId);
         if (r == null || !r.isPending()) return false;
-        // Same fail-closed deadline check as processApproverAction — a request whose approval
+        // Same fail-closed deadline check as processApproverAction - a request whose approval
         // window has elapsed must not be approvable even if the worker hasn't flipped it yet.
         if (r.isTimedOut()) {
             r.setStatus(RotogateJitRequest.STATUS_TIMED_OUT);
@@ -281,7 +281,7 @@ public class RotogateJitRequestStore extends GlobalConfiguration {
         return false;
     }
 
-    /** Admin denies via Jenkins page — only works if approverId is a listed approver. */
+    /** Admin denies via Jenkins page - only works if approverId is a listed approver. */
     public synchronized boolean denyAsApprover(String requestId, String approverId, String comment) {
         RotogateJitRequest r = findById(requestId);
         if (r == null || !r.isPending()) return false;

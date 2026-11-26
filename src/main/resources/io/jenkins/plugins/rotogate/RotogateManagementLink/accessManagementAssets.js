@@ -134,7 +134,7 @@ function auCheckUser(val) {
         status.style.border = '1px solid var(--rg-success-border)';
         status.style.color = 'var(--rg-success-fg)';
         status.innerHTML = '&#10003; Native user found' +
-          (data.displayName ? ' — <strong>' + oamEscHtml(data.displayName) + '</strong>' : '') +
+          (data.displayName ? ' - <strong>' + oamEscHtml(data.displayName) + '</strong>' : '') +
           '. Will be added to access management.';
         createForm.style.display = 'none';
         actionEl.value = 'existing';
@@ -230,7 +230,7 @@ function oamWireEvents() {
   document.querySelectorAll('.js-rg-edit-role').forEach(function(el) {
     el.addEventListener('click', function() { editRoleFromBtn(this); });
   });
-  // Delete role — confirmation handled by the shared in-app modal (rg/rgConfirm.js) via the
+  // Delete role - confirmation handled by the shared in-app modal (rg/rgConfirm.js) via the
   // button's data-confirm attribute; no native confirm() here.
 
   // Add User drawer: close triggers (backdrop, X, Cancel)

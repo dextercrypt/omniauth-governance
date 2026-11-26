@@ -17,11 +17,11 @@ import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests the pure helpers of RotogateManagementLink:
- *   - escapeJson / jsonEsc       — JSON string escaping (invoked by reflection, private static)
- *   - buildPreviewHtml           — the reflected-XSS fix: a caller-supplied logo URL must land
+ *   - escapeJson / jsonEsc       - JSON string escaping (invoked by reflection, private static)
+ *   - buildPreviewHtml           - the reflected-XSS fix: a caller-supplied logo URL must land
  *                                  HTML-escaped inside the single-quoted src attribute
  *   - isBreakGlassActive /
- *     getBreakGlassExpiresAt     — the Long-vs-String fix: the session "expiry" attribute is a
+ *     getBreakGlassExpiresAt     - the Long-vs-String fix: the session "expiry" attribute is a
  *                                  Long epoch-millis and reading it must not throw / must compare
  *                                  numerically against System.currentTimeMillis()
  *
@@ -88,7 +88,7 @@ public class RotogateManagementLinkHelpersTest {
         assertEquals("ab", jsonEsc("a\rb"));
     }
 
-    // ─── buildPreviewHtml — reflected XSS escaping of the logo URL ────────────
+    // ─── buildPreviewHtml - reflected XSS escaping of the logo URL ────────────
 
     @Test
     public void buildPreviewHtml_logoUrlWithSingleQuote_isEscaped_cannotBreakOutOfSrc() throws Exception {

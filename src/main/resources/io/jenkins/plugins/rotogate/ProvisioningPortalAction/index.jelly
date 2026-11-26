@@ -4,7 +4,7 @@
   Twin of the Rotogate login page: same app-sign-in-register shell, same animated
   butler branding panel on the left (pulled from the security realm, same butler /
   background / logo as login, driven by the same settings), same dark right-panel
-  theming. Only the right-panel content differs — an access-request form instead of
+  theming. Only the right-panel content differs - an access-request form instead of
   the login form.
 
   'it' here is the ProvisioningPortalAction (portal state getters); branding + SSO
@@ -68,7 +68,7 @@
 
             <j:if test="${already != null}">
               <div class="pa-banner pa-ok">
-                You already have access to this Jenkins — no request needed. Please sign in.
+                You already have access to this Jenkins - no request needed. Please sign in.
               </div>
               <div class="pa-foot"><a href="${rootURL}/">Go to sign in</a></div>
             </j:if>
@@ -97,7 +97,7 @@
               </j:if>
 
               <j:if test="${it.portalEnabled}">
-                <!-- Entra / Microsoft request — same button as login's SSO button -->
+                <!-- Entra / Microsoft request - same button as login's SSO button -->
                 <j:if test="${it.entraAllowed and realm.ssoProvider != null}">
                   <a href="${rootURL}/rotogate/commenceLogin?provision=1" class="sso-btn" style="
                        display:flex;align-items:center;justify-content:center;gap:10px;

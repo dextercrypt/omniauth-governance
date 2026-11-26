@@ -2,7 +2,7 @@
  * Declarative confirmation shim for Rotogate management pages.
  *
  * Wires any destructive control carrying a `data-confirm` attribute to Jenkins' own native
- * dialog (core's `dialog.confirm`, which uses the browser <dialog> element — consistent styling,
+ * dialog (core's `dialog.confirm`, which uses the browser <dialog> element - consistent styling,
  * theme-aware, nothing for us to render or maintain). The control's native default action (a form
  * submit) runs ONLY after the user confirms, so a mis-wire can never fire a destructive submit
  * without a prompt. Include where needed:
@@ -34,7 +34,7 @@
         el.setAttribute("data-rg-confirmed", "1");
         if (el.requestSubmit) el.requestSubmit(); else el.submit();
       } else if (el.form) {
-        // submit button inside a form — its form carries no data-confirm, so this submits cleanly
+        // submit button inside a form - its form carries no data-confirm, so this submits cleanly
         if (el.form.requestSubmit) el.form.requestSubmit(el); else el.form.submit();
       } else if (el.tagName === "A" && el.getAttribute("href")) {
         window.location.href = el.getAttribute("href");

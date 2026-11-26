@@ -12,7 +12,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link RotogateJitRequestStore} — the CopyOnWriteArrayList-backed JIT request store.
+ * Tests for {@link RotogateJitRequestStore} - the CopyOnWriteArrayList-backed JIT request store.
  * Uses JenkinsRule because the store extends GlobalConfiguration (load()/save() + cache
  * invalidation touch the running Jenkins). Each test gets a fresh JENKINS_HOME, so the store
  * starts empty; {@link #freshStore()} asserts that invariant.
@@ -234,7 +234,7 @@ public class RotogateJitRequestStoreTest {
         String token = r.getApprovalEntries().get(0).getToken();
         assertEquals(RotogateJitRequestStore.ActionResult.PARTIAL_APPROVED,
                 store.processApproverAction(token, "APPROVED", ""));
-        // Same entry's token again — entry no longer pending
+        // Same entry's token again - entry no longer pending
         assertEquals(RotogateJitRequestStore.ActionResult.ALREADY_PROCESSED,
                 store.processApproverAction(token, "APPROVED", ""));
     }
@@ -256,7 +256,7 @@ public class RotogateJitRequestStoreTest {
         assertEquals(RotogateJitRequest.STATUS_TIMED_OUT, r.getStatus());
         assertNull(r.getExpiresAt(), "No expiry may be set on a timed-out request");
         assertFalse(r.isActive());
-        // The approval entry must remain undecided — the decision was refused, not recorded
+        // The approval entry must remain undecided - the decision was refused, not recorded
         assertTrue(r.getApprovalEntries().get(0).isPending());
     }
 

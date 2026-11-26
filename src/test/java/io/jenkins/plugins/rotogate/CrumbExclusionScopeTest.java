@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * CSRF crumb-exemption SCOPE tests. Pure unit tests — CrumbExclusion has no Jenkins
+ * CSRF crumb-exemption SCOPE tests. Pure unit tests - CrumbExclusion has no Jenkins
  * dependency in its constructor and {@code process()} only inspects the request path.
  *
  * The security contract: ONLY the anonymous login/submission endpoints are crumb-exempt.
  * In particular the first-login set-password endpoint ({@code /rotogate/submitPasswordChange})
- * must NOT be exempt — its form carries a real crumb so a malicious page cannot set a
+ * must NOT be exempt - its form carries a real crumb so a malicious page cannot set a
  * mid-flow user's password.
  */
 public class CrumbExclusionScopeTest {
@@ -107,7 +107,7 @@ public class CrumbExclusionScopeTest {
     }
 
     @Test public void native_prefixLookalikePath_isNotExempt() throws Exception {
-        // Must be an exact match, not a prefix — a trailing segment must not sneak through.
+        // Must be an exact match, not a prefix - a trailing segment must not sneak through.
         assertFalse(runNative("/rotogate/nativeLogin/evil"));
     }
 
@@ -151,7 +151,7 @@ public class CrumbExclusionScopeTest {
     }
 
     @Test public void finish_prefixLookalikePath_isNotExempt() throws Exception {
-        // Exact match only — a trailing segment must not sneak through.
+        // Exact match only - a trailing segment must not sneak through.
         assertFalse(runFinishLogin("/rotogate/finishLogin/evil"));
     }
 

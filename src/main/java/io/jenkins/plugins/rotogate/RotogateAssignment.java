@@ -21,7 +21,7 @@ public class RotogateAssignment {
     // lgtm false positive: Not a credential: an enum-like marker holding "STANDING"/"JIT".
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String       accessType;  // STANDING (default) | JIT
-    private String       approverGroup; // legacy — kept for XStream compat only; migrated to approvers on load
+    private String       approverGroup; // legacy - kept for XStream compat only; migrated to approvers on load
     private List<String> approvers = new ArrayList<>();
     private int          maxDurationHours     = 4;
     private int          approvalTimeoutHours = 4;
@@ -98,7 +98,7 @@ public class RotogateAssignment {
         this.approvers = v != null ? new java.util.ArrayList<>(v) : new ArrayList<>();
     }
 
-    /** Legacy — returns the first approver, or empty string. Use getApprovers() for full list. */
+    /** Legacy - returns the first approver, or empty string. Use getApprovers() for full list. */
     public String getApproverGroup() {
         List<String> a = getApprovers();
         return a.isEmpty() ? "" : String.join(", ", a);
@@ -132,7 +132,7 @@ public class RotogateAssignment {
         } else if (grantedAt != null && !grantedAt.isBlank()) {
             try { baseline = java.time.Instant.parse(grantedAt); } catch (Exception e) { return false; }
         } else {
-            return true; // no grant date — unknown age, treat as immediately overdue
+            return true; // no grant date - unknown age, treat as immediately overdue
         }
         return baseline.isBefore(cutoff);
     }

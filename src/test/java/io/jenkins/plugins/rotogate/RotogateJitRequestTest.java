@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pure-POJO unit tests for {@link RotogateJitRequest} and its {@link RotogateJitRequest.ApprovalEntry}.
- * No Jenkins required — exercises the state-check logic (isTimedOut / isExpiredActive incl.
+ * No Jenkins required - exercises the state-check logic (isTimedOut / isExpiredActive incl.
  * corrupt-timestamp fail-closed), approval tracking (allMatch), identity lookup, status labels
  * and token generation strength.
  */

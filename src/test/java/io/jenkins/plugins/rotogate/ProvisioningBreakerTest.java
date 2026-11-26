@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Uses a real {@link RotogateGlobalConfig} (obtained via JenkinsRule) with a small breaker
  * threshold so the breaker can be tripped without issuing a hundred attempts. We deliberately do
  * NOT mock the config: it is a Jenkins {@code GlobalConfiguration} (a deep Describable hierarchy),
- * and the inline mock maker cannot reliably instrument it under recent JDKs — the real singleton
+ * and the inline mock maker cannot reliably instrument it under recent JDKs - the real singleton
  * with its setters is both simpler and faithful to production.
  */
 @WithJenkins

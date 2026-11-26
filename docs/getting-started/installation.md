@@ -5,7 +5,7 @@
 ## Before you begin
 
 - Confirm you meet the [requirements](requirements.md).
-- **Back up `JENKINS_HOME`** (or at least `config.xml` and the plugin's config files —
+- **Back up `JENKINS_HOME`** (or at least `config.xml` and the plugin's config files -
   see [Backup & restore](../operations/backup-and-restore.md)).
 - Have a way back in: know your native `admin` credentials, or configure
   [Break Glass](../administration/break-glass.md) before switching the security realm.
@@ -15,14 +15,14 @@
 
 ## Install
 
-### Option A — deploy the `.hpi` (recommended for pre-release builds)
+### Option A - deploy the `.hpi` (recommended for pre-release builds)
 
 1. Build or obtain `rotogate.hpi` (see [Building & contributing](../developer/contributing.md)).
 2. In Jenkins: **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin**.
 3. Upload `rotogate.hpi`.
 4. Restart Jenkins when prompted.
 
-### Option B — side-load into `$JENKINS_HOME/plugins`
+### Option B - side-load into `$JENKINS_HOME/plugins`
 
 1. Copy the built artifact into the plugins directory as a `.jpi`:
    ```bash
@@ -45,7 +45,7 @@
 3. (Optional) Under **Authorization**, choose **Rotogate Authorization Strategy** to
    enable the access-management features. (You can also keep another strategy; the realm
    works independently, but governance features assume the Rotogate strategy.)
-4. Configure Microsoft Entra if using SSO — see [Entra setup](../administration/entra-setup.md).
+4. Configure Microsoft Entra if using SSO - see [Entra setup](../administration/entra-setup.md).
 5. **Save**, then verify you can still sign in (open a private browser window to test).
 
 ## Upgrade
