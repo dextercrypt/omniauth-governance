@@ -211,6 +211,28 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
         return cfg != null ? cfg.getLoginAnnouncementText() : "";
     }
 
+    /**
+     * The announcement messages to show on the login page right now, in display order: the manual
+     * banner first (if set) so it always wins the top slot, then any scheduled rules currently active
+     * (server local time), highest priority first. Capped at 2 total so the login page never becomes a
+     * wall of banners. Used by login.jelly.
+     */
+    public java.util.List<String> getLoginBanners() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        RotogateGlobalConfig cfg = RotogateGlobalConfig.get();
+        if (cfg == null) return out;
+        String manual = cfg.getLoginAnnouncementText();
+        if (manual != null && !manual.isBlank()) out.add(manual);
+        if (cfg.isScheduledAnnouncementsEnabled()) {
+            final java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            cfg.getScheduledAnnouncements().stream()
+                    .filter(a -> a.isActiveAt(now))
+                    .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
+                    .forEach(a -> out.add(a.getMessage()));
+        }
+        return out.size() > 2 ? new java.util.ArrayList<>(out.subList(0, 2)) : out;
+    }
+
     public String getLoginFooterText() {
         RotogateGlobalConfig cfg = RotogateGlobalConfig.get();
         return cfg != null ? cfg.getLoginFooterText() : "";

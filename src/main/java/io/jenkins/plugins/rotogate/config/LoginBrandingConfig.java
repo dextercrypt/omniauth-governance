@@ -24,6 +24,10 @@ public class LoginBrandingConfig {
     private String loginTabTitle         = "";
     private String loginAnnouncementText = "";
     private String loginFooterText       = "";
+    // Scheduled (recurring) announcements: a master toggle plus the rules themselves, stored as a
+    // JSON array string so they round-trip through XStream / JCasC without a Describable.
+    private boolean scheduledAnnouncementsEnabled = false;
+    private String  scheduledAnnouncementsJson    = "[]";
     // Which background the login panel shows. Known values: "rotogate" (animated reactor,
     // default) and "starburst" (Jenkins' native starburst). New designs can be added later.
     private String loginBackground       = "rotogate";
@@ -60,6 +64,17 @@ public class LoginBrandingConfig {
     public void   setLoginAnnouncementText(String v) { this.loginAnnouncementText = v != null ? v.trim() : ""; }
     public String getLoginFooterText()       { return loginFooterText != null ? loginFooterText.trim() : ""; }
     public void   setLoginFooterText(String v)       { this.loginFooterText       = v != null ? v.trim() : ""; }
+
+    // Scheduled announcements
+    public boolean isScheduledAnnouncementsEnabled() { return scheduledAnnouncementsEnabled; }
+    public void    setScheduledAnnouncementsEnabled(boolean v) { this.scheduledAnnouncementsEnabled = v; }
+    /** Raw JSON array string of rules (normalised). */
+    public String  getScheduledAnnouncementsJson() { return scheduledAnnouncementsJson != null ? scheduledAnnouncementsJson : "[]"; }
+    public void    setScheduledAnnouncementsJson(String v) { this.scheduledAnnouncementsJson = ScheduledAnnouncement.normalise(v); }
+    /** Parsed rules. */
+    public List<ScheduledAnnouncement> getScheduledAnnouncements() {
+        return ScheduledAnnouncement.parseList(getScheduledAnnouncementsJson());
+    }
 
     public String getLoginBackground() {
         String v = loginBackground != null ? loginBackground.trim() : "";
@@ -146,6 +161,10 @@ public class LoginBrandingConfig {
         if (req.getParameter("loginLogoPosition")     != null) setLoginLogoPosition(trim(req.getParameter("loginLogoPosition")));
         if (req.getParameter("loginLogoSize")         != null) setLoginLogoSize(trim(req.getParameter("loginLogoSize")));
         if (req.getParameter("loginButler")           != null) setLoginButler(trim(req.getParameter("loginButler")));
+        // Scheduled announcements: checkbox presence for the toggle, JSON blob for the rules.
+        scheduledAnnouncementsEnabled = req.getParameter("scheduledAnnouncementsEnabled") != null;
+        if (req.getParameter("scheduledAnnouncementsJson") != null)
+            setScheduledAnnouncementsJson(req.getParameter("scheduledAnnouncementsJson"));
     }
 
     private static String trim(String v) { return v != null ? v.trim() : ""; }

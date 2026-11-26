@@ -157,6 +157,11 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
     public void    setLoginAnnouncementText(String v) { branding.setLoginAnnouncementText(v); }
     public String  getLoginFooterText()       { return branding.getLoginFooterText(); }
     public void    setLoginFooterText(String v)       { branding.setLoginFooterText(v); }
+    public boolean isScheduledAnnouncementsEnabled() { return branding.isScheduledAnnouncementsEnabled(); }
+    @DataBoundSetter public void setScheduledAnnouncementsEnabled(boolean v) { branding.setScheduledAnnouncementsEnabled(v); }
+    public String  getScheduledAnnouncementsJson() { return branding.getScheduledAnnouncementsJson(); }
+    @DataBoundSetter public void setScheduledAnnouncementsJson(String v) { branding.setScheduledAnnouncementsJson(v); }
+    public java.util.List<io.jenkins.plugins.rotogate.config.ScheduledAnnouncement> getScheduledAnnouncements() { return branding.getScheduledAnnouncements(); }
     public String  getLoginBackground()       { return branding.getLoginBackground(); }
     public void    setLoginBackground(String v) { branding.setLoginBackground(v); }
     public String  getLoginLogoPosition()     { return branding.getLoginLogoPosition(); }
@@ -431,6 +436,8 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
         if (json.has("loginTabTitle"))         branding.setLoginTabTitle(jsonStr(json, "loginTabTitle",         ""));
         if (json.has("loginAnnouncementText")) branding.setLoginAnnouncementText(jsonStr(json, "loginAnnouncementText", ""));
         if (json.has("loginFooterText"))       branding.setLoginFooterText(jsonStr(json, "loginFooterText",       ""));
+        if (json.has("scheduledAnnouncementsEnabled")) branding.setScheduledAnnouncementsEnabled(json.optBoolean("scheduledAnnouncementsEnabled", false));
+        if (json.has("scheduledAnnouncementsJson"))    branding.setScheduledAnnouncementsJson(jsonStr(json, "scheduledAnnouncementsJson", "[]"));
         if (json.has("loginBackground"))       branding.setLoginBackground(jsonStr(json, "loginBackground",       "rotogate"));
         if (json.has("loginLogoPosition"))     branding.setLoginLogoPosition(jsonStr(json, "loginLogoPosition",     "a"));
         if (json.has("loginLogoSize"))         branding.setLoginLogoSize(jsonStr(json, "loginLogoSize",         "40"));

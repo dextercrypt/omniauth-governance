@@ -62,7 +62,9 @@
                 </j:if>
                 <h1>${it.loginHeading}</h1>
 
-                <j:if test="${it.loginAnnouncementText != null and it.loginAnnouncementText != ''}">
+                <!-- Login banners: the manual announcement (if set) plus any active scheduled rules,
+                     already ordered and capped to 2 by the realm. Each renders in the same amber box. -->
+                <j:forEach var="bannerMsg" items="${it.loginBanners}">
                   <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;
                        background:color-mix(in srgb, var(--warning-color,#f0ad4e) 14%, transparent);
                        border:1px solid var(--warning-color,#f0ad4e);
@@ -74,9 +76,9 @@
                       <line x1="12" y1="9" x2="12" y2="13"/>
                       <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
-                    <span style="color:#eaf1ff;font-weight:500;">${it.loginAnnouncementText}</span>
+                    <span style="color:#eaf1ff;font-weight:500;">${bannerMsg}</span>
                   </div>
-                </j:if>
+                </j:forEach>
 
                 <st:include it="${simpleDecorator}" page="simple-header.jelly" />
 

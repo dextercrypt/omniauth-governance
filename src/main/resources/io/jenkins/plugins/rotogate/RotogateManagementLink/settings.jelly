@@ -7,6 +7,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.settingsAssets"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.schedAnnouncements"/>
 
       <l:app-bar title="Settings"/>
 
@@ -305,6 +306,42 @@
               </div>
               <div class="rg-field-hint" style="margin-top: 6px;">Default: 8 hours (used if left empty).</div>
               <div id="rgRememberMax" class="rg-field-hint" style="margin-top: 2px;"></div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               SCHEDULED ANNOUNCEMENTS (recurring login banners)
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-calendar plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Scheduled Announcements</h3>
+            </div>
+            <div class="rg-card-body">
+              <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
+                Recurring banners shown on the login page during set weekly windows — e.g. "No production
+                deployments" every Friday, or "No deployments" every evening. They appear <strong>alongside</strong>
+                the manual announcement (which always takes the top slot); at most 2 banners show at once,
+                highest priority first. Times use the server's local timezone.
+              </div>
+
+              <label class="rg-toggle-wrap" style="gap: 10px; margin-bottom: 16px;">
+                <j:choose>
+                  <j:when test="${cfg.scheduledAnnouncementsEnabled}">
+                    <input type="checkbox" name="scheduledAnnouncementsEnabled" class="rg-toggle-chk" checked="checked"/>
+                  </j:when>
+                  <j:otherwise>
+                    <input type="checkbox" name="scheduledAnnouncementsEnabled" class="rg-toggle-chk"/>
+                  </j:otherwise>
+                </j:choose>
+                <span class="rg-toggle-track"><span class="rg-toggle-thumb"></span></span>
+                <span style="font-size: 0.88em; font-weight: 500;">Show scheduled announcements</span>
+              </label>
+
+              <input type="hidden" name="scheduledAnnouncementsJson" id="rgSchedJson" value="${cfg.scheduledAnnouncementsJson}"/>
+              <div id="rgSchedList"></div>
+              <button type="button" class="jenkins-button jenkins-button--small rg-sched-add" id="rgSchedAdd">+ Add announcement</button>
+              <div id="rgSchedWarn" style="display:none;"></div>
             </div>
           </div>
 
