@@ -211,9 +211,14 @@
                     <tr class="pr-row">
                       <td class="pr-td"><span class="rg-pill ${r.entra ? 'rg-pill--blue' : 'rg-pill--gray'}">${r.typeLabel()}</span></td>
                       <td class="pr-td">
-                        <div class="pr-user">${r.userId}</div>
-                        <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
-                        <j:if test="${r.fullName != '' and r.fullName != r.userId}"><div class="pr-sub">${r.fullName}</div></j:if>
+                        <div class="pr-ident">
+                          <div class="pr-av" style="background:${r.entra ? 'var(--rg-info-bg)' : 'var(--rg-neutral-bg)'};color:${r.entra ? 'var(--rg-info-fg)' : 'var(--text-color-secondary)'};">${r.userId.substring(0,1).toUpperCase()}</div>
+                          <div class="pr-names">
+                            <div class="pr-user">${r.userId}</div>
+                            <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
+                            <j:if test="${r.fullName != '' and r.fullName != r.userId}"><div class="pr-sub">${r.fullName}</div></j:if>
+                          </div>
+                        </div>
                       </td>
                       <td class="pr-td">
                         <div class="pr-reason">${r.reason}</div>
@@ -279,7 +284,15 @@
                     <j:if test="${!r.pending}">
                       <tr class="pr-row">
                         <td class="pr-td"><span class="rg-pill ${r.entra ? 'rg-pill--blue' : 'rg-pill--gray'}">${r.typeLabel()}</span></td>
-                        <td class="pr-td"><span class="pr-user">${r.userId}</span></td>
+                        <td class="pr-td">
+                          <div class="pr-ident">
+                            <div class="pr-av" style="background:${r.entra ? 'var(--rg-info-bg)' : 'var(--rg-neutral-bg)'};color:${r.entra ? 'var(--rg-info-fg)' : 'var(--text-color-secondary)'};">${r.userId.substring(0,1).toUpperCase()}</div>
+                            <div class="pr-names">
+                              <div class="pr-user">${r.userId}</div>
+                              <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
+                            </div>
+                          </div>
+                        </td>
                         <td class="pr-td">
                           <j:choose>
                             <j:when test="${r.approved}"><span class="rg-pill rg-pill--green">Approved</span></j:when>
