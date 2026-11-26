@@ -12,11 +12,11 @@
   </parent>
 
   <groupId>io.jenkins.plugins</groupId>
-  <artifactId>omniauth-governance</artifactId>
+  <artifactId>rotogate</artifactId>
   <version>${changelist}</version>
   <packaging>hpi</packaging>
 
-  <name>OmniAuth Governance</name>
+  <name>Rotogate</name>
   <description>Authentication and access governance for Jenkins: native accounts plus Single Sign-On (Microsoft Entra / Azure AD), role- and matrix-based authorization, scoped and just-in-time access, group sync, provisioning, and audit</description>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
@@ -121,7 +121,7 @@
     </dependency>
 
 
-    <!-- Matrix Authorization Strategy — base for OmniAuthAuthorizationStrategy -->
+    <!-- Matrix Authorization Strategy — base for RotogateAuthorizationStrategy -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>matrix-auth</artifactId>
@@ -134,7 +134,7 @@
     </dependency>
 
     <!-- Configuration as Code (JCasC) — OPTIONAL: our config classes carry @Symbol so an
-         admin who installs JCasC can define OmniAuth in jenkins.yaml. optional=true means we
+         admin who installs JCasC can define Rotogate in jenkins.yaml. optional=true means we
          integrate when JCasC is present without forcing it on installs that don't use it. -->
     <dependency>
       <groupId>io.jenkins</groupId>

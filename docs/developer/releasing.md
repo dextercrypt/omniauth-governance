@@ -1,13 +1,13 @@
 # Releasing & versioning
 
-> How the OmniAuth version is determined, surfaced, and how releases are cut.
+> How the Rotogate version is determined, surfaced, and how releases are cut.
 
 ## Where the version comes from
 
 The plugin version is **derived from the build** — never hardcoded in source or docs.
 
 - At runtime it is read from the plugin wrapper (`PluginWrapper.getVersion()`), surfaced on the
-  **About / Info** page (**Manage Jenkins → OmniAuth → Info**).
+  **About / Info** page (**Manage Jenkins → Rotogate → Info**).
 - In a development build it reports **`1.0.0-SNAPSHOT`**.
 - The released version is the Maven artifact version baked into the `.hpi` at package time.
 
@@ -30,7 +30,7 @@ There is **no Jenkins CD pipeline** for this plugin; releases are cut manually.
 
 1. Ensure `main` is green (`mvn test`) and the [CHANGELOG](../CHANGELOG.md) reflects what's shipping.
 2. Set the release version in `pom.xml` (drop `-SNAPSHOT`, or use a `-beta.N` suffix).
-3. Build the artifact: `mvn package -DskipTests` → `target/omniauth-governance.hpi`.
+3. Build the artifact: `mvn package -DskipTests` → `target/rotogate.hpi`.
 4. Tag the commit (e.g. `git tag v1.0.0-beta.1`) and push the tag.
 5. Attach the `.hpi` to the release.
 6. Bump `pom.xml` back to the next `-SNAPSHOT` for ongoing development.

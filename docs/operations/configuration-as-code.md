@@ -1,9 +1,9 @@
 # Configuration as Code (JCasC)
 
-> Codify OmniAuth's configuration declaratively so environments are reproducible and
+> Codify Rotogate's configuration declaratively so environments are reproducible and
 > reviewable.
 
-OmniAuth's descriptors expose `@Symbol` names for the
+Rotogate's descriptors expose `@Symbol` names for the
 [Jenkins Configuration as Code](https://plugins.jenkins.io/configuration-as-code/) plugin,
 so the security realm, Entra connection, authorization strategy, and stores can be defined
 in YAML.
@@ -14,15 +14,15 @@ in YAML.
 
 | Symbol | Component | Backing class |
 |---|---|---|
-| `omniAuth` | Security realm | `OmniAuthSecurityRealm` |
+| `rotogate` | Security realm | `RotogateSecurityRealm` |
 | `entraConfig` | Microsoft Entra OAuth config | `EntraOAuthConfig` |
-| `omniAuthAuthorization` | Authorization strategy | `OmniAuthAuthorizationStrategy` |
-| `omniAuthAssignments` | Access assignments store | `OmniAuthAssignmentConfig` |
-| `omniAuthRoles` | Role definitions | `OmniAuthRoleConfig` |
-| `omniAuthJitRequests` | JIT request store | `OmniAuthJitRequestStore` |
-| `omniAuthProvisioningRequests` | Provisioning request store | `ProvisioningRequestConfig` |
+| `rotogateAuthorization` | Authorization strategy | `RotogateAuthorizationStrategy` |
+| `rotogateAssignments` | Access assignments store | `RotogateAssignmentConfig` |
+| `rotogateRoles` | Role definitions | `RotogateRoleConfig` |
+| `rotogateJitRequests` | JIT request store | `RotogateJitRequestStore` |
+| `rotogateProvisioningRequests` | Provisioning request store | `ProvisioningRequestConfig` |
 
-> `OmniAuthGlobalConfig` (global settings: brute-force lockout, notifications, branding,
+> `RotogateGlobalConfig` (global settings: brute-force lockout, notifications, branding,
 > audit retention) has **no** `@Symbol` — it is a plain `GlobalConfiguration`, so it
 > round-trips under its global-configuration descriptor rather than a named symbol. Its
 > settings are still JCasC-definable.
@@ -36,7 +36,7 @@ in YAML.
 ```yaml
 jenkins:
   securityRealm:
-    omniAuth:
+    rotogate:
       ssoEnabled: true          # off by default (native-first); omit for a native-only realm
       entraConfig:
         tenantId: "${ENTRA_TENANT_ID}"
@@ -45,13 +45,13 @@ jenkins:
         enableGroupSync: true
         allowedDomains: "example.com, example.org"
   authorizationStrategy:
-    omniAuthAuthorization:
+    rotogateAuthorization:
       # matrix-style permission entries, per the strategy's schema
 
 unclassified:
-  omniAuthAssignments:
+  rotogateAssignments:
     # access assignments
-  omniAuthRoles:
+  rotogateRoles:
     # role definitions
 ```
 
@@ -73,10 +73,10 @@ Secrets are stored encrypted in Jenkins once applied.
 
 ## Recommended workflow
 
-1. Configure OmniAuth once through the UI on a scratch instance.
+1. Configure Rotogate once through the UI on a scratch instance.
 2. **Export** the live configuration:
    **Manage Jenkins → Configuration as Code → View Configuration** (or `Download`).
-3. Extract the OmniAuth sections, replace secrets with `${VARS}`, and commit to source
+3. Extract the Rotogate sections, replace secrets with `${VARS}`, and commit to source
    control.
 4. Point production at the YAML (via `CASC_JENKINS_CONFIG`) and apply.
 5. Re-export after any UI change to keep the file authoritative.
@@ -86,7 +86,7 @@ Secrets are stored encrypted in Jenkins once applied.
 - Assignments, roles, and JIT requests are also persisted as XML in `JENKINS_HOME`; JCasC is
   the declarative front door, while those files are the runtime store — see
   [Backup & restore](backup-and-restore.md).
-- Global settings on `OmniAuthGlobalConfig` round-trip under the global-configuration section,
+- Global settings on `RotogateGlobalConfig` round-trip under the global-configuration section,
   including `auditRetentionDays` (audit-log retention in days).
 - Validate changes on a non-production instance before applying to production.
 

@@ -1,0 +1,32 @@
+/*
+ * Scheduled-announcement rule editor styles (Settings page).
+ * Loaded via <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.schedAnnouncements"/>.
+ */
+.rg-sched-row {
+  border: 1px solid var(--rg-card-border); border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 10px;
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--rg-neutral-bg);
+}
+.rg-sched-flabel {
+  font-size: .72em; color: var(--text-color-secondary);
+  margin-bottom: 4px; text-transform: uppercase; letter-spacing: .03em;
+}
+.rg-sched-msg { width: 100%; box-sizing: border-box; }
+.rg-sched-days { display: flex; gap: 6px; flex-wrap: wrap; }
+.rg-sched-day { display: inline-flex; align-items: center; gap: 3px; font-size: .82em; }
+.rg-sched-time { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.rg-sched-allday { display: inline-flex; align-items: center; gap: 6px; font-size: .86em; }
+.rg-sched-times { display: inline-flex; align-items: center; gap: 6px; }
+.rg-sched-start, .rg-sched-end { width: 120px; }
+.rg-sched-meta { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.rg-sched-prio { width: 80px; }
+.rg-sched-en { display: inline-flex; align-items: center; gap: 6px; font-size: .86em; }
+.rg-sched-rm { margin-left: auto; }
+
+#rgSchedWarn {
+  font-size: .82em; color: var(--rg-warning-fg);
+  background: var(--rg-warning-bg); border: 1px solid var(--rg-warning-border);
+  border-radius: 6px; padding: 8px 12px; margin-top: 10px;
+}
+.rg-sched-add { margin-top: 4px; }

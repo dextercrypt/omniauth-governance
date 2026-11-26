@@ -1,9 +1,9 @@
 # Backup & restore
 
-> What to back up, how to restore, and how to migrate OmniAuth configuration between
+> What to back up, how to restore, and how to migrate Rotogate configuration between
 > instances.
 
-OmniAuth stores its configuration and governance data inside `JENKINS_HOME`. A standard
+Rotogate stores its configuration and governance data inside `JENKINS_HOME`. A standard
 `JENKINS_HOME` backup captures everything; this page identifies the specific files so you
 can back them up granularly or migrate them.
 
@@ -12,22 +12,22 @@ can back them up granularly or migrate them.
 | Data | Location (under `JENKINS_HOME`) |
 |---|---|
 | Security realm + authorization strategy | `config.xml` |
-| Plugin global config (branding, notifications, cleanup, thresholds) | `io.jenkins.plugins.omniauth.OmniAuthGlobalConfig.xml` |
-| Access assignments | `io.jenkins.plugins.omniauth.OmniAuthAssignmentConfig.xml` |
-| Role definitions | `io.jenkins.plugins.omniauth.OmniAuthRoleConfig.xml` |
-| JIT requests/history | `io.jenkins.plugins.omniauth.OmniAuthJitRequestStore.xml` |
-| Provisioning requests | `io.jenkins.plugins.omniauth.ProvisioningRequestConfig.xml` |
+| Plugin global config (branding, notifications, cleanup, thresholds) | `io.jenkins.plugins.rotogate.RotogateGlobalConfig.xml` |
+| Access assignments | `io.jenkins.plugins.rotogate.RotogateAssignmentConfig.xml` |
+| Role definitions | `io.jenkins.plugins.rotogate.RotogateRoleConfig.xml` |
+| JIT requests/history | `io.jenkins.plugins.rotogate.RotogateJitRequestStore.xml` |
+| Provisioning requests | `io.jenkins.plugins.rotogate.ProvisioningRequestConfig.xml` |
 | Per-user properties (OID/UPN, last login, force-password, break-glass) | `users/<user>/config.xml` |
-| Audit log | newline-delimited JSON monthly files `omniauth-audit-YYYY-MM.json` under `JENKINS_HOME/logs` |
-| The plugin artifact | `plugins/omniauth-governance.jpi` |
+| Audit log | newline-delimited JSON monthly files `rotogate-audit-YYYY-MM.json` under `JENKINS_HOME/logs` |
+| The plugin artifact | `plugins/rotogate.jpi` |
 
 > Exact filenames follow the `GlobalConfiguration` class names. Verify against your instance;
 > confirm the precise audit-log path on a live system when finalizing your backup scope.
 
 ## In-product Backup & Restore UI
 
-Beyond raw file copying, OmniAuth ships an **in-product Backup & Restore** console under
-**Manage Jenkins → OmniAuth**, with **Export**, **Import**, and **Revert** actions,
+Beyond raw file copying, Rotogate ships an **in-product Backup & Restore** console under
+**Manage Jenkins → Rotogate**, with **Export**, **Import**, and **Revert** actions,
 restore-point history, and a colour-coded, Terraform-style plan modal shown before both
 import and rollback so you can review the exact field-level changes first. See the
 [Backup & restore design](../developer/backup-restore-design.md) for the details.
@@ -55,7 +55,7 @@ together with the config**, or the encrypted values cannot be recovered on resto
 
 ## Restore procedure
 
-1. Install the same (or newer) Jenkins and the `omniauth-governance` plugin version.
+1. Install the same (or newer) Jenkins and the `rotogate` plugin version.
 2. Restore the config files, `users/`, plugin data, and `secrets/` into `JENKINS_HOME`.
 3. Start Jenkins and verify:
    - You can sign in (native and/or SSO).
@@ -76,9 +76,9 @@ together with the config**, or the encrypted values cannot be recovered on resto
 - Keep at least one **native admin** credential outside the SSO dependency — your first line of
   defence if Entra is unavailable (Break Glass is *not* a recovery path; it requires you to
   already be signed in as admin).
-- Have each admin generate **SOS recovery codes** (Manage Jenkins → OmniAuth → Emergency Access)
+- Have each admin generate **SOS recovery codes** (Manage Jenkins → Rotogate → Emergency Access)
   while things are healthy — enrollment is mandatory, but confirm it. If no admin can sign in at
-  all, use **SOS Mode**: drop an `omniauth-sos.request` file in `JENKINS_HOME` (no restart) and
+  all, use **SOS Mode**: drop an `rotogate-sos.request` file in `JENKINS_HOME` (no restart) and
   enter a recovery code at `/sos/recover` to regain admin for a 30-minute window. See [Break Glass
   → If you are actually locked out](../administration/break-glass.md).
 - Know the host-level recovery steps (disable security / edit `config.xml`) in case the

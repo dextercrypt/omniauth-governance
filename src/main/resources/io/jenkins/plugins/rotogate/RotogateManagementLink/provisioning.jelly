@@ -1,0 +1,333 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Access Requests" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.provisioningAssets"/>
+
+      <l:app-bar title="Access Requests"/>
+
+      <div class="pr-wrap">
+
+        <!-- Flash messages -->
+        <j:if test="${request2.getParameter('approved') != null}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">
+            Approved — account <b>${request2.getParameter('approved')}</b> has been created<j:choose><j:when test="${request2.getParameter('role') != null}"> and granted the <b>${request2.getParameter('role')}</b> role.</j:when><j:otherwise> with sign-in access.</j:otherwise></j:choose>
+            <j:set var="tmp" value="${it.provisioningTempPassword}"/>
+            <j:if test="${tmp != null}">
+              <div style="margin-top:8px;">
+                A one-time activation link was emailed to the requester. The temporary password below is a
+                fallback to convey manually only if email delivery fails (the user must change it on first sign-in):
+                <code style="font-size:1em;background:var(--text-color);color:var(--rg-info-bg);padding:3px 9px;border-radius:5px;">${tmp}</code>
+              </div>
+            </j:if>
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('rejected') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Request rejected.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('breakerReset') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Native request intake re-opened.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('settingsSaved') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">Portal settings saved.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('resent') != null}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:14px;">A fresh activation link was emailed to <strong>${request2.getParameter('resent')}</strong>.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'activated'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">That account has already been activated — no link was sent.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'exists'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:14px;">An account with that id already exists — the request was rejected instead.</div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'notFound'}">
+          <div class="jenkins-alert jenkins-alert-danger" style="margin-bottom:14px;">That request no longer exists or was already decided.</div>
+        </j:if>
+
+        <!-- Summary tiles (rg-kpi-card, same as Overview) -->
+        <div class="pr-kpis">
+          <div class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:var(--rg-warning-bg);">
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:var(--rg-warning-fg);">${it.pendingProvisioningCount}</div>
+            <div class="rg-kpi-card__label">Pending</div>
+          </div>
+          <div class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:var(--rg-success-bg);">
+              <l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:var(--rg-success-fg);">${it.getProvisioningCountByStatus('APPROVED')}</div>
+            <div class="rg-kpi-card__label">Approved</div>
+          </div>
+          <div class="rg-kpi-card">
+            <div class="rg-kpi-card__icon" style="background:var(--rg-danger-bg);">
+              <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-md"/>
+            </div>
+            <div class="rg-kpi-card__value" style="color:var(--rg-danger-fg);">${it.getProvisioningCountByStatus('REJECTED')}</div>
+            <div class="rg-kpi-card__label">Rejected</div>
+          </div>
+        </div>
+
+        <!-- Portal settings (collapsible) -->
+        <j:set var="cfg" value="${it.rotogateGlobalConfig}"/>
+        <details class="jenkins-card pr-settings">
+          <summary>
+            Portal settings
+            <j:choose>
+              <j:when test="${cfg.isProvisioningEnabled()}"><span class="rg-pill rg-pill--green" style="margin-left:4px;">On</span></j:when>
+              <j:otherwise><span class="rg-pill rg-pill--gray" style="margin-left:4px;">Off</span></j:otherwise>
+            </j:choose>
+          </summary>
+          <div class="pr-set-body">
+            <f:form method="post" action="saveProvisioningSettings">
+
+              <!-- Group 1: what requests are accepted -->
+              <div class="pr-subhead">Requests</div>
+              <div class="pr-checks">
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningEnabled" checked="${cfg.isProvisioningEnabled() ? 'checked' : null}"/>
+                  Enable self-service access requests
+                </label>
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningAllowEntra" checked="${cfg.isProvisioningAllowEntra() ? 'checked' : null}"/>
+                  Allow Microsoft (Entra) requests
+                </label>
+                <label class="pr-check">
+                  <input type="checkbox" name="provisioningAllowNative" checked="${cfg.isProvisioningAllowNative() ? 'checked' : null}"/>
+                  Allow native (username / password) requests
+                </label>
+              </div>
+              <div class="pr-grid">
+                <div class="pr-field">
+                  <label for="pset-domains">Allowed email domains (comma/space separated; blank = any)</label>
+                  <input id="pset-domains" type="text" name="provisioningAllowedDomains" value="${cfg.getProvisioningAllowedDomains()}" placeholder="company.com, example.org"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-maxpending">Max pending requests per user (Entra)</label>
+                  <input id="pset-maxpending" type="number" min="1" name="provisioningMaxPendingPerUser" value="${cfg.getProvisioningMaxPendingPerUser()}"/>
+                </div>
+              </div>
+
+              <!-- Group 2: what an approved account looks like -->
+              <div class="pr-subhead">Granted accounts</div>
+              <div class="pr-grid">
+                <div class="pr-field">
+                  <label for="pset-duration">Default access duration (days, 0 = permanent)</label>
+                  <input id="pset-duration" type="number" min="0" name="provisioningDefaultDurationDays" value="${cfg.getProvisioningDefaultDurationDays()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-expiry">On expiry</label>
+                  <div class="jenkins-select">
+                  <select id="pset-expiry" name="provisioningExpiryAction" class="jenkins-select__input">
+                    <option value="DISABLE" selected="${cfg.getProvisioningExpiryAction() == 'DISABLE' ? 'selected' : null}">Disable the account (revoke access)</option>
+                    <option value="DELETE" selected="${cfg.getProvisioningExpiryAction() == 'DELETE' ? 'selected' : null}">Delete the account</option>
+                  </select>
+                  </div>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-remind">Expiry reminder (days before, 0 = off)</label>
+                  <input id="pset-remind" type="number" min="0" name="provisioningExpiryReminderDays" value="${cfg.getProvisioningExpiryReminderDays()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-actttl">Activation link lifetime (hours)</label>
+                  <input id="pset-actttl" type="number" min="1" name="activationLinkTtlHours" value="${cfg.getActivationLinkTtlHours()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-retain">Keep decided requests (days, 0 = forever)</label>
+                  <input id="pset-retain" type="number" min="0" name="provisioningRetentionDays" value="${cfg.getProvisioningRetentionDays()}"/>
+                </div>
+              </div>
+
+              <!-- Group 3: flood protection for the anonymous native form -->
+              <div class="pr-subhead">Native flood protection</div>
+              <div class="pr-hint">Pauses the anonymous native form if it is flooded. Microsoft (Entra) requests are identity-proven and never throttled.</div>
+              <div class="pr-grid">
+                <div class="pr-field">
+                  <label for="pset-bmax">Breaker — max requests</label>
+                  <input id="pset-bmax" type="number" min="1" name="provisioningBreakerMax" value="${cfg.getProvisioningBreakerMax()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-bwin">Breaker — window (minutes)</label>
+                  <input id="pset-bwin" type="number" min="1" name="provisioningBreakerWindowMin" value="${cfg.getProvisioningBreakerWindowMin()}"/>
+                </div>
+                <div class="pr-field">
+                  <label for="pset-bcool">Breaker — cooldown (minutes)</label>
+                  <input id="pset-bcool" type="number" min="1" name="provisioningBreakerCooldownMin" value="${cfg.getProvisioningBreakerCooldownMin()}"/>
+                </div>
+              </div>
+
+              <div class="pr-url">
+                Public request page: <code>${rootURL}/request-access/</code> — share this link with people who need access.
+              </div>
+
+              <div style="margin-top:18px;">
+                <button type="submit" class="jenkins-button jenkins-button--primary" style="line-height:1.2;padding:7px 16px;min-height:0;height:auto">Save Settings</button>
+              </div>
+            </f:form>
+          </div>
+        </details>
+
+        <!-- Circuit breaker notice -->
+        <j:if test="${it.provisioningBreakerTripped}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span>Native request intake is paused by the circuit breaker (too many requests).</span>
+            <f:form method="post" action="resetProvisioningBreaker" style="margin:0;">
+              <button type="submit" class="jenkins-button jenkins-button--small">Re-open now</button>
+            </f:form>
+          </div>
+        </j:if>
+
+        <!-- Pending -->
+        <div class="jenkins-card pr-card rg-flush-table">
+          <div class="pr-card__head">
+            Pending
+            <j:if test="${!it.pendingProvisioningRequests.isEmpty()}">
+              <span class="pr-count">${it.pendingProvisioningRequests.size()}</span>
+            </j:if>
+          </div>
+          <j:choose>
+            <j:when test="${it.pendingProvisioningRequests.isEmpty()}">
+              <div class="rg-notice--success">
+                <l:notice title="All caught up" icon="symbol-checkmark-circle plugin-ionicons-api">
+                  You're all caught up — no pending access requests.
+                </l:notice>
+              </div>
+            </j:when>
+            <j:otherwise>
+              <table class="jenkins-table jenkins-table--medium pr-table rg-paginated" data-page-size="15">
+                <thead>
+                  <tr>
+                    <th class="pr-th">Type</th>
+                    <th class="pr-th">User</th>
+                    <th class="pr-th">Reason</th>
+                    <th class="pr-th">Duration</th>
+                    <th class="pr-th">Requested</th>
+                    <th class="pr-th" style="text-align:right;">Decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="r" items="${it.pendingProvisioningRequests}">
+                    <tr class="pr-row">
+                      <td class="pr-td"><span class="rg-pill ${r.entra ? 'rg-pill--blue' : 'rg-pill--gray'}">${r.typeLabel()}</span></td>
+                      <td class="pr-td">
+                        <div class="pr-ident">
+                          <div class="pr-av" style="background:${r.entra ? 'var(--rg-info-bg)' : 'var(--rg-neutral-bg)'};color:${r.entra ? 'var(--rg-info-fg)' : 'var(--text-color-secondary)'};">${r.userId.substring(0,1).toUpperCase()}</div>
+                          <div class="pr-names">
+                            <div class="pr-user">${r.userId}</div>
+                            <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
+                            <j:if test="${r.fullName != '' and r.fullName != r.userId}"><div class="pr-sub">${r.fullName}</div></j:if>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="pr-td">
+                        <div class="pr-reason">${r.reason}</div>
+                        <j:if test="${r.requestedAccess != ''}">
+                          <div class="pr-sub" style="margin-top:5px;"><span style="font-weight:600;opacity:0.75;">Wants:</span> ${r.requestedAccess}</div>
+                        </j:if>
+                      </td>
+                      <td class="pr-td" style="white-space:nowrap;">${r.durationLabel()}</td>
+                      <td class="pr-td pr-when">${r.timeAgo()}</td>
+                      <td class="pr-td" style="text-align:right;white-space:nowrap;">
+                        <f:form method="post" action="approveProvisioning" class="rg-inline-form">
+                          <input type="hidden" name="requestId" value="${r.requestId}"/>
+                          <div class="jenkins-select" style="max-width:150px;">
+                          <select name="grantRole" title="Optionally grant a role globally on approval; leave as Sign-in only to grant access later" class="jenkins-select__input"
+                                  style="font-size:0.82em;">
+                            <option value="NONE">Sign-in only</option>
+                            <j:forEach var="role" items="${it.roles}">
+                              <option value="${role.name}">+ ${role.name}</option>
+                            </j:forEach>
+                          </select>
+                          </div>
+                          <button type="submit" class="jenkins-button jenkins-button--primary jenkins-button--small">Approve</button>
+                        </f:form>
+                        <f:form method="post" action="rejectProvisioning" class="pr-reject">
+                          <input type="hidden" name="requestId" value="${r.requestId}"/>
+                          <input type="text" name="comment" placeholder="reason (optional)"/>
+                          <button type="submit" class="jenkins-button jenkins-button--small">Reject</button>
+                        </f:form>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </j:otherwise>
+          </j:choose>
+        </div>
+
+        <!-- Recent -->
+        <div class="jenkins-card pr-card rg-flush-table">
+          <div class="pr-card__head">Recent decisions</div>
+          <j:set var="decided" value="${it.recentProvisioningRequests}"/>
+          <j:set var="anyDecided" value="false"/>
+          <j:forEach var="r" items="${decided}"><j:if test="${!r.pending}"><j:set var="anyDecided" value="true"/></j:if></j:forEach>
+          <j:choose>
+            <j:when test="${anyDecided == 'false'}">
+              <l:notice title="No decisions yet" icon="symbol-time plugin-ionicons-api">
+                No decisions yet.
+              </l:notice>
+            </j:when>
+            <j:otherwise>
+              <table class="jenkins-table jenkins-table--medium pr-table rg-paginated" data-page-size="15">
+                <thead>
+                  <tr>
+                    <th class="pr-th">Type</th>
+                    <th class="pr-th">User</th>
+                    <th class="pr-th">Status</th>
+                    <th class="pr-th">Note</th>
+                    <th class="pr-th" style="text-align:right;">By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="r" items="${decided}">
+                    <j:if test="${!r.pending}">
+                      <tr class="pr-row">
+                        <td class="pr-td"><span class="rg-pill ${r.entra ? 'rg-pill--blue' : 'rg-pill--gray'}">${r.typeLabel()}</span></td>
+                        <td class="pr-td">
+                          <div class="pr-ident">
+                            <div class="pr-av" style="background:${r.entra ? 'var(--rg-info-bg)' : 'var(--rg-neutral-bg)'};color:${r.entra ? 'var(--rg-info-fg)' : 'var(--text-color-secondary)'};">${r.userId.substring(0,1).toUpperCase()}</div>
+                            <div class="pr-names">
+                              <div class="pr-user">${r.userId}</div>
+                              <j:if test="${r.email != ''}"><div class="pr-sub">${r.email}</div></j:if>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="pr-td">
+                          <j:choose>
+                            <j:when test="${r.approved}"><span class="rg-pill rg-pill--green">Approved</span></j:when>
+                            <j:when test="${r.rejected}"><span class="rg-pill rg-pill--red">Rejected</span></j:when>
+                            <j:otherwise><span class="rg-pill rg-pill--amber">${r.statusLabel()}</span></j:otherwise>
+                          </j:choose>
+                          <j:if test="${r.approved and !r.entra and it.isAwaitingActivation(r.userId)}">
+                            <f:form method="post" action="resendActivation" class="rg-inline-form">
+                              <input type="hidden" name="requestId" value="${r.requestId}"/>
+                              <button type="submit" class="jenkins-button jenkins-button--tertiary pr-resend" title="Still awaiting activation — email a fresh one-time activation link">Resend link</button>
+                            </f:form>
+                          </j:if>
+                        </td>
+                        <td class="pr-td pr-sub" style="max-width:280px;">
+                          <j:choose>
+                            <j:when test="${r.decisionComment != ''}">${r.decisionComment}</j:when>
+                            <j:otherwise><span style="opacity:0.5;">—</span></j:otherwise>
+                          </j:choose>
+                        </td>
+                        <td class="pr-td pr-when" style="text-align:right;">${r.decidedBy}</td>
+                      </tr>
+                    </j:if>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </j:otherwise>
+          </j:choose>
+        </div>
+
+      </div>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

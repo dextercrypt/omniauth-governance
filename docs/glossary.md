@@ -1,10 +1,10 @@
 # Glossary
 
-> Terminology used across OmniAuth documentation.
+> Terminology used across Rotogate documentation.
 
 | Term | Definition |
 |---|---|
-| **Access assignment** | A grant of a role or permission to a user or group, optionally scoped to a job/folder and optionally time-limited. Stored by `OmniAuthAssignmentConfig`. |
+| **Access assignment** | A grant of a role or permission to a user or group, optionally scoped to a job/folder and optionally time-limited. Stored by `RotogateAssignmentConfig`. |
 | **Access review** | A periodic certification exercise where admins confirm (keep) or revoke existing access. See [Access review](administration/access-review.md). |
 | **Audit log** | Immutable record of access and security-relevant changes. See [Audit logging](security/audit-logging.md). |
 | **Break Glass** | Emergency, MFA-protected access path used when normal admin/SSO login is unavailable. |
@@ -23,8 +23,8 @@
 | **Pre-provisioning** | Creating access assignments for a user by email **before** their first login, so permissions apply immediately. |
 | **Protected user** | A user exempted from automated actions such as stale-account cleanup. |
 | **Scope** | The target of an assignment: global, or a specific job/folder (parents auto-granted Read). |
-| **Security realm** | The Jenkins component that authenticates users. Here, `OmniAuthSecurityRealm`. |
-| **Authorization strategy** | The Jenkins component that decides permissions. Here, `OmniAuthAuthorizationStrategy`. |
+| **Security realm** | The Jenkins component that authenticates users. Here, `RotogateSecurityRealm`. |
+| **Authorization strategy** | The Jenkins component that decides permissions. Here, `RotogateAuthorizationStrategy`. |
 | **SSO** | Single Sign-On, provided here via Microsoft Entra OAuth2/OIDC. |
 | **Stale user** | An account inactive beyond a configured threshold, eligible for warning/cleanup. |
 | **TOTP** | Time-based One-Time Password, the second factor used by Break Glass. |

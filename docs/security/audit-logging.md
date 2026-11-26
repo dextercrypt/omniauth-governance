@@ -3,8 +3,8 @@
 > A durable record of state-changing and security-relevant actions for compliance and
 > investigation.
 
-OmniAuth records security-relevant actions to an audit log, viewable at
-**Manage Jenkins → OmniAuth → Audit log**. It answers *who did what, to whom, and when* —
+Rotogate records security-relevant actions to an audit log, viewable at
+**Manage Jenkins → Rotogate → Audit log**. It answers *who did what, to whom, and when* —
 the questions auditors and incident responders ask first. Every state-changing or
 security-relevant action is written, not just a curated subset.
 
@@ -62,7 +62,7 @@ actor (`by`), the affected subject (`user`), scope, detail, and the source IP wh
 ## Storage format
 
 - The log is **newline-delimited JSON**, one event per line, in **monthly files**
-  `omniauth-audit-YYYY-MM.json` under `JENKINS_HOME/logs`. It survives restarts and plugin
+  `rotogate-audit-YYYY-MM.json` under `JENKINS_HOME/logs`. It survives restarts and plugin
   upgrades.
 - Each event is small — on the order of **~110 bytes** — so volume is rarely a concern:
   roughly 1 million events ≈ 110 MB. Retention is a compliance decision, not a storage one.
@@ -70,7 +70,7 @@ actor (`by`), the affected subject (`user`), scope, detail, and the source IP wh
 ## Retention and purge
 
 - **Configurable retention.** `auditRetentionDays` (default **365**) is set on
-  **OmniAuth → Settings**. A daily background worker (`OmniAuthAuditRetentionWork`) prunes
+  **Rotogate → Settings**. A daily background worker (`RotogateAuditRetentionWork`) prunes
   events older than the cutoff. Set it to **`0` to keep events forever** (see the
   [Configuration reference](../reference/configuration-reference.md)). JIT request history has
   its own separate retention.
@@ -100,7 +100,7 @@ the log.
 
 ## Compliance mapping (guidance)
 
-| Control area | Where OmniAuth helps |
+| Control area | Where Rotogate helps |
 |---|---|
 | Access certification | [Access review](../administration/access-review.md) + audit entries |
 | Least privilege / JIT | [JIT access](../administration/jit-access.md) + expiry |

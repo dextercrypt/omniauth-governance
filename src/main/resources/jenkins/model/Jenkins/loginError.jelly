@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <!--
-  Overrides Jenkins core loginError.jelly to route through OmniAuthSecurityRealm/login.jelly
+  Overrides Jenkins core loginError.jelly to route through RotogateSecurityRealm/login.jelly
   so the "Sign in with Microsoft" button is preserved on the error page.
   The only change from the original: it="${it}" → it="${app.securityRealm}"
 -->

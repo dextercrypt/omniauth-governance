@@ -1,0 +1,87 @@
+/*
+ * Provisioning (access-requests) page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.provisioningAssets"/>
+ * Externalised from provisioning.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+.pr-wrap { padding: 4px 4px 60px; max-width: 1100px; }
+
+/* KPI tiles and status pills reuse the shared rg-kpi-card / rg-pill
+   components from the adjunct — no local copy needed. */
+.pr-kpis { display:flex; gap:14px; margin: 6px 0 22px; flex-wrap:wrap; }
+
+.pr-card { padding: 0; overflow:hidden; margin-bottom:22px; border-radius: var(--card-border-radius, 8px); }
+.pr-card__head {
+  display:flex; align-items:center; gap:8px;
+  padding:14px 18px; border-bottom:1px solid var(--rg-card-border);
+  font-weight:700; font-size:0.95em;
+}
+.pr-count {
+  background:var(--warning-color); color:#fff; border-radius:11px;
+  font-size:0.72em; font-weight:700; padding:2px 9px;
+}
+/* Table framing + header/row styling (flush frame, shaded header, row separators, hover) now come
+   from the shared .rg-flush-table rule in rg.css, since each table's card is tagged rg-flush-table. */
+
+/* Approved-but-not-yet-activated native requests: a single low-emphasis (tertiary) Resend link next
+   to the Approved pill, on the same line so the row keeps its height. The awaiting-activation context
+   lives in the button's tooltip rather than a second line, to keep the cell uncluttered. */
+.pr-resend { font-size:0.8em; padding:2px 10px; min-height:0; }
+/* read as a link (accent colour) so it's clearly actionable. Jenkins sets the button colour with
+   !important, so match it (our two-class selector then wins among the !important rules). Hover still
+   gets the tertiary button's subtle background. */
+.jenkins-button--tertiary.pr-resend { color:var(--link-color) !important; }
+
+.pr-user  { font-weight:600; }
+.pr-sub   { font-size:0.84em; color:var(--text-color-secondary); margin-top:2px; }
+
+/* Identity cell — avatar circle + stacked name, matching the User Status table so the
+   request tables read as the same component. Avatar is colour-keyed by request source
+   (Entra = info/blue, native = neutral/gray), exactly like userStatus' us-av. */
+.pr-ident { display:flex; align-items:center; gap:10px; min-width:0; }
+.pr-av    { width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.86em; }
+.pr-names { min-width:0; }
+.pr-names .pr-user { font-size:.88em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pr-names .pr-sub  { font-size:.76em; }
+
+/* Match the User Status table's type scale. The shared .rg-flush-table rule scales body
+   cells to .88em, which renders ~12% smaller than userStatus (which is at full size). Restore
+   the baseline on the request tables so the two tables share one type scale; the identity
+   lines above are then sized to the exact us-primary (.88em) / us-secondary (.76em) values. */
+.pr-card.rg-flush-table .pr-table > tbody > tr > td { font-size:1em; }
+.pr-reason{ max-width:260px; white-space:normal; word-break:break-word; color:var(--text-color); }
+.pr-when  { color:var(--text-color-secondary); white-space:nowrap; font-size:0.86em; }
+
+.pr-empty { padding:46px 20px; text-align:center; color:var(--text-color-secondary); }
+.pr-empty svg { opacity:0.28; margin-bottom:10px; }
+
+.pr-reject { display:inline-flex; gap:6px; align-items:center; margin-left:6px; }
+/* dissolve f:form's <div width="100%"> wrapper so the comment field and button are direct flex items */
+.pr-reject > div { display:contents; }
+.pr-reject input { font-size:0.82em; padding:5px 8px; width:130px;
+  border:1px solid var(--input-border,#ccc); border-radius:6px; }
+
+.pr-settings { margin-bottom:22px; }
+.pr-settings > summary { cursor:pointer; padding:14px 18px; font-weight:700; font-size:0.95em;
+  list-style:none; display:flex; align-items:center; gap:8px; }
+.pr-settings > summary::-webkit-details-marker { display:none; }
+.pr-settings > summary::before { content:"\25B8"; color:var(--text-color-secondary); transition:transform .15s; }
+.pr-settings[open] > summary::before { transform:rotate(90deg); }
+.pr-set-body { padding:4px 18px 20px; }
+.pr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px 24px; }
+.pr-field label { display:block; font-size:0.82em; color:var(--text-color-secondary); margin-bottom:5px; }
+.pr-field input[type=text], .pr-field input[type=number], .pr-field select {
+  width:100%; padding:7px 10px; border:1px solid var(--input-border,#ccc);
+  border-radius:6px; font-size:0.9em; box-sizing:border-box; }
+.pr-check { display:flex; align-items:center; gap:8px; font-size:0.9em; }
+.pr-check input { width:16px; height:16px; }
+.pr-url { font-size:0.84em; color:var(--text-color-secondary); margin-top:18px; }
+.pr-url code { background:var(--pre-background,var(--rg-neutral-bg)); padding:2px 7px; border-radius:4px; }
+
+/* Grouped settings sections */
+.pr-subhead { font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+  color:var(--text-color-secondary); margin:24px 0 13px; padding-bottom:7px;
+  border-bottom:1px solid var(--rg-card-border); }
+.pr-subhead:first-child { margin-top:2px; }
+.pr-checks { display:flex; flex-wrap:wrap; gap:14px 28px; margin-bottom:16px; }
+.pr-hint { font-size:0.8em; color:var(--text-color-secondary); margin-top:-2px; margin-bottom:2px; }

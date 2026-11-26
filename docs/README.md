@@ -1,8 +1,8 @@
-# OmniAuth — Documentation
+# Rotogate — Documentation
 
 > A security and access-governance platform for Jenkins, with flexible native + OAuth login.
 
-OmniAuth combines flexible authentication — **native username/password and OAuth2 / OIDC
+Rotogate combines flexible authentication — **native username/password and OAuth2 / OIDC
 single sign-on** — with a full suite of security and management features: access management,
 just-in-time elevation, access reviews, session control, emergency break-glass access,
 audit logging, and multi-channel notifications. The value isn't only how users sign in; it's
@@ -79,6 +79,6 @@ developers.
 
 - `<prefix>` — the Jenkins context path (e.g. `/jenkins`). Omit if Jenkins is served at root.
 - `<jenkins-host>` — the externally reachable host and port of your Jenkins.
-- **Manage Jenkins → OmniAuth** — the plugin's management console, referenced throughout.
-- Code identifiers (`OmniAuthSecurityRealm`, `omniAuth`, …) refer to classes or JCasC
+- **Manage Jenkins → Rotogate** — the plugin's management console, referenced throughout.
+- Code identifiers (`RotogateSecurityRealm`, `rotogate`, …) refer to classes or JCasC
   symbols; see the [Configuration reference](reference/configuration-reference.md).

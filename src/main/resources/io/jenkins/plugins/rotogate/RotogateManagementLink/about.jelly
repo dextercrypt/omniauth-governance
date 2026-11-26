@@ -1,0 +1,173 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Info" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.aboutAssets"/>
+
+      <l:app-bar title="Info"/>
+
+      <div style="padding: 16px 24px; max-width: 860px;">
+
+        <!-- ================================================================
+             MICROSOFT ENTRA CONFIGURATION (read-only)
+             ================================================================ -->
+        <!-- Treat a dormant-but-preserved Entra config (SSO toggled off) the same as unconfigured
+             here: the read-only details only make sense when SSO is actually active. -->
+        <j:set var="entra" value="${it.ssoConfigured ? it.entraConfig : null}"/>
+        <div class="jenkins-card rg-card-block">
+          <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Microsoft Entra (Azure AD) Configuration</h3>
+            </div>
+            <a href="${rootURL}/manage/configureSecurity/" style="font-size: 0.8em; color: var(--blue,var(--blue)); text-decoration: none;">
+              Edit in Configure Global Security &#8599;
+            </a>
+          </div>
+          <div class="rg-card-body">
+
+            <!-- Sign-in methods: Native is always available on the Rotogate realm; SSO only when a
+                 provider is configured. Reflects actual state, not a fixed label. -->
+            <j:if test="${it.rotogateRealm}">
+              <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--rg-card-border); font-size: 0.88em;">
+                <span style="color: var(--text-color-secondary); width: 140px; flex-shrink: 0;">Sign-in methods</span>
+                <span>
+                  <span style="background:var(--rg-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;margin-right:6px;">Native</span>
+                  <j:choose>
+                    <j:when test="${it.ssoConfigured}">
+                      <span style="background:var(--rg-info-bg);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:0.82em;">SSO</span>
+                    </j:when>
+                    <j:otherwise>
+                      <span style="background:var(--rg-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:4px;font-size:0.82em;opacity:0.6;">SSO — not enabled</span>
+                    </j:otherwise>
+                  </j:choose>
+                </span>
+              </div>
+            </j:if>
+
+            <j:choose>
+              <j:when test="${entra == null}">
+                <j:choose>
+                  <j:when test="${it.rotogateRealm}">
+                    <div class="jenkins-alert jenkins-alert-info" style="margin: 0;">
+                      Single sign-on is not enabled — native sign-in only. Connect a provider in
+                      Configure Global Security to enable SSO.
+                    </div>
+                  </j:when>
+                  <j:otherwise>
+                    <div class="jenkins-alert jenkins-alert-warning" style="margin: 0;">
+                      Security realm is not set to Rotogate. Entra configuration is unavailable.
+                    </div>
+                  </j:otherwise>
+                </j:choose>
+              </j:when>
+              <j:otherwise>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; vertical-align: top; border-bottom: 1px solid var(--rg-card-border);">Tenant ID</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--rg-card-border);">${entra.tenantId}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--rg-card-border);">Client ID</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--rg-card-border);">${entra.clientId}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--rg-card-border);">Client Secret</td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">
+                      <span style="background: var(--panel-header-bg,var(--rg-neutral-bg)); color: var(--text-color-secondary); font-family: monospace; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; letter-spacing: 2px;">••••••••</span>
+                      <span style="font-size: 0.8em; color: var(--text-color-secondary); margin-left: 8px;">(stored encrypted)</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--rg-card-border);">Redirect URI</td>
+                    <td style="font-family: monospace; padding: 8px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--rg-card-border);">${it.entraRedirectUri}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top; border-bottom: 1px solid var(--rg-card-border);">Group Sync</td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">
+                      <j:choose>
+                        <j:when test="${entra.enableGroupSync}">
+                          <span style="background: var(--rg-success-bg); color: var(--rg-success-fg); padding: 2px 8px; border-radius: 4px; font-size: 0.82em;">Enabled</span>
+                        </j:when>
+                        <j:otherwise>
+                          <span style="background: var(--rg-neutral-bg); color: var(--text-color-secondary); padding: 2px 8px; border-radius: 4px; font-size: 0.82em;">Disabled</span>
+                        </j:otherwise>
+                      </j:choose>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-color-secondary); padding: 8px 0; vertical-align: top;">Scopes</td>
+                    <td style="font-family: monospace; padding: 8px 0; font-size: 0.85em; color: var(--text-color-secondary);">${entra.scope}</td>
+                  </tr>
+                </table>
+                <div style="margin-top: 14px; padding: 10px 14px; background: var(--rg-info-bg); border-radius: 6px; font-size: 0.82em; color: var(--blue);">
+                  <strong>Azure AD App Registration:</strong> register
+                  <code style="background: rgba(0,120,212,0.1); padding: 1px 5px; border-radius: 3px;">${it.entraRedirectUri}</code>
+                  as an allowed Redirect URI.
+                </div>
+              </j:otherwise>
+            </j:choose>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             PLUGIN INFO
+             ================================================================ -->
+        <div class="jenkins-card" style="padding: 0; overflow: hidden;">
+          <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 44 46" width="20" height="21" shape-rendering="geometricPrecision" style="flex-shrink:0;">
+              <path class="oa-s-sec" d="M16 51 L16 32 A16 16 0 0 1 32 16" fill="none" stroke-width="8.5" stroke-linecap="butt"/>
+              <path class="oa-s-pri" d="M32 16 A16 16 0 0 1 48 32 L48 51" fill="none" stroke-width="8.5" stroke-linecap="butt"/>
+              <circle class="oa-f-sec" cx="16" cy="51" r="3.2"/>
+              <circle class="oa-f-pri" cx="48" cy="51" r="3.2"/>
+              <circle class="oa-f-pri" cx="32" cy="29" r="5"/>
+              <path class="oa-f-pri" d="M30 33 H34 L33.2 39.5 H30.8 Z"/>
+            </svg>
+            <h3 class="rg-card-title">Plugin</h3>
+          </div>
+          <div class="rg-card-body">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88em;">
+              <tr>
+                <td style="color: var(--text-color-secondary); padding: 8px 0; width: 140px; border-bottom: 1px solid var(--rg-card-border);">Name</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Rotogate — Authentication &amp; Access Governance</td>
+              </tr>
+              <tr>
+                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Version</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">${it.pluginVersion}</td>
+              </tr>
+              <tr>
+                <td style="color: var(--text-color-secondary); padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">Made by</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);">
+                  <a href="https://github.com/dextercrypt" target="_blank" rel="noopener noreferrer"
+                     style="color: var(--blue); font-weight: 600; text-decoration: none;">@dextercrypt</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="color: var(--text-color-secondary); padding: 8px 0;">Report an issue</td>
+                <td style="padding: 8px 0;">
+                  <a href="https://github.com/jenkinsci/rotogate-plugin/issues" target="_blank" rel="noopener noreferrer"
+                     style="color: var(--blue); text-decoration: none;">GitHub Issues &#8599;</a>
+                </td>
+              </tr>
+            </table>
+            <!-- Branding lockup: full-colour mark + Rotogate wordmark (single colour, per brand kit) -->
+            <div style="margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--rg-card-border); display: flex; align-items: center; justify-content: center; gap: 18px;">
+              <img src="${rootURL}/plugin/rotogate/images/rotogate-mark.svg"
+                   alt="" width="60" height="60" style="display: block; flex-shrink: 0;"/>
+              <span style="font-size: 2.5em; font-weight: 800; letter-spacing: -0.015em; line-height: 1; color: var(--text-color);">
+                Rotogate
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

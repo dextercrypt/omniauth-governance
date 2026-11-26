@@ -1,7 +1,7 @@
 # Backup & Restore (UI import/export) — design
 
-> Design and rationale for an OmniAuth-scoped configuration **backup/restore** exposed as
-> Export/Import buttons in OmniAuth Management, aimed at admins who do **not** use JCasC.
+> Design and rationale for an Rotogate-scoped configuration **backup/restore** exposed as
+> Export/Import buttons in Rotogate Management, aimed at admins who do **not** use JCasC.
 >
 > **Status: BUILT (v1), on branch `feature/backup-restore-ui`.** The shipped scope is the *simple*
 > version agreed after discussion: **no security realm**, so the break-glass/realm-gating machinery
@@ -12,11 +12,11 @@
 > confirmation dialog in v1 (the real safety is snapshot + guard + revert, not the preview). The
 > rest of this document is retained as the fuller design, should realm restore ever be added.
 >
-> Files: `OmniAuthConfigBackup.java` (serializer), `doExportConfig`/`doImportConfig`/`doRevertImport`
-> in `OmniAuthManagementLink`, `backup.jelly` + sidebar link, `OmniAuthConfigBackupTest`.
+> Files: `RotogateConfigBackup.java` (serializer), `doExportConfig`/`doImportConfig`/`doRevertImport`
+> in `RotogateManagementLink`, `backup.jelly` + sidebar link, `RotogateConfigBackupTest`.
 
-- **Group id / artifact:** `io.jenkins.plugins:omniauth-governance`
-- **Java package:** `io.jenkins.plugins.omniauth`
+- **Group id / artifact:** `io.jenkins.plugins:rotogate`
+- **Java package:** `io.jenkins.plugins.rotogate`
 - **Depends on JCasC?** No. Reuses the JCasC *file shape*, not the JCasC *plugin*. See [JCasC support](#relationship-to-jcasc).
 
 ## Why this exists
@@ -24,20 +24,20 @@
 ### Audience
 The one audience JCasC and the raw XML files do **not** serve: **web-only admins** — hosted/managed
 Jenkins, no shell access to `$JENKINS_HOME`, and no appetite to install the JCasC plugin or learn
-YAML. For them a one-click Export/Import in the UI is the *only* way to back up and restore OmniAuth
+YAML. For them a one-click Export/Import in the UI is the *only* way to back up and restore Rotogate
 configuration.
 
 ### Relationship to JCasC
 This is **not** a second config system. It reuses the same model built for JCasC — the
-`@DataBoundSetter`/getter surface on `OmniAuthGlobalConfig`, `OmniAuthRoleConfig`,
-`OmniAuthAssignmentConfig`, `OmniAuthGroupEntity`, `OmniAuthSecurityRealm`/`EntraOAuthConfig`. So:
+`@DataBoundSetter`/getter surface on `RotogateGlobalConfig`, `RotogateRoleConfig`,
+`RotogateAssignmentConfig`, `RotogateGroupEntity`, `RotogateSecurityRealm`/`EntraOAuthConfig`. So:
 
 | | JCasC | Backup/Restore button |
 |---|---|---|
 | Audience | GitOps / IaC teams | Web-only admins (no shell, no JCasC) |
-| Trigger | `jenkins.yaml` on boot / Reload | Buttons in OmniAuth Management |
+| Trigger | `jenkins.yaml` on boot / Reload | Buttons in Rotogate Management |
 | Needs JCasC plugin | Yes | **No** (self-contained) |
-| File shape | JCasC YAML (whole controller) | Same YAML shape, **OmniAuth sections only** |
+| File shape | JCasC YAML (whole controller) | Same YAML shape, **Rotogate sections only** |
 | Underlying apply | Setters + `save()` | **Same** setters + `save()` |
 
 They are **one config engine with two front doors**, not two parallel systems. A file exported by the
@@ -54,14 +54,14 @@ Export is still not wasted — it is the backup half *and* the primitive that ma
 
 ### In scope (config)
 - Security realm + Entra config (`tenantId`, `clientId`, `enableGroupSync`, `ssoProvider`, `allowsSignup`) — **secret excluded**
-- Roles (`OmniAuthRoleConfig`)
-- Assignments + Access-Management groups (`OmniAuthAssignmentConfig`)
-- All of `OmniAuthGlobalConfig` (brute-force, provisioning policy, notifications settings, SMTP server, branding, schedules) — **secrets excluded**
+- Roles (`RotogateRoleConfig`)
+- Assignments + Access-Management groups (`RotogateAssignmentConfig`)
+- All of `RotogateGlobalConfig` (brute-force, provisioning policy, notifications settings, SMTP server, branding, schedules) — **secrets excluded**
 
 ### Out of scope (operational data — never backed up)
-- JIT request queue (`OmniAuthJitRequestStore`)
+- JIT request queue (`RotogateJitRequestStore`)
 - Provisioning request queue (`ProvisioningRequestConfig`)
-- Notification log (`omniauth-notification-log.xml`)
+- Notification log (`rotogate-notification-log.xml`)
 - Cleanup history
 
 ### Secrets — never in the file
@@ -72,17 +72,17 @@ This is the agreed policy: **a portable backup never contains a usable secret.**
 
 ## File format
 
-JCasC-shaped YAML, OmniAuth sections only, secrets as placeholder comments:
+JCasC-shaped YAML, Rotogate sections only, secrets as placeholder comments:
 
 ```yaml
-# OmniAuth configuration backup — 2026-10-19T09:00:00Z — from jenkins.example.com
-# Restore: OmniAuth Management > Backup & Restore > Import.
+# Rotogate configuration backup — 2026-10-19T09:00:00Z — from jenkins.example.com
+# Restore: Rotogate Management > Backup & Restore > Import.
 # Secrets are NOT included. After import, re-enter:
 #   - Entra client secret           (Security realm)
 #   - SMTP password                 (Notifications)
 #   - Slack / Teams webhook URLs    (Notifications)
 securityRealm:
-  omniAuth:
+  rotogate:
     ssoProvider: ENTRA
     allowsSignup: false
     entraConfig:
@@ -91,12 +91,12 @@ securityRealm:
       enableGroupSync: true
       # clientSecret: <re-enter after import>
 unclassified:
-  omniAuthRoles:
+  rotogateRoles:
     roles: [ ... ]
-  omniAuthAssignments:
+  rotogateAssignments:
     groups: [ ... ]
     assignments: [ ... ]
-  omniAuthGlobalConfig:
+  rotogateGlobalConfig:
     bruteForceThreshold: 5
     provisioningEnabled: true
     smtpHost: "smtp.contoso.com"
@@ -106,15 +106,15 @@ unclassified:
 ```
 
 A header block records when/where it was taken and the secrets to re-enter. A small
-`omniauthBackupVersion` key allows forward-compatible parsing.
+`rotogateBackupVersion` key allows forward-compatible parsing.
 
 ## Export design
 
-- **UI:** a "Backup & Restore" card in OmniAuth Management with an **Export configuration** button.
+- **UI:** a "Backup & Restore" card in Rotogate Management with an **Export configuration** button.
 - **Handler:** `doExportConfig` — `@POST`, `Jenkins.ADMINISTER` required (the file is sensitive even
   without secrets: roles, assignments, allowed domains).
 - **Behaviour:** read live config via getters → build the YAML (secrets stripped) → respond with
-  `Content-Disposition: attachment; filename="omniauth-backup-<host>-<yyyyMMdd-HHmm>.yaml"`.
+  `Content-Disposition: attachment; filename="rotogate-backup-<host>-<yyyyMMdd-HHmm>.yaml"`.
 - **Risk:** effectively none — read-only, no secrets, admin-gated.
 
 ## Import design — risk-free apply
@@ -128,11 +128,11 @@ how each is neutralised:
   make every import undoable (mechanism 2).
 - **"It locks me out"** → the realm is left untouched by default so the login path cannot change
   (realm restore is explicit opt-in); the lockout guard refuses a dangerous import before applying;
-  and **native login is the real recovery net** — `OmniAuthSecurityRealm extends
+  and **native login is the real recovery net** — `RotogateSecurityRealm extends
   HudsonPrivateSecurityRealm`, so a native admin account always works even if Entra is broken.
 
 > **Note on break-glass TOTP.** Break-glass is *not* a lockout-recovery path. It is the TOTP gate
-> that unlocks editing the (OmniAuth-locked) security realm on `/configureSecurity` — you must
+> that unlocks editing the (Rotogate-locked) security realm on `/configureSecurity` — you must
 > already be logged in to use it. The genuine "always get back in" guarantee is a **native admin
 > account** (inherited username/password login). Keep one.
 
@@ -146,7 +146,7 @@ validation passes** — never half-apply. On any apply-time error, auto-revert (
 
 ### 2. Automatic pre-import snapshot (the undo)
 Immediately before applying, serialize the current config (same export format, but retaining the
-*encrypted* secrets internally) to `$JENKINS_HOME/omniauth-backups/pre-import-<timestamp>.yaml`,
+*encrypted* secrets internally) to `$JENKINS_HOME/rotogate-backups/pre-import-<timestamp>.yaml`,
 keeping the last N. Expose a **"Revert last import"** button. This is the primary safety net and
 makes the destructive replace reversible.
 
@@ -167,12 +167,12 @@ applying. This is the dominant risk when reimporting onto a *different* controll
 [Cross-controller reimport](#cross-controller-reimport)), where the imported assignments were
 written for the old controller's identities and may not cover the new admin.
 
-The genuine recovery net is **native login**, not break-glass: `OmniAuthSecurityRealm extends
+The genuine recovery net is **native login**, not break-glass: `RotogateSecurityRealm extends
 HudsonPrivateSecurityRealm`, so a native admin account keeps working even if Entra/authz is broken.
 Break-glass TOTP is only the gate for *editing the realm while logged in* — not a way back in.
 
 ### Realm restore is gated by break-glass TOTP
-OmniAuth locks its security-realm config behind break-glass TOTP on `/configureSecurity`. The import
+Rotogate locks its security-realm config behind break-glass TOTP on `/configureSecurity`. The import
 must honour the same gate: **applying a realm change requires an active break-glass session**, so
 import is not a backdoor around that protection. If the admin has no TOTP device enrolled, realm
 restore is unavailable — they import everything *except* the realm and set the realm by hand (exactly
@@ -184,7 +184,7 @@ Fresh Jenkins, web-only admin, importing a backup from an old controller:
   main risk; Entra simply won't work until the secret is re-entered.
 - The main risk is that the old controller's **assignments reference old identities** and may not
   grant the *new* acting admin — handled by the lockout guard above (refuse / offer to add them).
-- Flow: install OmniAuth + keep a native admin → import roles/assignments/groups/global (realm
+- Flow: install Rotogate + keep a native admin → import roles/assignments/groups/global (realm
   opt-in, break-glass-gated) → guard confirms the acting admin keeps admin → re-enter the stripped
   secrets → Entra login works, native admin stays as the permanent fallback.
 
@@ -205,7 +205,7 @@ Changing the security realm re-initialises authentication. Options:
 
 ### Apply order & atomicity
 Apply in a fixed order (global config → roles → groups → assignments → realm last), each `set…()`
-then `save()`, then `OmniAuthAuthorizationStrategy.invalidateCache()`. Wrap in try/catch; on failure,
+then `save()`, then `RotogateAuthorizationStrategy.invalidateCache()`. Wrap in try/catch; on failure,
 restore the pre-import snapshot. No restart required (live, via the object model).
 
 ### Permissions, CSRF, audit
@@ -218,7 +218,7 @@ Build the **round trip together** — export-only is half a feature. Export is s
 a *build step*, because the snapshot/undo reuses it:
 
 1. **Export primitive** — serialize live config → YAML (secrets stripped). Also the backup half.
-2. **Auto-snapshot** — the export primitive pointed at `$JENKINS_HOME/omniauth-backups/`.
+2. **Auto-snapshot** — the export primitive pointed at `$JENKINS_HOME/rotogate-backups/`.
 3. **Validated apply** — parse + validate, then set + `save()` + cache invalidate (secret-preserving).
 4. **Preview + lockout guard + Revert** — the safety UX around apply.
 
@@ -251,16 +251,16 @@ Captured after v1 shipped, then built the same day. All three live-verified.
    +A, -B`; an assignment shows role / custom-permissions / access-type / approvers / duration /
    expiry deltas; each line is `current → incoming`. A modal renders the plan; "Apply import"
    submits the real import form; empty plan shows "No changes — the live configuration already
-   matches." Engine: `OmniAuthConfigBackup.diff(Parsed)` vs `OmniAuthConfigBackup.current()`.
+   matches." Engine: `RotogateConfigBackup.diff(Parsed)` vs `RotogateConfigBackup.current()`.
 3. **Import history (built).** The "Recent activity" card below Restore points shows the last 5
    import/revert events (when, who, what changed). Persisted to
-   `$JENKINS_HOME/omniauth-backups/import-history.json` (newest first, keep 20, show 5) via
+   `$JENKINS_HOME/rotogate-backups/import-history.json` (newest first, keep 20, show 5) via
    `recordHistory(action, summary)`. Import logs the diff summary; revert logs the point restored.
 
-New code: `OmniAuthConfigBackup` — `current()`, `Diff`/`SettingChange`, `diff()`.
-`OmniAuthManagementLink` — `doPreviewImport`, `getSnapshots()`/`SnapshotInfo`,
+New code: `RotogateConfigBackup` — `current()`, `Diff`/`SettingChange`, `diff()`.
+`RotogateManagementLink` — `doPreviewImport`, `getSnapshots()`/`SnapshotInfo`,
 `getImportHistory()`/`HistoryEntry`/`recordHistory`, `resolveSnapshot()`, snapshot-aware
-`doRevertImport`. Tests: 4 added to `OmniAuthConfigBackupTest` (diff empty / add-remove-change /
+`doRevertImport`. Tests: 4 added to `RotogateConfigBackupTest` (diff empty / add-remove-change /
 setting change / readable summary); full suite **520, 0 failures**.
 
 ## Scope clarification — global permission matrix is NOT captured (by design, 2026-10-19)
@@ -268,11 +268,11 @@ setting change / readable summary); full suite **520, 0 failures**.
 Access lives in three places; the backup covers only the third:
 1. **Security realm** — the native user *account* (username/password). Excluded by design (so an
    import can't change sign-in / lock you out).
-2. **Global permission matrix** — held by `OmniAuthAuthorizationStrategy` (extends
+2. **Global permission matrix** — held by `RotogateAuthorizationStrategy` (extends
    `ProjectMatrixAuthorizationStrategy`); this is where `grantGlobalRead`/`grantGlobalRole` put every
    native user's **Hudson.Read login grant** and any role granted at **global** scope.
    **NOT exported.**
-3. **OmniAuth assignments** — `OmniAuthAssignmentConfig`: **scoped** role grants (user/group @
+3. **Rotogate assignments** — `RotogateAssignmentConfig`: **scoped** role grants (user/group @
    folder/job). **Exported.**
 
 Consequence: creating a bare native user, or granting purely at global scope, shows **"no changes"**

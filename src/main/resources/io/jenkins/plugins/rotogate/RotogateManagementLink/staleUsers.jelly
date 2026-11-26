@@ -1,0 +1,455 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Stale Users" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.staleUsersAssets"/>
+
+      <l:app-bar title="Stale Users">
+        <j:choose>
+          <j:when test="${it.rotogateGlobalConfig.cleanupDryRun}">
+            <button type="button" class="jenkins-button jenkins-button--primary js-rg-cleanup"
+                    data-dryrun="true"
+                    title="Dry-run mode is ON — no users will be deleted">
+              Run Cleanup Now
+              <span style="font-size:0.78em;font-weight:500;opacity:0.85;">(Dry-run)</span>
+            </button>
+          </j:when>
+          <j:otherwise>
+            <button type="button" class="jenkins-button jenkins-button--primary js-rg-cleanup"
+                    data-dryrun="false">
+              Run Cleanup Now
+            </button>
+          </j:otherwise>
+        </j:choose>
+      </l:app-bar>
+
+      <!-- Hidden cleanup form -->
+      <f:form name="rgCleanupForm" method="post" action="runCleanupNow" class="rg-hidden">
+      </f:form>
+
+      <div class="rg-su-page">
+
+        <j:set var="cfg"          value="${it.rotogateGlobalConfig}"/>
+        <j:set var="threshold"    value="${cfg.staleThresholdDays}"/>
+        <j:set var="pendingUsers" value="${it.pendingDeletionUsers}"/>
+        <j:set var="staleUsers"   value="${it.getStaleUsers(threshold)}"/>
+
+        <!-- ── Stats Bar ─────────────────────────────────────────────────── -->
+        <div class="rg-su-stats">
+          <div class="rg-su-stat rg-su-stat--danger">
+            <span class="rg-su-stat-n">${pendingUsers.size()}</span>
+            <span class="rg-su-stat-l">Pending Deletion</span>
+          </div>
+          <div class="rg-su-stat rg-su-stat--warn">
+            <span class="rg-su-stat-n">${staleUsers.size()}</span>
+            <span class="rg-su-stat-l">Stale (&gt;${threshold}d inactive)</span>
+          </div>
+          <div class="rg-su-stat rg-su-stat--neutral">
+            <j:choose>
+              <j:when test="${cfg.cleanupEnabled}">
+                <span class="rg-su-stat-n" style="font-size:1em;letter-spacing:0.02em;">
+                  <j:choose>
+                    <j:when test="${cfg.cleanupDryRun}">
+                      <span style="color:var(--warning-color);">DRY-RUN</span>
+                    </j:when>
+                    <j:otherwise>
+                      <span style="color:var(--rg-success-fg);">LIVE</span>
+                    </j:otherwise>
+                  </j:choose>
+                </span>
+                <span class="rg-su-stat-l">Auto-cleanup · <code style="font-size:0.9em;">${cfg.cleanupCron}</code></span>
+              </j:when>
+              <j:otherwise>
+                <span class="rg-su-stat-n" style="font-size:1em;color:var(--text-color-secondary);">OFF</span>
+                <span class="rg-su-stat-l">Auto-cleanup disabled</span>
+              </j:otherwise>
+            </j:choose>
+          </div>
+        </div>
+
+        <!-- ── Warning Banners (state-of-system) ─────────────────────────── -->
+        <j:if test="${!cfg.cleanupEnabled}">
+          <div class="rg-su-notice rg-su-notice--info">
+            <l:icon src="symbol-close-circle plugin-ionicons-api" class="icon-sm"/>
+            <span><strong>Auto-cleanup is disabled.</strong> Users listed below will not be removed automatically. Use <em>Run Cleanup Now</em> for manual removal, or enable auto-cleanup in <a href="settings">Settings</a>.</span>
+          </div>
+        </j:if>
+        <j:if test="${cfg.cleanupEnabled and cfg.cleanupDryRun}">
+          <div class="rg-su-notice rg-su-notice--warn">
+            <l:icon src="symbol-warning plugin-ionicons-api" class="icon-sm"/>
+            <span><strong>Dry-run mode is active.</strong> Scheduled cleanup runs will log which users would be deleted but no accounts will be removed. Disable dry-run in <a href="settings">Settings</a> to perform live deletions.</span>
+          </div>
+        </j:if>
+
+        <!-- ── Flash Banners (action result) ─────────────────────────────── -->
+        <j:if test="${request2.getParameter('error') == 'activeGroup'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">
+            Deletion blocked — this account is managed via an active Azure Entra group. Remove the user from the group in Azure to revoke access.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('error') == 'protected'}">
+          <div class="jenkins-alert jenkins-alert-warning" style="margin-bottom:12px;">
+            Deletion blocked — that user is protected. Remove protection first on the
+            <a href="protectedUsers">Protected Users</a> page.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('ran') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">
+            Cleanup run complete. Results recorded in the history below.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('deleted') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom:12px;">
+            User deleted successfully.
+          </div>
+        </j:if>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SECTION 1 — PENDING DELETION
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rg-su-section-hdr rg-su-section-hdr--danger">
+          <span class="rg-su-sh-dot"></span>
+          <span class="rg-su-sh-title">Pending Deletion</span>
+          <span class="rg-su-sh-count">(${pendingUsers.size()})</span>
+          <span class="rg-su-sh-rule"></span>
+          <span class="rg-su-sh-sub">removed on next cleanup run</span>
+        </div>
+
+        <j:choose>
+          <j:when test="${pendingUsers.isEmpty()}">
+            <div class="rg-notice--success">
+              <l:notice title="Nothing pending" icon="symbol-checkmark-circle plugin-ionicons-api">
+                No accounts pending deletion.
+              </l:notice>
+            </div>
+          </j:when>
+          <j:otherwise>
+            <div class="jenkins-card rg-su-card rg-su-card--danger rg-flush-table">
+              <table class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" style="margin:0;">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Type</th>
+                    <th>Last Login</th>
+                    <th>Reason</th>
+                    <th style="width:110px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="u" items="${pendingUsers}">
+                    <tr class="rg-su-row-danger">
+                      <td>
+                        <a href="userDetail?sid=${u.userId}&amp;type=USER" class="rg-su-ulink">${u.userId}</a>
+                      </td>
+                      <td>${u.fullName}</td>
+                      <td>
+                        <j:choose>
+                          <j:when test="${u.userType == 'Entra' or u.userType == 'INDIVIDUAL'}">
+                            <span class="rg-su-badge rg-su-badge--blue">Entra</span>
+                          </j:when>
+                          <j:when test="${u.userType == 'VIA_ENTRA_GROUP'}">
+                            <span class="rg-su-badge rg-su-badge--purple">Group</span>
+                          </j:when>
+                          <j:otherwise>
+                            <span class="rg-su-badge rg-su-badge--gray">Native</span>
+                          </j:otherwise>
+                        </j:choose>
+                      </td>
+                      <td>
+                        <j:choose>
+                          <j:when test="${u.neverLoggedIn}"><em class="rg-su-never">Never</em></j:when>
+                          <j:otherwise><span class="rg-reltime" data-iso="${u.lastLoginAt}" title="${u.lastLoginAt}">${u.lastLoginAt}</span></j:otherwise>
+                        </j:choose>
+                      </td>
+                      <td>
+                        <span class="rg-su-badge rg-su-badge--red">${u.pendingReason}</span>
+                      </td>
+                      <td>
+                        <button type="button"
+                                class="jenkins-button jenkins-button--danger jenkins-button--small js-rg-delete"
+                                data-userid="${u.userId}"
+                                data-crumb-field="${app.crumbRequestField}"
+                                data-crumb-value="${app.crumb}">
+                          Delete Now
+                        </button>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </div>
+          </j:otherwise>
+        </j:choose>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SECTION 2 — STALE USERS
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rg-su-section-hdr rg-su-section-hdr--warn">
+          <span class="rg-su-sh-dot"></span>
+          <span class="rg-su-sh-title">Stale Users</span>
+          <span class="rg-su-sh-count">(${staleUsers.size()})</span>
+          <span class="rg-su-sh-rule"></span>
+          <span class="rg-su-sh-sub">inactive for more than ${threshold} days</span>
+        </div>
+
+        <j:choose>
+          <j:when test="${staleUsers.isEmpty()}">
+            <div class="rg-notice--success">
+              <l:notice title="All users active" icon="symbol-shield-checkmark plugin-ionicons-api">
+                All users are active. No accounts have been inactive for more than ${threshold} days.
+              </l:notice>
+            </div>
+          </j:when>
+          <j:otherwise>
+            <div class="jenkins-card rg-su-card rg-su-card--warn rg-flush-table">
+              <table class="jenkins-table jenkins-table--medium sortable rg-paginated" data-page-size="15" style="margin:0;">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Type</th>
+                    <th>Last Login</th>
+                    <th style="width:110px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="u" items="${staleUsers}">
+                    <j:set var="isProtected" value="${cfg.isProtected(u.userId)}"/>
+                    <tr>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                          <a href="userDetail?sid=${u.userId}&amp;type=USER" class="rg-su-ulink">${u.userId}</a>
+                          <j:if test="${isProtected}">
+                            <span class="rg-su-badge rg-su-badge--shield" title="Protected — cannot be deleted">
+                              <l:icon src="symbol-shield plugin-ionicons-api" class="icon-sm"/>
+                              Protected
+                            </span>
+                          </j:if>
+                        </div>
+                      </td>
+                      <td>${u.fullName}</td>
+                      <td>
+                        <j:choose>
+                          <j:when test="${u.userType == 'Entra' or u.userType == 'INDIVIDUAL'}">
+                            <span class="rg-su-badge rg-su-badge--blue">Entra</span>
+                          </j:when>
+                          <j:when test="${u.userType == 'VIA_ENTRA_GROUP'}">
+                            <span class="rg-su-badge rg-su-badge--purple">Group</span>
+                          </j:when>
+                          <j:otherwise>
+                            <span class="rg-su-badge rg-su-badge--gray">Native</span>
+                          </j:otherwise>
+                        </j:choose>
+                      </td>
+                      <td>
+                        <j:choose>
+                          <j:when test="${u.neverLoggedIn}"><em class="rg-su-never">Never</em></j:when>
+                          <j:otherwise>
+                            <span class="rg-reltime" data-iso="${u.lastLoginAt}" title="${u.lastLoginAt}">${u.lastLoginAt}</span>
+                          </j:otherwise>
+                        </j:choose>
+                      </td>
+                      <td>
+                        <j:choose>
+                          <j:when test="${isProtected}">
+                            <span class="rg-su-protected-lbl" title="Remove protection first">
+                              <l:icon src="symbol-lock-closed plugin-ionicons-api" class="icon-xs"/>
+                              Protected
+                            </span>
+                          </j:when>
+                          <j:otherwise>
+                            <button type="button"
+                                    class="jenkins-button jenkins-button--danger jenkins-button--small js-rg-delete"
+                                    data-userid="${u.userId}"
+                                    data-crumb-field="${app.crumbRequestField}"
+                                    data-crumb-value="${app.crumb}">
+                              Delete
+                            </button>
+                          </j:otherwise>
+                        </j:choose>
+                      </td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </div>
+          </j:otherwise>
+        </j:choose>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SECTION 3 — CLEANUP HISTORY (collapsible)
+             ═══════════════════════════════════════════════════════════════ -->
+        <j:set var="history" value="${cfg.cleanupHistory}"/>
+        <div id="rgHistoryToggle" class="rg-su-section-hdr rg-su-section-hdr--neutral rg-su-drawer-toggle"
+             role="button" tabindex="0">
+          <span class="rg-su-sh-dot"></span>
+          <span class="rg-su-sh-title">Cleanup History</span>
+          <span class="rg-su-sh-count">(${history.size()})</span>
+          <span class="rg-su-sh-rule"></span>
+          <span class="rg-su-sh-sub">last 10 runs</span>
+          <l:icon src="symbol-chevron-down plugin-ionicons-api" class="icon-sm"/>
+        </div>
+        <div id="rgHistoryBody" style="display:none;">
+          <j:choose>
+            <j:when test="${history.isEmpty()}">
+              <l:notice title="No cleanup runs yet" icon="symbol-time plugin-ionicons-api">
+                No cleanup runs yet. Use <em>Run Cleanup Now</em> above or enable auto-cleanup in <a href="settings">Settings</a>.
+              </l:notice>
+            </j:when>
+            <j:otherwise>
+              <div class="jenkins-card rg-su-card rg-su-card--neutral rg-flush-table" style="margin-top:8px;">
+                <table class="jenkins-table jenkins-table--medium" style="margin:0;">
+                  <thead>
+                    <tr>
+                      <th>Run At</th>
+                      <th>Mode</th>
+                      <th>Scanned</th>
+                      <th>Affected</th>
+                      <th>Skipped</th>
+                      <th>Users</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <j:forEach var="r" items="${history}">
+                      <tr>
+                        <td><span class="rg-reltime" data-iso="${r.timestamp}" title="${r.timestamp}">${r.timestamp}</span></td>
+                        <td>
+                          <j:choose>
+                            <j:when test="${r.dryRun}">
+                              <span class="rg-su-badge rg-su-badge--amber">Dry-run</span>
+                            </j:when>
+                            <j:otherwise>
+                              <span class="rg-su-badge rg-su-badge--red">Live</span>
+                            </j:otherwise>
+                          </j:choose>
+                        </td>
+                        <td>${r.usersScanned}</td>
+                        <td>
+                          <j:choose>
+                            <j:when test="${r.usersAffected == 0}"><span style="color:var(--text-color-secondary);">0</span></j:when>
+                            <j:otherwise><strong style="color:${r.dryRun ? 'var(--warning-color)' : 'var(--rg-danger-fg)'};">${r.usersAffected}</strong></j:otherwise>
+                          </j:choose>
+                        </td>
+                        <td>${r.skippedProtected}</td>
+                        <td>
+                          <j:choose>
+                            <j:when test="${r.affectedUserIds.isEmpty()}">
+                              <span style="color:var(--text-color-secondary);font-size:0.85em;">—</span>
+                            </j:when>
+                            <j:otherwise>
+                              <details>
+                                <summary style="cursor:pointer;font-size:0.85em;color:var(--blue,var(--rg-info-fg));">${r.usersAffected} user(s)</summary>
+                                <ul style="margin:4px 0 0 16px;padding:0;font-size:0.82em;">
+                                  <j:forEach var="uid" items="${r.affectedUserIds}">
+                                    <li>${uid}</li>
+                                  </j:forEach>
+                                </ul>
+                              </details>
+                            </j:otherwise>
+                          </j:choose>
+                        </td>
+                      </tr>
+                    </j:forEach>
+                  </tbody>
+                </table>
+              </div>
+            </j:otherwise>
+          </j:choose>
+        </div>
+
+      </div><!-- end .rg-su-page -->
+
+      <!-- ================================================================
+           CLEANUP MODAL
+           ================================================================ -->
+      <div id="rgCleanupModal" class="rg-modal-backdrop" style="display:none;">
+        <div class="rg-modal">
+          <div id="rgModalDryRun">
+            <div class="rg-modal-header rg-modal-header--warn">
+              <l:icon src="symbol-warning plugin-ionicons-api" class="icon-md"/>
+              Run Cleanup — Dry-run Mode
+            </div>
+            <div class="rg-modal-body">
+              <p style="margin:0 0 12px 0;">This will scan all users and log which ones <strong>would</strong> be deleted — but <strong>no accounts will be removed</strong>.</p>
+              <div style="background:var(--rg-warning-bg);border:1px solid var(--rg-warning-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--warning-color);">
+                Dry-run mode is ON. To perform live deletions, disable it in
+                <a href="settings" style="color:var(--warning-color);font-weight:600;">Settings → Automated Cleanup</a>.
+              </div>
+            </div>
+            <div class="rg-modal-footer">
+              <button type="button" class="jenkins-button js-rg-cleanup-cancel">Cancel</button>
+              <button type="button" class="jenkins-button jenkins-button--primary js-rg-cleanup-submit">Run Dry-run</button>
+            </div>
+          </div>
+          <div id="rgModalLive">
+            <div class="rg-modal-header rg-modal-header--danger">
+              <l:icon src="symbol-trash plugin-ionicons-api" class="icon-md"/>
+              Run Cleanup — Live Mode
+            </div>
+            <div class="rg-modal-body">
+              <p style="margin:0 0 12px 0;">This will <strong>permanently delete</strong> all stale users inactive beyond the configured threshold, plus any accounts marked for pending deletion.</p>
+              <div style="background:var(--rg-danger-bg);border:1px solid var(--rg-danger-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--rg-danger-fg);">
+                <strong>This action cannot be undone.</strong> Protected users will be skipped.
+                SSO users will be re-provisioned on their next login.
+              </div>
+            </div>
+            <div class="rg-modal-footer">
+              <button type="button" class="jenkins-button js-rg-cleanup-cancel">Cancel</button>
+              <button type="button" class="jenkins-button jenkins-button--danger js-rg-cleanup-submit">Delete Stale Users</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================
+           DELETE USER MODAL
+           ================================================================ -->
+      <div id="rgDeleteModal" class="rg-modal-backdrop" style="display:none;">
+        <div class="rg-modal">
+          <div class="rg-modal-header rg-modal-header--danger">
+            <l:icon src="symbol-trash plugin-ionicons-api" class="icon-md"/>
+            Delete User
+          </div>
+          <div class="rg-modal-body">
+            <p style="margin:0 0 8px 0;">
+              You are about to permanently delete <strong id="rgDeleteUserId"></strong>.
+            </p>
+            <div style="background:var(--rg-danger-bg);border:1px solid var(--rg-danger-border);border-radius:6px;padding:10px 14px;font-size:0.85em;color:var(--rg-danger-fg);margin-bottom:16px;">
+              <strong>This cannot be undone.</strong> The user's Jenkins account and all permissions will be permanently removed.
+            </div>
+            <label style="display:block;font-size:0.85em;font-weight:600;margin-bottom:6px;">
+              Type <code id="rgDeleteUserIdHint" style="background:var(--rg-neutral-bg);padding:1px 5px;border-radius:3px;font-size:0.95em;"></code> to confirm:
+            </label>
+            <input type="text" id="rgDeleteConfirmInput"
+                   class="jenkins-input"
+                   placeholder="Type username to confirm"
+                   autocomplete="off"
+                   style="width:100%;box-sizing:border-box;"/>
+          </div>
+          <div class="rg-modal-footer">
+            <button type="button" class="jenkins-button" id="rgDeleteCancelBtn">Cancel</button>
+            <button type="button" class="jenkins-button jenkins-button--danger" id="rgDeleteConfirmBtn" disabled="true">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden delete form -->
+      <form id="rgDeleteForm" method="post" action="deleteUser" style="display:none;">
+        <input type="hidden" name="userId" id="rgDeleteUserIdInput"/>
+        <input type="hidden" name="from" value="staleUsers"/>
+        <input type="hidden" id="rgDeleteCrumbField"/>
+        <input type="hidden" id="rgDeleteCrumbValue"/>
+      </form>
+
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

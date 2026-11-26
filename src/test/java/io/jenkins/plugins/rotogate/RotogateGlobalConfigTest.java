@@ -1,0 +1,314 @@
+package io.jenkins.plugins.rotogate;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Config save-safety + getter-clamping tests against a REAL {@link RotogateGlobalConfig}
+ * via JenkinsRule (the class is a heavy GlobalConfiguration that cannot be Mockito-mocked
+ * on this JVM).
+ *
+ * The central invariant (the "save footgun"): a single-field change must not reset unrelated
+ * fields. {@link RotogateGlobalConfig#setProtectedUsers} is the dedicated setter that bypasses
+ * {@link RotogateGlobalConfig#configure}; configure() is the FULL-form handler and deliberately
+ * re-reads every key it owns (resetting absent ones to defaults), which is exactly why the
+ * dedicated setter exists.
+ */
+@WithJenkins
+public class RotogateGlobalConfigTest {
+
+    private JenkinsRule j;
+
+    @BeforeEach
+    public void __withJenkins(JenkinsRule rule) {
+        j = rule;
+    }
+
+    private RotogateGlobalConfig cfg() { return RotogateGlobalConfig.get(); }
+
+    // Poke a below-floor raw value directly on whichever per-area holder owns the field, bypassing
+    // the clamping setter, so the test can assert the getter still clamps.
+    private static void setIntField(RotogateGlobalConfig c, String name, int val) throws Exception {
+        Object[] holders = { c.getProvisioning(), c.getSecurity(), c.getLifecycle(), c.getNotifications() };
+        for (Object holder : holders) {
+            try {
+                Field f = holder.getClass().getDeclaredField(name);
+                f.setAccessible(true);
+                f.setInt(holder, val);
+                return;
+            } catch (NoSuchFieldException ignore) {
+                // try the next holder
+            }
+        }
+        throw new NoSuchFieldException(name);
+    }
+
+    // ── setProtectedUsers must touch ONLY the protected list ──────────────────
+
+    @Test
+    public void setProtectedUsers_changesList_andPreservesUnrelatedFields() {
+        RotogateGlobalConfig c = cfg();
+
+        // Prime a spread of unrelated settings across different field groups.
+        c.setProvisioningEnabled(true);
+        c.setBruteForceLockoutMinutes(42);
+        c.setJitHistoryRetentionDays(55);
+        c.setLoginHeading("Welcome Team");
+        c.setProvisioningBreakerMax(250);
+
+        c.setProtectedUsers(Arrays.asList("admin", "root"));
+
+        // The list changed...
+        assertTrue(c.getProtectedUsers().contains("admin"));
+        assertTrue(c.getProtectedUsers().contains("root"));
+        assertEquals(2, c.getProtectedUsers().size());
+
+        // ...and nothing else was reset (would have been, had this routed through configure()).
+        assertTrue(c.isProvisioningEnabled(), "provisioningEnabled must survive");
+        assertEquals(42, c.getBruteForceLockoutMinutes(), "bruteForceLockoutMinutes must survive");
+        assertEquals(55, c.getJitHistoryRetentionDays(), "jitHistoryRetentionDays must survive");
+        assertEquals("Welcome Team", c.getLoginHeading(), "loginHeading must survive");
+        assertEquals(250, c.getProvisioningBreakerMax(), "provisioningBreakerMax must survive");
+    }
+
+    @Test
+    public void setProtectedUsers_null_yieldsEmptyList_notCrash() {
+        RotogateGlobalConfig c = cfg();
+        c.setProtectedUsers(null);
+        assertTrue(c.getProtectedUsers().isEmpty());
+    }
+
+    @Test
+    public void getProtectedUsers_returnsUnmodifiableSnapshot() {
+        RotogateGlobalConfig c = cfg();
+        c.setProtectedUsers(Arrays.asList("a"));
+        List<String> view = c.getProtectedUsers();
+        try {
+            view.add("b");
+            org.junit.Assert.fail("protected-users view should be unmodifiable");
+        } catch (UnsupportedOperationException expected) { /* ok */ }
+    }
+
+    // ── configure() SCOPE: provisioning fields are NOT reset by the form handler ─
+
+    @Test
+    public void configure_doesNotResetProvisioningFields_itNeverReadsThem() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        c.setProvisioningEnabled(true);
+        c.setProvisioningAllowNative(true);
+        c.setProvisioningBreakerMax(321);
+        c.setActivationLinkTtlHours(96);
+
+        // A form submit that omits every provisioning key entirely.
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, new JSONObject());
+
+        assertTrue(c.isProvisioningEnabled(), "provisioningEnabled is outside configure()'s scope");
+        assertTrue(c.isProvisioningAllowNative(), "provisioningAllowNative is outside configure()'s scope");
+        assertEquals(321, c.getProvisioningBreakerMax(), "provisioningBreakerMax is outside configure()'s scope");
+        assertEquals(96, c.getActivationLinkTtlHours(), "activationLinkTtlHours is outside configure()'s scope");
+    }
+
+    @Test
+    public void configure_roundTripsProtectedUsers_fromJsonArray() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        JSONObject json = new JSONObject();
+        JSONArray arr = new JSONArray();
+        arr.add("alice");
+        arr.add("bob");
+        json.put("protectedUsers", arr);
+
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
+
+        assertEquals(2, c.getProtectedUsers().size());
+        assertTrue(c.getProtectedUsers().contains("alice"));
+        assertTrue(c.getProtectedUsers().contains("bob"));
+    }
+
+    @Test
+    public void configure_roundTripsProtectedUsers_fromSingleString() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        JSONObject json = new JSONObject();
+        json.put("protectedUsers", "solo");
+
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
+
+        assertEquals(1, c.getProtectedUsers().size());
+        assertTrue(c.getProtectedUsers().contains("solo"));
+    }
+
+    @Test
+    public void configure_absentField_isLeftUnchanged_partialUpdate() throws Exception {
+        RotogateGlobalConfig c = cfg();
+
+        // First submit sets a non-default threshold.
+        JSONObject first = new JSONObject();
+        first.put("staleThresholdDays", 120);
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, first);
+        assertEquals(120, c.getStaleThresholdDays());
+
+        // A later submit that omits the key LEAVES it unchanged (partial update). This is what lets a
+        // page save only the fields it owns without wiping another page's, and makes a global
+        // "Manage Jenkins / System" save (which carries none of our fields) a no-op for our settings.
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, new JSONObject());
+        assertEquals(120, c.getStaleThresholdDays(), "absent field is left unchanged under partial update");
+    }
+
+    @Test
+    public void configure_readsBruteForceAndSmtpFields() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        JSONObject json = new JSONObject();
+        json.put("bruteForceThreshold", 9);
+        json.put("bruteForceLockoutMinutes", 25);
+        json.put("smtpHost", "mail.example.com");
+        json.put("smtpPort", 2525);
+
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
+
+        assertEquals(9, c.getBruteForceThreshold());
+        assertEquals(25, c.getBruteForceLockoutMinutes());
+        assertEquals("mail.example.com", c.getSmtpHost());
+        assertEquals(2525, c.getSmtpPort());
+    }
+
+    @Test
+    public void configure_splitsHostColonPort() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        JSONObject json = new JSONObject();
+        json.put("smtpHost", "smtp.example.com:465");
+        c.configure((org.kohsuke.stapler.StaplerRequest2) null, json);
+        assertEquals("smtp.example.com", c.getSmtpHost());
+        assertEquals(465, c.getSmtpPort());
+    }
+
+    // ── Getter clamping / defaults (robust against legacy XML values) ─────────
+    // Poke the raw field below the floor via reflection, then assert the getter clamps.
+
+    @Test
+    public void getProvisioningMaxPendingPerUser_floorsToOne() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningMaxPendingPerUser", 0);
+        assertEquals(1, c.getProvisioningMaxPendingPerUser());
+        setIntField(c, "provisioningMaxPendingPerUser", -5);
+        assertEquals(1, c.getProvisioningMaxPendingPerUser());
+    }
+
+    @Test
+    public void getProvisioningBreakerMax_defaultsTo100WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningBreakerMax", 0);
+        assertEquals(100, c.getProvisioningBreakerMax());
+    }
+
+    @Test
+    public void getProvisioningBreakerWindowMin_defaultsTo10WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningBreakerWindowMin", 0);
+        assertEquals(10, c.getProvisioningBreakerWindowMin());
+    }
+
+    @Test
+    public void getProvisioningBreakerCooldownMin_defaultsTo30WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningBreakerCooldownMin", -1);
+        assertEquals(30, c.getProvisioningBreakerCooldownMin());
+    }
+
+    @Test
+    public void getBruteForceLockoutMinutes_defaultsTo15WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "bruteForceLockoutMinutes", 0);
+        assertEquals(15, c.getBruteForceLockoutMinutes());
+    }
+
+    @Test
+    public void getJitHistoryRetentionDays_defaultsTo90WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "jitHistoryRetentionDays", 0);
+        assertEquals(90, c.getJitHistoryRetentionDays());
+    }
+
+    @Test
+    public void getActivationLinkTtlHours_defaultsTo72WhenNonPositive() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "activationLinkTtlHours", 0);
+        assertEquals(72, c.getActivationLinkTtlHours());
+    }
+
+    @Test
+    public void getProvisioningDefaultDurationDays_flooredToZero() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningDefaultDurationDays", -5);
+        assertEquals(0, c.getProvisioningDefaultDurationDays());
+    }
+
+    @Test
+    public void getProvisioningExpiryReminderDays_flooredToZero() throws Exception {
+        RotogateGlobalConfig c = cfg();
+        setIntField(c, "provisioningExpiryReminderDays", -3);
+        assertEquals(0, c.getProvisioningExpiryReminderDays());
+    }
+
+    // ── Round-trip setters keep valid values ─────────────────────────────────
+
+    @Test
+    public void setters_roundTripValidValues() {
+        RotogateGlobalConfig c = cfg();
+        c.setProvisioningMaxPendingPerUser(3);
+        c.setProvisioningBreakerMax(500);
+        c.setProvisioningBreakerWindowMin(20);
+        c.setProvisioningBreakerCooldownMin(45);
+        c.setBruteForceLockoutMinutes(30);
+        c.setJitHistoryRetentionDays(120);
+        c.setActivationLinkTtlHours(168);
+        c.setProvisioningDefaultDurationDays(14);
+        c.setProvisioningExpiryReminderDays(5);
+
+        assertEquals(3,   c.getProvisioningMaxPendingPerUser());
+        assertEquals(500, c.getProvisioningBreakerMax());
+        assertEquals(20,  c.getProvisioningBreakerWindowMin());
+        assertEquals(45,  c.getProvisioningBreakerCooldownMin());
+        assertEquals(30,  c.getBruteForceLockoutMinutes());
+        assertEquals(120, c.getJitHistoryRetentionDays());
+        assertEquals(168, c.getActivationLinkTtlHours());
+        assertEquals(14,  c.getProvisioningDefaultDurationDays());
+        assertEquals(5,   c.getProvisioningExpiryReminderDays());
+    }
+
+    @Test
+    public void setProvisioningExpiryAction_normalisesToDisableOrDelete() {
+        RotogateGlobalConfig c = cfg();
+        assertEquals("DISABLE", c.getProvisioningExpiryAction(), "default is DISABLE");
+        c.setProvisioningExpiryAction("delete");
+        assertEquals("DELETE", c.getProvisioningExpiryAction());
+        c.setProvisioningExpiryAction("garbage");
+        assertEquals("DISABLE", c.getProvisioningExpiryAction(), "unknown value normalises to DISABLE");
+    }
+
+    @Test
+    public void isProvisioningUsable_requiresEnabledPlusAtLeastOneChannel() {
+        RotogateGlobalConfig c = cfg();
+        c.setProvisioningEnabled(false);
+        c.setProvisioningAllowEntra(true);
+        assertFalse(c.isProvisioningUsable(), "disabled portal is never usable");
+
+        c.setProvisioningEnabled(true);
+        c.setProvisioningAllowEntra(false);
+        c.setProvisioningAllowNative(false);
+        assertFalse(c.isProvisioningUsable(), "enabled but no channel is not usable");
+
+        c.setProvisioningAllowNative(true);
+        assertTrue(c.isProvisioningUsable(), "enabled + a channel is usable");
+    }
+}

@@ -1,0 +1,59 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler">
+  <!-- Shared Rotogate stylesheet (rg-* components + theme-aware tokens). -->
+  <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+  <l:tasks>
+    <l:task icon="symbol-overview"
+            href="${rootURL}/manage/rotogate-management/"
+            title="Overview"/>
+    <l:task icon="symbol-people"
+            href="${rootURL}/manage/rotogate-management/userStatus"
+            title="User Status"/>
+    <l:task icon="symbol-warning"
+            href="${rootURL}/manage/rotogate-management/staleUsers"
+            title="Stale Users"/>
+    <l:task icon="symbol-lock-closed"
+            href="${rootURL}/manage/rotogate-management/protectedUsers"
+            title="Protected Users"/>
+    <l:task icon="symbol-key"
+            href="${rootURL}/manage/rotogate-management/accessManagement"
+            title="Access Management"/>
+    <l:task icon="symbol-checkmark-done plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/accessReview"
+            title="Access Review"/>
+    <l:task icon="symbol-flash plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/jitRequests"
+            title="JIT Requests"/>
+    <l:task icon="symbol-person-add-outline plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/provisioning"
+            title="Access Requests"/>
+    <l:task icon="symbol-person"
+            href="${rootURL}/manage/rotogate-management/sessions"
+            title="Active Sessions"/>
+    <l:task icon="symbol-lock-closed"
+            href="${rootURL}/manage/rotogate-management/security"
+            title="Security"/>
+    <l:task icon="symbol-shield-checkmark plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/emergencyAccess"
+            title="Emergency Access"/>
+    <l:task icon="symbol-settings"
+            href="${rootURL}/manage/rotogate-management/settings"
+            title="Settings"/>
+    <l:task icon="symbol-notifications-outline plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/notifications"
+            title="Notifications">
+      <l:task icon="symbol-mail plugin-ionicons-api"
+              href="${rootURL}/manage/rotogate-management/notificationLog"
+              title="Notification Log"/>
+    </l:task>
+    <l:task icon="symbol-document-text"
+            href="${rootURL}/manage/rotogate-management/auditLog"
+            title="Audit Log"/>
+    <l:task icon="symbol-archive-outline plugin-ionicons-api"
+            href="${rootURL}/manage/rotogate-management/backup"
+            title="Backup &amp; Restore"/>
+    <l:task icon="symbol-information-circle"
+            href="${rootURL}/manage/rotogate-management/about"
+            title="Info"/>
+  </l:tasks>
+</j:jelly>

@@ -1,6 +1,6 @@
 # Building & contributing
 
-> How to build, run, and contribute to OmniAuth.
+> How to build, run, and contribute to Rotogate.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@
 
 ```bash
 export JAVA_HOME=/path/to/jdk-21
-mvn package -DskipTests   # → target/omniauth-governance.hpi
+mvn package -DskipTests   # → target/rotogate.hpi
 ```
 
 Run the tests with a normal `mvn test` / `mvn verify`.
@@ -48,13 +48,13 @@ To pick up source changes, stop and restart `hpi:run` — it recompiles and repa
 ## Project layout
 
 ```
-src/main/java/io/jenkins/plugins/omniauth/   # plugin classes (+ util/)
-src/main/resources/io/jenkins/plugins/omniauth/
-    OmniAuthSecurityRealm/     # login.jelly, config.jelly, …
-    OmniAuthManagementLink/    # console views
+src/main/java/io/jenkins/plugins/rotogate/   # plugin classes (+ util/)
+src/main/resources/io/jenkins/plugins/rotogate/
+    RotogateSecurityRealm/     # login.jelly, config.jelly, …
+    RotogateManagementLink/    # console views
     EntraOAuthConfig/          # config.jelly
-    OmniAuthAuthorizationStrategy/
-    OmniAuthPageDecorator/, OmniAuthRootAction/
+    RotogateAuthorizationStrategy/
+    RotogatePageDecorator/, RotogateRootAction/
 src/test/…                     # JenkinsRule integration tests
 docs/                          # this documentation
 ```

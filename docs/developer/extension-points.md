@@ -1,34 +1,34 @@
 # Extension points
 
-> The Jenkins extension points OmniAuth implements, and where to extend it.
+> The Jenkins extension points Rotogate implements, and where to extend it.
 
-OmniAuth is built entirely on standard Jenkins extension points, which makes its behavior
+Rotogate is built entirely on standard Jenkins extension points, which makes its behavior
 predictable and its surfaces familiar to plugin developers.
 
 ## Implemented extension points
 
 | Extension point | Implementation(s) | Purpose |
 |---|---|---|
-| `SecurityRealm` (`HudsonPrivateSecurityRealm`) | `OmniAuthSecurityRealm` | Authentication (native + Entra). |
-| `AuthorizationStrategy` (`ProjectMatrixAuthorizationStrategy`) | `OmniAuthAuthorizationStrategy` | Authorization decisions. |
-| `ACL` | `OmniAuthItemACL` | Per-item permission checks. |
-| `GlobalConfiguration` | `OmniAuthGlobalConfig`, `OmniAuthAssignmentConfig`, `OmniAuthRoleConfig`, `OmniAuthJitRequestStore`, `ProvisioningRequestConfig` | Persisted configuration/state. |
-| `ManagementLink` | `OmniAuthManagementLink` | The admin console page. |
-| `RootAction` / `UnprotectedRootAction` | `OmniAuthJitAction`, `OmniAuthRootAction` | User-facing and pre-auth endpoints. |
-| `UserProperty` | `OmniAuthUserProperty`, `OmniAuthForcePasswordProperty`, `LastLoginProperty`, `LoginHistoryProperty` | Per-user data. |
+| `SecurityRealm` (`HudsonPrivateSecurityRealm`) | `RotogateSecurityRealm` | Authentication (native + Entra). |
+| `AuthorizationStrategy` (`ProjectMatrixAuthorizationStrategy`) | `RotogateAuthorizationStrategy` | Authorization decisions. |
+| `ACL` | `RotogateItemACL` | Per-item permission checks. |
+| `GlobalConfiguration` | `RotogateGlobalConfig`, `RotogateAssignmentConfig`, `RotogateRoleConfig`, `RotogateJitRequestStore`, `ProvisioningRequestConfig` | Persisted configuration/state. |
+| `ManagementLink` | `RotogateManagementLink` | The admin console page. |
+| `RootAction` / `UnprotectedRootAction` | `RotogateJitAction`, `RotogateRootAction` | User-facing and pre-auth endpoints. |
+| `UserProperty` | `RotogateUserProperty`, `RotogateForcePasswordProperty`, `LastLoginProperty`, `LoginHistoryProperty` | Per-user data. |
 | `SecurityListener` | `LastLoginListener` | React to authentication events. |
 | `SaveableListener` | `AdminChangeListener` | React to configuration saves. |
-| `AsyncPeriodicWork` | `OmniAuthExpiryWorker`, `OmniAuthJitExpiryWorker`, `AccessReviewWork`, `StaleWarningWork`, `StaleUserCleanupWork`, `OmniAuthAccountExpiryWorker`, `OmniAuthAuditRetentionWork` | Scheduled background jobs. |
+| `AsyncPeriodicWork` | `RotogateExpiryWorker`, `RotogateJitExpiryWorker`, `AccessReviewWork`, `StaleWarningWork`, `StaleUserCleanupWork`, `RotogateAccountExpiryWorker`, `RotogateAuditRetentionWork` | Scheduled background jobs. |
 | `CrumbExclusion` | `NativeLoginCrumbExclusion` | CSRF handling for native login post. |
-| `PageDecorator` | `OmniAuthPageDecorator` | Inject assets/behavior into pages. |
+| `PageDecorator` | `RotogatePageDecorator` | Inject assets/behavior into pages. |
 | `Descriptor` / `AbstractDescribableImpl` | `EntraOAuthConfig` | Configurable sub-object. |
 
 ## JCasC symbols
 
 The descriptors carry `@Symbol` annotations for Configuration as Code — see
 [Configuration as Code](../operations/configuration-as-code.md):
-`omniAuth`, `entraConfig`, `omniAuthAuthorization`, `omniAuthAssignments`, `omniAuthRoles`,
-`omniAuthJitRequests`, `omniAuthProvisioningRequests`.
+`rotogate`, `entraConfig`, `rotogateAuthorization`, `rotogateAssignments`, `rotogateRoles`,
+`rotogateJitRequests`, `rotogateProvisioningRequests`.
 
 ## Where to extend
 
@@ -36,8 +36,8 @@ The descriptors carry `@Symbol` annotations for Configuration as Code — see
 |---|---|
 | **Add an SSO provider** | Extend the `SsoProvider` preset and the token-helper abstraction (`TokenHelper`/`MsalTokenHelper`); the login page is already provider-parameterized. |
 | **New notification channel** | Add a helper alongside `SmtpHelper`/`SlackHelper`/`TeamsHelper` and wire it into `NotificationService`. |
-| **New scheduled job** | Add an `AsyncPeriodicWork` and read its settings from `OmniAuthGlobalConfig`. |
-| **New admin action** | Add a `do*` method on `OmniAuthManagementLink` with a matching Jelly view. |
+| **New scheduled job** | Add an `AsyncPeriodicWork` and read its settings from `RotogateGlobalConfig`. |
+| **New admin action** | Add a `do*` method on `RotogateManagementLink` with a matching Jelly view. |
 | **New governance data** | Add a `GlobalConfiguration` store and (if user-scoped) a `UserProperty`. |
 
 ## Testing hooks

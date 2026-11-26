@@ -32,7 +32,7 @@ Use this for:
 
 For **native (local) accounts**, an administrator can reset the password and edit profile
 details directly from the plugin — no need to use Jenkins' own user pages. Open a user from
-**Manage Jenkins → OmniAuth → Access Management** (or the User Overview) to reach their detail
+**Manage Jenkins → Rotogate → Access Management** (or the User Overview) to reach their detail
 view; these controls appear only for native password accounts (SSO/Entra identities are managed
 in the identity provider, so they are not shown).
 
@@ -52,7 +52,7 @@ password is never emailed. See [Sessions](sessions.md) for how the active-sessio
 
 Some accounts must never be touched by automated cleanup — for example, break-glass admins
 or service accounts. Add them to the **Protected users** list
-(**Manage Jenkins → OmniAuth → Protected users**). Protected users are exempt from stale
+(**Manage Jenkins → Rotogate → Protected users**). Protected users are exempt from stale
 warnings and cleanup.
 
 ## Stale-account warning and cleanup
@@ -99,7 +99,7 @@ account regardless of inactivity:
 
 An administrator can explicitly flag an account for removal independently of staleness. From a
 user's detail page, **Mark for deletion** (`doMarkForDeletion`) sets
-`OmniAuthUserProperty.pendingDeletion` and records the audit event `user_marked_deletion`;
+`RotogateUserProperty.pendingDeletion` and records the audit event `user_marked_deletion`;
 **Unmark** (`doUnmarkForDeletion`) clears it. `StaleUserCleanupWork` deletes any account flagged
 pending-deletion on its next run **regardless of staleness** — so this is the way to retire an
 account promptly without waiting for the stale threshold.

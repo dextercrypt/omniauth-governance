@@ -1,0 +1,46 @@
+/*
+ * Notifications settings page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.notificationsAssets"/>
+ * Externalised from notifications.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+.rg-toggle-wrap { display: flex; align-items: center; cursor: pointer; flex-shrink: 0; }
+.rg-toggle-chk  { display: none; }
+.rg-toggle-track {
+  width: 42px; height: 22px; border-radius: 11px;
+  background: var(--rg-card-border);
+  position: relative; transition: background 0.2s;
+}
+.rg-toggle-thumb {
+  width: 18px; height: 18px; background: #fff; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px;
+  transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.rg-toggle-chk:checked + .rg-toggle-track { background: var(--blue, var(--blue)); }
+.rg-toggle-chk:checked + .rg-toggle-track .rg-toggle-thumb { left: 22px; }
+.rg-event-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px;
+}
+.rg-event-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85em; cursor: pointer; padding: 3px 0;
+}
+.rg-event-label input[type="checkbox"] {
+  width: 15px; height: 15px; flex-shrink: 0; cursor: pointer;
+  accent-color: var(--blue, var(--blue));
+}
+.rg-event-label[data-tooltip] { position: relative; }
+.rg-event-label[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 0;
+  background: #222;
+  color: #fff;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-size: 0.78em;
+  white-space: nowrap;
+  z-index: 200;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}

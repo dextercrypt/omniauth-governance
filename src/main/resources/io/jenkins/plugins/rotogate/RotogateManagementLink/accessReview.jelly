@@ -1,0 +1,219 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+
+  <l:layout permission="${app.ADMINISTER}" title="Rotogate — Access Review" norefresh="true">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly"/>
+    </l:side-panel>
+    <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgConfirm"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.accessReviewAssets"/>
+
+      <l:app-bar title="Access Review"/>
+
+      <div style="padding: 0 24px 32px;">
+
+        <j:if test="${request2.getParameter('confirmed') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 16px;">
+            Access kept — review clock reset.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('confirmedAll') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 16px;">
+            All overdue assignments kept — review clocks reset.
+          </div>
+        </j:if>
+        <j:if test="${request2.getParameter('revoked') == 'true'}">
+          <div class="jenkins-alert jenkins-alert-success" style="margin-bottom: 16px;">
+            Assignment revoked.
+          </div>
+        </j:if>
+
+        <j:set var="cfg" value="${it.rotogateGlobalConfig}"/>
+        <j:set var="items" value="${it.pendingReviewItems}"/>
+
+        <!-- Feature disabled state -->
+        <j:if test="${!cfg.accessReviewEnabled}">
+          <div style="text-align:center; padding: 60px 0; color: var(--text-color-secondary);">
+            <l:icon src="symbol-checkmark-done plugin-ionicons-api" class="icon-xlg"/>
+            <div style="font-size: 1em; font-weight: 600; margin-bottom: 6px;">Access review is disabled</div>
+            <div style="font-size: 0.85em; margin-bottom: 20px;">
+              Enable it in Settings to start flagging stale access grants.
+            </div>
+            <a href="settings" class="jenkins-button jenkins-button--primary">Go to Settings →</a>
+          </div>
+        </j:if>
+
+        <!-- Feature enabled -->
+        <j:if test="${cfg.accessReviewEnabled}">
+
+          <!-- Summary bar -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <j:choose>
+                <j:when test="${items.isEmpty()}">
+                  <span style="font-size:0.88em; color:var(--text-color-secondary);">
+                    All assignments are within the ${cfg.accessReviewThresholdDays}-day review window.
+                  </span>
+                </j:when>
+                <j:otherwise>
+                  <span style="font-size:1em; font-weight:700; color:var(--rg-warning-fg);">${items.size()}</span>
+                  <span style="font-size:0.88em; color:var(--text-color-secondary);">
+                    assignment<j:if test="${items.size() != 1}">s</j:if> overdue
+                    (threshold: ${cfg.accessReviewThresholdDays} days)
+                  </span>
+                </j:otherwise>
+              </j:choose>
+            </div>
+            <j:if test="${!items.isEmpty()}">
+              <f:form method="post" action="confirmAllAccess" style="margin:0;">
+                <button type="submit" class="jenkins-button js-ar-keepall"
+                        style="background:var(--warning-color);color:#fff;border-color:var(--warning-color);font-weight:600;"
+                        data-confirm="Keep all ${items.size()} overdue assignments?">
+                  &#10003; Keep All
+                </button>
+              </f:form>
+            </j:if>
+          </div>
+
+          <!-- All-clear empty state — Jenkins' standard empty-state notice -->
+          <j:if test="${items.isEmpty()}">
+            <div class="rg-notice--success">
+              <l:notice title="All caught up" icon="symbol-shield-checkmark plugin-ionicons-api">
+                No assignments need review right now.
+              </l:notice>
+            </div>
+          </j:if>
+
+          <!-- Table -->
+          <j:if test="${!items.isEmpty()}">
+            <div class="jenkins-card rg-flush-table" style="padding:0; overflow:hidden;">
+              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+                <thead>
+                  <tr>
+                    <th>User / Group</th>
+                    <th>Role</th>
+                    <th>Scope</th>
+                    <th>Overdue</th>
+                    <th style="text-align:right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <j:forEach var="item" items="${items}">
+                    <tr class="js-ar-row" style="transition:background 0.1s;">
+
+                      <!-- User / Group cell -->
+                      <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;
+                                      background:${item.group ? 'color-mix(in srgb, #7c3aed 13%, transparent)' : 'var(--rg-info-bg)'};
+                                      color:${item.group ? '#7c3aed' : 'var(--blue)'};">
+                            ${item.avatarLetter}
+                          </div>
+                          <div>
+                            <div style="font-weight:600;">${item.displayName}</div>
+                            <div style="font-size:0.78em; color:var(--text-color-secondary);">
+                              <j:if test="${item.group}">
+                                <span style="background:color-mix(in srgb, #7c3aed 13%, transparent);color:#7c3aed;font-size:0.8em;padding:1px 6px;border-radius:10px;font-weight:600;">GROUP</span>
+                              </j:if>
+                              <j:if test="${!item.group}">
+                                <span style="background:var(--rg-info-bg);color:var(--blue);font-size:0.8em;padding:1px 6px;border-radius:10px;font-weight:600;">USER</span>
+                              </j:if>
+                              <span style="margin-left:4px;">${item.userId}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <!-- Role cell -->
+                      <td>
+                        <span style="background:var(--rg-neutral-bg);color:var(--text-color-secondary);padding:2px 8px;border-radius:10px;font-size:0.82em;font-weight:600;">
+                          ${item.roleId}
+                        </span>
+                      </td>
+
+                      <!-- Scope cell -->
+                      <td style="color:var(--text-color-secondary); max-width:200px;">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                          <j:choose>
+                            <j:when test="${item.scopeType eq 'GLOBAL'}">
+                              <l:icon src="symbol-globe plugin-ionicons-api" class="icon-xs"/>
+                            </j:when>
+                            <j:when test="${item.scopeType eq 'FOLDER'}">
+                              <l:icon src="symbol-folder plugin-ionicons-api" class="icon-xs"/>
+                            </j:when>
+                            <j:otherwise>
+                              <l:icon src="symbol-desktop plugin-ionicons-api" class="icon-xs"/>
+                            </j:otherwise>
+                          </j:choose>
+                          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.displayScope}">
+                            ${item.displayScope}
+                          </span>
+                        </div>
+                      </td>
+
+                      <!-- Overdue cell -->
+                      <td style="text-align:left;">
+                        <span style="background:var(--rg-warning-bg);color:var(--rg-warning-fg);padding:3px 10px;border-radius:12px;font-size:0.78em;font-weight:700;white-space:nowrap;">
+                          <j:choose>
+                            <j:when test="${item.daysAgo == -1}">unknown age</j:when>
+                            <j:otherwise>${item.daysAgo}d ago</j:otherwise>
+                          </j:choose>
+                          <j:if test="${!item.everReviewed}"> · never reviewed</j:if>
+                        </span>
+                      </td>
+
+                      <!-- Action cell -->
+                      <td style="text-align:right; white-space:nowrap;">
+                        <f:form method="post" action="confirmAccess" class="rg-inline-form">
+                          <input type="hidden" name="sid"      value="${item.userId}"/>
+                          <input type="hidden" name="type"     value="${item.authType}"/>
+                          <input type="hidden" name="scope"    value="${item.scope}"/>
+                          <input type="hidden" name="returnTo" value="accessReview"/>
+                          <button type="submit"
+                                  style="background:var(--rg-warning-bg);color:var(--rg-warning-fg);border:1px solid var(--rg-warning-border);border-radius:6px;padding:4px 12px;font-size:0.82em;font-weight:600;cursor:pointer;">
+                            &#10003; Keep
+                          </button>
+                        </f:form>
+                        <f:form method="post" action="revokeFromReview"
+                              class="js-ar-revoke rg-inline-form" data-confirm="Revoke access for ${item.displayName}?">
+                          <input type="hidden" name="sid"   value="${item.userId}"/>
+                          <input type="hidden" name="type"  value="${item.authType}"/>
+                          <input type="hidden" name="scope" value="${item.scope}"/>
+                          <button type="submit"
+                                  style="background:var(--rg-danger-bg);color:var(--rg-danger-fg);border:1px solid var(--rg-danger-border);border-radius:6px;padding:4px 12px;font-size:0.82em;font-weight:600;cursor:pointer;">
+                            &#10005; Revoke
+                          </button>
+                        </f:form>
+                        <j:choose>
+                          <j:when test="${item.group}">
+                            <a href="groupDetail?oid=${item.userId}"
+                               style="margin-left:6px;font-size:0.82em;color:var(--blue);text-decoration:none;">
+                              View →
+                            </a>
+                          </j:when>
+                          <j:otherwise>
+                            <a href="userDetail?sid=${item.userId}&amp;type=USER"
+                               style="margin-left:6px;font-size:0.82em;color:var(--blue);text-decoration:none;">
+                              View →
+                            </a>
+                          </j:otherwise>
+                        </j:choose>
+                      </td>
+
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </div>
+          </j:if>
+
+        </j:if>
+
+      </div>
+
+    </l:main-panel>
+  </l:layout>
+
+</j:jelly>

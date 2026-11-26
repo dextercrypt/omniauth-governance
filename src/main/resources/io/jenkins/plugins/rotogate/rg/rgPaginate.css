@@ -1,0 +1,29 @@
+/*
+ * Styles for the reusable table paginator (rgPaginate.js).
+ * Loaded via <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>.
+ */
+
+/* Out-of-page rows. A class (not inline display) so it never clobbers a filter's own
+   style.display; !important so it wins over a filter that set the row visible. */
+.rg-pg-off { display: none !important; }
+
+/* Footer control, sits flush under the table inside the card. */
+.rg-pager {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px; border-top: 1px solid var(--rg-card-border);
+  font-size: .82em; color: var(--text-color-secondary); flex-wrap: wrap;
+}
+.rg-pager[hidden] { display: none; }
+.rg-pager__info { white-space: nowrap; }
+.rg-pager__nav  { display: flex; align-items: center; gap: 4px; }
+.rg-pager__page { padding: 0 8px; white-space: nowrap; }
+.rg-pager__btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; height: 30px; padding: 0 9px;
+  border: 1px solid var(--rg-card-border); border-radius: 6px;
+  background: var(--rg-card-bg); color: var(--text-color);
+  cursor: pointer; font-size: 1em; line-height: 1;
+  transition: background .1s, border-color .1s;
+}
+.rg-pager__btn:hover:not(:disabled) { background: var(--rg-neutral-bg); }
+.rg-pager__btn:disabled { opacity: .45; cursor: default; }

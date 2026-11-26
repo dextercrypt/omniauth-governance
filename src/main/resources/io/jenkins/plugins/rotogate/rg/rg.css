@@ -1,0 +1,277 @@
+/*
+ * Rotogate shared stylesheet — the single source of truth for the plugin's
+ * admin UI components (the `rg-*` family) and its semantic colour tokens.
+ *
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+ * (injected once per page, cache-versioned by core).
+ *
+ * THEME: every colour here resolves through a Jenkins core token, so light/dark
+ * follow the active theme automatically — no hard-coded hex, no per-theme block.
+ * Core builds --alert-*-bg/text-color from --success/--warning/--error-color,
+ * which in turn alias --green/--orange/--red; the dark-theme plugin redefines
+ * those primitives, so our tokens flip with it.
+ */
+
+/* ── Semantic + structural tokens ──────────────────────────────────────────── */
+:root {
+  /* Success / healthy / ok */
+  --rg-success-bg:     var(--alert-success-bg-color);
+  --rg-success-fg:     var(--alert-success-text-color);
+  --rg-success-border: color-mix(in srgb, var(--success-color) 38%, transparent);
+  --rg-success-solid:  var(--success-color);
+
+  /* Info / idle / neutral-blue */
+  --rg-info-bg:     var(--alert-info-bg-color);
+  --rg-info-fg:     var(--alert-info-text-color);
+  --rg-info-border: color-mix(in srgb, var(--blue) 38%, transparent);
+  --rg-info-solid:  var(--blue);
+
+  /* Warning / amber */
+  --rg-warning-bg:     var(--alert-warning-bg-color);
+  --rg-warning-fg:     var(--alert-warning-text-color);
+  --rg-warning-border: color-mix(in srgb, var(--warning-color) 42%, transparent);
+  --rg-warning-solid:  var(--warning-color);
+
+  /* Danger / critical / fail */
+  --rg-danger-bg:     var(--alert-danger-bg-color);
+  --rg-danger-fg:     var(--alert-danger-text-color);
+  --rg-danger-border: color-mix(in srgb, var(--error-color) 38%, transparent);
+  --rg-danger-solid:  var(--error-color);
+
+  /* Neutral / off / inactive */
+  --rg-neutral-bg:     color-mix(in srgb, var(--text-color-secondary) 14%, transparent);
+  --rg-neutral-fg:     var(--text-color-secondary);
+  --rg-neutral-border: color-mix(in srgb, var(--text-color-secondary) 26%, transparent);
+
+  /* Structural aliases (so component rules read semantically) */
+  --rg-card-bg:     var(--card-background, var(--background));
+  --rg-card-border: var(--jenkins-border-color, var(--panel-border-color));
+  --rg-radius:      var(--card-border-radius, 8px);
+  --rg-text:        var(--text-color);
+  --rg-text-muted:  var(--text-color-secondary);
+  --rg-accent:      var(--accent-color);
+  --rg-link:        var(--link-color, var(--accent-color));
+}
+
+/* ── Pills ─────────────────────────────────────────────────────────────────── */
+.rg-pill {
+  font-size: 0.72em; font-weight: 700; padding: 2px 9px;
+  border-radius: 10px; white-space: nowrap;
+}
+.rg-pill--green { background: var(--rg-success-bg); color: var(--rg-success-fg); }
+.rg-pill--blue  { background: var(--rg-info-bg);    color: var(--rg-info-fg); }
+.rg-pill--amber { background: var(--rg-warning-bg); color: var(--rg-warning-fg); }
+.rg-pill--gray  { background: var(--rg-neutral-bg); color: var(--rg-neutral-fg); }
+.rg-pill--red   { background: var(--rg-danger-bg);  color: var(--rg-danger-fg); }
+/* Semantic aliases (preferred names for new markup) */
+.rg-pill--success { background: var(--rg-success-bg); color: var(--rg-success-fg); }
+.rg-pill--info    { background: var(--rg-info-bg);    color: var(--rg-info-fg); }
+.rg-pill--warning { background: var(--rg-warning-bg); color: var(--rg-warning-fg); }
+.rg-pill--neutral { background: var(--rg-neutral-bg); color: var(--rg-neutral-fg); }
+.rg-pill--danger  { background: var(--rg-danger-bg);  color: var(--rg-danger-fg); }
+
+/* ── Badges (square-ish label; the generic fold target for page-local *-badge) ─ */
+.rg-badge {
+  display: inline-block;
+  font-size: 0.72em; font-weight: 700; padding: 2px 9px;
+  border-radius: 10px; white-space: nowrap; line-height: 1.5;
+}
+.rg-badge--success { background: var(--rg-success-bg); color: var(--rg-success-fg); }
+.rg-badge--info    { background: var(--rg-info-bg);    color: var(--rg-info-fg); }
+.rg-badge--warning { background: var(--rg-warning-bg); color: var(--rg-warning-fg); }
+.rg-badge--neutral { background: var(--rg-neutral-bg); color: var(--rg-neutral-fg); }
+.rg-badge--danger  { background: var(--rg-danger-bg);  color: var(--rg-danger-fg); }
+
+/* ── Status banner ─────────────────────────────────────────────────────────── */
+/* Match the Jenkins .jenkins-alert look (subtle ~10% border, 10px radius, 1.5px) rather than
+   the plugin's old stronger 42% border, so these read as standard Jenkins banners. */
+/* The status banners use Jenkins' native .jenkins-alert component (jenkins-alert-success/-warning/
+   -danger/-info in the markup) for the colour, border and padding, so they match every other alert
+   in Jenkins. This class only adds the icon / body / action flex row on top; it loads after core, so
+   display:flex wins over the alert's block layout. */
+.rg-status-banner {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: var(--section-padding);
+}
+.rg-status-banner__icon { flex-shrink: 0; }
+.rg-status-banner__body { flex: 1; }
+.rg-status-banner__sep { margin: 0 4px; opacity: 0.6; }
+.rg-status-banner__action {
+  flex-shrink: 0; font-size: 0.85em; font-weight: 600;
+  text-decoration: none; opacity: 0.8;
+  color: inherit; white-space: nowrap;
+}
+.rg-status-banner__action:hover { opacity: 1; }
+.rg-status-banner__close {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  padding: 2px 0 2px 8px; opacity: 0.45; color: inherit; line-height: 1;
+  display: flex; align-items: center;
+}
+.rg-status-banner__close:hover { opacity: 1; }
+
+/* ── KPI row / cards ───────────────────────────────────────────────────────── */
+.rg-kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.rg-kpi-card {
+  flex: 1; min-width: 100px; padding: 16px 12px;
+  text-align: center; text-decoration: none; color: inherit;
+  border-radius: var(--rg-radius);
+  background: var(--rg-card-bg);
+  border: 1px solid var(--rg-card-border);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.rg-kpi-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px); text-decoration: none; color: inherit;
+}
+.rg-kpi-card__icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+}
+.rg-kpi-card__value { font-size: 1.8em; font-weight: 700; line-height: 1.1; }
+.rg-kpi-card__label { font-size: 0.78em; color: var(--rg-text-muted); margin-top: 4px; }
+.rg-kpi-card__sublabel { opacity: 0.7; }
+
+/* ── Grid ──────────────────────────────────────────────────────────────────── */
+.rg-grid-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* ── Widgets ───────────────────────────────────────────────────────────────── */
+.rg-widget { padding: 0; overflow: hidden; }
+.rg-widget__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--rg-card-border);
+}
+.rg-widget__title {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.88em; font-weight: 600; color: var(--rg-text);
+}
+.rg-widget__link {
+  font-size: 0.78em; color: var(--rg-link); text-decoration: none; white-space: nowrap;
+}
+.rg-widget__link:hover { text-decoration: underline; }
+
+/* ── Progress bars / dot ───────────────────────────────────────────────────── */
+.rg-progress-track {
+  height: 7px; background: var(--rg-neutral-bg);
+  border-radius: 4px; overflow: hidden;
+}
+.rg-progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.rg-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 3px; vertical-align: middle;
+}
+
+/* ── Notification rows ─────────────────────────────────────────────────────── */
+.rg-notif-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--rg-card-border);
+}
+.rg-notif-badge {
+  font-size: 0.72em; font-weight: 600; padding: 2px 8px;
+  border-radius: 12px; white-space: nowrap;
+}
+.rg-notif-badge--ok   { background: var(--rg-success-bg); color: var(--rg-success-fg); }
+.rg-notif-badge--fail { background: var(--rg-danger-bg);  color: var(--rg-danger-fg); }
+.rg-notif-badge--off  { background: var(--rg-neutral-bg); color: var(--rg-neutral-fg); }
+.rg-notif-badge--idle { background: var(--rg-info-bg);    color: var(--rg-info-fg); }
+
+/* ── Audit feed ────────────────────────────────────────────────────────────── */
+.rg-audit-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--rg-card-border);
+}
+.rg-audit-row:last-child { border-bottom: none; }
+.rg-audit-icon {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.rg-audit-body { flex: 1; min-width: 0; }
+.rg-audit-desc { font-size: 0.83em; line-height: 1.4; color: var(--rg-text); }
+.rg-audit-ts   { font-size: 0.73em; color: var(--rg-text-muted); margin-top: 2px; }
+
+/* ── Config rows ───────────────────────────────────────────────────────────── */
+.rg-config-row { display: flex; align-items: center; justify-content: space-between; }
+.rg-config-label { font-size: 0.82em; color: var(--rg-text-muted); }
+
+/* ── Attention rows ────────────────────────────────────────────────────────── */
+.rg-attention-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 7px; margin-bottom: 4px;
+  text-decoration: none; font-size: 0.83em; transition: opacity 0.15s;
+  border: 1px solid transparent;
+}
+.rg-attention-row:hover { opacity: 0.85; text-decoration: none; }
+.rg-attention-row--warn   { background: var(--rg-warning-bg); color: var(--rg-warning-fg); border-color: var(--rg-warning-border); }
+.rg-attention-row--danger { background: var(--rg-danger-bg);  color: var(--rg-danger-fg);  border-color: var(--rg-danger-border); }
+.rg-attention-row--info   { background: var(--rg-info-bg);    color: var(--rg-info-fg);    border-color: var(--rg-info-border); }
+.rg-attention-row__text { flex: 1; }
+.rg-attention-row__arrow { font-size: 0.9em; opacity: 0.6; }
+
+/* ── Info button + tooltip (canonical; was duplicated in 3 pages) ──────────── */
+.rg-info-btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--rg-text-muted); color: var(--rg-card-bg);
+  font-size: 9px; font-weight: 700; font-style: normal;
+  cursor: default; user-select: none; flex-shrink: 0;
+  font-family: serif; line-height: 1;
+}
+.rg-info-tip {
+  display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--rg-text); color: var(--rg-card-bg); font-size: 0.78em;
+  padding: 4px 8px; border-radius: 4px; white-space: nowrap;
+  z-index: 100; pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.rg-info-btn:hover .rg-info-tip,
+.rg-info-wrap:hover .rg-info-tip { display: block; }
+
+/* ── Modal header (canonical; several pages roll their own) ───────────────── */
+.rg-modal-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-bottom: 1px solid var(--rg-card-border);
+  font-weight: 600; color: var(--rg-text);
+}
+.rg-modal-header--danger { color: var(--rg-danger-fg); background: var(--rg-danger-bg); }
+
+/* ── Repeated component styles (deduped from inline style=) ─────────────────── */
+.rg-card-block { padding: 0; margin-bottom: 20px; overflow: hidden; }
+.rg-card-body  { padding: 16px 20px; }
+.rg-card-title { margin: 0; font-size: 0.95em; font-weight: 600; }
+.rg-field-label { display: block; font-weight: 600; font-size: 0.88em; margin-bottom: 4px; }
+.rg-field-hint  { color: var(--text-color-secondary); font-size: 0.8em; margin-bottom: 6px; }
+
+/* "All-clear" empty states: keep Jenkins' native l:notice, tint only its icon green
+   (reviewer-endorsed — the title/body text stay default). */
+.rg-notice--success .jenkins-notice > svg { color: var(--rg-success-solid); }
+
+/* Data tables that sit inside a card. A native jenkins-table draws its own card frame (background,
+   border, rounded corners); inside a card that stacks into a double border with a mismatched-radius
+   sliver at each corner. Tag the wrapping card with this class so the inner jenkins-table runs flush
+   (single frame = the card) while keeping a clear, theme-aware shaded header and row separators, so
+   it reads as a proper data table the way these tables did before they moved onto jenkins-table. */
+.rg-flush-table .jenkins-table { background: transparent; border: none; border-radius: 0; margin: 0;
+  border-collapse: collapse; width: 100%; }
+.rg-flush-table .jenkins-table > thead > tr > th {
+  background: transparent; color: var(--text-color);
+  text-transform: none; letter-spacing: normal;
+  font-size: .9em; font-weight: 600; text-align: left;
+  padding: 10px 16px; white-space: nowrap; }
+.rg-flush-table .jenkins-table > tbody > tr > td {
+  border-top: 1px solid var(--rg-card-border);
+  padding: 12px 16px; vertical-align: middle; font-size: .88em; }
+.rg-flush-table .jenkins-table > tbody > tr:hover > td { background: var(--rg-neutral-bg); }
+
+/* Inline action forms inside a table cell (a small button next to a status pill or label).
+   f:form drops the style attribute and wraps its body in a <div width="100%"> block, which pushed
+   the control onto its own line. f:form does forward class, so tag the form with this: it lays the
+   form out inline and dissolves f:form's wrapper div (display:contents) so the control sits next to
+   the pill, the way it did before these forms moved from plain <form> to <f:form>. */
+.rg-inline-form { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; margin: 0 0 0 8px; }
+.rg-inline-form > div { display: contents; }
+
+/* f:form drops the style attribute, so a form meant to be hidden (JS-submitted helper) needs a class
+   to stay out of view instead of style="display:none". */
+.rg-hidden { display: none; }

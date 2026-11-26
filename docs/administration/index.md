@@ -1,17 +1,17 @@
 # Administration overview
 
-> The OmniAuth management console and how the administration topics fit together.
+> The Rotogate management console and how the administration topics fit together.
 
 Once the [security realm is enabled](../getting-started/installation.md), all
 administration happens in two places:
 
 1. **Manage Jenkins → Security** — the security realm and authorization strategy
    selection, and the Microsoft Entra connection.
-2. **Manage Jenkins → OmniAuth** — the management console for everything else.
+2. **Manage Jenkins → Rotogate** — the management console for everything else.
 
 ## The management console
 
-The console (`OmniAuthManagementLink`) is the day-to-day home for administrators. It
+The console (`RotogateManagementLink`) is the day-to-day home for administrators. It
 groups the governance and operations features into sections:
 
 | Section | Purpose | Docs |
@@ -33,14 +33,14 @@ groups the governance and operations features into sections:
 
 ```
                         ┌─────────────────────────────┐
-   Sign in  ──────────► │  OmniAuthSecurityRealm       │  authentication
+   Sign in  ──────────► │  RotogateSecurityRealm       │  authentication
    (native or Entra)    │  (extends HudsonPrivate…)    │
                         └──────────────┬──────────────┘
                                        │ identity + groups
                                        ▼
                         ┌─────────────────────────────┐
-   Every request  ────► │ OmniAuthAuthorizationStrategy│  authorization
-                        │ + OmniAuthItemACL            │
+   Every request  ────► │ RotogateAuthorizationStrategy│  authorization
+                        │ + RotogateItemACL            │
                         └──────────────┬──────────────┘
                                        │ reads
                                        ▼
@@ -48,7 +48,7 @@ groups the governance and operations features into sections:
                                        ▲
                                        │ managed via
                         ┌─────────────────────────────┐
-                        │ Manage Jenkins → OmniAuth   │  administration
+                        │ Manage Jenkins → Rotogate   │  administration
                         └─────────────────────────────┘
 ```
 
@@ -58,13 +58,13 @@ Several features run on a schedule via Jenkins `AsyncPeriodicWork`:
 
 | Worker | Responsibility |
 |---|---|
-| `OmniAuthExpiryWorker` | Auto-revoke expired access assignments |
-| `OmniAuthJitExpiryWorker` | Expire elapsed JIT grants |
+| `RotogateExpiryWorker` | Auto-revoke expired access assignments |
+| `RotogateJitExpiryWorker` | Expire elapsed JIT grants |
 | `AccessReviewWork` | Drive access-review cycles and digests |
 | `StaleWarningWork` | Warn owners before stale-account cleanup |
 | `StaleUserCleanupWork` | Remove/cleanup inactive accounts |
-| `OmniAuthAccountExpiryWorker` | Enforce time-limited provisioned accounts and send pre-expiry reminders (every 6h) |
-| `OmniAuthAuditRetentionWork` | Prune audit-log entries past the retention window (daily) |
+| `RotogateAccountExpiryWorker` | Enforce time-limited provisioned accounts and send pre-expiry reminders (every 6h) |
+| `RotogateAuditRetentionWork` | Prune audit-log entries past the retention window (daily) |
 
 See the [Configuration reference](../reference/configuration-reference.md) for the settings
 that control each worker.

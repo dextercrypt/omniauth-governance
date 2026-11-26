@@ -1,22 +1,22 @@
 # Product overview
 
-> What OmniAuth is, who it's for, and the problems it solves.
+> What Rotogate is, who it's for, and the problems it solves.
 
 ## What it is
 
-OmniAuth is a Jenkins **security and access-governance platform**, delivered as a single
-plugin (`io.jenkins.plugins:omniauth-governance`). It provides **flexible authentication** — native
+Rotogate is a Jenkins **security and access-governance platform**, delivered as a single
+plugin (`io.jenkins.plugins:rotogate`). It provides **flexible authentication** — native
 username/password **and** OAuth2 / OIDC single sign-on — and, more importantly, the layer of
 **security and management features** around Jenkins access that most teams end up building by
 hand: least-privilege access management, just-in-time elevation, access reviews, session
 control, emergency break-glass access, audit logging, and notifications.
 
-It replaces both the Jenkins security realm (`OmniAuthSecurityRealm`, extending the built-in
+It replaces both the Jenkins security realm (`RotogateSecurityRealm`, extending the built-in
 `HudsonPrivateSecurityRealm`) and the authorization strategy
-(`OmniAuthAuthorizationStrategy`, built on Matrix Authorization), while remaining fully
+(`RotogateAuthorizationStrategy`, built on Matrix Authorization), while remaining fully
 compatible with native Jenkins accounts.
 
-> **It's not just SSO.** Single sign-on is one pillar. The reason to run OmniAuth is
+> **It's not just SSO.** Single sign-on is one pillar. The reason to run Rotogate is
 > everything around authentication — how access is granted, scoped, reviewed, revoked, and
 > audited, and how easy that is to manage from one console.
 

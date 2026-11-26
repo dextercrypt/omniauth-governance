@@ -1,0 +1,191 @@
+/*
+ * Stale Users page styles.
+ * Loaded as a Jenkins adjunct: <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.staleUsersAssets"/>
+ * Externalised from staleUsers.jelly's inline <style> for CSP compliance (Jenkins hosting).
+ */
+/* ── Page layout ─────────────────────────────────────────── */
+.rg-su-page {
+  padding: 20px;
+  max-width: 1100px;
+}
+
+/* ── Stats bar ───────────────────────────────────────────── */
+.rg-su-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.rg-su-stat {
+  flex: 1;
+  min-width: 160px;
+  background: var(--rg-card-bg);
+  border: 1px solid var(--rg-card-border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rg-su-stat--danger { border-left: 4px solid var(--error-color); }
+.rg-su-stat--warn   { border-left: 4px solid var(--warning-color); }
+.rg-su-stat--neutral { border-left: 4px solid var(--text-color-secondary); }
+.rg-su-stat-n {
+  font-size: 1.75em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-color);
+}
+.rg-su-stat-l {
+  font-size: 0.77em;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+/* ── Notice banners ──────────────────────────────────────── */
+.rg-su-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+.rg-su-notice svg { flex-shrink: 0; margin-top: 2px; }
+.rg-su-notice--info {
+  background: var(--rg-info-bg);
+  border: 1px solid var(--rg-info-border);
+  color: var(--rg-info-fg);
+}
+.rg-su-notice--warn {
+  background: var(--rg-warning-bg);
+  border: 1px solid var(--rg-warning-border);
+  color: var(--rg-warning-fg);
+}
+.rg-su-notice a { color: inherit; font-weight: 600; }
+
+/* ── Section headers ─────────────────────────────────────── */
+.rg-su-section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 24px 0 10px 0;
+  font-size: 0.9em;
+}
+.rg-su-sh-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rg-su-section-hdr--danger .rg-su-sh-dot { background: var(--error-color); }
+.rg-su-section-hdr--warn   .rg-su-sh-dot { background: var(--warning-color); }
+.rg-su-section-hdr--neutral .rg-su-sh-dot { background: var(--text-color-secondary); }
+.rg-su-sh-title { font-weight: 700; color: var(--text-color); }
+.rg-su-sh-count { color: var(--text-color-secondary); font-weight: 500; }
+.rg-su-sh-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--rg-card-border);
+}
+.rg-su-sh-sub { color: var(--text-color-secondary); font-size: 0.85em; white-space: nowrap; }
+
+/* ── Cards ───────────────────────────────────────────────── */
+.rg-su-card {
+  padding: 0;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+.rg-su-card--danger { border-color: var(--rg-danger-border); }
+.rg-su-card--warn   { border-color: var(--rg-warning-border); }
+.rg-su-card--neutral { /* default border */ }
+
+/* ── Table rows ──────────────────────────────────────────── */
+.rg-su-row-danger { background: var(--rg-danger-bg); }
+
+/* ── Empty states ────────────────────────────────────────── */
+.rg-su-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 4px;
+  font-size: 0.875em;
+  color: var(--text-color-secondary);
+}
+.rg-su-empty--danger  { background: var(--rg-danger-bg); border: 1px solid var(--rg-danger-border); color: var(--rg-danger-fg); }
+.rg-su-empty--success { background: var(--rg-success-bg); border: 1px solid var(--rg-success-border); color: var(--rg-success-fg); }
+.rg-su-empty--neutral { background: var(--rg-neutral-bg); border: 1px solid var(--rg-card-border); }
+.rg-su-empty a { color: inherit; font-weight: 600; }
+
+/* ── Badges ──────────────────────────────────────────────── */
+.rg-su-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rg-su-badge--blue   { background: var(--rg-info-bg); color: var(--rg-info-fg); }
+.rg-su-badge--purple { background: color-mix(in srgb, #7c3aed 13%, transparent); color: #7c3aed; }
+.rg-su-badge--gray   { background: var(--rg-neutral-bg); color: var(--text-color-secondary); }
+.rg-su-badge--red    { background: var(--rg-danger-bg); color: var(--rg-danger-fg); }
+.rg-su-badge--amber  { background: var(--rg-warning-bg); color: var(--rg-warning-fg); }
+.rg-su-badge--shield { background: var(--rg-info-bg); color: var(--rg-info-fg); border-radius: 10px; }
+
+/* ── Collapsible history drawer ─────────────────────────── */
+.rg-su-drawer-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.rg-su-drawer-toggle:hover .rg-su-sh-title { text-decoration: underline; }
+
+/* ── Misc ────────────────────────────────────────────────── */
+.rg-su-ulink { color: var(--text-color); text-decoration: none; font-weight: 600; }
+.rg-su-ulink:hover { text-decoration: underline; }
+.rg-su-never { color: var(--text-color-secondary); font-style: italic; }
+.rg-su-protected-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-color-secondary);
+  font-size: 0.82em;
+  padding: 4px 2px;
+}
+
+/* ── Modals ──────────────────────────────────────────────── */
+.rg-modal-backdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+}
+.rg-modal {
+  background: var(--rg-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  width: 100%; max-width: 440px;
+  overflow: hidden;
+  animation: rgModalIn 0.15s ease;
+}
+@keyframes rgModalIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.rg-modal-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px; font-weight: 600; font-size: 0.95em;
+}
+.rg-modal-header--warn   { background: var(--rg-warning-bg); color: var(--rg-warning-fg); border-bottom: 1px solid var(--rg-warning-border); }
+.rg-modal-header--danger { background: var(--rg-danger-bg); color: var(--rg-danger-fg); border-bottom: 1px solid var(--rg-danger-border); }
+.rg-modal-body   { padding: 20px; font-size: 0.88em; line-height: 1.6; }
+.rg-modal-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 20px; border-top: 1px solid var(--rg-card-border);
+  background: var(--rg-neutral-bg);
+}

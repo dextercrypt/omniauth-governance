@@ -1,16 +1,16 @@
 # Configuration reference
 
-> A consolidated reference of OmniAuth's configurable settings.
+> A consolidated reference of Rotogate's configurable settings.
 
 Settings live in two places: the **security realm** (authentication) and the **plugin global
-config** (`OmniAuthGlobalConfig`, most operational settings). This page lists the settings
+config** (`RotogateGlobalConfig`, most operational settings). This page lists the settings
 grouped by area. Field names shown are the underlying config properties; the UI labels may
 differ slightly.
 
 > Some settings' exact semantics (units, defaults) should be confirmed against the running
 > instance and the descriptor help text; this table documents intent.
 
-## Authentication — security realm (`OmniAuthSecurityRealm`)
+## Authentication — security realm (`RotogateSecurityRealm`)
 
 | Field | Type | Description |
 |---|---|---|
