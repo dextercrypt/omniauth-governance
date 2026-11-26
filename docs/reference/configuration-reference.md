@@ -10,13 +10,13 @@ differ slightly.
 > Some settings' exact semantics (units, defaults) should be confirmed against the running
 > instance and the descriptor help text; this table documents intent.
 
-## Authentication — security realm (`RotogateSecurityRealm`)
+## Authentication - security realm (`RotogateSecurityRealm`)
 
 | Field | Type | Description |
 |---|---|---|
-| `ssoEnabled` | boolean | Authoritative SSO on/off switch (default off — native-first). When off, sign-in is native-only and any `entraConfig` is preserved but dormant. Unset on an upgraded config means "on if a provider is configured", preserving pre-existing SSO. |
+| `ssoEnabled` | boolean | Authoritative SSO on/off switch (default off - native-first). When off, sign-in is native-only and any `entraConfig` is preserved but dormant. Unset on an upgraded config means "on if a provider is configured", preserving pre-existing SSO. |
 
-## Authentication — Microsoft Entra (`EntraOAuthConfig`)
+## Authentication - Microsoft Entra (`EntraOAuthConfig`)
 
 | Field | Type | Description |
 |---|---|---|
@@ -103,6 +103,17 @@ See [Provisioning portal](../administration/provisioning-portal.md).
 > check, across all login channels. Protected users are exempt. See
 > [Security model](../security/security-model.md).
 
+## Sessions - "Keep me signed in"
+
+| Field | Type | Description |
+|---|---|---|
+| `rememberMeValue` | int | "Keep me signed in" duration amount (default 8); paired with `rememberMeUnit`. |
+| `rememberMeUnit` | String | Unit for the duration: `MINUTES`, `HOURS`, or `DAYS` (default `HOURS`). |
+
+> Applies to the **native** sign-in path only. The effective lifetime is clamped to Jenkins'
+> 14-day remember-me ceiling; an empty or invalid value falls back to 8 hours. Entra/SSO sign-ins
+> are session-only and unaffected. See [Sessions](../administration/sessions.md).
+
 ## Notifications
 
 **Global**
@@ -159,6 +170,8 @@ See [Notifications](../administration/notifications.md).
 | `loginLogoPosition` | String | Logo position. |
 | `loginLogoSize` | String | Logo size. |
 | `loginButler` | String | Butler style / rotation mode. |
+| `scheduledAnnouncementsEnabled` | boolean | Master switch for recurring scheduled login banners (default off). |
+| `scheduledAnnouncementsJson` | String (JSON array) | Scheduled banner rules. Each rule: `message`, `days` (ISO 1-7, empty = every day), `allDay`, `start`/`end` (minutes from midnight, inclusive; start > end wraps past midnight), `priority` (higher shows first), `enabled`. Manual announcement renders first; max 2 banners shown at once; evaluated in server local time. |
 
 See [Login branding](../administration/login-branding.md).
 

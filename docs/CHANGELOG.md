@@ -8,11 +8,24 @@ All notable changes to Rotogate are documented here. This project aims to follow
 > unreleased and heading toward that tag. The plugin version is derived from the build
 > (`1.0.0-SNAPSHOT` in development), never hardcoded.
 
-## [Unreleased] — toward `1.0.0-beta.1`
+## [Unreleased] - toward `1.0.0-beta.1`
 
 Most recent notable changes (newest first):
 
 ### Added
+- **Scheduled login announcements**: in addition to the single manual announcement banner, you can
+  now define **recurring scheduled banners** that appear automatically during a weekly day/time
+  window (e.g. "No production deployments" every Friday, or an evening maintenance notice). Each
+  rule has a message, selected days (empty = daily), an all-day or start-end window (windows may
+  wrap past midnight), a priority, and an enable toggle. The manual announcement always shows first,
+  then active scheduled rules by priority, capped at two banners at once and evaluated in server
+  local time. Round-trips through JCasC (`scheduledAnnouncementsEnabled` / `scheduledAnnouncementsJson`).
+- **Configurable "Keep me signed in" duration**: native remember-me previously used Jenkins' fixed
+  14-day cookie. The duration is now configurable as a number plus unit (Minutes / Hours / Days,
+  default **8 hours**) on the login-security settings, applied per login so a change takes effect on
+  the next sign-in. It is clamped to the 14-day ceiling, and an empty or invalid value falls back to
+  8 hours. Entra/SSO sign-ins stay session-only and are unaffected. Configurable via JCasC
+  (`rememberMeValue` / `rememberMeUnit`).
 - **Native-first sign-in with an optional SSO toggle**: the Rotogate security realm now leads with
   native accounts and treats single sign-on as a capability you add. A **"Connect a single sign-on
   provider (SSO)"** toggle (off by default on new installs) reveals the provider settings; with it
@@ -22,7 +35,7 @@ Most recent notable changes (newest first):
   Configurable via JCasC (`ssoEnabled` under the `rotogate` realm).
 - **Native-account management**: reset a native account's password (one-time temporary password,
   forces a change at next login, revokes active sessions, audited) and edit its full name / email
-  directly from the user detail view — no need for Jenkins' own user pages. Native accounts only;
+  directly from the user detail view - no need for Jenkins' own user pages. Native accounts only;
   the login id itself is immutable and cannot be renamed.
 - **Approver-adjustable JIT duration**: an approver can grant a **shorter** window than requested
   (a "grant for" selector on both the in-product and emailed approval pages); with multiple
@@ -33,13 +46,13 @@ Most recent notable changes (newest first):
   `confirm()`.
 - **SOS Mode**: a host-filesystem-triggered fail-safe for a true admin lockout (all admins SSO-only
   with Entra down, or a misconfigured authorization strategy). Dropping an `rotogate-sos.request`
-  file in `JENKINS_HOME` arms a 30-minute recovery window — live-checked, no restart — and opens a
+  file in `JENKINS_HOME` arms a 30-minute recovery window - live-checked, no restart - and opens a
   dark-until-armed endpoint at `/sos/recover`. An admin enters one of their single-use **SOS recovery
-  codes** (no username — the matching code identifies them); they are re-granted global Administer
+  codes** (no username - the matching code identifies them); they are re-granted global Administer
   and signed in. Codes are stored only as salted hashes, so a copy of `JENKINS_HOME` cannot reveal
   them. Enrollment is mandatory and keyed on *usable* codes (a blocking one-time interstitial on
   admin login that re-fires if an admin runs out, plus low/depleted warnings and a dashboard
-  attention item). SOS **only arms when Rotogate is the active Security Realm** — an idle or
+  attention item). SOS **only arms when Rotogate is the active Security Realm** - an idle or
   abandoned install (different realm) stays completely dark, so it cannot be a backdoor; genuine
   lockouts (IdP unreachable, authorization strategy misconfigured) still arm because Rotogate is
   still the configured realm. Admin is restored into any matrix-based authorization strategy
@@ -61,7 +74,7 @@ Most recent notable changes (newest first):
   user marked/unmarked for deletion, password changed, provisioning requested/rejected,
   activation resent, JIT timed-out/expired, domain-denied sign-in, …).
 - **Overview dashboard**: live-polling KPI metrics, a 14-day login-activity chart (SSO / native
-  / failures), and a composition donut — all dependency-free.
+  / failures), and a composition donut - all dependency-free.
 - **Backup & Restore UI (v2)**: export / import / revert of roles, scoped assignments, groups
   and settings as JCasC-shaped YAML, with restore-point history and a colour-coded,
   Terraform-style plan preview before import and rollback (no realm or secrets).
@@ -81,7 +94,7 @@ Most recent notable changes (newest first):
   dropped all legacy "Dual Auth" naming.
 - Security realm presents a **provider selector** (Microsoft Entra available; Okta / Google /
   OIDC / SAML marked *planned*). SSO today is Entra-coupled (MSAL4J / Microsoft Graph).
-- **Self-signup removed** — replaced by the provisioning portal; `/signup` redirects to login.
+- **Self-signup removed** - replaced by the provisioning portal; `/signup` redirects to login.
 - Redirect URI is shown as a full URL derived from the configured Jenkins URL.
 
 ### Fixed
@@ -93,7 +106,7 @@ Most recent notable changes (newest first):
 
 The feature-complete baseline the first release builds on:
 
-- **Authentication:** native (bcrypt, API tokens, CLI) + OAuth2/OIDC SSO on one login page —
+- **Authentication:** native (bcrypt, API tokens, CLI) + OAuth2/OIDC SSO on one login page -
   **currently Microsoft Entra**, others *planned*. Authorization-code flow with PKCE and
   ID-token nonce always enforced; directory-id-anchored identity; optional group sync.
 - **Authorization:** `RotogateAuthorizationStrategy` (matrix-based) with grouped permissions,
