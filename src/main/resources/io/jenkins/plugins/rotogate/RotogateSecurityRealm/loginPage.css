@@ -105,6 +105,7 @@ body.app-sign-in-register { background: #0a1226; }
   margin-top: 6px; font-size: 12px; color: #ffcf66;
 }
 .caps-warn.show { display: flex; }
+.caps-warn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* ===== SSO button loading state ===== */
 .sso-spinner {
