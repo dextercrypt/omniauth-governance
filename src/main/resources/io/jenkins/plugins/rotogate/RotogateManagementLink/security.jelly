@@ -6,6 +6,7 @@
       <st:include page="sidepanel.jelly"/>
     </l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.securityAssets"/>
 
       <l:app-bar title="Security"/>
@@ -38,7 +39,7 @@
               <div style="color:var(--rg-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-sm"/><span>No users with active failure counters.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -123,7 +124,7 @@
               <div style="color:var(--rg-success-fg);font-size:0.88em;display:flex;align-items:center;gap:6px;"><l:icon src="symbol-checkmark plugin-ionicons-api" class="icon-sm"/><span>No failed logins in this window.</span></div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table jenkins-table--medium sortable" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium sortable rg-paginated" data-page-size="15" style="width:100%;">
                 <thead>
                   <tr>
                     <th>When</th>

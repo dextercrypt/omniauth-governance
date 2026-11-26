@@ -3,6 +3,7 @@
   <l:layout permission="${app.ADMINISTER}" title="Rotogate — User Status" norefresh="true">
     <l:side-panel><st:include page="sidepanel.jelly"/></l:side-panel>
     <l:main-panel>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.userStatusAssets"/>
 
       <l:app-bar title="User Status"/>
@@ -67,7 +68,7 @@
 
         <!-- Table -->
         <div class="us-card">
-          <table class="jenkins-table jenkins-table--medium us-table">
+          <table class="jenkins-table jenkins-table--medium us-table rg-paginated" data-page-size="15">
             <colgroup>
               <col style="width:34%"/>
               <col style="width:16%"/>

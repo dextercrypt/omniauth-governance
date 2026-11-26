@@ -25,6 +25,9 @@ function usFilter() {
     if (show) n++;
   });
   document.getElementById('usEmpty').style.display = n === 0 ? '' : 'none';
+  // Re-paginate the filtered set (paginator pages only rows the filter left visible).
+  var tbody = document.getElementById('usTbody');
+  if (window.RGPaginate && tbody) RGPaginate.refresh(tbody.closest('table'));
 }
 
 function usSetFilter(fg, fv, btn) {

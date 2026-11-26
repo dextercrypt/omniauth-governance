@@ -105,6 +105,9 @@ function alxFilter() {
   });
   var count = document.getElementById('alxCount');
   if (count) count.textContent = shown + ' event' + (shown === 1 ? '' : 's');
+  // Re-paginate the filtered set.
+  var t = document.getElementById('alxTable');
+  if (window.RGPaginate && t) RGPaginate.refresh(t);
 }
 
 function alxClearFilters() {

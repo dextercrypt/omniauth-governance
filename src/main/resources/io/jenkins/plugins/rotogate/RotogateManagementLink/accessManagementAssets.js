@@ -31,6 +31,9 @@ function filterUsers(q) {
     var dn  = (r.dataset.display || '').toLowerCase();
     r.style.display = (!q || sid.includes(q) || dn.includes(q)) ? '' : 'none';
   });
+  // Re-paginate the filtered users list.
+  var t = document.getElementById('oamUsersTable');
+  if (window.RGPaginate && t) RGPaginate.refresh(t);
 }
 
 // ── Add User Drawer ───────────────────────────────────────────────────

@@ -6,6 +6,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.provisioningAssets"/>
 
       <l:app-bar title="Access Requests"/>
@@ -195,7 +196,7 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table jenkins-table--medium pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table rg-paginated" data-page-size="15">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>
@@ -269,7 +270,7 @@
               </l:notice>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table jenkins-table--medium pr-table">
+              <table class="jenkins-table jenkins-table--medium pr-table rg-paginated" data-page-size="15">
                 <thead>
                   <tr>
                     <th class="pr-th">Type</th>

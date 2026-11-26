@@ -7,6 +7,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.staleUsersAssets"/>
 
       <l:app-bar title="Stale Users">
@@ -130,7 +131,7 @@
           </j:when>
           <j:otherwise>
             <div class="jenkins-card rg-su-card rg-su-card--danger rg-flush-table">
-              <table class="jenkins-table jenkins-table--medium" style="margin:0;">
+              <table class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" style="margin:0;">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -208,7 +209,7 @@
           </j:when>
           <j:otherwise>
             <div class="jenkins-card rg-su-card rg-su-card--warn rg-flush-table">
-              <table class="jenkins-table jenkins-table--medium sortable" style="margin:0;">
+              <table class="jenkins-table jenkins-table--medium sortable rg-paginated" data-page-size="15" style="margin:0;">
                 <thead>
                   <tr>
                     <th>Username</th>

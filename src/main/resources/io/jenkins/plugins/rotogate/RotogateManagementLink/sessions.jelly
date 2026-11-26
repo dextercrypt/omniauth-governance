@@ -7,6 +7,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.sessionsAssets"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgConfirm"/>
 
       <l:app-bar title="Active Sessions"/>
@@ -38,7 +39,7 @@
             </div>
           </j:when>
           <j:otherwise>
-            <table class="jenkins-table jenkins-table--medium sortable">
+            <table class="jenkins-table jenkins-table--medium sortable rg-paginated" data-page-size="15">
               <thead>
                 <tr>
                   <th>Username</th>

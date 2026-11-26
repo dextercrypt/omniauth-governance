@@ -6,6 +6,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.auditLogAssets"/>
 
       <l:app-bar title="Audit Log"/>
@@ -88,7 +89,7 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table id="alxTable" class="jenkins-table jenkins-table--medium" style="width:100%;">
+              <table id="alxTable" class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" data-hide-class="alx-hidden" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Time</th>

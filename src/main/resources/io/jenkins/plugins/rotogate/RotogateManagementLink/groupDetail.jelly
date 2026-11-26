@@ -6,6 +6,7 @@
     </l:side-panel>
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rg"/>
+      <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgPaginate"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.rgConfirm"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.rg.permImplied"/>
       <st:adjunct includes="io.jenkins.plugins.rotogate.RotogateManagementLink.groupDetailAssets"/>
@@ -106,7 +107,7 @@
               </div>
             </j:when>
             <j:otherwise>
-              <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+              <table class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Scope</th>
@@ -347,7 +348,7 @@
                 </div>
               </j:when>
               <j:otherwise>
-                <table class="jenkins-table jenkins-table--medium" style="width:100%;">
+                <table class="jenkins-table jenkins-table--medium rg-paginated" data-page-size="15" style="width:100%;">
                   <thead>
                     <tr>
                       <th>User</th>
