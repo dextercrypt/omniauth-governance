@@ -5,12 +5,12 @@
   </picture>
 </p>
 
-<h1 align="center">Jenkins access governance — not just single sign-on</h1>
+<h1 align="center">Jenkins access governance - not just single sign-on</h1>
 
 <p align="center">
   <b>Rotogate</b> is a Jenkins security plugin that goes past the login page: single sign-on <em>and</em>
-  a full access-governance layer — least-privilege grants, just-in-time elevation, access reviews,
-  break-glass, lockout recovery, and a complete audit trail — in one console.
+  a full access-governance layer - least-privilege grants, just-in-time elevation, access reviews,
+  break-glass, lockout recovery, and a complete audit trail - in one console.
 </p>
 
 <p align="center">
@@ -26,11 +26,11 @@
 ## Why this exists
 
 Most Jenkins security plugins stop at the front door: they log a user in, and that's it. But signing
-in is the *easy* part — the hard part is everything after: who can do what, for how long, who approved
+in is the *easy* part - the hard part is everything after: who can do what, for how long, who approved
 it, who reviewed it, and how you get back in when it all goes wrong.
 
 Rotogate is that "everything after." It's the layer that turns Jenkins authentication into **managed,
-least-privilege, auditable access** — the kind of controls a security or compliance team expects, in a
+least-privilege, auditable access** - the kind of controls a security or compliance team expects, in a
 single plugin instead of a sprawling platform.
 
 | Most SSO plugins give you… | Rotogate adds… |
@@ -43,8 +43,8 @@ single plugin instead of a sprawling platform.
 | Partial logging | …a **full audit trail** with retention, plus email/Slack/Teams alerts |
 
 > **Enterprise SSO with Microsoft Entra (Azure AD) today**, with more OAuth2/OIDC providers on the
-> roadmap. The governance layer sits above authentication, so its full depth applies to every user —
-> native or SSO — however they sign in.
+> roadmap. The governance layer sits above authentication, so its full depth applies to every user -
+> native or SSO - however they sign in.
 
 ---
 
@@ -54,28 +54,28 @@ single plugin instead of a sprawling platform.
   <tr>
     <td width="50%" valign="top">
       <img src="docs/assets/screenshots/dashboard.png" alt="Overview dashboard" /><br/>
-      <sub><b>Overview</b> — live KPIs, 14-day login activity, Needs&nbsp;Attention</sub>
+      <sub><b>Overview</b> - live KPIs, 14-day login activity, Needs&nbsp;Attention</sub>
     </td>
     <td width="50%" valign="top">
       <img src="docs/assets/screenshots/access-management.png" alt="Access management" /><br/>
-      <sub><b>Access Management</b> — scoped, time-limited grants via a tree picker</sub>
+      <sub><b>Access Management</b> - scoped, time-limited grants via a tree picker</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
       <img src="docs/assets/screenshots/audit-log.png" alt="Audit log" /><br/>
-      <sub><b>Audit log</b> — every security action, filterable and retained</sub>
+      <sub><b>Audit log</b> - every security action, filterable and retained</sub>
     </td>
     <td width="50%" valign="top">
       <img src="docs/assets/screenshots/emergency-access.png" alt="Emergency Access" /><br/>
-      <sub><b>Emergency Access</b> — Break Glass (TOTP) + SOS recovery codes</sub>
+      <sub><b>Emergency Access</b> - Break Glass (TOTP) + SOS recovery codes</sub>
     </td>
   </tr>
 </table>
 
 <p align="center">
   <img src="docs/assets/screenshots/login.png" alt="Branded sign-in page" width="72%" /><br/>
-  <sub><b>Branded sign-in</b> — your heading, animated background and a pick of Jenkins butlers; native + SSO on one page</sub>
+  <sub><b>Branded sign-in</b> - your heading, animated background and a pick of Jenkins butlers; native + SSO on one page</sub>
 </p>
 
 ---
@@ -85,48 +85,48 @@ single plugin instead of a sprawling platform.
 ### 🛡️ Access management & governance
 - **Matrix-based authorization** (`RotogateAuthorizationStrategy`) with grouped, labeled permissions
   and a friendlier admin experience than the raw Jenkins matrix.
-- **Per-user and per-group** assignments — global, or scoped to a job/folder via a tree picker
+- **Per-user and per-group** assignments - global, or scoped to a job/folder via a tree picker
   (parent folders auto-granted Read).
 - **Time-limited grants** with expiry dates, auto-revoked by a background worker.
-- **Just-in-Time (JIT) access** — request time-bound elevation, multi-approver approve/deny/revoke,
+- **Just-in-Time (JIT) access** - request time-bound elevation, multi-approver approve/deny/revoke,
   auto-expire. No standing privilege.
-- **Access review / certification** — a keep/revoke queue on a schedule, with a weekly digest.
+- **Access review / certification** - a keep/revoke queue on a schedule, with a weekly digest.
 - **Conflict detection** when scoped restrictions collide with global admin.
 - A **full audit log** of every state-changing and security action, with configurable retention.
 
 ### 🚨 Account safety & recovery
-- **Break Glass** — a TOTP (6-digit) step-up an already-signed-in admin activates for a 15-minute
+- **Break Glass** - a TOTP (6-digit) step-up an already-signed-in admin activates for a 15-minute
   window before sensitive actions; multi-device enrollment (up to 3).
-- **SOS Mode** — a true **lockout recovery** path for when no admin can sign in (SSO down, or the
+- **SOS Mode** - a true **lockout recovery** path for when no admin can sign in (SSO down, or the
   authorization strategy broke). A host-dropped trigger file arms a 30-minute window at
   `/sos/recover`; a single-use **recovery code** (stored only as a salted hash) signs the admin back
   in and restores admin. Hardened with a *realm gate* so idle installs can't be a backdoor.
-- **Brute-force lockout** (enforced) — past a configurable threshold an account is locked for a
+- **Brute-force lockout** (enforced) - past a configurable threshold an account is locked for a
   cooldown window, with alerting; protected users exempt.
-- **Session control** — active-session view and force logout / revocation.
-- **Force password change** (fail-closed) — no session on any path (form, BASIC, API token, CLI)
+- **Session control** - active-session view and force logout / revocation.
+- **Force password change** (fail-closed) - no session on any path (form, BASIC, API token, CLI)
   until a new password is set.
 - **Stale-user** warning + cleanup workers (dry-run supported), with protected-user exemptions.
 
 ### 🔐 Authentication
-- **Native** username/password (bcrypt), inherited from Jenkins core — full API-token and CLI
+- **Native** username/password (bcrypt), inherited from Jenkins core - full API-token and CLI
   compatibility. **Native-first:** the realm runs on native accounts alone, so you get the whole
   governance layer with no external identity provider required.
-- **OAuth2 / OIDC single sign-on** (currently Microsoft Entra) — an opt-in **"Connect a single
+- **OAuth2 / OIDC single sign-on** (currently Microsoft Entra) - an opt-in **"Connect a single
   sign-on provider (SSO)"** toggle (off by default), always hardened with **PKCE** and **ID-token
   nonce** validation; identity anchored to the stable directory object id. Turning it off preserves
   the stored provider settings.
 - **Test Connection** button validates tenant / client ID / secret against Microsoft before saving.
-- **Allowed email domains** — restrict SSO sign-in to listed domains, even for pre-provisioned users.
+- **Allowed email domains** - restrict SSO sign-in to listed domains, even for pre-provisioned users.
 - Optional **group synchronization** from the identity provider, surfaced as authorities.
-- **Provisioning portal** — anonymous access requests → admin approval queue → time-limited accounts.
+- **Provisioning portal** - anonymous access requests → admin approval queue → time-limited accounts.
 
 ### 📣 Notifications & experience
 - **Email (SMTP), Slack, and Microsoft Teams** with per-event routing, retry, test actions, preview.
-- **Make the login page yours** — custom heading, announcement banner, footer and logo, an animated
+- **Make the login page yours** - custom heading, announcement banner, footer and logo, an animated
   reactor background, and a whole cast of **Jenkins butler mascots** to choose from (Ninja, Santa,
-  Superhero, Cowboy, Nerd…) — or set **🎲 Butler of the Day** and let it surprise your team.
-- A single console — **Manage Jenkins → Rotogate** — for all of the above.
+  Superhero, Cowboy, Nerd…) - or set **🎲 Butler of the Day** and let it surprise your team.
+- A single console - **Manage Jenkins → Rotogate** - for all of the above.
 
 > Full documentation lives in [`docs/`](docs/README.md).
 
@@ -134,22 +134,22 @@ single plugin instead of a sprawling platform.
 
 ## Requirements
 
-- Jenkins **2.555.3+** (current LTS line) · **Java 21** (required — Jenkins 2.555.x dropped Java 17; tested on Amazon Corretto 21).
-- For SSO: an OAuth2/OIDC provider — **Microsoft Entra** today
+- Jenkins **2.555.3+** (current LTS line) · **Java 21** (required - Jenkins 2.555.x dropped Java 17; tested on Amazon Corretto 21).
+- For SSO: an OAuth2/OIDC provider - **Microsoft Entra** today
   ([setup](docs/administration/entra-setup.md)).
 
 Relies on Matrix Authorization Strategy, CloudBees Folder (folder-scoped grants), and Jakarta Mail.
 
 ## Getting started
 
-1. **Install** — from **Manage Jenkins → Plugins → Available**, search for **Rotogate** and install it,
+1. **Install** - from **Manage Jenkins → Plugins → Available**, search for **Rotogate** and install it,
    then restart.
-2. **Enable** — **Manage Jenkins → Security → Security Realm → Rotogate**, and select the **Rotogate
+2. **Enable** - **Manage Jenkins → Security → Security Realm → Rotogate**, and select the **Rotogate
    Authorization Strategy** to unlock access management.
-3. **Connect SSO (optional)** — turn on **Connect a single sign-on provider (SSO)** in the realm
+3. **Connect SSO (optional)** - turn on **Connect a single sign-on provider (SSO)** in the realm
    config (off by default); for Microsoft Entra, follow [Entra setup](docs/administration/entra-setup.md).
    Skip this step to run native-only.
-4. **Manage** — everything else lives under **Manage Jenkins → Rotogate**.
+4. **Manage** - everything else lives under **Manage Jenkins → Rotogate**.
 
 See the [Quick start](docs/getting-started/quick-start.md) for a 15-minute walkthrough.
 
@@ -192,9 +192,9 @@ See [Building & contributing](docs/developer/contributing.md) for the full devel
 ## Issues & contributing
 
 - Report issues and enhancements in the [Jenkins issue tracker](https://issues.jenkins.io/).
-- Contributions welcome — see the Jenkins
+- Contributions welcome - see the Jenkins
   [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).
 
 ## License
 
-Licensed under **MIT** — see [LICENSE](LICENSE.md).
+Licensed under **MIT** - see [LICENSE](LICENSE.md).

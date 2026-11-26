@@ -69,7 +69,7 @@
       b.style.cssText = "padding:10px 14px;background:#fff8e1;border:1px solid #ffcc02;border-radius:6px;margin-bottom:6px;font-size:13px;color:#795600;display:flex;align-items:center;justify-content:space-between;gap:8px;";
       b.innerHTML =
         '<div style="display:flex;align-items:center;gap:8px;">' + BOLT_SVG +
-        '<span><strong>Managed by Rotogate</strong> &mdash; Authorization table is managed automatically. ' +
+        '<span><strong>Managed by Rotogate</strong> - Authorization table is managed automatically. ' +
         'Configure access via <strong>Manage Jenkins &rarr; Rotogate &rarr; Access Management</strong>.</span></div>' +
         '<button type="button" id="rotogate-bg-open" style="white-space:nowrap;padding:6px 12px;border:1px solid #dc3545;border-radius:4px;background:var(--card-background, #fff);color:#dc3545;cursor:pointer;font-size:12px;font-weight:600;">Emergency Override</button>';
       return b;
@@ -90,7 +90,7 @@
       b.style.cssText = "padding:10px 14px;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;margin-bottom:6px;font-size:13px;color:#856404;display:flex;align-items:center;justify-content:space-between;gap:8px;";
       b.innerHTML =
         '<div style="display:flex;align-items:center;gap:8px;">' + LOCK_SVG_SM +
-        '<span><strong>Emergency Override Active</strong> &mdash; Authorization table is unlocked. ' +
+        '<span><strong>Emergency Override Active</strong> - Authorization table is unlocked. ' +
         'Expires in <strong id="rotogate-timer">--:--</strong>.</span></div>' +
         '<button type="button" id="rotogate-bg-end" style="white-space:nowrap;padding:6px 12px;border:1px solid #856404;border-radius:4px;background:var(--card-background, #fff);color:#856404;cursor:pointer;font-size:12px;font-weight:600;">End Override Now</button>';
       wrapWithBanner(c, false, b);

@@ -95,7 +95,7 @@
       if (d.status === "ACTIVE") {
         removeGrayBuildNow();
         color = "#16a34a"; icon = SVG_CHECK;
-        msg = '<strong>JIT Access active</strong> &mdash; approved by <strong>' + escHtml(d.approverId) + '</strong> &middot; expires in <strong id="rg-jit-countdown">' + fmtTime(d.secondsRemaining) + '</strong>';
+        msg = '<strong>JIT Access active</strong> - approved by <strong>' + escHtml(d.approverId) + '</strong> &middot; expires in <strong id="rg-jit-countdown">' + fmtTime(d.secondsRemaining) + '</strong>';
         actions = '<button type="button" class="rg-jit-act" data-action="revoke" data-req="' + escHtml(d.requestId) + '" style="padding:4px 12px;border:1px solid #16a34a;border-radius:4px;background:var(--card-background, #fff);color:#16a34a;cursor:pointer;font-size:12px;font-weight:600;">End Access</button>';
       } else if (d.status === "PENDING") {
         injectGrayBuildNow();
@@ -107,9 +107,9 @@
         injectGrayBuildNow();
         color = "#6366f1"; icon = SVG_BOLT;
         if (d.status === "DENIED" || d.status === "EXPIRED" || d.status === "TIMED_OUT") {
-          msg = '<strong>JIT access required</strong> &mdash; previous request was <strong>' + d.status.toLowerCase() + '</strong>. Request again to build.';
+          msg = '<strong>JIT access required</strong> - previous request was <strong>' + d.status.toLowerCase() + '</strong>. Request again to build.';
         } else {
-          msg = '<strong>JIT access required</strong> &mdash; building this pipeline requires approval from ' + escHtml(d.approverGroup || "an admin") + '.';
+          msg = '<strong>JIT access required</strong> - building this pipeline requires approval from ' + escHtml(d.approverGroup || "an admin") + '.';
         }
         actions = '<button type="button" class="rg-jit-act" data-action="open" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:none;border-radius:4px;background:#6366f1;color:#fff;cursor:pointer;font-size:12px;font-weight:600;">' + SVG_BOLT + ' Request JIT Access</button>';
       }

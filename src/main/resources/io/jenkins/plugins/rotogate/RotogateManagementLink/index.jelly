@@ -50,7 +50,7 @@
               </div>
               <div class="rg-status-banner__body">
                 <strong>Emergency Override Active</strong>
-                <span class="rg-status-banner__sep">—</span>
+                <span class="rg-status-banner__sep">-</span>
                 Activated by <strong>${it.breakGlassActivatedBy}</strong>.
                 Direct access to the authorization matrix is enabled.
               </div>
@@ -64,7 +64,7 @@
               </div>
               <div class="rg-status-banner__body">
                 <strong>Attention Required</strong>
-                <span class="rg-status-banner__sep">—</span>
+                <span class="rg-status-banner__sep">-</span>
                 <j:if test="${failed24h gt 0}"><strong>${failed24h}</strong> failed login<j:if test="${failed24h != 1}">s</j:if> in the last 24 hours.</j:if>
                 <j:if test="${!bfEntries.isEmpty()}"><span style="margin-left:3px"><strong>${bfEntries.size()}</strong> brute force alert<j:if test="${bfEntries.size() != 1}">s</j:if> active.</span></j:if>
               </div>
@@ -81,7 +81,7 @@
               </div>
               <div class="rg-status-banner__body">
                 <strong>All Systems Operational</strong>
-                <span class="rg-status-banner__sep">—</span>
+                <span class="rg-status-banner__sep">-</span>
                 No active security alerts. Authorization framework is functioning normally.
               </div>
             </div>
@@ -96,7 +96,7 @@
             </div>
             <div class="rg-status-banner__body">
               <strong>Notifications disabled</strong>
-              <span class="rg-status-banner__sep">—</span>
+              <span class="rg-status-banner__sep">-</span>
               Security alerts cannot be delivered. Enable at least one channel to stay informed.
             </div>
             <a href="notifications" class="rg-status-banner__action">Configure →</a>
@@ -112,7 +112,7 @@
             </div>
             <div class="rg-status-banner__body">
               <strong>Auto cleanup disabled</strong>
-              <span class="rg-status-banner__sep">—</span>
+              <span class="rg-status-banner__sep">-</span>
               Stale and inactive accounts accumulate over time. Enable cleanup to maintain a clean directory.
             </div>
             <a href="settings" class="rg-status-banner__action">Enable →</a>
@@ -130,7 +130,7 @@
             </div>
             <div class="rg-status-banner__body">
               <strong>${pendingReview} access assignment<j:if test="${pendingReview != 1}">s</j:if> pending review</strong>
-              <span class="rg-status-banner__sep">—</span>
+              <span class="rg-status-banner__sep">-</span>
               Open Access Review to keep or revoke stale grants.
             </div>
             <a href="accessReview" class="rg-status-banner__action">Review now →</a>

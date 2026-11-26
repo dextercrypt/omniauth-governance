@@ -611,7 +611,7 @@ public class SmtpHelper {
                 "<strong>Reason:</strong> <em>" + esc(req.getReason()) + "</em>")
         + gap(14)
         + "<p style='font-size:12px;color:#94a3b8;line-height:1.5;margin:0;'>"
-        + "This approval link is unique to you &mdash; no login required, and it expires "
+        + "This approval link is unique to you - no login required, and it expires "
         + "when the approval window closes.</p>";
 
         return card(logoSrc(cfg), ts,
