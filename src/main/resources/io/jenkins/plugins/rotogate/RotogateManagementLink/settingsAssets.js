@@ -158,6 +158,28 @@ function validateCron(input) {
   okEl.style.display  = valid ? 'block' : 'none';
 }
 
+// "Keep me signed in" duration: keep the "Maximum: N <unit>" hint and the input's max in sync
+// with the selected unit, and clamp the typed value into [1, per-unit max]. The hard ceiling
+// (14 days, in seconds) is rendered onto the input as data-rg-max-seconds.
+function rgUpdateRememberMax(clamp) {
+  var input = document.getElementById('rgRememberValue');
+  var unitSel = document.getElementById('rgRememberUnit');
+  var out = document.getElementById('rgRememberMax');
+  if (!input || !unitSel || !out) return;
+  var maxSeconds = parseInt(input.getAttribute('data-rg-max-seconds'), 10) || 1209600;
+  var unit = unitSel.value;
+  var per   = unit === 'MINUTES' ? 60 : (unit === 'DAYS' ? 86400 : 3600);
+  var label = unit === 'MINUTES' ? 'minutes' : (unit === 'DAYS' ? 'days' : 'hours');
+  var maxForUnit = Math.floor(maxSeconds / per);
+  input.max = maxForUnit;
+  if (clamp) {
+    var v = parseInt(input.value, 10);
+    if (isNaN(v) || v < 1) input.value = 1;
+    else if (v > maxForUnit) input.value = maxForUnit;
+  }
+  out.textContent = 'Maximum: ' + maxForUnit.toLocaleString() + ' ' + label + ' (14 days)';
+}
+
 // Initial sync — deferred until the DOM is ready (adjunct loads in <head>).
 (function() {
   function init() {
@@ -181,6 +203,15 @@ function validateCron(input) {
 
     var resetBtn = document.getElementById('rgResetBranding');
     if (resetBtn) resetBtn.addEventListener('click', rgResetLoginBranding);
+
+    // "Keep me signed in" duration: default an empty field to 8 (hours), then sync max on load
+    // and re-sync + clamp on unit/value change.
+    var rmUnit = document.getElementById('rgRememberUnit');
+    var rmVal = document.getElementById('rgRememberValue');
+    if (rmVal && (rmVal.value === '' || parseInt(rmVal.value, 10) < 1)) rmVal.value = '8';
+    if (rmUnit) rmUnit.addEventListener('change', function() { rgUpdateRememberMax(true); });
+    if (rmVal) rmVal.addEventListener('change', function() { rgUpdateRememberMax(true); });
+    rgUpdateRememberMax(false);
 
     document.querySelectorAll('.js-rg-remove-logo').forEach(function(btn) {
       btn.addEventListener('click', function() { rgRemoveLoginLogo(this); });

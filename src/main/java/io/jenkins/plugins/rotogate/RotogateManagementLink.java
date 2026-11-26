@@ -1093,12 +1093,15 @@ public class RotogateManagementLink extends ManagementLink {
             int    oldBft            = config.getBruteForceThreshold();
             int    oldAuditRet       = config.getAuditRetentionDays();
             boolean oldSosEnabled = config.isSosEnabled();
+            int    oldRememberSecs = config.getRememberMeSeconds();
 
             // Each area holder binds its own fields from the form. The Settings page owns the
-            // thresholds / cleanup / access-review (lifecycle), the SOS switch (security) and the
-            // login branding; every other setting lives on a holder this page never touches.
+            // thresholds / cleanup / access-review (lifecycle), the SOS switch + "Keep me signed in"
+            // duration (security) and the login branding; every other setting lives on a holder this
+            // page never touches.
             config.getLifecycle().updateSettingsFrom(req);
             config.getSecurity().updateSosFrom(req);
+            config.getSecurity().updateRememberMeFrom(req);
             config.getBranding().updateFrom(req);
             config.save();
 
@@ -1113,6 +1116,7 @@ public class RotogateManagementLink extends ManagementLink {
             if (config.getBruteForceThreshold() != oldBft)           diff.add("bruteForceThreshold: " + oldBft     + " → " + config.getBruteForceThreshold());
             if (config.getAuditRetentionDays()  != oldAuditRet)      diff.add("auditRetentionDays: "  + oldAuditRet + " → " + config.getAuditRetentionDays());
             if (config.isSosEnabled() != oldSosEnabled) diff.add("sosEnabled: " + oldSosEnabled + " → " + config.isSosEnabled());
+            if (config.getRememberMeSeconds() != oldRememberSecs) diff.add("rememberMe: " + oldRememberSecs + "s → " + config.getRememberMeSeconds() + "s");
             if (!diff.isEmpty()) {
                 NotificationService.sendConfigChanged(config, currentUserId(), java.time.Instant.now().toString(), diff);
                 RotogateAuditLog.get().logConfigChanged(currentUserId(), "Settings", String.join("; ", diff));

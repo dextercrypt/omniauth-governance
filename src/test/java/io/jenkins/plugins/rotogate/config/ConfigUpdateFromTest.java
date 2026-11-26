@@ -199,4 +199,52 @@ class ConfigUpdateFromTest {
         assertEquals(100, c.getProvisioningBreakerMax(), "non-positive breaker max floors to 100");
         assertEquals(48, c.getActivationLinkTtlHours());
     }
+
+    // ── SecurityConfig: "Keep me signed in" duration ──────────────────────────
+
+    @Test
+    void rememberMe_defaultsTo8Hours() {
+        SecurityConfig c = new SecurityConfig();
+        assertEquals(8, c.getRememberMeValue());
+        assertEquals("HOURS", c.getRememberMeUnit());
+        assertEquals(8 * 3600, c.getRememberMeSeconds());
+    }
+
+    @Test
+    void rememberMe_bindsValueAndUnit_andConvertsToSeconds() {
+        SecurityConfig c = new SecurityConfig();
+        c.updateRememberMeFrom(req(params("rememberMeValue", "30", "rememberMeUnit", "MINUTES"), Map.of()));
+        assertEquals(30, c.getRememberMeValue());
+        assertEquals("MINUTES", c.getRememberMeUnit());
+        assertEquals(30 * 60, c.getRememberMeSeconds());
+
+        c.updateRememberMeFrom(req(params("rememberMeValue", "3", "rememberMeUnit", "DAYS"), Map.of()));
+        assertEquals(3 * 86400, c.getRememberMeSeconds());
+    }
+
+    @Test
+    void rememberMe_clampsToPerUnitMax_neverExceeds14Days() {
+        SecurityConfig c = new SecurityConfig();
+        // 500 hours > the 336-hour (14-day) ceiling → clamped to 336
+        c.updateRememberMeFrom(req(params("rememberMeValue", "500", "rememberMeUnit", "HOURS"), Map.of()));
+        assertEquals(336, c.getRememberMeValue(), "hours clamp to the 14-day ceiling");
+        assertEquals(SecurityConfig.REMEMBER_ME_MAX_SECONDS, c.getRememberMeSeconds());
+
+        // 90 days → clamped to 14
+        c.updateRememberMeFrom(req(params("rememberMeValue", "90", "rememberMeUnit", "DAYS"), Map.of()));
+        assertEquals(14, c.getRememberMeValue());
+        assertEquals(SecurityConfig.REMEMBER_ME_MAX_SECONDS, c.getRememberMeSeconds());
+    }
+
+    @Test
+    void rememberMe_blankOrNonPositiveFallsBackTo8_unknownUnitDefaultsHours() {
+        SecurityConfig c = new SecurityConfig();
+        c.updateRememberMeFrom(req(params("rememberMeValue", "0", "rememberMeUnit", "WEEKS"), Map.of()));
+        assertEquals(8, c.getRememberMeValue(), "non-positive value falls back to the default 8");
+        assertEquals("HOURS", c.getRememberMeUnit(), "unknown unit falls back to HOURS");
+
+        SecurityConfig blank = new SecurityConfig();
+        blank.updateRememberMeFrom(req(params("rememberMeValue", "", "rememberMeUnit", "HOURS"), Map.of()));
+        assertEquals(8, blank.getRememberMeValue(), "blank value falls back to the default 8");
+    }
 }

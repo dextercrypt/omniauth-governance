@@ -138,6 +138,14 @@ public class RotogateRootAction implements UnprotectedRootAction {
             if (isChecked(req.getParameter("remember_me"))) {
                 try {
                     RememberMeServices rms = realm.getSecurityComponents().rememberMe2;
+                    // Apply the admin-configured "Keep me signed in" lifetime (default 8h, capped 14d).
+                    // Set it here, per login, so a settings change takes effect without a realm reload;
+                    // the service stamps cookie max-age + token expiry from this at loginSuccess().
+                    RotogateGlobalConfig cfg = RotogateGlobalConfig.get();
+                    if (cfg != null && rms instanceof org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices) {
+                        ((org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices) rms)
+                                .setTokenValiditySeconds(cfg.getRememberMeSeconds());
+                    }
                     if (rms != null) rms.loginSuccess(req, rsp, auth);
                 } catch (Exception ignore) { /* remember-me is best-effort */ }
             }

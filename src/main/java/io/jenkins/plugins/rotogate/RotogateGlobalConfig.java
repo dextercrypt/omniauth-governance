@@ -278,6 +278,16 @@ public class RotogateGlobalConfig extends GlobalConfiguration {
     public boolean isSosEnabled() { return security.isSosEnabled(); }
     @DataBoundSetter public void setSosEnabled(boolean v) { security.setSosEnabled(v); }
 
+    // "Keep me signed in" (remember-me) duration
+    public int getRememberMeValue() { return security.getRememberMeValue(); }
+    @DataBoundSetter public void setRememberMeValue(int v) { security.setRememberMeValue(v); }
+    public String getRememberMeUnit() { return security.getRememberMeUnit(); }
+    @DataBoundSetter public void setRememberMeUnit(String v) { security.setRememberMeUnit(v); }
+    /** Configured remember-me lifetime in seconds (clamped to the 14-day ceiling). */
+    public int getRememberMeSeconds() { return security.getRememberMeSeconds(); }
+    /** The hard ceiling (seconds) the Settings UI shows as the maximum. */
+    public int getRememberMeMaxSeconds() { return io.jenkins.plugins.rotogate.config.SecurityConfig.REMEMBER_ME_MAX_SECONDS; }
+
     // Stale warning
     public boolean isStaleWarningEnabled()    { return lifecycle.isStaleWarningEnabled(); }
     @DataBoundSetter public void setStaleWarningEnabled(boolean v)  { lifecycle.setStaleWarningEnabled(v); }

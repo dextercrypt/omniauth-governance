@@ -278,6 +278,37 @@
           </div>
 
           <!-- ================================================================
+               KEEP ME SIGNED IN (remember-me duration)
+               ================================================================ -->
+          <div class="jenkins-card rg-card-block">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--rg-card-border); display: flex; align-items: center; gap: 10px;">
+              <l:icon src="symbol-time plugin-ionicons-api" class="icon-sm"/>
+              <h3 class="rg-card-title">Keep Me Signed In</h3>
+            </div>
+            <div class="rg-card-body">
+              <div style="color: var(--text-color-secondary); font-size: 0.82em; margin-bottom: 14px;">
+                How long a native sign-in stays remembered when the user ticks <strong>Keep me signed in</strong>
+                on the login page. Microsoft (Entra) sign-ins are session-only and aren't affected.
+              </div>
+              <label class="rg-field-label">Duration</label>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="number" name="rememberMeValue" id="rgRememberValue" min="1"
+                       value="${cfg.rememberMeValue}" data-rg-max-seconds="${cfg.rememberMeMaxSeconds}"
+                       class="jenkins-input" style="width: 100px;"/>
+                <div class="jenkins-select">
+                  <select name="rememberMeUnit" id="rgRememberUnit" class="jenkins-select__input">
+                    <option value="MINUTES" selected="${cfg.rememberMeUnit == 'MINUTES' ? 'selected' : null}">Minutes</option>
+                    <option value="HOURS"   selected="${cfg.rememberMeUnit == 'HOURS'   ? 'selected' : null}">Hours</option>
+                    <option value="DAYS"    selected="${cfg.rememberMeUnit == 'DAYS'    ? 'selected' : null}">Days</option>
+                  </select>
+                </div>
+              </div>
+              <div class="rg-field-hint" style="margin-top: 6px;">Default: 8 hours (used if left empty).</div>
+              <div id="rgRememberMax" class="rg-field-hint" style="margin-top: 2px;"></div>
+            </div>
+          </div>
+
+          <!-- ================================================================
                LOGIN PAGE BRANDING
                ================================================================ -->
           <div class="jenkins-card rg-card-block">
