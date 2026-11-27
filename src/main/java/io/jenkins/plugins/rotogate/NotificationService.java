@@ -204,7 +204,7 @@ public class NotificationService {
         String subject = "[Jenkins Rotogate] Your access request was approved";
         String plain = "Your Jenkins access request was approved.\n\n"
                 + "Account: " + r.getUserId() + "\n\n"
-                + "Sign in with Microsoft: " + rootUrl() + "/securityRealm/login\n"
+                + "Sign in with Microsoft: " + rootUrl() + "/login\n"
                 + "\n---\nJenkins Rotogate Plugin";
         SmtpHelper.sendTo(cfg, r.getEmail(), subject,
                 SmtpHelper.buildProvisioningApprovedEntraHtml(cfg, r), plain);

@@ -210,7 +210,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
     @StaplerDispatchable
     public void doChangePassword(StaplerRequest2 req, StaplerResponse2 rsp) throws Exception {
         if (pendingUser(req) == null) {
-            rsp.sendRedirect(req.getContextPath() + "/securityRealm/login"); return;
+            rsp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         req.getView(this, "changePassword.jelly").forward(req, rsp);
     }
@@ -251,7 +251,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
         // Identity comes from the pending marker, NOT from an authenticated session.
         String username = pendingUser(req);
         if (username == null) {
-            rsp.sendRedirect(ctx + "/securityRealm/login"); return;
+            rsp.sendRedirect(ctx + "/login"); return;
         }
         if (newPwd == null || newPwd.length() < 8) {
             rsp.sendRedirect(ctx + "/rotogate/changePassword?error=tooShort"); return;
@@ -268,7 +268,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
         RotogateForcePasswordProperty prop = user.getProperty(RotogateForcePasswordProperty.class);
         if (prop == null || !prop.isForcePasswordChange()) {
             clearPending(req);
-            rsp.sendRedirect(ctx + "/securityRealm/login"); return;
+            rsp.sendRedirect(ctx + "/login"); return;
         }
 
         // Update password via reflection (fromPlainPassword is package-private in Jenkins core)
@@ -295,7 +295,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
         RotogateAuditLog.get().logPasswordChanged(username);
 
         // Fail-closed: send them to sign in with the new password (no auto-login).
-        rsp.sendRedirect(ctx + "/securityRealm/login?passwordSet=1");
+        rsp.sendRedirect(ctx + "/login?passwordSet=1");
     }
 
     // ----- helpers -----------------------------------------------------------

@@ -34,8 +34,10 @@ import java.util.logging.Logger;
  * The only addition is a "Sign in with Microsoft" button on the login page, backed
  * by an OAuth2 / OIDC code flow against Microsoft Entra (Azure AD).
  *
- * Strategy: override getLoginUrl() to serve our login.jelly, which is a verbatim
- * copy of Jenkins 2.541.2's login page with the Entra button appended.
+ * Strategy: ship our own login.jelly (a copy of Jenkins' login page with the Entra
+ * button appended) as the realm's securityRealm/login view; LoginViewInterceptor
+ * serves it at Jenkins' standard /login URL, so the login link stays the conventional
+ * /login (getLoginUrl() is left at its core default).
  * All other SecurityRealm methods (createSecurityComponents, loadUserByUsername2,
  * allowsSignup, signup page, …) are inherited unchanged from the parent class.
  */
@@ -136,7 +138,7 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     // lgtm false positive: Self-signup is disabled; this only redirects a stale /signup bookmark to the login page. Anonymous by design, no state change -- no crumb or permission check applies.
     @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     public HttpResponse doSignup(StaplerRequest req) {
-        return HttpResponses.redirectTo(req.getContextPath() + "/securityRealm/login");
+        return HttpResponses.redirectTo(req.getContextPath() + "/login");
     }
 
     /**
@@ -326,21 +328,12 @@ public class RotogateSecurityRealm extends HudsonPrivateSecurityRealm {
     }
 
     // -------------------------------------------------------------------------
-    // Override only the login URL - everything else is inherited from
-    // HudsonPrivateSecurityRealm without change.
+    // getLoginUrl() is intentionally NOT overridden: we keep Jenkins' standard
+    // "login" link target (/login), the URL the whole ecosystem (and k8s liveness
+    // probes) expects. Our branded login.jelly lives at securityRealm/login as the
+    // realm's own view, and LoginViewInterceptor serves it at /login too, so the
+    // canonical login URL stays /login with no override needed.
     // -------------------------------------------------------------------------
-
-    /**
-     * Points Stapler at our login.jelly, which lives in:
-     *   resources/io/jenkins/plugins/rotogate/RotogateSecurityRealm/login.jelly
-     *
-     * That file is an exact copy of Jenkins 2.541.2's login page with the
-     * "Sign in with Microsoft" button added below the native login form.
-     */
-    @Override
-    public String getLoginUrl() {
-        return "securityRealm/login";
-    }
 
     /**
      * Called by Jenkins when validating a username in the authorization matrix UI.

@@ -48,7 +48,7 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
         String ctx = req.getContextPath();
 
         if (!RotogateSos.isArmed()) {
-            rsp.sendRedirect(ctx + "/securityRealm/login");
+            rsp.sendRedirect(ctx + "/login");
             return;
         }
         // Announce the armed window promptly even before the worker's next tick.

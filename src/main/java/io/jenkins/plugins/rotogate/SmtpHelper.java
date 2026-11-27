@@ -251,7 +251,7 @@ public class SmtpHelper {
         return simpleCard(cfg, "#16a34a", "#dcfce7", "#166534", "&#10003;",
                 "Approved &nbsp;&middot;&nbsp; Access Granted",
                 "Your access request was approved", "You can now sign in to Jenkins.",
-                content, rootUrl() + "/securityRealm/login", "Sign In with Microsoft &rarr;", "Access Governance");
+                content, rootUrl() + "/login", "Sign In with Microsoft &rarr;", "Access Governance");
     }
 
     /** Requester: rejected. */
@@ -282,7 +282,7 @@ public class SmtpHelper {
         return simpleCard(cfg, "#d97706", "#fef3c7", "#92400e", "&#9203;",
                 "Reminder &nbsp;&middot;&nbsp; Account Expiring",
                 "Your Jenkins access is expiring soon", "This is a heads-up before your time-limited account expires.",
-                content, rootUrl() + "/securityRealm/login", "Sign In", "Access Governance");
+                content, rootUrl() + "/login", "Sign In", "Access Governance");
     }
 
     /** Admin: a time-limited account hit its expiry and was disabled/deleted. */

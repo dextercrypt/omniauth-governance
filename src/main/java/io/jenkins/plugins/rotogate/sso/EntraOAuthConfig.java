@@ -172,7 +172,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         String sessionState  = (String) req.getSession().getAttribute(SESSION_OAUTH_STATE);
         if (returnedState == null || !returnedState.equals(sessionState)) {
             LOGGER.log(Level.WARNING, "OAuth2 state mismatch - session likely expired, redirecting to login");
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "login?error=session");
         }
         req.getSession().removeAttribute(SESSION_OAUTH_STATE);
 
@@ -196,7 +196,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         req.getSession().removeAttribute(SESSION_CODE_VERIFIER);
         if (codeVerifier == null) {
             LOGGER.log(Level.WARNING, "PKCE code verifier missing from session - possible session expiry");
-            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "securityRealm/login?error=session");
+            return HttpResponses.redirectTo(Jenkins.get().getRootUrl() + "login?error=session");
         }
 
         // Exchange code → tokens

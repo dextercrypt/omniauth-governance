@@ -24,11 +24,11 @@ import java.io.IOException;
  * view (securityRealm/login, securityRealm/loginError), so the branded page (butler, background,
  * "Sign in with Microsoft") renders while the original URL is preserved.
  *
- * <p>The realm already overrides getLoginUrl() to securityRealm/login, so every real auth
- * challenge goes straight to the branded page; this filter only covers direct hits and bookmarks
- * on the bare core URLs. The forward keeps the request intact (query string such as ?from= is
- * preserved) and does not re-enter this filter (PluginServletFilter runs on REQUEST dispatch only),
- * so there is no loop.
+ * <p>The realm leaves getLoginUrl() at its core default ("login"), so Jenkins routes every auth
+ * challenge to the conventional /login URL and this filter is what brands it (the same way it
+ * already brands core's hardcoded /loginError). The forward keeps the request intact (query string
+ * such as ?from= is preserved) and does not re-enter this filter (PluginServletFilter runs on
+ * REQUEST dispatch only), so there is no loop.
  */
 @Extension
 public class LoginViewInterceptor {
