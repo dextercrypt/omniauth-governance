@@ -192,18 +192,19 @@ Passing both axes on the latest LTS + newest Java lets us honestly state "verifi
 - **(superseded) Baseline held at Jenkins 2.541.2 / Java 21** - the prior stance, where forward
   compatibility was handled by the verification axes rather than by raising the floor. Replaced by
   the 2026-10-27 bump above.
-- **2026-10-26 - Forward-compatibility verified on Jenkins 2.580.1 (latest LTS) + Corretto 25**
-  (no baseline change). Axis A: `mvn clean verify` on JDK 25 → **553 tests, 0 failures**, hpi
-  built; enforcer `RequireJavaVersion` / `EnforceBytecodeVersion` and `access-modifier-checker`
-  all passed. Only **SpotBugs 4.8.3.1** could not read Java 25 bytecode ("class file major
-  version 69") → skipped; it is build-time tooling and does not affect runtime. Axis B: the hpi
-  deployed into Jenkins 2.580.1 running on Corretto 25 - plugin loaded cleanly, Rotogate realm
-  active, native login + CSRF exclusion worked, and the Overview / Access Management / Audit Log
-  / Emergency Access / Settings pages all rendered HTTP 200 with no stack traces. The SOS live
-  cycle passed end-to-end (dark → armed `/sos/recover` form → deactivated → dark). **Conclusion:
-  Rotogate runs on the latest Jenkins LTS and Java 25 today; the baseline stays at 2.541.2 /
-  Java 21 by choice.** Known follow-up for an eventual bump: raise the SpotBugs version so static
-  analysis parses Java 25.
+- **Forward-compatibility verified on Jenkins 2.580.1 (latest LTS) + Corretto 25** (no baseline
+  change). Axis A (`mvn clean verify` on JDK 25): first run 2026-10-26, **re-verified 2026-11-27 →
+  610 tests, 0 failures**, hpi built; enforcer `RequireJavaVersion` / `EnforceBytecodeVersion` and
+  `access-modifier-checker` all passed. **SpotBugs is now 4.10.4.1** (came in with the parent-POM
+  bump to `6.2236`) and reads Java 25 bytecode fine, so it runs rather than being skipped - static
+  analysis passes **clean (0 findings)**. (This resolves the old caveat that SpotBugs 4.8.3.1 could
+  not parse "class file major version 69"; it also means `mvn verify` now runs SpotBugs on every
+  JDK, so keep the code SpotBugs-clean.) Axis B (2026-10-26): the hpi deployed into Jenkins 2.580.1
+  on Corretto 25 - plugin loaded cleanly, Rotogate realm active, native login + CSRF exclusion
+  worked, and the Overview / Access Management / Audit Log / Emergency Access / Settings pages all
+  rendered HTTP 200 with no stack traces. The SOS live cycle passed end-to-end (dark → armed
+  `/sos/recover` form → deactivated → dark). **Conclusion: Rotogate builds, tests and runs cleanly
+  on the latest Jenkins LTS and Java 25.**
 
 Record each future baseline change here with the date, the trigger (Clock A or B), the old →
 new versions, and the release it shipped in.
