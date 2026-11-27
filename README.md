@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" />
   <img src="https://img.shields.io/badge/Jenkins-2.555.3%2B-d33833" alt="Jenkins 2.555.3+" />
   <img src="https://img.shields.io/badge/Java-21-orange" alt="Java 21" />
-  <img src="https://img.shields.io/badge/tests-557%20passing-brightgreen" alt="557 tests passing" />
+  <img src="https://img.shields.io/badge/tests-610%20passing-brightgreen" alt="610 tests passing" />
   <img src="https://img.shields.io/badge/status-beta-yellow" alt="Beta" />
 </p>
 
