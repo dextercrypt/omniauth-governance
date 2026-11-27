@@ -17,23 +17,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Forwards /loginError to securityRealm/loginError when Rotogate is active,
- * so RotogateSecurityRealm/loginError.jelly (which includes the Microsoft button)
- * is served instead of Jenkins' built-in login error page.
+ * Serves Rotogate's branded login views at Jenkins core's built-in URLs when Rotogate is the
+ * active security realm. Core owns /login and /loginError and renders its own plain views there;
+ * those jellies live on the core classloader and cannot be overridden from a plugin. This filter
+ * intercepts both before Stapler dispatch and forwards them to the matching RotogateSecurityRealm
+ * view (securityRealm/login, securityRealm/loginError), so the branded page (butler, background,
+ * "Sign in with Microsoft") renders while the original URL is preserved.
  *
- * Why a servlet filter: Jenkins core's loginError.jelly is loaded from the core
- * classloader and cannot be overridden from a plugin. A servlet filter intercepts
- * before Stapler dispatch and lets us forward to our own SecurityRealm view.
+ * <p>The realm already overrides getLoginUrl() to securityRealm/login, so every real auth
+ * challenge goes straight to the branded page; this filter only covers direct hits and bookmarks
+ * on the bare core URLs. The forward keeps the request intact (query string such as ?from= is
+ * preserved) and does not re-enter this filter (PluginServletFilter runs on REQUEST dispatch only),
+ * so there is no loop.
  */
 @Extension
-public class LoginErrorInterceptor {
+public class LoginViewInterceptor {
 
     @Initializer(after = InitMilestone.EXTENSIONS_AUGMENTED)
     public static void registerFilter() throws Exception {
-        PluginServletFilter.addFilter(new LoginErrorFilter());
+        PluginServletFilter.addFilter(new LoginViewFilter());
     }
 
-    private static class LoginErrorFilter implements Filter {
+    private static class LoginViewFilter implements Filter {
 
         @Override
         public void init(FilterConfig filterConfig) {}
@@ -42,17 +47,15 @@ public class LoginErrorInterceptor {
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
                 throws IOException, ServletException {
             HttpServletRequest req = (HttpServletRequest) request;
-            HttpServletResponse rsp = (HttpServletResponse) response;
 
             String contextPath = req.getContextPath();
             String uri = req.getRequestURI();
             String path = contextPath.isEmpty() ? uri : uri.substring(contextPath.length());
 
-            if ("/loginError".equals(path)
+            if (("/login".equals(path) || "/loginError".equals(path))
                     && Jenkins.get().getSecurityRealm() instanceof RotogateSecurityRealm) {
                 // getRequestDispatcher path is relative to the servlet context root (no context path prefix)
-                req.getRequestDispatcher("/securityRealm/loginError")
-                        .forward(request, response);
+                req.getRequestDispatcher("/securityRealm" + path).forward(request, response);
                 return;
             }
             chain.doFilter(request, response);
