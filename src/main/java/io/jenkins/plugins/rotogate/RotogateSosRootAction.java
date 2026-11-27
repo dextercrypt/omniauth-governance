@@ -183,7 +183,10 @@ public class RotogateSosRootAction implements UnprotectedRootAction {
                 crumbField = ci.getDescriptor().getCrumbRequestField();
                 crumb = ci.getCrumb(req);
             }
-        } catch (Exception ignore) { /* no crumb issuer configured: form still posts, filter decides */ }
+        } catch (Exception e) {
+            // no crumb issuer configured: form still posts, filter decides
+            LOGGER.log(Level.FINE, "SOS: no crumb available for already-admin page", e);
+        }
         String crumbInput = (crumbField == null || crumbField.isEmpty()) ? ""
             : "<input type='hidden' name='" + esc(crumbField) + "' value='" + esc(crumb) + "'/>";
         return "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>"

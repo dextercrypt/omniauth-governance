@@ -76,6 +76,8 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
     private static final java.util.logging.Logger LOGGER =
             java.util.logging.Logger.getLogger(EntraOAuthConfig.class.getName());
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     @DataBoundConstructor
     public EntraOAuthConfig(String tenantId, String clientId, Secret clientSecret) {
         this.tenantId = tenantId;
@@ -140,7 +142,7 @@ public class EntraOAuthConfig extends RotogateSsoProvider {
         // On token exchange, Azure re-hashes the verifier and compares - proving the same
         // server that started the login is completing it.
         byte[] verifierBytes = new byte[32];
-        new SecureRandom().nextBytes(verifierBytes);
+        SECURE_RANDOM.nextBytes(verifierBytes);
         String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(verifierBytes);
         byte[] challengeBytes = MessageDigest.getInstance("SHA-256")
                 .digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));

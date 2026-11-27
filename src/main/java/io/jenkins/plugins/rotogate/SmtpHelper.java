@@ -932,7 +932,7 @@ public class SmtpHelper {
     private static String footerNote(RotogateGlobalConfig cfg) {
         if (cfg == null) return "";
         String note = cfg.getNotificationFooterNote();
-        return note != null ? note.trim() : "";
+        return note.trim();
     }
 
     private static String logoSrc(RotogateGlobalConfig cfg) {
@@ -979,7 +979,7 @@ public class SmtpHelper {
     private static String avatarColor(String id) {
         if (id == null) return "#6366f1";
         String[] pal = {"#6366f1","#0891b2","#059669","#1d4ed8","#b45309","#7c3aed","#db2777"};
-        return pal[Math.abs(id.hashCode()) % pal.length];
+        return pal[(id.hashCode() & 0x7fffffff) % pal.length];
     }
 
     private static String esc(String s) {

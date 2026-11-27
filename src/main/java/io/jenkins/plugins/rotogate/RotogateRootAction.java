@@ -279,7 +279,7 @@ public class RotogateRootAction implements UnprotectedRootAction {
             HudsonPrivateSecurityRealm.Details details =
                     (HudsonPrivateSecurityRealm.Details) m.invoke(null, newPwd);
             user.addProperty(details);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException | java.io.IOException | RuntimeException e) {
             rsp.sendRedirect(ctx + "/rotogate/changePassword?error=saveFailed"); return;
         }
 

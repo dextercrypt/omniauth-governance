@@ -20,7 +20,7 @@ import java.util.List;
 public class NotificationConfig {
 
     /** Canonical catalogue of notifiable events. Kept here because it describes this area. */
-    public static final String[] ALL_EVENTS = {
+    private static final String[] ALL_EVENTS = {
         "cleanup", "userDeleted", "configChanged", "protectedListChanged",
         "graphApiFailure", "adminGranted", "bruteForce", "staleWarning", "accessReview",
         // JIT (were dispatched but missing from the catalog, so they defaulted off - now included)
@@ -28,6 +28,11 @@ public class NotificationConfig {
         // Provisioning + account lifecycle (admin-facing)
         "provisionRequest", "accountExpired", "accountLocked"
     };
+
+    /** Immutable view of the canonical event catalogue, safe to expose to callers. */
+    public static List<String> allEvents() {
+        return List.of(ALL_EVENTS);
+    }
 
     // ── Master + channels ─────────────────────────────────────────────────────
     private boolean notificationsEnabled = false;

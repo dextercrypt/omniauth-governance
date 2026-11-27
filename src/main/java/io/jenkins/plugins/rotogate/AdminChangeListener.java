@@ -36,6 +36,10 @@ public class AdminChangeListener extends SaveableListener {
     // null = not yet initialised (first save after startup establishes baseline without alerting)
     private static volatile Set<String> lastKnownAdmins = null;
 
+    private static synchronized void setLastKnownAdmins(Set<String> admins) {
+        lastKnownAdmins = admins;
+    }
+
     @Override
     public void onChange(Saveable o, XmlFile file) {
         if (!(o instanceof Jenkins)) return;
@@ -45,7 +49,7 @@ public class AdminChangeListener extends SaveableListener {
 
         Set<String> current = currentAdminSet();
         Set<String> last    = lastKnownAdmins;
-        lastKnownAdmins = current;
+        setLastKnownAdmins(current);
 
         if (last == null) return; // first run - baseline established, no alert
 

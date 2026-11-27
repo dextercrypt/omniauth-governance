@@ -131,7 +131,7 @@ public class StaleUserCleanupWork extends AsyncPeriodicWork {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Error during stale user cleanup", e);
         }
 

@@ -84,7 +84,8 @@ public class ActiveSessionManager {
         return true;
     }
 
-    private static class DeregisterHook implements HttpSessionBindingListener {
+    private static class DeregisterHook implements HttpSessionBindingListener, java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         private final String sessionId;
         DeregisterHook(String sessionId) { this.sessionId = sessionId; }
 

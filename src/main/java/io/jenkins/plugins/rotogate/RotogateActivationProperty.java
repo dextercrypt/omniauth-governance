@@ -22,6 +22,8 @@ import java.util.Base64;
  */
 public class RotogateActivationProperty extends UserProperty {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     // lgtm false positive: Not a credential: stores only the SHA-256 hash of the one-time activation token (never the raw token), so encryption would add nothing.
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String tokenHash;      // SHA-256(raw token), Base64url; never the raw token
@@ -52,7 +54,7 @@ public class RotogateActivationProperty extends UserProperty {
     /** A fresh URL-safe random token (raw - emailed to the requester, never stored). */
     public static String newRawToken() {
         byte[] buf = new byte[32];
-        new SecureRandom().nextBytes(buf);
+        SECURE_RANDOM.nextBytes(buf);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(buf);
     }
 

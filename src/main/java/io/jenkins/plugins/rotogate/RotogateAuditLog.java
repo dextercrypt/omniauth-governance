@@ -536,7 +536,10 @@ public class RotogateAuditLog {
         File logFile = currentLogFile();
         if (logFile == null) return;
         try {
-            logFile.getParentFile().mkdirs();
+            File dir = logFile.getParentFile();
+            if (!dir.mkdirs() && !dir.isDirectory()) {
+                LOGGER.log(Level.WARNING, "Failed to create " + dir);
+            }
             try (PrintWriter pw = new PrintWriter(new FileWriter(logFile, true))) {
                 pw.println(toJson(fields));
             }
@@ -594,11 +597,19 @@ public class RotogateAuditLog {
             java.util.Iterator<File> it = sorted.iterator();
             while (it.hasNext()) {
                 File f = it.next();
-                if (f.getName().compareTo(cutoffName) < 0) { f.delete(); it.remove(); }
+                if (f.getName().compareTo(cutoffName) < 0) {
+                    if (!f.delete() && f.exists()) {
+                        LOGGER.log(Level.FINE, "Failed to delete " + f);
+                    }
+                    it.remove();
+                }
             }
         }
         while (sorted.size() > HARD_MAX_MONTHS) {
-            sorted.get(0).delete();
+            File oldest = sorted.get(0);
+            if (!oldest.delete() && oldest.exists()) {
+                LOGGER.log(Level.FINE, "Failed to delete " + oldest);
+            }
             sorted.remove(0);
         }
     }
@@ -686,7 +697,7 @@ public class RotogateAuditLog {
             try (BufferedReader br = new BufferedReader(new FileReader(f))) {
                 String line;
                 while ((line = br.readLine()) != null) if (!line.isBlank()) events++;
-            } catch (Exception ignored) {}
+            } catch (RuntimeException | java.io.IOException ignored) {}
         }
         // Oldest event = first non-blank line of the earliest file.
         String oldest = "";
@@ -698,7 +709,7 @@ public class RotogateAuditLog {
                     Map<String, String> p = parseLine(line);
                     if (p != null && p.get("ts") != null) { oldest = p.get("ts"); break; }
                 }
-            } catch (Exception ignored) {}
+            } catch (RuntimeException | java.io.IOException ignored) {}
             if (!oldest.isEmpty()) break;
         }
         return new StorageInfo(events, bytes, oldest, sorted.size());

@@ -105,7 +105,7 @@ public class RotogateAccountExpiryWorker extends AsyncPeriodicWork {
             Object addr = mailerPropClass.getMethod("getAddress").invoke(prop);
             String s = (addr == null) ? null : addr.toString().trim();
             return (s != null && s.contains("@")) ? s : null;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException | RuntimeException e) {
             return null;
         }
     }

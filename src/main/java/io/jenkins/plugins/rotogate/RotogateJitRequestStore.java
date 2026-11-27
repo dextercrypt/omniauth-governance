@@ -76,11 +76,7 @@ public class RotogateJitRequestStore extends GlobalConfiguration {
 
     public List<RotogateJitRequest> getRecentRequests(int limit) {
         List<RotogateJitRequest> sorted = new ArrayList<>(requests);
-        sorted.sort((a, b) -> {
-            String ta = a.getRequestedAt() != null ? a.getRequestedAt() : "";
-            String tb = b.getRequestedAt() != null ? b.getRequestedAt() : "";
-            return tb.compareTo(ta);
-        });
+        sorted.sort((a, b) -> b.getRequestedAt().compareTo(a.getRequestedAt()));
         return sorted.stream().limit(limit).collect(Collectors.toList());
     }
 
@@ -168,7 +164,7 @@ public class RotogateJitRequestStore extends GlobalConfiguration {
     public RotogateJitRequest findLastRequestForUser(String userId, String scope) {
         return requests.stream()
                 .filter(r -> r.getRequesterId().equals(userId) && r.getScope().equals(scope))
-                .max(java.util.Comparator.comparing(r -> r.getRequestedAt() != null ? r.getRequestedAt() : ""))
+                .max(java.util.Comparator.comparing(RotogateJitRequest::getRequestedAt))
                 .orElse(null);
     }
 

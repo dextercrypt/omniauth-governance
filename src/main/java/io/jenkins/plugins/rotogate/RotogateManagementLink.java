@@ -51,6 +51,7 @@ import java.util.logging.Logger;
 public class RotogateManagementLink extends ManagementLink {
 
     private static final Logger LOGGER = Logger.getLogger(RotogateManagementLink.class.getName());
+    private static final java.security.SecureRandom SECURE_RANDOM = new java.security.SecureRandom();
     static final int DEFAULT_STALE_THRESHOLD_DAYS = 90;
 
     private static int staleThresholdDays() {
@@ -353,7 +354,9 @@ public class RotogateManagementLink extends ManagementLink {
 
     private static java.io.File snapshotDir() {
         java.io.File d = new java.io.File(Jenkins.get().getRootDir(), "rotogate-backups");
-        if (!d.exists()) d.mkdirs();
+        if (!d.exists() && !d.mkdirs() && !d.isDirectory()) {
+            LOGGER.log(Level.WARNING, "Failed to create backup directory {0}", d);
+        }
         return d;
     }
 
@@ -367,7 +370,11 @@ public class RotogateManagementLink extends ManagementLink {
         java.io.File[] files = dir.listFiles((d, n) -> n.startsWith("pre-import-") && n.endsWith(".yaml"));
         if (files != null && files.length > 5) {
             java.util.Arrays.sort(files, java.util.Comparator.comparing(java.io.File::getName));
-            for (int i = 0; i < files.length - 5; i++) files[i].delete();
+            for (int i = 0; i < files.length - 5; i++) {
+                if (!files[i].delete() && files[i].exists()) {
+                    LOGGER.log(Level.FINE, "Failed to delete old snapshot {0}", files[i]);
+                }
+            }
         }
     }
 
@@ -391,8 +398,9 @@ public class RotogateManagementLink extends ManagementLink {
                 String yaml = java.nio.file.Files.readString(f.toPath(), java.nio.charset.StandardCharsets.UTF_8);
                 RotogateConfigBackup.Parsed p = RotogateConfigBackup.parse(yaml);
                 roles = p.roleCount(); assignments = p.assignmentCount(); groups = p.groupCount();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // a snapshot that can't be parsed still appears, just without counts
+                LOGGER.log(Level.FINE, "Could not parse snapshot " + f.getName() + " for counts", e);
             }
             out.add(new SnapshotInfo(f.getName(), displayTimeOf(f), roles, assignments, groups));
         }
@@ -515,7 +523,7 @@ public class RotogateManagementLink extends ManagementLink {
         rsp.setContentType("application/json;charset=UTF-8");
 
         byte[] secretBytes = new byte[20];
-        new java.security.SecureRandom().nextBytes(secretBytes);
+        SECURE_RANDOM.nextBytes(secretBytes);
         String secret = org.jboss.aerogear.security.otp.api.Base32.encode(secretBytes);
 
         User currentUser = User.current();
@@ -1344,9 +1352,13 @@ public class RotogateManagementLink extends ManagementLink {
             return;
         }
         java.io.File brandingDir = new java.io.File(Jenkins.get().getRootDir(), "rotogate-branding");
-        brandingDir.mkdirs();
+        if (!brandingDir.mkdirs() && !brandingDir.isDirectory()) {
+            LOGGER.log(Level.WARNING, "Failed to create branding directory {0}", brandingDir);
+        }
         java.io.File[] existing = brandingDir.listFiles(f -> f.getName().startsWith("login-logo."));
-        if (existing != null) for (java.io.File f : existing) f.delete();
+        if (existing != null) for (java.io.File f : existing) {
+            if (!f.delete() && f.exists()) LOGGER.log(Level.FINE, "Failed to delete old logo {0}", f);
+        }
         java.io.File dest = new java.io.File(brandingDir, "login-logo." + ext);
         try { fileItem.write(dest); } catch (Exception e) {
             writeJson(rsp, "{\"ok\":false,\"msg\":\"Failed to save file: " + escapeJson(e.getMessage()) + "\"}");
@@ -1362,7 +1374,9 @@ public class RotogateManagementLink extends ManagementLink {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         java.io.File dir = new java.io.File(Jenkins.get().getRootDir(), "rotogate-branding");
         java.io.File[] files = dir.listFiles(f -> f.getName().startsWith("login-logo."));
-        if (files != null) for (java.io.File f : files) f.delete();
+        if (files != null) for (java.io.File f : files) {
+            if (!f.delete() && f.exists()) LOGGER.log(Level.FINE, "Failed to delete logo {0}", f);
+        }
         RotogateAuditLog.get().logConfigChanged(Jenkins.getAuthentication2().getName(),
                 "Login branding", "login logo removed");
         writeJson(rsp, "{\"ok\":true}");
@@ -1407,7 +1421,7 @@ public class RotogateManagementLink extends ManagementLink {
             try (ACLContext ignored = ACL.as2(auth)) {
                 return Jenkins.get().hasPermission(Jenkins.ADMINISTER);
             }
-        } catch (Exception ignored) {}
+        } catch (RuntimeException ignored) {}
         return false;
     }
 
@@ -2279,7 +2293,6 @@ public class RotogateManagementLink extends ManagementLink {
 
     public List<UserInfo> getPendingDeletionUsers() {
         List<UserInfo> result = new ArrayList<>();
-        RotogateAssignmentConfig assignmentConfig = RotogateAssignmentConfig.get();
 
         for (User user : User.getAll()) {
             if (isInternalUser(user)) continue;
@@ -2947,7 +2960,6 @@ public class RotogateManagementLink extends ManagementLink {
                         job.getProperty(hudson.security.AuthorizationMatrixProperty.class);
                 if (prop == null) continue;
                 Map<String, List<String>> bySid = new LinkedHashMap<>();
-                Map<String, String> sidType = new java.util.LinkedHashMap<>();
                 for (Map.Entry<Permission, Set<PermissionEntry>> e : prop.getGrantedPermissionEntries().entrySet()) {
                     String pShort = e.getKey().getId();
                     int dot = pShort.lastIndexOf('.');
@@ -2955,7 +2967,6 @@ public class RotogateManagementLink extends ManagementLink {
                     for (PermissionEntry pe : e.getValue()) {
                         String key = pe.getType().name() + "\0" + pe.getSid();
                         bySid.computeIfAbsent(key, k -> new ArrayList<>()).add(pShort);
-                        sidType.put(key, pe.getType().name());
                     }
                 }
                 for (Map.Entry<String, List<String>> entry : bySid.entrySet()) {
@@ -3047,7 +3058,9 @@ public class RotogateManagementLink extends ManagementLink {
                 if (readPerm != null) fp.add(readPerm, entry);
                 parentJob.addProperty(fp);
                 parentJob.save();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                LOGGER.log(Level.FINE, "Best-effort parent Item.Read grant failed for " + parentJob.getFullName(), e);
+            }
             parent = ((hudson.model.AbstractItem) parentJob).getParent();
         }
 
@@ -3337,8 +3350,10 @@ public class RotogateManagementLink extends ManagementLink {
                         .collect(java.util.stream.Collectors.toList());
                 assignment.setApprovers(approvers);
             }
-            try { assignment.setMaxDurationHours(Integer.parseInt(req.getParameter("maxDurationHours"))); } catch (Exception ignore) {}
-            try { assignment.setApprovalTimeoutHours(Integer.parseInt(req.getParameter("approvalTimeoutHours"))); } catch (Exception ignore) {}
+            try { assignment.setMaxDurationHours(Integer.parseInt(req.getParameter("maxDurationHours"))); }
+            catch (Exception e) { LOGGER.log(Level.FINE, "Ignoring invalid maxDurationHours parameter", e); }
+            try { assignment.setApprovalTimeoutHours(Integer.parseInt(req.getParameter("approvalTimeoutHours"))); }
+            catch (Exception e) { LOGGER.log(Level.FINE, "Ignoring invalid approvalTimeoutHours parameter", e); }
         } else {
             assignment.setAccessType("STANDING");
         }
@@ -3437,7 +3452,7 @@ public class RotogateManagementLink extends ManagementLink {
             RotogateAssignmentConfig config = RotogateAssignmentConfig.get();
             String revokedRole = null;
             if (config != null) {
-                String normalizedScope = scope == null ? "" : scope;
+                String normalizedScope = scope;
                 revokedRole = config.getAssignmentsForUser(sid, authTypeStr).stream()
                         .filter(a -> a.getScope().equals(normalizedScope))
                         .findFirst().map(RotogateAssignment::getRoleId).orElse(null);
@@ -3645,7 +3660,7 @@ public class RotogateManagementLink extends ManagementLink {
         }
         User user = User.getById(username.trim(), false);
         if (user != null) {
-            String dn = user.getDisplayName() != null ? user.getDisplayName() : username.trim();
+            String dn = user.getDisplayName();
             w.write("{\"exists\":true,\"displayName\":\""
                     + dn.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
         } else {
@@ -3884,7 +3899,7 @@ public class RotogateManagementLink extends ManagementLink {
                 Object addr = mailerPropClass.getMethod("getAddress").invoke(prop);
                 if (addr != null) return addr.toString();
             }
-        } catch (Exception ignore) { /* no mailer plugin or no address: fall through */ }
+        } catch (ReflectiveOperationException | RuntimeException ignore) { /* no mailer plugin or no address: fall through */ }
         return "";
     }
 
@@ -3938,7 +3953,7 @@ public class RotogateManagementLink extends ManagementLink {
                     LOGGER.log(Level.WARNING, "Could not update activeGroupOids for " + user.getId(), e);
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "Error processing group removal sessions", e);
         }
 
@@ -4183,7 +4198,9 @@ public class RotogateManagementLink extends ManagementLink {
                     sep = path.lastIndexOf('/');
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.FINE, "Error walking folder ancestors to detect grant source", e);
+        }
         return "Global";
     }
 
@@ -4601,7 +4618,7 @@ public class RotogateManagementLink extends ManagementLink {
         String path = req.getParameter("path");
 
         if (sid == null) {
-            rsp.sendRedirect("userDetail?sid=" + enc(sid) + "&type=" + enc(type) + "&error=missing");
+            rsp.sendRedirect("userDetail?sid=&type=" + enc(type) + "&error=missing");
             return;
         }
         AuthorizationType atype = "GROUP".equalsIgnoreCase(type)
@@ -4793,7 +4810,9 @@ public class RotogateManagementLink extends ManagementLink {
             Item parentItem = (Item) parent;
             try {
                 applyItemPermissions(parentItem, sid, atype, readOnly);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                LOGGER.log(Level.FINE, "Best-effort parent Item.Read grant failed for " + parentItem.getFullName(), e);
+            }
             if (parentItem instanceof AbstractFolder) {
                 setNonInheriting((AbstractFolder<?>) parentItem);
             }

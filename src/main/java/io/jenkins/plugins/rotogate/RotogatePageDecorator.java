@@ -30,6 +30,9 @@ import java.util.Enumeration;
 @Extension
 public class RotogatePageDecorator {
 
+    private static final java.util.logging.Logger LOGGER =
+        java.util.logging.Logger.getLogger(RotogatePageDecorator.class.getName());
+
     // ── SVG icon constants (currentColor, used in injected scripts and action page) ────────────
     // All use double-quoted attributes - safe to embed in JS single-quoted strings.
 
@@ -109,7 +112,6 @@ public class RotogatePageDecorator {
             }
 
             HttpServletRequest httpReq = (HttpServletRequest) req;
-            String path = httpReq.getRequestURI();
 
             String script = resolveScript(httpReq);
             if (script == null) {
@@ -459,10 +461,11 @@ public class RotogatePageDecorator {
                     String remarks  = params.get("remarks");
                     if (remarks != null && remarks.length() > 1000) remarks = remarks.substring(0, 1000);
                     int durationHours = 0;
-                    try { durationHours = Integer.parseInt(params.get("durationHours")); } catch (Exception ignore) {}
+                    try { durationHours = Integer.parseInt(params.get("durationHours")); }
+                    catch (RuntimeException e) { LOGGER.log(java.util.logging.Level.FINE, "Invalid durationHours parameter", e); }
                     serveSubmitAction(token, decision, remarks, durationHours, httpRes);
                 }
-            } catch (Exception e) {
+            } catch (IOException | RuntimeException e) {
                 httpRes.setStatus(500);
                 httpRes.setContentType("text/plain");
                 httpRes.getWriter().write("Internal error");

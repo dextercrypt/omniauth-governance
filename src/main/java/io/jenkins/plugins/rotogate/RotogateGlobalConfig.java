@@ -37,7 +37,7 @@ import java.util.List;
 public class RotogateGlobalConfig extends GlobalConfiguration {
 
     /** Canonical event catalogue. Kept here as an alias so existing references keep resolving. */
-    public static final String[] ALL_EVENTS = NotificationConfig.ALL_EVENTS;
+    public static final String[] ALL_EVENTS = NotificationConfig.allEvents().toArray(new String[0]);
 
     // ── Per-area configuration holders (authoritative state) ──────────────────
     // Left null at declaration on purpose: Jenkins' XStream runs field initializers before it
