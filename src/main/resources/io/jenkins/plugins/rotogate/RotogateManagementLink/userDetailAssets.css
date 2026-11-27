@@ -46,6 +46,12 @@
           transform: translateX(102%); transition: transform 0.34s cubic-bezier(0.22,1,0.36,1);
         }
         .udx-drawer[aria-hidden="false"] .udx-drawer__panel { transform: translateX(0); }
+        /* Jenkins <f:form> wraps the panel content in an unstyled div; carry the flex
+           column onto that wrapper so the body scrolls and the footer stays pinned on
+           short viewports (otherwise the Grant/Cancel buttons fall below the fold). */
+        .udx-drawer__panel > div:not([class*="display-contents"]) {
+          display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;
+        }
         .udx-drawer__head {
           display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
           padding: 22px 26px 18px; border-bottom: 1px solid var(--udx-line); flex-shrink: 0;
@@ -59,7 +65,7 @@
           display: flex; align-items: center; justify-content: center; transition: background 0.12s, color 0.12s;
         }
         .udx-drawer__x:hover { background: var(--udx-accent-soft); color: var(--udx-accent); }
-        .udx-drawer__body { flex: 1; overflow-y: auto; padding: 8px 26px 24px; }
+        .udx-drawer__body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 26px 24px; }
         .udx-drawer__foot {
           flex-shrink: 0; border-top: 1px solid var(--udx-line);
           padding: 14px 26px 16px; background: var(--udx-card);
